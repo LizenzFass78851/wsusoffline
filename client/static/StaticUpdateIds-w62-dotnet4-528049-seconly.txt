@@ -1,0 +1,4 @@
+kb4495623,May 2019 Security only update for the .NET Framework 4.8 for Windows Server 2012
+kb4506954,July 2019 Security only update for the .NET Framework 4.8 for Windows Server 2012
+kb4514330,September 2019 Security only update for the .NET Framework 4.8 for Windows Server 2012
+kb4532950,January 2020 Security only update for the .NET Framework 4.8 for Windows Server 2012

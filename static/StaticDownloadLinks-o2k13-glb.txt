@@ -1,0 +1,11 @@
+http://download.microsoft.com/download/F/2/5/F2552D54-7B97-44CD-A0E7-6E4E20A2FED7/proofloc2013-kb2880463-fullfile-x86-glb.exe
+http://download.microsoft.com/download/D/D/E/DDE271AF-6A34-45AF-B439-6D573F04EE2E/conv2013-kb3213564-fullfile-x86-glb.exe
+http://download.microsoft.com/download/E/2/8/E286C608-76FF-40C4-B509-23F94E4BA655/lyncmso2013-kb3039779-fullfile-x86-glb.exe
+http://download.microsoft.com/download/E/A/7/EA7AD42D-D34E-4D54-8F1A-F9B598E2B398/lynchelploc2013-kb3191937-fullfile-x86-glb.exe
+http://download.microsoft.com/download/5/2/5/5255C0E1-D805-4E35-A9F7-D3960BADE00C/mso2013-kb4464558-fullfile-x86-glb.exe
+http://download.microsoft.com/download/F/9/C/F9CFDE7F-FFFA-4655-ACB5-5C018D92BF89/lync2013-kb4475519-fullfile-x86-glb.exe
+http://download.microsoft.com/download/A/5/8/A588276E-D83D-4B67-A60A-3CEA9F67B191/eqnedt322013-kb4011580-fullfile-x86-glb.exe
+http://download.microsoft.com/download/9/6/C/96CBB369-AA32-4DC6-A837-8F323CC4277E/excel2013-kb4464565-fullfile-x86-glb.exe
+http://download.microsoft.com/download/B/B/6/BB6FFB13-DDBD-49AB-B34D-6BAAA2741A59/graph2013-kb4464543-fullfile-x86-glb.exe
+http://download.microsoft.com/download/8/7/F/87FF71AB-381A-48D9-B75E-893588436D36/osfclient2013-kb4018375-fullfile-x86-glb.exe
+http://download.microsoft.com/download/4/F/C/4FCC0C15-8431-49F3-99FC-1A4C4B95972E/outlook2013-kb4464592-fullfile-x86-glb.exe
