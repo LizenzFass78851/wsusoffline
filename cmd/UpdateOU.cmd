@@ -51,11 +51,7 @@ for /F %%i in (..\static\StaticDownloadLink-recent.txt) do (
   %WGET_PATH% -N -P .. --no-check-certificate %%i
   if errorlevel 1 goto DownloadError
   echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
-  for /F "tokens=1-3 delims=/" %%j in ("%%i") do (
-    %WGET_PATH% -N -P .. --no-check-certificate %%j//%%k/%%~nl_hashes.txt
-    if errorlevel 1 goto DownloadError
-    echo %DATE% %TIME% - Info: Downloaded hash file of most recent WSUS Offline Update - Community Edition - version>>%DOWNLOAD_LOGFILE%
-  )
+  if not exist "..\%%~ni_hashes.txt" goto IntegrityError
   pushd ..
   echo Verifying integrity of %%~nxi...
   .\client\bin\%HASHDEEP_EXE% -a -l -vv -k %%~ni_hashes.txt %%~nxi
