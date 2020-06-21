@@ -278,6 +278,9 @@ if exist ActivateVistaFiveLanguageServicePacks.cmd del ActivateVistaFiveLanguage
 if exist DetermineAutoDaylightTimeSet.vbs del DetermineAutoDaylightTimeSet.vbs
 if exist ExtractUniqueFromSorted.vbs del ExtractUniqueFromSorted.vbs
 if exist CheckTRCerts.cmd del CheckTRCerts.cmd
+if exist ActivateAllLanguageServicePacks.cmd del ActivateAllLanguageServicePacks.cmd
+if exist ActivateFiveLanguageServicePacks.cmd del ActivateFiveLanguageServicePacks.cmd
+if exist RemoveEnglishLanguageSupport.cmd del RemoveEnglishLanguageSupport.cmd
 if exist ..\doc\faq.txt del ..\doc\faq.txt
 if exist ..\exclude\ExcludeList-SPs.txt del ..\exclude\ExcludeList-SPs.txt
 if exist ..\client\cmd\Reboot.vbs del ..\client\cmd\Reboot.vbs
@@ -374,6 +377,12 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 )
 if exist ..\xslt\ExtractDownloadLinks-w60-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w60-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-w60-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w60-x86-glb.xsl
+if exist ..\client\static\StaticDownloadLinks-w60-x64-glb.txt del ..\client\static\StaticDownloadLinks-w60-x64-glb.txt
+if exist ..\client\static\StaticDownloadLinks-w60-x86-glb.txt del ..\client\static\StaticDownloadLinks-w60-x86-glb.txt
+if exist ..\client\static\StaticDownloadLinks-w60-x64-5lg.txt del ..\client\static\StaticDownloadLinks-w60-x64-5lg.txt
+if exist ..\client\static\StaticDownloadLinks-w60-x86-5lg.txt del ..\client\static\StaticDownloadLinks-w60-x86-5lg.txt
+if exist ..\client\static\StaticDownloadLinks-w60-x64-alg.txt del ..\client\static\StaticDownloadLinks-w60-x64-alg.txt
+if exist ..\client\static\StaticDownloadLinks-w60-x86-alg.txt del ..\client\static\StaticDownloadLinks-w60-x86-alg.txt
 
 rem *** Windows 7 / Server 2008 R2 stuff ***
 if exist ..\client\static\StaticUpdateIds-ie10-w61.txt del ..\client\static\StaticUpdateIds-ie10-w61.txt
@@ -400,6 +409,12 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 )
 if exist ..\xslt\ExtractDownloadLinks-w61-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w61-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-w61-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w61-x86-glb.xsl
+if exist ..\client\static\StaticDownloadLinks-w61-x64-glb.txt del ..\client\static\StaticDownloadLinks-w61-x64-glb.txt
+if exist ..\client\static\StaticDownloadLinks-w61-x86-glb.txt del ..\client\static\StaticDownloadLinks-w61-x86-glb.txt
+if exist ..\client\static\StaticDownloadLinks-w61-x64-5lg.txt del ..\client\static\StaticDownloadLinks-w61-x64-5lg.txt
+if exist ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt del ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt
+if exist ..\client\static\StaticDownloadLinks-w61-x64-alg.txt del ..\client\static\StaticDownloadLinks-w61-x64-alg.txt
+if exist ..\client\static\StaticDownloadLinks-w61-x86-alg.txt del ..\client\static\StaticDownloadLinks-w61-x86-alg.txt
 
 rem *** Windows 10 Version 1703 stuff ***
 if exist ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt del ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt

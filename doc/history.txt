@@ -1713,4 +1713,5 @@ Community Edition 12.1 -- ??.??.2020
 - September 2018 to June 2020 updates added to 'security only' lists for Windows Server 2008 (x86/x64) systems
 - February to June 2020 updates added to 'security only' lists for Windows 7 and Server 2008 R2 (x86/x64) systems
 - April to June 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
-
+- Removed obsolete static files for w60 and w61 (Thanks to "hbuhrmester")
+- Removed obsolete download links for .NET 3.5 and 4.6 (Thanks to "hbuhrmester")

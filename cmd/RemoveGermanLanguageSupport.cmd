@@ -10,7 +10,7 @@ cd /D "%~dp0"
 rem *** Remove support for deu from static URL files ***
 pushd ..\static
 if /i "%1" NEQ "/quiet" echo Removing support for deu from static URL files...
-for %%i in (dotnet w60 w61 w62) do (
+for %%i in (dotnet w62) do (
   for %%j in (x86 x64) do (
     if exist StaticDownloadLinks-%%i-%%j-glb.txt (
       if /i "%1" NEQ "/quiet" echo Processing file ..\static\StaticDownloadLinks-%%i-%%j-glb.txt
