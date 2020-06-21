@@ -43,33 +43,46 @@ rem *** Update WSUS Offline Update - Community Edition ***
 title Updating WSUS Offline Update - Community Edition...
 call CheckOUVersion.cmd
 if not errorlevel 1 goto NoNewVersion
+if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update...
 %WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
 if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
-for /F %%i in (..\static\StaticDownloadLink-recent.txt) do (
-  %WGET_PATH% -N -P .. --no-check-certificate %%i
-  if errorlevel 1 goto DownloadError
-  echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
-  if not exist "..\%%~ni_hashes.txt" goto IntegrityError
-  pushd ..
-  echo Verifying integrity of %%~nxi...
-  .\client\bin\%HASHDEEP_EXE% -a -l -vv -k %%~ni_hashes.txt %%~nxi
-  if errorlevel 1 (
-    popd
-    goto IntegrityError
+%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
+echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
+set FILENAME_ZIP=empty
+set FILENAME_HASH=empty
+for /F "tokens=2,3 delims=," %%a in (..\static\SelfUpdateVersion-recent.txt) do (
+  if not "%%a"=="" (
+    if not "%%b"=="" (
+      set FILENAME_ZIP=%%a
+      set FILENAME_HASH=%%b
+    )
   )
-  popd
-  echo %DATE% %TIME% - Info: Verified integrity of %%~nxi>>%DOWNLOAD_LOGFILE%
-  echo Unpacking %%~nxi...
-  if exist ..\wsusoffline\nul rd /S /Q ..\wsusoffline
-  ..\bin\unzip.exe -uq ..\%%~nxi -d ..
-  echo %DATE% %TIME% - Info: Unpacked %%~nxi>>%DOWNLOAD_LOGFILE%
-  del ..\%%~nxi
-  echo %DATE% %TIME% - Info: Deleted %%~nxi>>%DOWNLOAD_LOGFILE%
-  del ..\%%~ni_hashes.txt
-  echo %DATE% %TIME% - Info: Deleted %%~ni_hashes.txt>>%DOWNLOAD_LOGFILE%
 )
+if "%FILENAME_ZIP%"=="empty" goto DownloadError
+if "%FILENAME_HASH%"=="empty" goto DownloadError
+%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
+pushd ..
+echo Verifying integrity of %FILENAME_ZIP%...
+.\client\bin\%HASHDEEP_EXE% -a -l -vv -k %FILENAME_HASH% %FILENAME_ZIP%
+if errorlevel 1 (
+  popd
+  goto IntegrityError
+)
+popd
+echo %DATE% %TIME% - Info: Verified integrity of %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+echo Unpacking %FILENAME_ZIP%...
+if exist ..\wsusoffline\nul rd /S /Q ..\wsusoffline
+..\bin\unzip.exe -uq ..\%FILENAME_ZIP% -d ..
+echo %DATE% %TIME% - Info: Unpacked %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+del ..\%FILENAME_ZIP%
+echo %DATE% %TIME% - Info: Deleted %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+del ..\%FILENAME_HASH%
+echo %DATE% %TIME% - Info: Deleted %FILENAME_HASH%>>%DOWNLOAD_LOGFILE%
 echo Preserving custom language and architecture additions and removals...
 set REMOVE_CMD=
 %SystemRoot%\System32\find.exe /I "us." ..\static\StaticDownloadLinks-w61-x86-glb.txt >nul 2>&1
@@ -98,7 +111,7 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
   )
 )
 echo %DATE% %TIME% - Info: Preserved custom language and architecture additions and removals>>%DOWNLOAD_LOGFILE%
-echo Updating WSUS Offline Update...
+echo Updating WSUS Offline Update - Community Edition...
 %SystemRoot%\System32\xcopy.exe ..\wsusoffline .. /S /Q /Y
 rd /S /Q ..\wsusoffline
 echo %DATE% %TIME% - Info: Updated WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
