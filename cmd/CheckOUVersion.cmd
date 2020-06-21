@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Commnuity Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -24,17 +25,17 @@ shift /1
 goto EvalParams
 
 :NoMoreParams
-rem *** Check WSUS Offline Update version ***
-title Checking WSUS Offline Update version...
-echo Checking WSUS Offline Update version...
+rem *** Check WSUS Offline Update - Community Edition - version ***
+title Checking WSUS Offline Update - Community Edition - version...
+echo Checking WSUS Offline Update - Community Edition - version...
 if exist UpdateOU.new (
   if exist UpdateOU.cmd del UpdateOU.cmd
   ren UpdateOU.new UpdateOU.cmd
 )
-%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
+%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/SelfUpdateVersion-recent.txt
 if errorlevel 1 goto DownloadError
-if exist ..\static\StaticDownloadLink-recent.txt (
-  echo n | %SystemRoot%\System32\comp.exe ..\static\StaticDownloadLink-this.txt ..\static\StaticDownloadLink-recent.txt /A /L /N=1 /C >nul 2>&1
+if exist ..\static\SelfUpdateVersion-recent.txt (
+  echo n | %SystemRoot%\System32\comp.exe ..\static\SelfUpdateVersion-this.txt ..\static\SelfUpdateVersion-recent.txt /A /L /N=1 /C >nul 2>&1
   if errorlevel 1 goto CompError
 )
 goto EoF
@@ -53,13 +54,13 @@ goto EoF
 
 :DownloadError
 echo.
-echo ERROR: Download failure for https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt.
+echo ERROR: Download failure for https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/SelfUpdateVersion-recent.txt.
 echo.
 goto EoF
 
 :CompError
 echo.
-echo Warning: File ..\static\StaticDownloadLink-this.txt differs from file ..\static\StaticDownloadLink-recent.txt.
+echo Warning: File ..\static\SelfUpdateVersion-this.txt differs from file ..\static\SelfUpdateVersion-recent.txt.
 echo.
 goto Error
 

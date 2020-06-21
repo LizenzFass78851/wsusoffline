@@ -1,6 +1,7 @@
 ................................................................................
-WSUS Offline Update 11.9.1
+WSUS Offline Update - Community Edition - 11.9.1
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
+Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
 
 Publications Version 3.0
@@ -1700,4 +1701,8 @@ Version 11.9.1 -- 12.03.20
 - Fix: Invalid --no-check-certificate option for Aria2 download utility (Thanks to "negg", "Dalai", "hbuhrmester" and "Gerby")
 - Fix: Wget utility didn't any longer download root certificates properly due to user agent aware responses from microsoft.com (Thanks to "aker")
 - Fix: Adjusted installation sequence to have root certificate packages installed before all all others (Thanks to "aker")
+--------------------------------------------------------------------------------
+Community Edition 11.9.1 -- 21.06.2020
+- INSTALLATION HINT: In spite of the different name, you still may unpack the Community Edition into an existing structure, overwriting existing files
+- Moved the whole project to GitLab
 --------------------------------------------------------------------------------

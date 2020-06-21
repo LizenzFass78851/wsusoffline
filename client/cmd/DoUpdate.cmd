@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Commnuity Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -11,7 +12,7 @@ cd /D "%~dp0"
 
 set WSUSOFFLINE_VERSION=11.9.1
 title %~n0 %*
-echo Starting WSUS Offline Update v. %WSUSOFFLINE_VERSION% at %TIME%...
+echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 goto Start
 
@@ -37,7 +38,7 @@ if exist .\custom\InitializationHook.cmd (
   call :Log "Info: Executed custom initialization hook (Errorlevel: %ERR_LEVEL%)"
   set ERR_LEVEL=
 )
-call :Log "Info: Starting WSUS Offline Update v. %WSUSOFFLINE_VERSION%"
+call :Log "Info: Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION%"
 call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
@@ -1822,8 +1823,8 @@ goto EoF
 
 :EoF
 cd ..
-echo Ending WSUS Offline Update at %TIME%...
-call :Log "Info: Ending WSUS Offline Update"
+echo Ending WSUS Offline Update - Community Edition - at %TIME%...
+call :Log "Info: Ending WSUS Offline Update - Community Edition"
 title %ComSpec%
 if "%RECALL_REQUIRED%"=="1" (
   verify other 2>nul

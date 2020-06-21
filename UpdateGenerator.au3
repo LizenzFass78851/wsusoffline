@@ -11,10 +11,10 @@
 #pragma compile(InternalName, "Generator")
 #pragma compile(LegalCopyright, "GNU GPLv3")
 #pragma compile(OriginalFilename, UpdateGenerator.exe)
-#pragma compile(ProductName, "WSUS Offline Update")
+#pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.1)
 
-Dim Const $caption                  = "WSUS Offline Update 11.9.1 (Community Edition)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.1"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
