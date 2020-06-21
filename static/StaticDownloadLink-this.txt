@@ -1,1 +1,1 @@
-https://download.wsusoffline.net/wsusoffline120.zip
+https://gitlab.com/wsusoffline/wsusoffline/uploads/7dd5f32075a90c2febc6a0140b84da8c/wsusoffline120.zip

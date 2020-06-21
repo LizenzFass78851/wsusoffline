@@ -1,1 +1,1 @@
-https://download.wsusoffline.net/mkisofs.exe
+https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/mkisofs.exe

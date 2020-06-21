@@ -1,11 +1,12 @@
 ; ***  WSUS Offline Update 12.0 - Installer  ***
 ; ***       Author: T. Wittrock, Kiel        ***
+; ***         - Community Edition -          ***
 ; ***   Dialog scaling added by Th. Baisch   ***
 
 #include <GUIConstants.au3>
 #include <WinAPIError.au3>
 #RequireAdmin
-#pragma compile(CompanyName, "T. Wittrock")
+#pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Installer")
 #pragma compile(FileVersion, 12.0.0.1126)
 #pragma compile(InternalName, "Installer")
@@ -14,9 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update")
 #pragma compile(ProductVersion, 12.0.0)
 
-Dim Const $caption                    = "WSUS Offline Update 12.0 - Installer"
-Dim Const $wou_hostname               = "www.wsusoffline.net"
-Dim Const $donationURL                = "http://www.wsusoffline.net/donate.html"
+Dim Const $caption                    = "WSUS Offline Update 12.0 (Community Edition) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -71,7 +70,6 @@ Dim Const $ini_value_showdismprogress = "showdismprogress"
 
 Dim Const $ini_section_misc           = "Miscellaneous"
 Dim Const $ini_value_monitoron        = "monitoron"
-Dim Const $ini_value_showdonate       = "showdonate"
 Dim Const $ini_value_wustatusserver   = "WUStatusServer"
 
 Dim Const $ini_section_msi            = "MSI"
@@ -93,7 +91,7 @@ Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
 
-Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_donate, $btn_exit, $options, $builddate
+Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
 Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
 
 Func ShowGUIInGerman()
@@ -610,17 +608,6 @@ $txtypos = $dlgheight - $btnheight - $txtyoffset
 $btn_start = GUICtrlCreateButton("Start", $txtxoffset, $txtypos, $btnwidth, $btnheight)
 GUICtrlSetResizing (-1, $GUI_DOCKLEFT + $GUI_DOCKBOTTOM)
 
-;  Donate button
-If $gergui Then
-  $btn_donate = GUICtrlCreateButton("Spenden...", ($groupwidth - $btnwidth) / 2 + 2 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
-Else
-  $btn_donate = GUICtrlCreateButton("Donate...", ($groupwidth - $btnwidth) / 2 + 2 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
-EndIf
-GUICtrlSetResizing(-1, $GUI_DOCKBOTTOM)
-If (MyIniRead($ini_section_misc, $ini_value_showdonate, $enabled) = $disabled) OR (Ping($wou_hostname) = 0) Then
-  GUICtrlSetState(-1, $GUI_HIDE)
-EndIf
-
 ;  Exit button
 If $gergui Then
   $btn_exit = GUICtrlCreateButton("Ende", $groupwidth - $btnwidth + 3 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
@@ -719,9 +706,6 @@ While 1
         DriveMapDel($scriptdir)
       EndIf
       ExitLoop
-
-    Case $btn_donate         ; Donate button pressed
-      Run(@ComSpec & " /D /C start " & $donationURL)
 
     Case $dotnet4              ; .NET 4 check box toggled
       If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") OR (DotNet4MainVersion() = "4.7") OR (DotNet4MainVersion() = "4.8") ) _

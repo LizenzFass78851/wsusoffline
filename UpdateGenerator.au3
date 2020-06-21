@@ -1,10 +1,11 @@
 ; ***  WSUS Offline Update 12.0 - Generator  ***
 ; ***       Author: T. Wittrock, Kiel        ***
+; ***         - Community Edition -          ***
 ; ***     USB-Option added by Ch. Riedel     ***
 ; ***   Dialog scaling added by Th. Baisch   ***
 
 #include <GUIConstants.au3>
-#pragma compile(CompanyName, "T. Wittrock")
+#pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Generator")
 #pragma compile(FileVersion, 12.0.0.1126)
 #pragma compile(InternalName, "Generator")
@@ -13,10 +14,9 @@
 #pragma compile(ProductName, "WSUS Offline Update")
 #pragma compile(ProductVersion, 12.0.0)
 
-Dim Const $caption                  = "WSUS Offline Update 12.0"
+Dim Const $caption                  = "WSUS Offline Update 12.0 (Community Edition)"
 Dim Const $title                    = $caption & " - Generator"
-Dim Const $donationURL              = "https://www.wsusoffline.net/donate.html"
-Dim Const $downloadURL              = "https://download.wsusoffline.net/"
+Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
 Dim Const $runAllFile               = "RunAll.cmd"
 Dim Const $win10_vmax               = 7
@@ -110,7 +110,6 @@ Dim Const $misc_token_skipdynamic   = "skipdynamic"
 Dim Const $misc_token_chkver        = "checkouversion"
 Dim Const $misc_token_minimize      = "minimizeondownload"
 Dim Const $misc_token_showshutdown  = "showshutdown"
-Dim Const $misc_token_showdonate    = "showdonate"
 Dim Const $misc_token_clt_wustat    = "WUStatusServer"
 
 ; Paths
@@ -123,7 +122,7 @@ Dim Const $path_rel_clientini       = "\client\UpdateInstaller.ini"
 Dim Const $path_rel_win_glb         = "\client\win\glb"
 
 Dim $maindlg, $inifilename, $tabitemfocused, $dotnet, $seconly, $wddefs, $verifydownloads, $cdiso, $dvdiso, $buildlbl
-Dim $usbcopy, $usbpath, $usbfsf, $usbclean, $imageonly, $scripting, $shutdown, $btn_start, $btn_proxy, $btn_wsus, $btn_donate, $btn_exit, $proxy, $proxypwd, $wsus, $gergui, $dummy, $i
+Dim $usbcopy, $usbpath, $usbfsf, $usbclean, $imageonly, $scripting, $shutdown, $btn_start, $btn_proxy, $btn_wsus, $btn_exit, $proxy, $proxypwd, $wsus, $gergui, $dummy, $i
 Dim $o2k10_enu, $o2k13_enu   ; English
 Dim $o2k10_fra, $o2k13_fra   ; French
 Dim $o2k10_esn, $o2k13_esn   ; Spanish
@@ -518,7 +517,6 @@ Func DisableGUI()
   GUICtrlSetState($shutdown, $GUI_DISABLE)
   GUICtrlSetState($btn_proxy, $GUI_DISABLE)
   GUICtrlSetState($btn_wsus, $GUI_DISABLE)
-  GUICtrlSetState($btn_donate, $GUI_DISABLE)
   GUICtrlSetState($btn_exit, $GUI_DISABLE)
 
   Return 0
@@ -555,7 +553,6 @@ Func EnableGUI()
    AND (IniRead($inifilename, $ini_section_misc, $misc_token_skipdynamic, $disabled) = $disabled) ) Then
     GUICtrlSetState($btn_wsus, $GUI_ENABLE)
   EndIf
-  GUICtrlSetState($btn_donate, $GUI_ENABLE)
   GUICtrlSetState($btn_exit, $GUI_ENABLE)
   Return 0
 EndFunc
@@ -1886,18 +1883,6 @@ If ( (IniRead($inifilename, $ini_section_misc, $misc_token_skipdownload, $disabl
 EndIf
 $wsus = IniRead($inifilename, $ini_section_misc, $misc_token_wsus, "")
 
-;  Donate button
-$txtxpos = 2.5 * $txtxoffset + 3 * $groupwidth / 4 - $btnwidth / 2
-If $gergui Then
-  $btn_donate = GUICtrlCreateButton("Spenden...", $txtxpos, $txtypos, $btnwidth, $btnheight)
-Else
-  $btn_donate = GUICtrlCreateButton("Donate...", $txtxpos, $txtypos, $btnwidth, $btnheight)
-EndIf
-GUICtrlSetResizing(-1, $GUI_DOCKBOTTOM)
-If IniRead($inifilename, $ini_section_misc, $misc_token_showdonate, $enabled) = $disabled Then
-  GUICtrlSetState(-1, $GUI_HIDE)
-EndIf
-
 ;  Exit button
 $txtxpos = 3 * $txtxoffset + $groupwidth - $btnwidth
 If $gergui Then
@@ -2100,9 +2085,6 @@ While 1
       If @error = 0 Then
         $wsus = $dummy
       EndIf
-
-    Case $btn_donate        ; Donate button pressed
-      Run(@ComSpec & " /D /C start " & $donationURL)
 
     Case $btn_start         ; Start button pressed
       SaveWin10Settings()

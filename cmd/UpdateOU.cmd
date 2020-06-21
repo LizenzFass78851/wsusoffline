@@ -122,7 +122,6 @@ echo %DATE% %TIME% - Info: Ending WSUS Offline Update self update>>%DOWNLOAD_LOG
 if "%RESTART_GENERATOR%"=="1" (
   cd ..
   start UpdateGenerator.exe
-  start http://www.wsusoffline.net/donate.html
   exit
 )
 goto EoF
