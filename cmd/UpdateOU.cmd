@@ -15,7 +15,7 @@ if exist %DOWNLOAD_LOGFILE% (
   echo -------------------------------------------------------------------------------->>%DOWNLOAD_LOGFILE%
   echo.>>%DOWNLOAD_LOGFILE%
 )
-echo %DATE% %TIME% - Info: Starting WSUS Offline Update self update>>%DOWNLOAD_LOGFILE%
+echo %DATE% %TIME% - Info: Starting WSUS Offline Update - Community Edition - self update>>%DOWNLOAD_LOGFILE%
 
 if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (
   if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (set WGET_PATH=..\bin\wget.exe)
@@ -39,38 +39,50 @@ shift /1
 goto EvalParams
 
 :NoMoreParams
-rem *** Update WSUS Offline Update ***
-title Updating WSUS Offline Update...
+rem *** Update WSUS Offline Update - Community Edition ***
+title Updating WSUS Offline Update - Community Edition...
 call CheckOUVersion.cmd
 if not errorlevel 1 goto NoNewVersion
+if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update...
-for /F %%i in (..\static\StaticDownloadLink-recent.txt) do (
-  %WGET_PATH% -N -P .. --no-check-certificate %%i
-  if errorlevel 1 goto DownloadError
-  echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update>>%DOWNLOAD_LOGFILE%
-  for /F "tokens=1-3 delims=/" %%j in ("%%i") do (
-    %WGET_PATH% -N -P .. --no-check-certificate %%j//%%k/%%~nl_hashes.txt
-    if errorlevel 1 goto DownloadError
-    echo %DATE% %TIME% - Info: Downloaded hash file of most recent WSUS Offline Update version>>%DOWNLOAD_LOGFILE%
+%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
+%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
+echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
+set FILENAME_ZIP=empty
+set FILENAME_HASH=empty
+for /F "tokens=2,3 delims=," %%a in (..\static\SelfUpdateVersion-recent.txt) do (
+  if not "%%a"=="" (
+    if not "%%b"=="" (
+      set FILENAME_ZIP=%%a
+      set FILENAME_HASH=%%b
+    )
   )
-  pushd ..
-  echo Verifying integrity of %%~nxi...
-  .\client\bin\%HASHDEEP_EXE% -a -l -vv -k %%~ni_hashes.txt %%~nxi
-  if errorlevel 1 (
-    popd
-    goto IntegrityError
-  )
-  popd
-  echo %DATE% %TIME% - Info: Verified integrity of %%~nxi>>%DOWNLOAD_LOGFILE%
-  echo Unpacking %%~nxi...
-  if exist ..\wsusoffline\nul rd /S /Q ..\wsusoffline
-  ..\bin\unzip.exe -uq ..\%%~nxi -d ..
-  echo %DATE% %TIME% - Info: Unpacked %%~nxi>>%DOWNLOAD_LOGFILE%
-  del ..\%%~nxi
-  echo %DATE% %TIME% - Info: Deleted %%~nxi>>%DOWNLOAD_LOGFILE%
-  del ..\%%~ni_hashes.txt
-  echo %DATE% %TIME% - Info: Deleted %%~ni_hashes.txt>>%DOWNLOAD_LOGFILE%
 )
+if "%FILENAME_ZIP%"=="empty" goto DownloadError
+if "%FILENAME_HASH%"=="empty" goto DownloadError
+%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
+pushd ..
+echo Verifying integrity of %FILENAME_ZIP%...
+.\client\bin\%HASHDEEP_EXE% -a -l -vv -k %FILENAME_HASH% %FILENAME_ZIP%
+if errorlevel 1 (
+  popd
+  goto IntegrityError
+)
+popd
+echo %DATE% %TIME% - Info: Verified integrity of %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+echo Unpacking %FILENAME_ZIP%...
+if exist ..\wsusoffline\nul rd /S /Q ..\wsusoffline
+..\bin\unzip.exe -uq ..\%FILENAME_ZIP% -d ..
+echo %DATE% %TIME% - Info: Unpacked %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+del ..\%FILENAME_ZIP%
+echo %DATE% %TIME% - Info: Deleted %FILENAME_ZIP%>>%DOWNLOAD_LOGFILE%
+del ..\%FILENAME_HASH%
+echo %DATE% %TIME% - Info: Deleted %FILENAME_HASH%>>%DOWNLOAD_LOGFILE%
 echo Preserving custom language and architecture additions and removals...
 set REMOVE_CMD=
 %SystemRoot%\System32\find.exe /I "us." ..\static\StaticDownloadLinks-w61-x86-glb.txt >nul 2>&1
@@ -99,10 +111,10 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
   )
 )
 echo %DATE% %TIME% - Info: Preserved custom language and architecture additions and removals>>%DOWNLOAD_LOGFILE%
-echo Updating WSUS Offline Update...
+echo Updating WSUS Offline Update - Community Edition...
 %SystemRoot%\System32\xcopy.exe ..\wsusoffline .. /S /Q /Y
 rd /S /Q ..\wsusoffline
-echo %DATE% %TIME% - Info: Updated WSUS Offline Update>>%DOWNLOAD_LOGFILE%
+echo %DATE% %TIME% - Info: Updated WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
 echo Restoring custom language and architecture additions and removals...
 if "%REMOVE_CMD%" NEQ "" (
   for %%i in (%REMOVE_CMD%) do call %%i /quiet
@@ -118,7 +130,7 @@ if exist ..\exclude\ExcludeList-superseded.txt (
   del ..\exclude\ExcludeList-superseded.txt
   echo %DATE% %TIME% - Info: Deleted deprecated list of superseded updates>>%DOWNLOAD_LOGFILE%
 )
-echo %DATE% %TIME% - Info: Ending WSUS Offline Update self update>>%DOWNLOAD_LOGFILE%
+echo %DATE% %TIME% - Info: Ending WSUS Offline Update - Community Edition - self update>>%DOWNLOAD_LOGFILE%
 if "%RESTART_GENERATOR%"=="1" (
   cd ..
   start UpdateGenerator.exe
@@ -155,22 +167,22 @@ goto EoF
 
 :NoNewVersion
 echo.
-echo Info: No new version of WSUS Offline Update found.
-echo %DATE% %TIME% - Info: No new version of WSUS Offline Update found>>%DOWNLOAD_LOGFILE%
+echo Info: No new version of WSUS Offline Update - Community Edition - found.
+echo %DATE% %TIME% - Info: No new version of WSUS Offline Update - Community Edition - found>>%DOWNLOAD_LOGFILE%
 echo.
 goto EoF
 
 :DownloadError
 echo.
-echo ERROR: Download of most recent released version of WSUS Offline Update failed.
-echo %DATE% %TIME% - Error: Download of most recent released version of WSUS Offline Update failed>>%DOWNLOAD_LOGFILE%
+echo ERROR: Download of most recent released version of WSUS Offline Update - Community Edition - failed.
+echo %DATE% %TIME% - Error: Download of most recent released version of WSUS Offline Update - Community Edition - failed>>%DOWNLOAD_LOGFILE%
 echo.
 goto EoF
 
 :IntegrityError
 echo.
-echo ERROR: File integrity verification of most recent released version of WSUS Offline Update failed.
-echo %DATE% %TIME% - Error: File integrity verification of most recent released version of WSUS Offline Update failed>>%DOWNLOAD_LOGFILE%
+echo ERROR: File integrity verification of most recent released version of WSUS Offline Update - Community Edition - failed.
+echo %DATE% %TIME% - Error: File integrity verification of most recent released version of WSUS Offline Update - Community Edition - failed>>%DOWNLOAD_LOGFILE%
 echo.
 goto EoF
 

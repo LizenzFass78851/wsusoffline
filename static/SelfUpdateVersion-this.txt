@@ -1,0 +1,1 @@
+12.0,wsusofflineCE120.zip,wsusofflineCE120_hashes.txt

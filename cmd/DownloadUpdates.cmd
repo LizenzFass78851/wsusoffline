@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 rem
 rem Patched by Hartmut Buhrmester 2020-01-18
 rem - new method for the determination of dynamic Office updates
@@ -16,7 +17,7 @@ cd /D "%~dp0"
 
 set WSUSOFFLINE_VERSION=12.0
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
-echo Starting WSUS Offline Update download v. %WSUSOFFLINE_VERSION% for %1 %2...
+echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
 goto Start
 
@@ -42,7 +43,7 @@ if exist .\custom\InitializationHook.cmd (
   call :Log "Info: Executed custom initialization hook (Errorlevel: %ERR_LEVEL%)"
   set ERR_LEVEL=
 )
-call :Log "Info: Starting WSUS Offline Update download v. %WSUSOFFLINE_VERSION% for %1 %2"
+call :Log "Info: Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2"
 for %%i in (w62-x64 w63 w63-x64 w100 w100-x64 ofc o2k16) do (
   if /i "%1"=="%%i" (
     if /i "%2"=="glb" goto EvalParams
@@ -535,6 +536,9 @@ del /Q ..\static\custom\StaticDownloadLinks-wle-*.txt >nul 2>&1
 if exist ..\exclude\ExcludeList-wle.txt del ..\exclude\ExcludeList-wle.txt
 if exist ..\client\wle\nul rd /S /Q ..\client\wle
 if exist ..\client\md\hashes-wle.txt del ..\client\md\hashes-wle.txt
+
+rem *** old self update stuff ***
+if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-this.txt
 
 rem *** Update static download definitions ***
 if "%SKIP_SDD%"=="1" goto SkipSDD
@@ -1749,7 +1753,7 @@ echo Creating autorun.inf file...
 echo [autorun]>..\client\autorun.inf
 echo open=UpdateInstaller.exe>>..\client\autorun.inf
 echo icon=UpdateInstaller.exe,0 >>..\client\autorun.inf
-echo action=Run WSUS Offline Update v. %WSUSOFFLINE_VERSION% (%DATE:~-11%)>>..\client\autorun.inf
+echo action=Run WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% (%DATE:~-11%)>>..\client\autorun.inf
 goto EoF
 
 :NoExtensions
@@ -1878,6 +1882,6 @@ if exist .\custom\FinalizationHook.cmd (
   call :Log "Info: Executed custom finalization hook (Errorlevel: %errorlevel%)"
 )
 echo Done.
-call :Log "Info: Ending WSUS Offline Update download for %1 %2"
+call :Log "Info: Ending WSUS Offline Update - Community Edition - download for %1 %2"
 title %ComSpec%
 endlocal
