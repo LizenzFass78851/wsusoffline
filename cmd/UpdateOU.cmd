@@ -44,7 +44,7 @@ title Updating WSUS Offline Update...
 call CheckOUVersion.cmd
 if not errorlevel 1 goto NoNewVersion
 echo Downloading most recent released version of WSUS Offline Update...
-for /F %%i in (..\static\StaticDownloadLink-recent-esr.txt) do (
+for /F %%i in (..\static\StaticDownloadLink-recent.txt) do (
   %WGET_PATH% -N -P .. --no-check-certificate %%i
   if errorlevel 1 goto DownloadError
   echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update>>%DOWNLOAD_LOGFILE%
@@ -122,7 +122,6 @@ echo %DATE% %TIME% - Info: Ending WSUS Offline Update self update>>%DOWNLOAD_LOG
 if "%RESTART_GENERATOR%"=="1" (
   cd ..
   start UpdateGenerator.exe
-  start http://www.wsusoffline.net/donate.html
   exit
 )
 goto EoF

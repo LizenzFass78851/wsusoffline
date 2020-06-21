@@ -31,10 +31,10 @@ if exist UpdateOU.new (
   if exist UpdateOU.cmd del UpdateOU.cmd
   ren UpdateOU.new UpdateOU.cmd
 )
-%WGET_PATH% -N -P ..\static --no-check-certificate https://download.wsusoffline.net/StaticDownloadLink-recent-esr.txt
+%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
-if exist ..\static\StaticDownloadLink-recent-esr.txt (
-  echo n | %SystemRoot%\System32\comp.exe ..\static\StaticDownloadLink-this.txt ..\static\StaticDownloadLink-recent-esr.txt /A /L /N=1 /C >nul 2>&1
+if exist ..\static\StaticDownloadLink-recent.txt (
+  echo n | %SystemRoot%\System32\comp.exe ..\static\StaticDownloadLink-this.txt ..\static\StaticDownloadLink-recent.txt /A /L /N=1 /C >nul 2>&1
   if errorlevel 1 goto CompError
 )
 goto EoF
@@ -53,13 +53,13 @@ goto EoF
 
 :DownloadError
 echo.
-echo ERROR: Download failure for https://download.wsusoffline.net/StaticDownloadLink-recent-esr.txt.
+echo ERROR: Download failure for https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt.
 echo.
 goto EoF
 
 :CompError
 echo.
-echo Warning: File ..\static\StaticDownloadLink-this.txt differs from file ..\static\StaticDownloadLink-recent-esr.txt.
+echo Warning: File ..\static\StaticDownloadLink-this.txt differs from file ..\static\StaticDownloadLink-recent.txt.
 echo.
 goto Error
 

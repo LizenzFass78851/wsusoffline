@@ -509,11 +509,11 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 call :Log "Info: Preserved custom language and architecture additions and removals"
 
 echo Updating static and exclude definitions for download and update...
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\static %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/StaticDownloadFiles-modified.txt
+%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\static %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadFiles-modified.txt
 %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadFiles-modified.txt %DLDR_POPT% ..\static
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/ExcludeDownloadFiles-modified.txt
+%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeDownloadFiles-modified.txt
 %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\exclude\ExcludeDownloadFiles-modified.txt %DLDR_POPT% ..\exclude
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\static %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/StaticUpdateFiles-modified.txt
+%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\static %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticUpdateFiles-modified.txt
 %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\client\static\StaticUpdateFiles-modified.txt %DLDR_POPT% ..\client\static
 call :Log "Info: Updated static and exclude definitions for download and update"
 
@@ -1094,21 +1094,21 @@ if not errorlevel 1 (
 )
 if "%SKIP_SDD%" NEQ "1" (
   copy /Y ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori >nul
-  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/ExcludeList-superseded-exclude.txt
+  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude.txt
   echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
   )
   del ..\exclude\ExcludeList-superseded-exclude.ori
   copy /Y ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori >nul
-  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/ExcludeList-superseded-exclude-seconly.txt
+  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\exclude %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude-seconly.txt
   echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
   )
   del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
   copy /Y ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori >nul
-  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\exclude %DLDR_LOPT% %DLDR_NCOPT% https://download.wsusoffline.net/HideList-seconly.txt
+  %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\exclude %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/HideList-seconly.txt
   echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
