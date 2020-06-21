@@ -1,0 +1,60 @@
+# File ExcludeListISO-all-ofc.txt
+#
+# Note: Empty lines and lines, which start with a '#', are removed by
+# the script create-iso-image.bash. The ISO image creation tools mkisofs
+# and genisoimage themselves don't support comments.
+
+# Exclude unsupported Office versions
+o2k
+oxp
+o2k3
+o2k7
+o2k7-x64
+
+# Exclude all Windows downloads (supported and unsupported versions)
+w2k
+wxp
+w2k3
+w2k3-x64
+w60
+w60-x64
+w61
+w61-x64
+w62
+w62-x64
+w63
+w63-x64
+w100
+w100-x64
+win
+
+# Exclude all optional downloads
+cpp
+dotnet
+msse
+wddefs
+
+# Exclude unneeded files from the directory client/md
+hashes-w60-glb.txt
+hashes-w60-x64-glb.txt
+hashes-w61-glb.txt
+hashes-w61-x64-glb.txt
+hashes-w62-x64-glb.txt
+hashes-w63-glb.txt
+hashes-w63-x64-glb.txt
+hashes-w100-glb.txt
+hashes-w100-x64-glb.txt
+hashes-win-glb.txt
+hashes-cpp.txt
+hashes-dotnet.txt
+hashes-dotnet-x86-glb.txt
+hashes-dotnet-x64-glb.txt
+hashes-msse.txt
+hashes-wddefs.txt
+
+# Exclude unneeded files from the directory client/static
+StaticUpdateFiles-modified.txt
+
+# Exclude source files
+UpdateInstaller.au3
+IfAdmin.cpp
