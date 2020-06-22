@@ -1069,18 +1069,18 @@ if "%DO_UPGRADES%"=="/upgradebuilds" (goto DoBuildUpgrade) else (goto ListMissin
 
 :DoBuildUpgrade
 if exist ..\static\StaticUpdateIds-BuildUpgrades.txt (
-  echo Checking for build upgrades via enablement package...
+  echo Checking for feature upgrades via enablement package...
   for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
     if "%OS_VER_BUILD%"=="%%a" (
       if %OS_VER_REVIS% GEQ %%b (
         rem ready to do the update
-        echo Performing build upgrade from %%a to %%d...
-        call :Log "Info: Performing build upgrade from %%a to %%d"
+        echo Performing feature upgrade from %%a to %%d...
+        call :Log "Info: Performing feature upgrade from %%a to %%d"
         echo %%e>>"%TEMP%\MissingUpdateIds.txt"
       ) else (
         rem need to do updates before
-        echo Preparing build upgrade from %%a to %%d...
-        call :Log "Info: Preparing build upgrade from %%a to %%d"
+        echo Preparing feature upgrade from %%a to %%d...
+        call :Log "Info: Preparing feature upgrade from %%a to %%d"
         echo %%c>>"%TEMP%\MissingUpdateIds.txt"
       )
       call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist

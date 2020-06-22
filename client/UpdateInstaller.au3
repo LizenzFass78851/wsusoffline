@@ -44,6 +44,7 @@ Dim Const $target_version_dotnet35    = "3.5.30729"
 
 ; INI file constants
 Dim Const $ini_section_installation   = "Installation"
+Dim Const $ini_value_buildupgrade     = "upgradebuilds"
 Dim Const $ini_value_cpp              = "updatecpp"
 Dim Const $ini_value_dotnet35         = "instdotnet35"
 Dim Const $ini_value_rcerts           = "updatercerts"
@@ -88,10 +89,12 @@ Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
 Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
+Dim Const $path_rel_w100_18363_x86    = "\w100\glb\windows10.0-kb4517245-x86*."
+Dim Const $path_rel_w100_18363_x64    = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
 
-Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
+Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $buildupgrade, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
 Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
 
 Func ShowGUIInGerman()
@@ -222,6 +225,22 @@ Dim $result
   Return $result
 EndFunc
 
+Func BuildUpgradeAvailable($basepath)
+  If (@OSVersion = "WIN_10") Then
+    If (@OSBuild = "18362") Then
+        If (@OSArch <> "X86") Then
+          Return FileExists($basepath & $path_rel_w100_18363_x64)
+        Else
+          Return FileExists($basepath & $path_rel_w100_18363_x86)
+        EndIf
+	Else
+      Return 0
+	EndIf
+  Else
+    Return 0
+  EndIf
+EndFunc
+
 Func WSHAvailable()
 Dim $reg_val
 
@@ -336,7 +355,7 @@ Func CalcGUISize()
   If ($reg_val = "") Then
     $reg_val = $default_logpixels
   EndIf
-  $dlgheight = 260 * $reg_val / $default_logpixels
+  $dlgheight = 280 * $reg_val / $default_logpixels
   If $gergui Then
     $txtwidth = 240 * $reg_val / $default_logpixels
   Else
@@ -401,11 +420,29 @@ EndIf
 ;  Installation group
 $txtxpos = 2 * $txtxoffset
 $txtypos = 3.5 * $txtyoffset + 1.5 * $txtheight
-GUICtrlCreateGroup("Installation", $txtxpos, $txtypos, $groupwidth, 4 * $txtheight)
+GUICtrlCreateGroup("Installation", $txtxpos, $txtypos, $groupwidth, 5 * $txtheight)
+
+; Perform Feature Update via Enablement Package
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + 1.5 * $txtyoffset
+If $gergui Then
+  $buildupgrade = GUICtrlCreateCheckbox("Feature Update über Enablement Package", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $buildupgrade = GUICtrlCreateCheckbox("Feature Update via Enablement Package", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If BuildUpgradeAvailable($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_buildupgrade, $enabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+EndIf
 
 ; Update C++ Runtime Libraries
 $txtxpos = 3 * $txtxoffset
-$txtypos = $txtypos + 1.5 * $txtyoffset
+$txtypos = $txtypos + $txtheight
 If $gergui Then
   $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
@@ -784,6 +821,9 @@ While 1
         RegWrite($reg_key_windowsupdate, $reg_val_wustatusserver, "REG_SZ", $options)
       EndIf
       $options = ""
+      If IsCheckBoxChecked($buildupgrade) Then
+        $options = $options & " /upgradebuilds"
+      EndIf
       If IsCheckBoxChecked($cpp) Then
         $options = $options & " /updatecpp"
       EndIf
