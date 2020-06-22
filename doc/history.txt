@@ -1711,4 +1711,4 @@ Community Edition 11.9.2 -- ??.??.2020
 - September 2018 to June 2020 updates added to 'security only' lists for Windows Server 2008 (x86/x64) systems
 - February to June 2020 updates added to 'security only' lists for Windows 7 and Server 2008 R2 (x86/x64) systems
 - April to June 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
-
+- C++ 2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
