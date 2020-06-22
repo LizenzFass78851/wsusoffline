@@ -27,6 +27,7 @@ windows10.0-kb4562560
 windows10.0-kb4562251
 windows10.0-kb4562562
 windows10.0-kb4560959
+windows10.0-kb4560366
 windows10.0-kb4495610
 windows10.0-kb4495611
 windows10.0-kb4495613
