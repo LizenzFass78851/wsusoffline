@@ -1,4 +1,5 @@
 ' *** Author: T. Wittrock, Kiel ***
+' ***   - Community Edition -   ***
 
 Option Explicit
 
@@ -19,6 +20,7 @@ Private Const strRegKeyPowerCfg               = "HKCU\Control Panel\PowerCfg\"
 Private Const strRegValVersion                = "Version"
 Private Const strRegValRelease                = "Release"
 Private Const strRegValDisplayVersion         = "DisplayVersion"
+Private Const strRegValUBR                    = "UBR"
 Private Const strRegValBuildLabEx             = "BuildLabEx"
 Private Const strRegValInstallationType       = "InstallationType"
 Private Const strRegValPShVersion             = "PowerShellVersion"
@@ -48,7 +50,7 @@ Private Const idxBuild                        = 2
 
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
-Dim strOSArchitecture, strBuildLabEx, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strProduct, strPatch, languageCode, i, j
+Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strProduct, strPatch, languageCode, i, j
 Dim cpp2005_x86_old, cpp2005_x86_new, cpp2005_x64_old, cpp2005_x64_new
 Dim cpp2008_x86_old, cpp2008_x86_new, cpp2008_x64_old, cpp2008_x64_new
 Dim cpp2010_x86_old, cpp2010_x86_new, cpp2010_x64_old, cpp2010_x64_new
@@ -398,11 +400,16 @@ Set objCmdFile = objFileSystem.CreateTextFile(strCmdFileName, True)
 Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
 ' Documentation: http://msdn.microsoft.com/en-us/library/aa394239(VS.85).aspx
 For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingSystem")
-  strBuildLabEx = RegRead(wshShell, strRegKeyWindowsVersion & strRegValBuildLabEx)
-  If strBuildLabEx = "" Then
-    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version
+  If RegExists(strRegKeyWindowsVersion, strRegValUBR) Then
+    strUBR = RegRead(wshShell, strRegKeyWindowsVersion & strRegValUBR)
+    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & "." & strUBR
   Else
-    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
+    strBuildLabEx = RegRead(wshShell, strRegKeyWindowsVersion & strRegValBuildLabEx)
+    If strBuildLabEx = "" Then
+      WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version
+    Else
+      WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
+    End If
   End If
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))
   WriteLanguageToFile objCmdFile, "OS_LANG", objQueryItem.OSLanguage, True, True

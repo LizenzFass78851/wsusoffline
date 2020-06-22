@@ -17,3 +17,4 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2019/06/wind
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2019/02/windows10.0-kb4465065-v3-x64_37c6c7186ff2f8168dae6087464df6c27b3fc80f.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2019/06/windows10.0-kb4494174-x64_10354a50b5c05f9bf3c4ca68d98e34daa47ec059.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2019/06/windows10.0-kb4497165-v2-x64_3fa260a5560cd843d467116267d0b5de9b1e148a.msu
+http://b1.download.windowsupdate.com/d/upgr/2019/11/windows10.0-kb4517245-x64_4250e1db7bc9468236c967c2c15f04b755b3d3a9.cab

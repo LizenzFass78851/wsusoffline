@@ -43,7 +43,7 @@ call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
-for %%i in (/updatecpp /instdotnet35 /updatercerts /instdotnet4 /instwmf /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
+for %%i in (/updatecpp /instdotnet35 /updatercerts /instdotnet4 /instwmf /skipieinst /upgradebuilds /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
   if /i "%1"=="%%i" call :Log "Info: Option %%i detected"
 )
 if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
@@ -52,6 +52,7 @@ if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
 if /i "%1"=="/instdotnet4" set INSTALL_DOTNET4=/instdotnet4
 if /i "%1"=="/instwmf" set INSTALL_WMF=/instwmf
 if /i "%1"=="/skipieinst" set SKIP_IEINST=/skipieinst
+if /i "%1"=="/upgradebuilds" set DO_UPGRADES=/upgradebuilds
 if /i "%1"=="/skipdefs" set SKIP_DEFS=/skipdefs
 if /i "%1"=="/skipdynamic" set SKIP_DYNAMIC=/skipdynamic
 if /i "%1"=="/all" set LIST_MODE_IDS=/all
@@ -1021,7 +1022,7 @@ if "%SKIP_DYNAMIC%"=="/skipdynamic" (
   call :Log "Info: Skipped determination of missing updates on demand"
   goto ListInstalledIds
 )
-if exist %SystemRoot%\Temp\wou_wupre_tried.txt goto ListMissingIds
+if exist %SystemRoot%\Temp\wou_wupre_tried.txt goto SkipWuPre
 echo Checking Windows Update scan prerequisites...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
 if exist "%TEMP%\MissingUpdateIds.txt" del "%TEMP%\MissingUpdateIds.txt"
@@ -1060,6 +1061,33 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
     set RECALL_REQUIRED=1
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
+)
+if "%RECALL_REQUIRED%"=="1" goto Installed
+
+:SkipWuPre
+if "%DO_UPGRADES%"=="/upgradebuilds" (goto DoBuildUpgrade) else (goto ListMissingIds)
+
+:DoBuildUpgrade
+if exist ..\static\StaticUpdateIds-BuildUpgrades.txt (
+  echo Checking for build upgrades via enablement package...
+  for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
+    if "%OS_VER_BUILD%"=="%%a" (
+      if %OS_VER_REVIS% GEQ %%b (
+        rem ready to do the update
+        echo Performing build upgrade from %%a to %%d...
+        call :Log "Info: Performing build upgrade from %%a to %%d"
+        echo %%e>>"%TEMP%\MissingUpdateIds.txt"
+      ) else (
+        rem need to do updates before
+        echo Preparing build upgrade from %%a to %%d...
+        call :Log "Info: Preparing build upgrade from %%a to %%d"
+        echo %%c>>"%TEMP%\MissingUpdateIds.txt"
+      )
+      call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+      call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+      set RECALL_REQUIRED=1
+    )
+  )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
