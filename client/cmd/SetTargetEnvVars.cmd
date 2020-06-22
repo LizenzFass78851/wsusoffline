@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Commnuity Edition -   ***
 
 if "%OS_RAM_GB%"=="" (
   if /i "%OS_ARCH%"=="x86" (set UPDATES_PER_STAGE=60) else (set UPDATES_PER_STAGE=40)
@@ -76,6 +77,7 @@ set DOTNET4_VER_TARGET_BUILD=00081
 set WMF_VER_TARGET_MAJOR=3
 set WMF_VER_TARGET_MINOR=0
 set WMF_TARGET_ID=2506146
+set SHA2_READY=0
 set WOU_ENDLESS=9
 goto Windows%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_SP_VER_MAJOR%
 :Windows6.0.
@@ -87,6 +89,7 @@ goto SetOfficeName
 :Windows6.0.2
 set OS_SP_VER_TARGET_MAJOR=2
 set OS_SP_TARGET_ID=948465
+set SHA2_PREREQ_ID=4474419
 goto SetOfficeName
 
 :Windows6.1
@@ -104,6 +107,8 @@ set WMF_TARGET_ID=3191566
 set TSC_VER_TARGET_MAJOR=6
 set TSC_VER_TARGET_MINOR=3
 set TSC_TARGET_ID_FILE=..\static\StaticUpdateIds-rdc-w61.txt
+set SHA2_READY=0
+set SHA2_PREREQ_ID=4474419
 set WOU_ENDLESS=9
 goto SetOfficeName
 
@@ -120,6 +125,7 @@ set IE_VER_TARGET_MINOR=11
 set WMF_TARGET_ID=3191565
 set TSC_VER_TARGET_MAJOR=6
 set TSC_VER_TARGET_MINOR=2
+set SHA2_READY=1
 set WOU_ENDLESS=6
 goto SetOfficeName
 
@@ -140,6 +146,7 @@ set IE_VER_TARGET_MINOR=11
 set WMF_TARGET_ID=3191564
 set TSC_VER_TARGET_MAJOR=6
 set TSC_VER_TARGET_MINOR=3
+set SHA2_READY=1
 set WOU_ENDLESS=6
 goto SetOfficeName
 
@@ -155,6 +162,7 @@ set IE_VER_TARGET_MAJOR=9
 set IE_VER_TARGET_MINOR=11
 set TSC_VER_TARGET_MAJOR=10
 set TSC_VER_TARGET_MINOR=0
+set SHA2_READY=1
 set WOU_ENDLESS=3
 goto SetOfficeName
 

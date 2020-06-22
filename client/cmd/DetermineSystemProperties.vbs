@@ -1,4 +1,5 @@
 ' *** Author: T. Wittrock, Kiel ***
+' ***   - Commnuity Edition -   ***
 
 Option Explicit
 

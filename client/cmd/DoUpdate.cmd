@@ -1301,14 +1301,34 @@ if "%SKIP_DYNAMIC%"=="/skipdynamic" (
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt goto ListMissingIds
 echo Checking Windows Update scan prerequisites...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
+if exist "%TEMP%\InstalledUpdateIds.txt" (
+  if not "%SHA2_PREREQ_ID%"=="" (
+    %SystemRoot%\System32\find.exe /I "%SHA2_PREREQ_ID%" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
+    if not errorlevel 1 set SHA2_READY=1
+  )
+)
+set SHA2_PREREQ_INSTALLING=0
 if exist "%TEMP%\MissingUpdateIds.txt" del "%TEMP%\MissingUpdateIds.txt"
 if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%.txt (
   for /F "tokens=1* delims=kbKB,;" %%i in (..\static\StaticUpdateIds-wupre-%OS_NAME%.txt) do (
     if exist "%TEMP%\InstalledUpdateIds.txt" (
       %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
       if errorlevel 1 echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      if not "%SHA2_PREREQ_ID%"=="" (if "%%i"=="%SHA2_PREREQ_ID%" (set SHA2_PREREQ_INSTALLING=1)
     ) else (
       echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+    )
+  )
+)
+if "%SHA2_READY%"=="1" (
+  if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-sha2.txt (
+    for /F "tokens=1* delims=kbKB,;" %%i in (..\static\StaticUpdateIds-wupre-%OS_NAME%-sha2.txt) do (
+      if exist "%TEMP%\InstalledUpdateIds.txt" (
+        %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
+        if errorlevel 1 echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      ) else (
+        echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      )
     )
   )
 )
@@ -1317,8 +1337,21 @@ if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%.txt (
     if exist "%TEMP%\InstalledUpdateIds.txt" (
       %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
       if errorlevel 1 echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      if not "%SHA2_PREREQ_ID%"=="" (if "%%i"=="%SHA2_PREREQ_ID%" (set SHA2_PREREQ_INSTALLING=1))
     ) else (
       echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+    )
+  )
+)
+if "%SHA2_READY%"=="1" (
+  if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%-sha2.txt (
+    for /F "tokens=1* delims=kbKB,;" %%i in (..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%-sha2.txt) do (
+      if exist "%TEMP%\InstalledUpdateIds.txt" (
+        %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
+        if errorlevel 1 echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      ) else (
+        echo %%i>>"%TEMP%\MissingUpdateIds.txt"
+      )
     )
   )
 )
@@ -1333,7 +1366,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
   if not errorlevel 1 (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-    echo. >%SystemRoot%\Temp\wou_wupre_tried.txt
+    if "%SHA2_READY%"=="1" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt) else (if "%SHA2_PREREQ_INSTALLING%"=="0" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt))
     set RECALL_REQUIRED=1
   )
   call :Log "Info: Installed Windows Update scan prerequisites"

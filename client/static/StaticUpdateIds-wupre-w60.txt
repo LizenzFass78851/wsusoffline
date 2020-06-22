@@ -4,5 +4,3 @@ kb4022887,June 2017 Win32k information disclosure vulnerability
 kb4022883,June 2017 Windows kernel information disclosure vulnerability
 kb4493730,April 2019 Servicing Stack Update for Windows Server 2008 SP2
 kb4474419,August 2019 SHA-2 code signing support update for Windows Server 2008
-kb4562031,June 2020 Servicing Stack Update for Windows Server 2008 SP2
-kb4525106,November 2019 Cumulative security update for Internet Explorer
