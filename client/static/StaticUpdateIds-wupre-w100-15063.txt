@@ -1,1 +1,1 @@
-kb4540722,March 2020 Servicing stack update for Windows 10 Version 1703
+kb4562250,June 2020 Servicing stack update for Windows 10 Version 1703
