@@ -1,3 +1,40 @@
+NEWS for Version 1.19.1-ESR
+
+   Release date: 2020-03-14
+   Intended compatibility: WSUS Offline Update 11.9.1-ESR
+
+   Notes
+
+    * Initial release for the new branch WSUS Offline Update 11.9.x-ESR
+
+      This new ESR version was created to support Windows 7 / Server
+      2008 R2 in particular. Use WSUS Offline Update 12.0 or later for
+      all other updates.
+
+   Internal changes
+
+    * All self-updates are disabled
+
+      In an ESR version, all self-updates should be disabled:
+
+      The self-update of WSUS Offline Update should be disabled, because
+      the next major version 12.0 does not support Windows 7 anymore.
+
+      Self-updates of the Linux scripts should be disabled as well,
+      because their next version won't support Windows 7 either.
+
+      The automatic update of configuration files should be disabled,
+      because these files always refer to the latest version of WSUS
+      Offline Update. Also, the configuration files for Windows 7 won't
+      get any updates this way; they are removed in version 12.0. If there
+      are future updates for Windows 7, then a complete new release of
+      the WSUS Offline Update 11.9.x-ESR branch must be created.
+
+      This is also the reason, why the ESR version should not be used
+      for other updates: The configuration files for example for Windows
+      8.1 won't get the necessary updates.
+
+
 NEWS for Version 1.19
 
    Release date: 2020-03-11

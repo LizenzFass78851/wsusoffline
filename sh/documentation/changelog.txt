@@ -1,3 +1,17 @@
+Version 1.19.1-ESR
+
+   Release date: 2020-03-14
+   Intended compatibility: WSUS Offline Update 11.9.1-ESR
+
+   Notes
+
+    * Initial release for the new branch WSUS Offline Update 11.9.x-ESR
+
+   Internal changes
+
+    * All self-updates are disabled
+
+
 Version 1.19
 
    Release date: 2020-03-11

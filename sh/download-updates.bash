@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: 1.19
-# Release date: 2020-03-11
-# Intended compatibility: WSUS Offline Update version 11.9
+# Version: 1.19.1-ESR
+# Release date: 2020-03-14
+# Intended compatibility: WSUS Offline Update version 11.9.1-ESR
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -40,35 +40,42 @@
 #     The interactive setup is done by the accompanying script
 #     setup-downloads.bash .
 #
+#     IMPORTANT NOTE
+#         The branch WSUS Offline Update 11.9.x ESR was created to
+#         support Windows 7 / Server 2008 R2 in particular.
+#
+#         Use WSUS Offline Update 12.0 or later for all other updates
+#         listed below.
+#
 #     USAGE
 #        ./download-updates.bash UPDATE[,UPDATE...] \
 #                                LANGUAGE[,LANGUAGE...] \
 #                                [OPTIONS]
 #
 #     UPDATE
-#         w60           Windows Server 2008, 32-bit
-#         w60-x64       Windows Server 2008, 64-bit
+#         w60           Windows Server 2008, 32-bit            (deprecated)
+#         w60-x64       Windows Server 2008, 64-bit            (deprecated)
 #         w61           Windows 7, 32-bit
 #         w61-x64       Windows 7 / Server 2008 R2, 64-bit
-#         w62-x64       Windows Server 2012, 64-bit
-#         w63           Windows 8.1, 32-bit
-#         w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
-#         w100          Windows 10, 32-bit
-#         w100-x64      Windows 10 / Server 2016/2019, 64-bit
-#         o2k10         Office 2010, 32-bit
-#         o2k10-x64     Office 2010, 32-bit and 64-bit
-#         o2k13         Office 2013, 32-bit
-#         o2k13-x64     Office 2013, 32-bit and 64-bit
-#         o2k16         Office 2016, 32-bit
-#         o2k16-x64     Office 2016, 32-bit and 64-bit
-#         all           All Windows and Office updates, 32-bit and 64-bit
-#         all-x86       All Windows and Office updates, 32-bit
-#         all-x64       All Windows and Office updates, 64-bit
-#         all-win       All Windows updates, 32-bit and 64-bit
-#         all-win-x86   All Windows updates, 32-bit
-#         all-win-x64   All Windows updates, 64-bit
-#         all-ofc       All Office updates, 32-bit and 64-bit
-#         all-ofc-x86   All Office updates, 32-bit
+#         w62-x64       Windows Server 2012, 64-bit            (deprecated)
+#         w63           Windows 8.1, 32-bit                    (deprecated)
+#         w63-x64       Windows 8.1 / Server 2012 R2, 64-bit   (deprecated)
+#         w100          Windows 10, 32-bit                     (deprecated)
+#         w100-x64      Windows 10 / Server 2016/2019, 64-bit  (deprecated)
+#         o2k10         Office 2010, 32-bit                    (deprecated)
+#         o2k10-x64     Office 2010, 32-bit and 64-bit         (deprecated)
+#         o2k13         Office 2013, 32-bit                    (deprecated)
+#         o2k13-x64     Office 2013, 32-bit and 64-bit         (deprecated)
+#         o2k16         Office 2016, 32-bit                    (deprecated)
+#         o2k16-x64     Office 2016, 32-bit and 64-bit         (deprecated)
+#         all           All Windows and Office updates         (deprecated)
+#         all-x86       All Windows and Office updates, 32-bit (deprecated)
+#         all-x64       All Windows and Office updates, 64-bit (deprecated)
+#         all-win       All Windows updates, 32-bit and 64-bit (deprecated)
+#         all-win-x86   All Windows updates, 32-bit            (deprecated)
+#         all-win-x64   All Windows updates, 64-bit            (deprecated)
+#         all-ofc       All Office updates, 32-bit and 64-bit  (deprecated)
+#         all-ofc-x86   All Office updates, 32-bit             (deprecated)
 #
 #         Notes: Multiple updates can be joined to a comma-separated
 #         list like "w60,w60-x64".
@@ -180,8 +187,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19"
-readonly release_date="2020-03-11"
+readonly script_version="1.19.1-ESR"
+readonly release_date="2020-03-14"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.

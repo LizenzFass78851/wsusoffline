@@ -64,8 +64,8 @@ settings_file="update-generator.ini"
 declare -A all_values=(
     [w60]="off"
     [w60-x64]="off"
-    [w61]="off"
-    [w61-x64]="off"
+    [w61]="on"
+    [w61-x64]="on"
     [w62-x64]="off"
     [w63]="off"
     [w63-x64]="off"
@@ -237,30 +237,37 @@ function show_selection_dialogs_with_dialog ()
 
     # The three selection dialogs must be defined locally to have the
     # values evaluated at runtime.
+    #
+    # IMPORTANT NOTE
+    #     The branch WSUS Offline Update 11.9.x ESR was created to
+    #     support Windows 7 / Server 2008 R2 in particular.
+    #
+    #     Use WSUS Offline Update 12.0 or later for all other updates
+    #     listed below.
     local -a updates_dialog=(
-        w60           "Windows Server 2008, 32-bit"                         "${all_values[w60]}"
-        w60-x64       "Windows Server 2008, 64-bit"                         "${all_values[w60-x64]}"
-        w61           "Windows 7, 32-bit"                                   "${all_values[w61]}"
-        w61-x64       "Windows 7 / Server 2008 R2, 64-bit"                  "${all_values[w61-x64]}"
-        w62-x64       "Windows Server 2012, 64-bit"                         "${all_values[w62-x64]}"
-        w63           "Windows 8.1, 32-bit"                                 "${all_values[w63]}"
-        w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit"                "${all_values[w63-x64]}"
-        w100          "Windows 10, 32-bit"                                  "${all_values[w100]}"
-        w100-x64      "Windows 10 / Server 2016/2019, 64-bit"               "${all_values[w100-x64]}"
-        o2k10         "Office 2010, 32-bit"                                 "${all_values[o2k10]}"
-        o2k10-x64     "Office 2010, 32-bit and 64-bit"                      "${all_values[o2k10-x64]}"
-        o2k13         "Office 2013, 32-bit"                                 "${all_values[o2k13]}"
-        o2k13-x64     "Office 2013, 32-bit and 64-bit"                      "${all_values[o2k13-x64]}"
-        o2k16         "Office 2016, 32-bit"                                 "${all_values[o2k16]}"
-        o2k16-x64     "Office 2016, 32-bit and 64-bit"                      "${all_values[o2k16-x64]}"
-        all           "All Windows and Office updates, 32-bit and 64-bit"   "${all_values[all]}"
-        all-x86       "All Windows and Office updates, 32-bit"              "${all_values[all-x86]}"
-        all-x64       "All Windows and Office updates, 64-bit"              "${all_values[all-x64]}"
-        all-win       "All Windows updates, 32-bit and 64-bit"              "${all_values[all-win]}"
-        all-win-x86   "All Windows updates, 32-bit"                         "${all_values[all-win-x86]}"
-        all-win-x64   "All Windows updates, 64-bit"                         "${all_values[all-win-x64]}"
-        all-ofc       "All Office updates, 32-bit and 64-bit"               "${all_values[all-ofc]}"
-        all-ofc-x86   "All Office updates, 32-bit"                          "${all_values[all-ofc-x86]}"
+        w60           "Windows Server 2008, 32-bit             (deprecated)"  "${all_values[w60]}"
+        w60-x64       "Windows Server 2008, 64-bit             (deprecated)"  "${all_values[w60-x64]}"
+        w61           "Windows 7, 32-bit"                                     "${all_values[w61]}"
+        w61-x64       "Windows 7 / Server 2008 R2, 64-bit"                    "${all_values[w61-x64]}"
+        w62-x64       "Windows Server 2012, 64-bit             (deprecated)"  "${all_values[w62-x64]}"
+        w63           "Windows 8.1, 32-bit                     (deprecated)"  "${all_values[w63]}"
+        w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit    (deprecated)"  "${all_values[w63-x64]}"
+        w100          "Windows 10, 32-bit                      (deprecated)"  "${all_values[w100]}"
+        w100-x64      "Windows 10 / Server 2016/2019, 64-bit   (deprecated)"  "${all_values[w100-x64]}"
+        o2k10         "Office 2010, 32-bit                     (deprecated)"  "${all_values[o2k10]}"
+        o2k10-x64     "Office 2010, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k10-x64]}"
+        o2k13         "Office 2013, 32-bit                     (deprecated)"  "${all_values[o2k13]}"
+        o2k13-x64     "Office 2013, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k13-x64]}"
+        o2k16         "Office 2016, 32-bit                     (deprecated)"  "${all_values[o2k16]}"
+        o2k16-x64     "Office 2016, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k16-x64]}"
+        all           "All Windows and Office updates          (deprecated)"  "${all_values[all]}"
+        all-x86       "All Windows and Office updates, 32-bit  (deprecated)"  "${all_values[all-x86]}"
+        all-x64       "All Windows and Office updates, 64-bit  (deprecated)"  "${all_values[all-x64]}"
+        all-win       "All Windows updates, 32-bit and 64-bit  (deprecated)"  "${all_values[all-win]}"
+        all-win-x86   "All Windows updates, 32-bit             (deprecated)"  "${all_values[all-win-x86]}"
+        all-win-x64   "All Windows updates, 64-bit             (deprecated)"  "${all_values[all-win-x64]}"
+        all-ofc       "All Office updates, 32-bit and 64-bit   (deprecated)"  "${all_values[all-ofc]}"
+        all-ofc-x86   "All Office updates, 32-bit              (deprecated)"  "${all_values[all-ofc-x86]}"
     )
 
     local -a languages_dialog=(

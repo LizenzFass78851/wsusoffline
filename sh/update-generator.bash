@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: 1.19
-# Release date: 2020-03-11
-# Intended compatibility: WSUS Offline Update version 11.9
+# Version: 1.19.1-ESR
+# Release date: 2020-03-14
+# Intended compatibility: WSUS Offline Update version 11.9.1-ESR
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -86,8 +86,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19"
-readonly release_date="2020-03-11"
+readonly script_version="1.19.1-ESR"
+readonly release_date="2020-03-14"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.

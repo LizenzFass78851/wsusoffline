@@ -74,31 +74,38 @@ dynamic_win_updates="disabled"
 #
 # - https://en.wikipedia.org/wiki/Windows_Server_2008
 # - https://en.wikipedia.org/wiki/Windows_Server_2008_R2
+#
+# IMPORTANT NOTE
+#     The branch WSUS Offline Update 11.9.x ESR was created to support
+#     Windows 7 / Server 2008 R2 in particular.
+#
+#     Use WSUS Offline Update 12.0 or later for all other updates
+#     listed below.
 
 updates_menu=(
-    "w60           Windows Server 2008, 32-bit"
-    "w60-x64       Windows Server 2008, 64-bit"
+    "w60           Windows Server 2008, 32-bit              (deprecated)"
+    "w60-x64       Windows Server 2008, 64-bit              (deprecated)"
     "w61           Windows 7, 32-bit"
     "w61-x64       Windows 7 / Server 2008 R2, 64-bit"
-    "w62-x64       Windows Server 2012, 64-bit"
-    "w63           Windows 8.1, 32-bit"
-    "w63-x64       Windows 8.1 / Server 2012 R2, 64-bit"
-    "w100          Windows 10, 32-bit"
-    "w100-x64      Windows 10 / Server 2016/2019, 64-bit"
-    "o2k10         Office 2010, 32-bit"
-    "o2k10-x64     Office 2010, 32-bit and 64-bit"
-    "o2k13         Office 2013, 32-bit"
-    "o2k13-x64     Office 2013, 32-bit and 64-bit"
-    "o2k16         Office 2016, 32-bit"
-    "o2k16-x64     Office 2016, 32-bit and 64-bit"
-    "all           All Windows and Office updates, 32-bit and 64-bit"
-    "all-x86       All Windows and Office updates, 32-bit"
-    "all-x64       All Windows and Office updates, 64-bit"
-    "all-win       All Windows updates, 32-bit and 64-bit"
-    "all-win-x86   All Windows updates, 32-bit"
-    "all-win-x64   All Windows updates, 64-bit"
-    "all-ofc       All Office updates, 32-bit and 64-bit"
-    "all-ofc-x86   All Office updates, 32-bit"
+    "w62-x64       Windows Server 2012, 64-bit              (deprecated)"
+    "w63           Windows 8.1, 32-bit                      (deprecated)"
+    "w63-x64       Windows 8.1 / Server 2012 R2, 64-bit     (deprecated)"
+    "w100          Windows 10, 32-bit                       (deprecated)"
+    "w100-x64      Windows 10 / Server 2016/2019, 64-bit    (deprecated)"
+    "o2k10         Office 2010, 32-bit                      (deprecated)"
+    "o2k10-x64     Office 2010, 32-bit and 64-bit           (deprecated)"
+    "o2k13         Office 2013, 32-bit                      (deprecated)"
+    "o2k13-x64     Office 2013, 32-bit and 64-bit           (deprecated)"
+    "o2k16         Office 2016, 32-bit                      (deprecated)"
+    "o2k16-x64     Office 2016, 32-bit and 64-bit           (deprecated)"
+    "all           All Windows and Office updates           (deprecated)"
+    "all-x86       All Windows and Office updates, 32-bit   (deprecated)"
+    "all-x64       All Windows and Office updates, 64-bit   (deprecated)"
+    "all-win       All Windows updates, 32-bit and 64-bit   (deprecated)"
+    "all-win-x86   All Windows updates, 32-bit              (deprecated)"
+    "all-win-x64   All Windows updates, 64-bit              (deprecated)"
+    "all-ofc       All Office updates, 32-bit and 64-bit    (deprecated)"
+    "all-ofc-x86   All Office updates, 32-bit               (deprecated)"
 )
 
 # Internal Lists
