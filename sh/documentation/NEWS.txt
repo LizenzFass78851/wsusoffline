@@ -1,3 +1,76 @@
+NEWS for Version 2.0
+
+   Release date: 2020-03-25
+   Intended compatibility: WSUS Offline Update 12.0
+
+   New features
+
+    * Support for Windows 10 versions
+
+      If one of the updates w100, w100-x64, all, all-x86, all-x64,
+      all-win, all-win-x86 or all-win-x64 is selected, then a fine
+      selection of Windows 10 versions is displayed.
+
+      This requires the external command "dialog".
+
+
+   Removed features
+
+    * Support for Windows Server 2008 and Windows 7 / Server 2008 R2
+
+      The new branch WSUS Offline Update 11.9.x ESR and the Linux download
+      scripts 1.19.x ESR still support these versions.
+
+    * Support for Windows 7 Defender and Microsoft Security Essentials
+
+      The usage of the directories client/wddefs and client/msse is
+      basically reversed: Formerly, the directory wddefs was used to
+      download Windows Defender definition updates for the original
+      Defender of Windows Vista and 7. It is now used for the built-in
+      Defender of Windows 8, 8.1 and 10.
+
+      The directory client/msse is not used anymore and will be deleted.
+
+      The options -includemsse and -includewddefs8 are not used
+      anymore. Use -includewddefs instead.
+
+    * Support for Service Packs
+
+      The option -includesp is not used anymore. The file
+      ExcludeList-SPs.txt will be deleted.
+
+    * Support for .NET Framework 4.6 installers
+
+      The English installer for .NET Framework 4.6 was removed in WSUS
+      Offline Update 12.0. This is the only full installer; the other
+      installers are only language packs for custom languages.
+
+      But the download links for these language packs
+      are still present in the static download files
+      StaticDownloadLinks-dotnet-*.txt. Therefore, the file
+      NDP46-KB3045557-x86-x64-AllOS-DEU.exe and similar localized files
+      are not immediately deleted, but kept as "valid static files".
+
+      You can
+      - delete this file manually
+      - copy the file preferences-template.bash to preferences.bash and
+        set the option:  keep_valid_static_files="disabled"
+      - ignore the file for now – it will eventually be deleted,
+        when the files StaticDownloadLinks-dotnet-*.txt are cleaned up
+
+      https://forums.wsusoffline.net/viewtopic.php?f=2&t=10173
+
+
+   Internal changes
+
+    * Removed obsolete Windows and Office versions
+
+      The Linux download scripts supported some old Windows and Office
+      versions, to create the first ESR version 1.1. This included Windows
+      XP, Windows Server 2003, Office 2007 and 2007. Since these versions
+      are long obsolete, they are removed now.
+
+
 NEWS for Version 1.19
 
    Release date: 2020-03-11

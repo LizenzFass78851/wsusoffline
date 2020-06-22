@@ -52,6 +52,8 @@
 # ========== Configuration ================================================
 
 settings_file="update-generator.ini"
+w100_versions_file="w100-versions.ini"
+show_w100_versions="disabled"
 
 # The associative array "all_values" is used to hold all values throughout
 # the script. The meaning of the values changes three times:
@@ -62,10 +64,6 @@ settings_file="update-generator.ini"
 # - The current settings are finally written back to the ini file.
 
 declare -A all_values=(
-    [w60]="off"
-    [w60-x64]="off"
-    [w61]="off"
-    [w61-x64]="off"
     [w62-x64]="off"
     [w63]="off"
     [w63-x64]="off"
@@ -109,13 +107,28 @@ declare -A all_values=(
     [esn]="off"
     [sve]="off"
     [trk]="off"
-    [sp]="on"
     [cpp]="off"
     [dotnet]="off"
     [wddefs]="off"
-    [msse]="off"
-    [wddefs8]="off"
 )
+
+declare -A w100_values=(
+    [1507_x86]="on"
+    [1507_x64]="on"
+    [1607_x86]="on"
+    [1607_x64]="on"
+    [1709_x86]="off"
+    [1709_x64]="off"
+    [1803_x86]="off"
+    [1803_x64]="off"
+    [1809_x86]="on"
+    [1809_x64]="on"
+    [1903_x86]="on"
+    [1903_x64]="on"
+    [1909_x86]="on"
+    [1909_x64]="on"
+)
+
 
 # Define an indexed array of the keys only
 #
@@ -130,11 +143,15 @@ declare -A all_values=(
 # all keys must be created manually.
 
 all_keys=(
-    w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 o2k10
-    o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64 all all-x86 all-x64 all-win
-    all-win-x86 all-win-x64 all-ofc all-ofc-x86 deu enu ara chs cht csy
-    dan nld fin fra ell heb hun ita jpn kor nor plk ptg ptb rus esn sve
-    trk sp cpp dotnet wddefs msse wddefs8
+    w62-x64 w63 w63-x64 w100 w100-x64 o2k10 o2k10-x64 o2k13 o2k13-x64
+    o2k16 o2k16-x64 all all-x86 all-x64 all-win all-win-x86 all-win-x64
+    all-ofc all-ofc-x86 deu enu ara chs cht csy dan nld fin fra ell heb
+    hun ita jpn kor nor plk ptg ptb rus esn sve trk cpp dotnet wddefs
+)
+
+w100_keys=(
+    1507_x86 1507_x64 1607_x86 1607_x64 1709_x86 1709_x64 1803_x86
+    1803_x64 1809_x86 1809_x64 1903_x86 1903_x64 1909_x86 1909_x64
 )
 
 download_parameters=()
@@ -152,6 +169,7 @@ function read_previous_settings ()
 
     log_info_message "Reading last used settings..."
 
+    # General settings for updates, languages and included downloads
     for key in "${all_keys[@]}"
     do
         # Get the last used value from the settings file. If the file
@@ -162,6 +180,15 @@ function read_previous_settings ()
         then
             # Update the setting to the last used value
             all_values["${key}"]="${value}"
+        fi
+    done
+
+    # Settings for Windows 10 versions
+    for key in "${w100_keys[@]}"
+    do
+        if value="$(read_setting "${w100_versions_file}" "${key}")"
+        then
+            w100_values["${key}"]="${value}"
         fi
     done
 
@@ -182,11 +209,22 @@ function write_current_settings ()
 
     log_info_message "Writing current settings..."
 
+    # General settings for updates, languages and included downloads
     for key in "${all_keys[@]}"
     do
         value="${all_values[${key}]}"
         write_setting "${settings_file}" "${key}" "${value}"
     done
+
+    # Settings for Windows 10 versions
+    if [[ "${show_w100_versions}" == "enabled" ]]
+    then
+        for key in "${w100_keys[@]}"
+        do
+            value="${w100_values[${key}]}"
+            write_setting "${w100_versions_file}" "${key}" "${value}"
+        done
+    fi
 
     log_info_message "Wrote current settings."
     echo ""
@@ -229,6 +267,7 @@ function show_selection_dialogs_with_dialog ()
     local key=""
     local update_list=""
     local update_list_csv=""
+    local w100_list=""
     local language_list=""
     local language_list_csv=""
     local option_list=""
@@ -238,10 +277,6 @@ function show_selection_dialogs_with_dialog ()
     # The three selection dialogs must be defined locally to have the
     # values evaluated at runtime.
     local -a updates_dialog=(
-        w60           "Windows Server 2008, 32-bit"                         "${all_values[w60]}"
-        w60-x64       "Windows Server 2008, 64-bit"                         "${all_values[w60-x64]}"
-        w61           "Windows 7, 32-bit"                                   "${all_values[w61]}"
-        w61-x64       "Windows 7 / Server 2008 R2, 64-bit"                  "${all_values[w61-x64]}"
         w62-x64       "Windows Server 2012, 64-bit"                         "${all_values[w62-x64]}"
         w63           "Windows 8.1, 32-bit"                                 "${all_values[w63]}"
         w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit"                "${all_values[w63-x64]}"
@@ -261,6 +296,23 @@ function show_selection_dialogs_with_dialog ()
         all-win-x64   "All Windows updates, 64-bit"                         "${all_values[all-win-x64]}"
         all-ofc       "All Office updates, 32-bit and 64-bit"               "${all_values[all-ofc]}"
         all-ofc-x86   "All Office updates, 32-bit"                          "${all_values[all-ofc-x86]}"
+    )
+
+    local -a w100_dialog=(
+        1507_x86   "Windows 10, 1507, 32-bit"                 "${w100_values[1507_x86]}"
+        1507_x64   "Windows 10, 1507, 64-bit"                 "${w100_values[1507_x64]}"
+        1607_x86   "Windows 10, 1607, 32-bit"                 "${w100_values[1607_x86]}"
+        1607_x64   "Windows 10 / Server 2016, 1607, 64-bit"   "${w100_values[1607_x64]}"
+        1709_x86   "Windows 10, 1709, 32-bit"                 "${w100_values[1709_x86]}"
+        1709_x64   "Windows 10, 1709, 64-bit"                 "${w100_values[1709_x64]}"
+        1803_x86   "Windows 10, 1803, 32-bit"                 "${w100_values[1803_x86]}"
+        1803_x64   "Windows 10, 1803, 64-bit"                 "${w100_values[1803_x64]}"
+        1809_x86   "Windows 10, 1809, 32-bit"                 "${w100_values[1809_x86]}"
+        1809_x64   "Windows 10 / Server 2019, 1809, 64-bit"   "${w100_values[1809_x64]}"
+        1903_x86   "Windows 10, 1903, 32-bit"                 "${w100_values[1903_x86]}"
+        1903_x64   "Windows 10, 1903, 64-bit"                 "${w100_values[1903_x64]}"
+        1909_x86   "Windows 10, 1909, 32-bit"                 "${w100_values[1909_x86]}"
+        1909_x64   "Windows 10, 1909, 64-bit"                 "${w100_values[1909_x64]}"
     )
 
     local -a languages_dialog=(
@@ -291,12 +343,9 @@ function show_selection_dialogs_with_dialog ()
     )
 
     local -a options_dialog=(
-        sp        "Service Packs"                                        "${all_values[sp]}"
-        cpp       "Visual C++ Runtime Libraries"                         "${all_values[cpp]}"
-        dotnet    ".NET Frameworks"                                      "${all_values[dotnet]}"
-        wddefs    "Windows Defender updates for Windows Vista and 7"     "${all_values[wddefs]}"
-        msse      "Microsoft Security Essentials"                        "${all_values[msse]}"
-        wddefs8   "Windows Defender updates for Windows 8, 8.1 and 10"   "${all_values[wddefs8]}"
+        cpp      "Visual C++ Runtime Libraries"          "${all_values[cpp]}"
+        dotnet   ".NET Frameworks"                       "${all_values[dotnet]}"
+        wddefs   "Windows Defender definition updates"   "${all_values[wddefs]}"
     )
 
     # Update selection: On the first run, there are no updates
@@ -314,7 +363,8 @@ function show_selection_dialogs_with_dialog ()
         if update_list="$(dialog \
             --title "Update selection" \
             --stdout \
-            --checklist "Please select your updates:" 0 0 0 "${updates_dialog[@]}" \
+            --checklist "Please select your updates:" 0 0 0 \
+                        "${updates_dialog[@]}" \
             )"
         then
             :
@@ -322,6 +372,42 @@ function show_selection_dialogs_with_dialog ()
             check_dialog_result_code
         fi
     done
+
+    # Remove any quotation marks, which old versions of dialog may insert
+    update_list="${update_list//\"/}"
+    log_debug_message "Update selections: ${update_list}"
+
+    # Specify Windows 10 versions, if w100, w100-x64 or one of the
+    # internal lists, which include Windows 10, is selected
+    for key in ${update_list}
+    do
+        case "${key}" in
+            w100 | w100-x64 | all | all-x86 | all-x64 | all-win | \
+            all-win-x86 | all-win-x64)
+                show_w100_versions="enabled"
+            ;;
+        esac
+    done
+
+    if [[ "${show_w100_versions}" == "enabled" ]]
+    then
+        while [[ -z "${w100_list}" ]]
+        do
+            if w100_list="$(dialog \
+                --title "Windows 10 versions" \
+                --stdout \
+                --checklist "Please select your Windows 10 versions:" \
+                            0 0 0 "${w100_dialog[@]}" \
+                )"
+            then
+                :
+            else
+                check_dialog_result_code
+            fi
+        done
+    fi
+
+    log_debug_message "Windows 10 selections: ${w100_list}"
 
     # Language selection: On the first run, the default languages German
     # and English will be selected. These languages may be deselected,
@@ -331,7 +417,8 @@ function show_selection_dialogs_with_dialog ()
         if language_list="$(dialog \
             --title "Language selection" \
             --stdout \
-            --checklist "Please select your languages:" 0 0 0 "${languages_dialog[@]}" \
+            --checklist "Please select your languages:" 0 0 0 \
+                        "${languages_dialog[@]}" \
             )"
         then
             :
@@ -340,12 +427,13 @@ function show_selection_dialogs_with_dialog ()
         fi
     done
 
-    # Optional downloads: Service packs are selected on the first run. The
-    # list of optional downloads may be empty, if none is selected.
+    # Optional downloads: The list of optional downloads may be empty,
+    # if none is selected.
     if option_list="$(dialog \
         --title "Optional downloads" \
         --stdout \
-        --checklist "Please select the downloads to include:" 0 0 0 "${options_dialog[@]}" \
+        --checklist "Please select the downloads to include:" 0 0 0 \
+                    "${options_dialog[@]}" \
         )"
     then
         :
@@ -354,7 +442,7 @@ function show_selection_dialogs_with_dialog ()
     fi
 
     # Remove any quotation marks, which old versions of dialog may insert
-    update_list="${update_list//\"/}"
+    w100_list="${w100_list//\"/}"
     language_list="${language_list//\"/}"
     option_list="${option_list//\"/}"
 
@@ -374,16 +462,16 @@ function show_selection_dialogs_with_dialog ()
     fi
 
     # Print summary and confirm download command
-    confirmation="Your selections are:\n
-\n
-* Updates: ${update_list}\n
-* Languages: ${language_list}\n
-* Included downloads: ${option_list}\n
-\n
-The command to download the updates is:\n
-\n
-./download-updates.bash ${download_parameters[*]}\n
-\n
+    confirmation="Your selections are:\\n
+\\n
+* Updates: ${update_list}\\n
+* Languages: ${language_list}\\n
+* Included downloads: ${option_list}\\n
+\\n
+The command to download the updates is:\\n
+\\n
+./download-updates.bash ${download_parameters[*]}\\n
+\\n
 Do you wish to run it now?"
 
     if dialog --title "Summary" --yesno "${confirmation}" 0 0
@@ -411,6 +499,34 @@ Do you wish to run it now?"
     do
         all_values["${key}"]="on"
     done
+
+    # The Windows 10 settings should only be written back to disk,
+    # if the Windows 10 versions dialog was displayed. Otherwise, the
+    # default settings or the last used settings should be kept.
+    #
+    # Adding the Windows 10 settings to the other settings would set
+    # these values to "off" at this point.
+    if [[ "${show_w100_versions}" == "enabled" ]]
+    then
+        for key in "${w100_keys[@]}"
+        do
+            w100_values["${key}"]="off"
+        done
+        for key in ${w100_list}
+        do
+            w100_values["${key}"]="on"
+        done
+
+        # Special rules for Windows 10: If version 1903 is selected,
+        # then version 1909 should also be selected. This allows a
+        # "small" upgrade from version 1903 to 1909.
+        #
+        # - https://forums.wsusoffline.net/viewtopic.php?f=6&t=9720
+        [[ "${w100_values[1903_x86]}" == "on" ]] \
+            && w100_values["1909_x86"]="on"
+        [[ "${w100_values[1903_x64]}" == "on" ]] \
+            && w100_values["1909_x64"]="on"
+    fi
 
     return 0
 }

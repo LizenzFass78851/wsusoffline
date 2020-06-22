@@ -23,7 +23,7 @@
 #
 # Description
 #
-#     The file creates the selection dialogs for the update, language
+#     This file displays the selection dialogs for the update, language
 #     and download options. It uses the built-in command "select" of the
 #     bash. This is easy to use, but it doesn't allow multiple selections.
 #
@@ -58,6 +58,7 @@ function show_selection_dialogs ()
 function select_update ()
 {
     local menu_selection=""
+    # update_name is defined globally
     local update_description=""
 
     echo "Update selection"
@@ -86,27 +87,14 @@ function select_update ()
 
 function select_language ()
 {
-    local valid_languages=()
     local menu_selection=""
     local language_name=""
     local language_description=""
 
-    case "${update_name}" in
-        w2k3)
-            valid_languages=( "${languages_menu_w2k3[@]}" )
-        ;;
-        w2k3-x64)
-            valid_languages=( "${languages_menu_w2k3_x64[@]}" )
-        ;;
-        *)
-            valid_languages=( "${languages_menu[@]}" )
-        ;;
-    esac
-
     echo "Language selection"
     echo "------------------"
     PS3="Please select your language: "
-    select menu_selection in "${valid_languages[@]}"
+    select menu_selection in "${languages_menu[@]}"
     do
         if [[ -n "${menu_selection}" ]]
         then
@@ -129,26 +117,26 @@ function select_language ()
 
 function select_options ()
 {
-    local valid_options=()
     local current_option=""
     local option_name=""
     local option_description=""
 
+    # The optional downloads Visual C++ runtime libraries, .NET Frameworks
+    # and Windows Defender definition updates are only available for
+    # Windows, because they depend on the architecture of the operating
+    # system.
     case "${update_name}" in
-        wxp)
-            valid_options=( "${options_menu_windows_xp[@]}" )
+        # Supported Windows versions and internal lists, which include
+        # Windows
+        w62-x64 | w63 | w63-x64 | w100 | w100-x64 | all | all-x86 | \
+        all-x64 | all-win | all-win-x86 | all-win-x64)
+            :
         ;;
-        w2k3 | w2k3-x64)
-            valid_options=( "${options_menu_windows_w2k3[@]}" )
-        ;;
-        w60 | w60-x64 | w61 | w61-x64 | all | all-x86 | all-x64 | all-win | all-win-x86 | all-win-x64)
-            valid_options=( "${options_menu_windows_vista[@]}" )
-        ;;
-        w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
-            valid_options=( "${options_menu_windows_8[@]}" )
-        ;;
-        o2k3 | o2k7 | o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 | all-ofc | all-ofc-x86)
-            valid_options=( "${options_menu_office[@]}" )
+        o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 | \
+        all-ofc | all-ofc-x86)
+            # There are no options for Office, after Service Packs were
+            # removed in WSUS Offline Update 12.0
+            return 0
         ;;
         *)
             fail "Update ${update_name} was not found."
@@ -157,18 +145,15 @@ function select_options ()
 
     echo "Optional downloads"
     echo "------------------"
-    if (( ${#valid_options[@]} > 0 ))
-    then
-        for current_option in "${valid_options[@]}"
-        do
-            read -r option_name option_description <<< "${current_option}"
+    for current_option in "${options_menu[@]}"
+    do
+        read -r option_name option_description <<< "${current_option}"
 
-            if ask_question "Include ${option_description}?"
-            then
-                download_command+=( "${option_name}" )
-            fi
-        done
-    fi
+        if ask_question "Include ${option_description}?"
+        then
+            download_command+=( "${option_name}" )
+        fi
+    done
     return 0
 }
 

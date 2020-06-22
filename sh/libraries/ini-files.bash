@@ -52,7 +52,7 @@
 #        read and written with special functions. Then these files don't
 #        necessarily need to adhere to the bash syntax:
 #
-#        - Strings like "w60-x64" can be used as keys, although they
+#        - Strings like "w63-x64" can be used as keys, although they
 #          would not be valid parameter names.
 #        - The values are not quoted, even if they consist of several
 #          words. Everything from the equals sign "=" to the end of the
@@ -165,13 +165,13 @@ function write_setting ()
             # as the file extension and the sed script command. Then
             # the FreeBSD sed may print an error message like:
             #
-            # $ sed -i "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i "s/w63=off/w63=on/" update-generator.ini
             # sed: 1: "update-generator.ini": invalid command code u
             #
             # It is possible to specify an empty string as a file
             # extension, like:
             #
-            # $ sed -i "" "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i "" "s/w63=off/w63=on/" update-generator.ini
             #
             # Then FreeBSD sed will not report an error, and the script
             # command is evaluated as expected.
@@ -184,7 +184,7 @@ function write_setting ()
             # is to actually provide a file extension for backup files
             # (which will be removed afterwards):
             #
-            # $ sed -i.bak "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i.bak "s/w63=off/w63=on/" update-generator.ini
             #
             # The search pattern for sed is anchored to the beginning of
             # the line with the character "^". The end-of-line character

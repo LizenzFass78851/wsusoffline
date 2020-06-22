@@ -39,7 +39,7 @@ function get_included_downloads ()
     local current_download=""
     local current_arch=""
 
-    if (( ${#downloads_list[@]} > 0 ))
+    if (( "${#downloads_list[@]}" > 0 ))
     then
         for current_download in "${downloads_list[@]}"
         do
@@ -48,12 +48,12 @@ function get_included_downloads ()
                 wsus | cpp)
                     process_included_download "${current_download}" "all"
                 ;;
+                # At this point, only the .NET Framework installers are
+                # downloaded. These are architecture-independent, but the
+                # dynamic updates are not. There is tested here, to avoid
+                # downloading only the installers, without any updates.
                 dotnet)
-                # The .NET Framework installers are
-                # architecture-independent, but the dynamic updates are
-                # not. There is no use to download ONLY the installers,
-                # without any updates.
-                    if (( ${#architectures_list[@]} > 0 ))
+                    if (( "${#architectures_list[@]}" > 0 ))
                     then
                         process_included_download "${current_download}" "all"
                     else
@@ -63,8 +63,8 @@ function get_included_downloads ()
                 # Architecture dependent downloads; these downloads must
                 # be processed twice for both x86 and x64, if present
                 # in the architectures list.
-                msse | wddefs | wddefs8)
-                    if (( ${#architectures_list[@]} > 0 ))
+                wddefs)
+                    if (( "${#architectures_list[@]}" > 0 ))
                     then
                         for current_arch in "${architectures_list[@]}"
                         do
@@ -132,27 +132,11 @@ function process_included_download ()
             interval_length="${interval_length_dependent_files}"
             interval_description="${interval_description_dependent_files}"
         ;;
-        msse)
-            timestamp_pattern="msse-${arch}-${language_parameter}"
-            hashes_file="../client/md/hashes-msse.txt"
-            hashed_dir="../client/msse"
-            download_dir="../client/msse/${arch}-glb"
-            interval_length="${interval_length_virus_definitions}"
-            interval_description="${interval_description_virus_definitions}"
-        ;;
         wddefs)
             timestamp_pattern="wddefs-${arch}-glb"
             hashes_file="../client/md/hashes-wddefs.txt"
             hashed_dir="../client/wddefs"
             download_dir="../client/wddefs/${arch}-glb"
-            interval_length="${interval_length_virus_definitions}"
-            interval_description="${interval_description_virus_definitions}"
-        ;;
-        wddefs8)
-            timestamp_pattern="wddefs8-${arch}-glb"
-            hashes_file="../client/md/hashes-msse.txt"
-            hashed_dir="../client/msse"
-            download_dir="../client/msse/${arch}-glb"
             interval_length="${interval_length_virus_definitions}"
             interval_description="${interval_description_virus_definitions}"
         ;;
@@ -204,7 +188,7 @@ function calculate_static_downloads ()
     rm -f "${static_download_links}"
 
     case "${name}" in
-        wsus | cpp | dotnet | msse | wddefs | wddefs8)
+        wsus | cpp | dotnet | wddefs)
             "calculate_static_downloads_${name}" "${arch}" "${static_download_links}"
         ;;
         *)
@@ -280,38 +264,34 @@ function calculate_static_downloads_dotnet ()
 
     for current_dir in ../static ../static/custom
     do
-        # English installers for the .Net Frameworks 3.5, 4.6 and
-        # 4.7. These are the only full installers for the .Net Frameworks,
-        # and they are needed for all other languages as well.
+        # After removing the default language German, the file
+        # static/StaticDownloadLinks-dotnet.txt should only contain the
+        # English installers for the .NET Frameworks. These are the only
+        # full installers, and they are needed for all other languages
+        # as well.
         if [[ -s "${current_dir}/StaticDownloadLinks-dotnet.txt" ]]
         then
             cat_dos "${current_dir}/StaticDownloadLinks-dotnet.txt" \
                 >> "${dotnet_installers}"
         fi
-        # Localized installers for language packs. The names of these
-        # installers are similar to the full installers, but the file
-        # size is much smaller.
+        # Localized installers for language packs. The filenames of
+        # these installers are similar to the full installers, but the
+        # file size is much smaller.
         #
         # Since there are no English language packs, there are no static
         # download files StaticDownloadLinks-dotnet-x86-enu.txt and
         # StaticDownloadLinks-dotnet-x64-enu.txt.
         #
-        # The search patterns are extracted from the Windows script
-        # AddCustomLanguageSupport.cmd. These patterns match those for
-        # the file ..\static\custom\StaticDownloadLinks-dotnet.txt.
+        # The search patterns are the same as in the Windows script
+        # AddCustomLanguageSupport.cmd. At this point, only the
+        # architecture-independent installers are needed. The script
+        # AddCustomLanguageSupport.cmd extracts these links to the file
+        # ..\static\custom\StaticDownloadLinks-dotnet.txt.
         for current_lang in glb "${languages_list[@]}"
         do
             if [[ -s "${current_dir}/StaticDownloadLinks-dotnet-x86-${current_lang}.txt" ]]
             then
-                grep_dos -F -i -e "dotNetFx40LP_Full_"   \
-                               -e "NDP452-KB2901907-"    \
-                               -e "NDP46-KB3045557-"     \
-                               -e "NDP461-KB3102436-"    \
-                               -e "NDP462-KB3151800-"    \
-                               -e "NDP47-KB3186497-"     \
-                               -e "NDP471-KB4033342-"    \
-                               -e "NDP472-KB4054530-"    \
-                               -e "ndp48-x86-x64-allos-" \
+                grep_dos -F -i -e "ndp48-x86-x64-allos-" \
                     "${current_dir}/StaticDownloadLinks-dotnet-x86-${current_lang}.txt" \
                     >> "${dotnet_installers}" || true
             fi
@@ -327,27 +307,6 @@ function calculate_static_downloads_dotnet ()
     return 0
 }
 
-function calculate_static_downloads_msse ()
-{
-    local arch="$1"
-    local static_download_links="$2"
-    local current_dir=""
-    local current_lang=""
-
-    for current_dir in ../static ../static/custom
-    do
-        for current_lang in glb "${languages_list[@]}"
-        do
-            if [[ -s "${current_dir}/StaticDownloadLinks-msse-${arch}-${current_lang}.txt" ]]
-            then
-                cat_dos "${current_dir}/StaticDownloadLinks-msse-${arch}-${current_lang}.txt" \
-                    >> "${static_download_links}"
-            fi
-        done
-    done
-    return 0
-}
-
 function calculate_static_downloads_wddefs ()
 {
     local arch="$1"
@@ -360,25 +319,6 @@ function calculate_static_downloads_wddefs ()
         then
             cat_dos "${current_dir}/StaticDownloadLink-wddefs-${arch}-glb.txt" \
                 >> "${static_download_links}"
-        fi
-    done
-    return 0
-}
-
-function calculate_static_downloads_wddefs8 ()
-{
-    local arch="$1"
-    local static_download_links="$2"
-    local current_dir=""
-
-    for current_dir in ../static ../static/custom
-    do
-        if [[ -s "${current_dir}/StaticDownloadLinks-msse-${arch}-glb.txt" ]]
-        then
-            grep_dos -F -i -e "LinkID" \
-                           -e "nis_full.exe" \
-                "${current_dir}/StaticDownloadLinks-msse-${arch}-glb.txt" \
-                >> "${static_download_links}" || true
         fi
     done
     return 0

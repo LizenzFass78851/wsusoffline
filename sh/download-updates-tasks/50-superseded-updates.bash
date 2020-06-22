@@ -458,10 +458,8 @@ function rebuild_superseded_updates ()
         ../exclude/ExcludeList-superseded-exclude-seconly.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
         ../exclude/custom/ExcludeList-superseded-exclude-seconly.txt
-        ../client/static/StaticUpdateIds-w61*-seconly.txt
         ../client/static/StaticUpdateIds-w62*-seconly.txt
         ../client/static/StaticUpdateIds-w63*-seconly.txt
-        ../client/static/custom/StaticUpdateIds-w61*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w62*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w63*-seconly.txt
     )

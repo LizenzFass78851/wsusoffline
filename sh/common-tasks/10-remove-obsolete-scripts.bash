@@ -161,9 +161,20 @@ function remove_obsolete_scripts ()
         if (( "${#file_list[@]}" == 0 ))
         then
             rmdir ./xslt
-            #echo "Deleted empty directory ./xslt"
         fi
     fi
+
+    # Windows Server 2008 and Windows 7 / Server 2008 R2 were removed
+    # in WSUS Offline Update version 12.0.
+    rm -f ./exclude/ExcludeListISO-w60.txt
+    rm -f ./exclude/ExcludeListISO-w60-x64.txt
+    rm -f ./exclude/ExcludeListISO-w61.txt
+    rm -f ./exclude/ExcludeListISO-w61-x64.txt
+
+    rm -f ./exclude/ExcludeListUSB-w60.txt
+    rm -f ./exclude/ExcludeListUSB-w60-x64.txt
+    rm -f ./exclude/ExcludeListUSB-w61.txt
+    rm -f ./exclude/ExcludeListUSB-w61-x64.txt
 
     return 0
 }

@@ -50,36 +50,20 @@
 #     Tables for the script download-updates.bash
 #
 #     Tables are created by printing the indexed arrays. They can be
-#     searched just like text files, by replacing a file reference with
-#     a "here-string". The function name_to_description reads the table
-#     in a loop and returns the description, if the specified name was
-#     found. The similar function language_name_to_locale returns the
-#     locale for a given language name.
+#     searched just like text files, by replacing a file reference with a
+#     "here-string". The function name_to_description reads the table in
+#     a loop and returns the description, if the specified name was found.
 
 # ========== Version specific configuration ===============================
 
-# This is the configuration file for the current version 11.1.1 of WSUS
-# Offline Update.
-
-localized_win_updates="disabled"
-dynamic_win_updates="disabled"
+# This is the configuration file for the current (or trunk) version WSUS
+# Offline Update 12.0.
 
 # Supported updates
 #
-# Windows Server 2008, based on Windows Vista, is available in both
-# 32-bit and 64-bit versions.
-#
-# Windows Server 2008 R2, based on Windows 7, "is the first 64-bit–only
-# operating system released from Microsoft."
-#
-# - https://en.wikipedia.org/wiki/Windows_Server_2008
-# - https://en.wikipedia.org/wiki/Windows_Server_2008_R2
-
+# The indexed arrays updates_menu, languages_menu and options_menu are
+# used as menus for the internal command "select" of the bash.
 updates_menu=(
-    "w60           Windows Server 2008, 32-bit"
-    "w60-x64       Windows Server 2008, 64-bit"
-    "w61           Windows 7, 32-bit"
-    "w61-x64       Windows 7 / Server 2008 R2, 64-bit"
     "w62-x64       Windows Server 2012, 64-bit"
     "w63           Windows 8.1, 32-bit"
     "w63-x64       Windows 8.1 / Server 2012 R2, 64-bit"
@@ -102,18 +86,23 @@ updates_menu=(
 )
 
 # Internal Lists
-list_all=( "w60" "w60-x64" "w61" "w61-x64" "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_x86=( "w60" "w61" "w63" "w100" "o2k10" "o2k13" "o2k16" )
-list_all_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_win=( "w60" "w60-x64" "w61" "w61-x64" "w62-x64" "w63" "w63-x64" "w100" "w100-x64" )
-list_all_win_x86=( "w60" "w61" "w63" "w100" )
-list_all_win_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" )
+list_all=( "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
+list_all_x86=( "w63" "w100" "o2k10" "o2k13" "o2k16" )
+list_all_x64=( "w62-x64" "w63-x64" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
+list_all_win=( "w62-x64" "w63" "w63-x64" "w100" "w100-x64" )
+list_all_win_x86=( "w63" "w100" )
+list_all_win_x64=( "w62-x64" "w63-x64" "w100-x64" )
 list_all_ofc=( "o2k10-x64" "o2k13-x64" "o2k16-x64" )
 list_all_ofc_x86=( "o2k10" "o2k13" "o2k16" )
 
 # ========== Configuration of languages and optional downloads ============
 
-# Languages for Windows XP and Office 2003 - 2013
+# Supported Languages
+#
+# Recent Windows versions use global/multilingual updates, but the
+# installers for Internet Explorer and .NET Frameworks are still
+# localized. Therefore, the approach for the Linux scripts is to display
+# the language selection for all updates.
 languages_menu=(
     "deu   German"
     "enu   English"
@@ -141,139 +130,31 @@ languages_menu=(
     "trk   Turkish"
 )
 
-# Languages for Windows Server 2003, 32-bit
-languages_menu_w2k3=(
-    "deu   German"
-    "enu   English"
-    "chs   Chinese (Simplified)"
-    "cht   Chinese (Traditional)"
-    "csy   Czech"
-    "nld   Dutch"
-    "fra   French"
-    "hun   Hungarian"
-    "ita   Italian"
-    "jpn   Japanese"
-    "kor   Korean"
-    "plk   Polish"
-    "ptg   Portuguese"
-    "ptb   Portuguese (Brazil)"
-    "rus   Russian"
-    "esn   Spanish"
-    "sve   Swedish"
-    "trk   Turkish"
-)
-
-# Languages for Windows XP / Server 2003, 64-bit
-languages_menu_w2k3_x64=(
-    "deu   German"
-    "enu   English"
-    "fra   French"
-    "ita   Italian"
-    "jpn   Japanese"
-    "kor   Korean"
-    "ptb   Portuguese (Brazil)"
-    "rus   Russian"
-    "esn   Spanish"
-)
-
-# Options for Windows XP
-#
-# The latest installers for Windows Security Essentials don't support
-# Windows XP anymore, but maybe the virus definition files still work.
-options_menu_windows_xp=(
-    "-includesp        Service Packs"
-    "-includecpp       Visual C++ Runtime Libraries"
-    "-includedotnet    .NET Frameworks"
-    "-includewddefs    Windows Defender Definitions for Windows XP, Vista and 7"
-    "-includemsse      Microsoft Security Essentials"
-)
-
-# Options for Windows Server 2003
-#
-# The original Windows Defender may still be supported, but Microsoft
-# Security Essentials was never supported on Windows Server 2003.
-options_menu_windows_w2k3=(
-    "-includesp        Service Packs"
-    "-includecpp       Visual C++ Runtime Libraries"
-    "-includedotnet    .NET Frameworks"
-    "-includewddefs    Windows Defender Definitions for Windows XP, Vista and 7"
-)
-
-# Options for Windows Vista and Windows 7.
-#
-# The original Windows Defender is preinstalled in Windows Vista and
-# 7. It can be replaced by Security Essentials.
-#
-# These options are also used as a common delimiter for the internal
-# lists all, all-x86, all-x64, all-win, all-win-x86, and all-win-x64.
-options_menu_windows_vista=(
-    "-includesp        Service Packs"
-    "-includecpp       Visual C++ Runtime Libraries"
-    "-includedotnet    .NET Frameworks"
-    "-includewddefs    Windows Defender Definitions for Windows Vista and 7"
-    "-includemsse      Microsoft Security Essentials"
-)
-
 # Options for Windows 8, 8.1 and 10
-options_menu_windows_8=(
-    "-includesp        Service Packs"
-    "-includecpp       Visual C++ Runtime Libraries"
-    "-includedotnet    .NET Frameworks"
-    "-includewddefs8   Windows Defender Definitions for Windows 8 - 10"
+#
+# These options are not displayed for Office
+options_menu=(
+    "-includecpp      Visual C++ Runtime Libraries"
+    "-includedotnet   .NET Frameworks"
+    "-includewddefs   Windows Defender definition updates"
 )
 
-# Options for all Office versions
-options_menu_office=(
-    "-includesp        Service Packs"
-)
-
-# All options
-options_menu_all=(
-    "-includesp        Service Packs"
-    "-includecpp       Visual C++ Runtime Libraries"
-    "-includedotnet    .NET Frameworks"
-    "-includewddefs    Windows Defender Definitions for Windows Vista and 7"
-    "-includemsse      Microsoft Security Essentials"
-    "-includewddefs8   Windows Defender Definitions for Windows 8 - 10"
-)
-
-# The table language_names_and_locales is used to match the language
-# names to the corresponding locales. It is read by the function
-# language_name_to_locale. The description is not used anymore and only
-# serves as an internal documentation.
-language_names_and_locales="\
-deu   de      German
-enu   en      English
-ara   ar      Arabic
-chs   zh-cn   Chinese (Simplified)
-cht   zh-tw   Chinese (Traditional)
-csy   cs      Czech
-dan   da      Danish
-nld   nl      Dutch
-fin   fi      Finnish
-fra   fr      French
-ell   el      Greek
-heb   he      Hebrew
-hun   hu      Hungarian
-ita   it      Italian
-jpn   ja      Japanese
-kor   ko      Korean
-nor   no      Norwegian
-plk   pl      Polish
-ptg   pt      Portuguese
-ptb   pt-br   Portuguese (Brazil)
-rus   ru      Russian
-esn   es      Spanish
-sve   sv      Swedish
-trk   tr      Turkish
-"
-
-# The remaining tables are created from the indexed arrays above.
+# Tables (string variables with multiple lines) are created from the
+# indexed arrays above
 updates_table="$(printf '%s\n' "${updates_menu[@]}")"
 languages_table="$(printf '%s\n' "${languages_menu[@]}")"
-languages_table_w2k3="$(printf '%s\n' "${languages_menu_w2k3[@]}")"
-languages_table_w2k3_x64="$(printf '%s\n' "${languages_menu_w2k3_x64[@]}")"
-options_table_all="$(printf '%s\n' "${options_menu_all[@]}")"
+options_table="$(printf '%s\n' "${options_menu[@]}")"
+
+# Some debug output
+#echo "--- Updates ---"
+#echo "${updates_table}"
+#echo ""
+#echo "--- Languages ---"
+#echo "${languages_table}"
+#echo ""
+#echo "--- Options ---"
+#echo "${options_table}"
+#echo ""
 
 # ========== Functions ====================================================
 
@@ -301,41 +182,6 @@ function name_to_description ()
             return 0
         fi
     done <<< "${searched_table}"
-
-    echo ""
-    return 1
-}
-
-# The function language_name_to_locale converts language names like deu
-# and enu to the corresponding locales de and en.
-#
-# If the language name was found, then the locale is printed to standard
-# output and the result code is set to "0".
-#
-# If the language name was NOT found, an empty string is returned and
-# the result code is set to "1".
-
-function language_name_to_locale ()
-{
-    local searched_name="$1"
-    local name=""
-    local locale=""
-    local description=""
-
-    if [[ "${searched_name}" == "glb" ]]
-    then
-        printf '%s\n' "not-available"
-        return 0
-    else
-        while read -r name locale description
-        do
-            if [[ "${name}" == "${searched_name}" ]]
-            then
-                printf '%s\n' "${locale}"
-                return 0
-            fi
-        done <<< "${language_names_and_locales}"
-    fi
 
     echo ""
     return 1

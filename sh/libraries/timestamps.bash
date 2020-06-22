@@ -160,8 +160,6 @@ function same_day ()
 #   because these are the only "full" installers. Installers for other
 #   languages are only language packs. Therefore, the timestamp for
 #   dotnet-x86-deu should also update the timestamp for dotnet-x86-enu.
-# - wddefs8 is msse without the localized installers. Any download for
-#   msse should also update the timestamp for wddefs8.
 # - Office 32-bit downloads are included in Office 64-bit downloads.
 
 function update_timestamp ()
@@ -174,16 +172,10 @@ function update_timestamp ()
             touch "${timestamp_dir}/timestamp-dotnet-all-enu.txt"
         ;;
         timestamp-dotnet-x86-*.txt)
-            touch "${timestamp_dir}/timestamp-dotnet-x86-enu-${include_service_packs}-${prefer_seconly}.txt"
+            touch "${timestamp_dir}/timestamp-dotnet-x86-enu-${prefer_seconly}.txt"
         ;;
         timestamp-dotnet-x64-*.txt)
-            touch "${timestamp_dir}/timestamp-dotnet-x64-enu-${include_service_packs}-${prefer_seconly}.txt"
-        ;;
-        timestamp-msse-x86-*.txt)
-            touch "${timestamp_dir}/timestamp-wddefs8-x86-glb.txt"
-        ;;
-        timestamp-msse-x64-*.txt)
-            touch "${timestamp_dir}/timestamp-wddefs8-x64-glb.txt"
+            touch "${timestamp_dir}/timestamp-dotnet-x64-enu-${prefer_seconly}.txt"
         ;;
         timestamp-o2k10-x64-*.txt | timestamp-o2k13-x64-*.txt | timestamp-o2k16-x64-*.txt)
             touch "${timestamp_file/x64/x86}"
@@ -294,10 +286,6 @@ function reevaluate_dynamic_updates ()
     then
         shopt -s nullglob
         file_list=(
-            "${timestamp_dir}"/timestamp-wxp-*.txt
-            "${timestamp_dir}"/timestamp-w2k3-*.txt
-            "${timestamp_dir}"/timestamp-w60-*.txt
-            "${timestamp_dir}"/timestamp-w61-*.txt
             "${timestamp_dir}"/timestamp-w62-*.txt
             "${timestamp_dir}"/timestamp-w63-*.txt
             "${timestamp_dir}"/timestamp-w100-*.txt
@@ -306,14 +294,6 @@ function reevaluate_dynamic_updates ()
             "${timestamp_dir}"/timestamp-ofc-*.txt
         )
         shopt -u nullglob
-
-        # The ESR version uses dynamic win updates.
-        if [[ "${dynamic_win_updates}" == "enabled" ]]
-        then
-            shopt -s nullglob
-            file_list+=( "${timestamp_dir}"/timestamp-win-*.txt )
-            shopt -u nullglob
-        fi
 
         if (( "${#file_list[@]}" > 0 ))
         then

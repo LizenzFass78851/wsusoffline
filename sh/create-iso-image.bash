@@ -48,50 +48,37 @@
 #
 # ./create-iso-image.bash <update> [<option> ...]
 #
-# The first parameter is the profile name. It can be one of:
+# The first parameter is the profile name. In WSUS Offline Update 12.0
+# and later, this can be one of:
 #
 #   all           All Windows and Office updates, 32-bit and 64-bit
 #   all-x86       All Windows and Office updates, 32-bit
 #   all-win-x64   All Windows updates, 64-bit
 #   all-ofc       All Office updates, 32-bit and 64-bit
-#   wxp           Windows XP, 32-bit                    (ESR version only)
-#   w2k3          Windows Server 2003, 32-bit           (ESR version only)
-#   w2k3-x64      Windows XP / Server 2003, 64-bit      (ESR version only)
-#   w60           Windows Vista / Server 2008, 32-bit
-#   w60-x64       Windows Vista / Server 2008, 64-bit
-#   w61           Windows 7, 32-bit
-#   w61-x64       Windows 7 / Server 2008 R2, 64-bit
-#   w62           Windows 8, 32-bit                     (ESR version only)
-#   w62-x64       Windows 8 / Server 2012, 64-bit
+#   w62-x64       Server 2012, 64-bit
 #   w63           Windows 8.1, 32-bit
 #   w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
-#   w100          Windows 10, 32-bit                (current version only)
-#   w100-x64      Windows 10 / Server 2016/2019, 64-bit  (current version)
+#   w100          Windows 10, 32-bit
+#   w100-x64      Windows 10 / Server 2016/2019, 64-bit
 #
 # The options are:
 #
-#   -includesp         Include service packs
 #   -includecpp        Include Visual C++ Runtime Libraries
 #   -includedotnet     Include .NET Frameworks
-#   -includewddefs     Include Windows Defender virus definitions for
-#                      the built-in Defender of Windows Vista and 7.
-#   -includemsse       Include Microsoft Security Essentials. The virus
-#                      definitions are also used for the built-in Defender
-#                      of Windows 8, 8.1 and 10.
+#   -includewddefs     Include Windows Defender definition updates for
+#                      the built-in Defender of Windows 8, 8.1 and 10
 #   -output-path <dir> Output directory for the ISO image file - the
 #                      default is ../iso
 #   -create-hashes     Create a hashes file for the ISO image file
 #
 # The script create-iso-image.bash is meant to support both the current
-# and the ESR version of WSUS Offline Update, but some updates are only
-# available in the current version and vice versa.
+# version WSUS Offline Update 12.0 and the branch 11.9.x ESR, but some
+# updates are only available in the ESR version.
 #
 # The distinction is the presence of the filter files ExcludeListISO-*.txt
-# and the download directories: Windows XP is not supported by the current
-# version, because neither the filter file ExcludeListISO-wxp.txt nor
-# the download directory client/wxp can be found. The profile "all",
-# which only removes three unneeded files, can be used with the ESR
-# version, though.
+# and the download directories: Windows 7 is not supported by the current
+# version, because neither the filter file ExcludeListISO-w61.txt nor
+# the download directory client/w61 can be found.
 #
 #
 # The script create-iso-image.bash has basically three modes of operation:
@@ -108,7 +95,7 @@
 #    disks, and the file size should be restricted to 4.7 GB, but today
 #    they may easily grow larger.
 #
-# 3. The profiles "w60", "w60-x64", etc create a series of ISO images
+# 3. The profiles "w63", "w63-x64", etc create a series of ISO images
 #    per product.
 #
 #    Originally, these ISO images were supposed to fit on CD-ROMs, and
@@ -202,11 +189,9 @@ iso_name=""
 # The creation of a hashes file is disabled by default, but may be
 # enabled with the command-line option -create-hashes.
 declare -A options=(
-    [sp]="disabled"
     [cpp]="disabled"
     [dotnet]="disabled"
     [wddefs]="disabled"
-    [msse]="disabled"
     [hashes]="disabled"
 )
 
@@ -222,29 +207,17 @@ The update can be one of:
     all-x86       All Windows and Office updates, 32-bit
     all-win-x64   All Windows updates, 64-bit
     all-ofc       All Office updates, 32-bit and 64-bit
-    wxp           Windows XP, 32-bit                    (ESR version only)
-    w2k3          Windows Server 2003, 32-bit           (ESR version only)
-    w2k3-x64      Windows XP / Server 2003, 64-bit      (ESR version only)
-    w60           Windows Vista / Server 2008, 32-bit
-    w60-x64       Windows Vista / Server 2008, 64-bit
-    w61           Windows 7, 32-bit
-    w61-x64       Windows 7 / Server 2008 R2, 64-bit
-    w62           Windows 8, 32-bit                     (ESR version only)
-    w62-x64       Windows 8 / Server 2012, 64-bit
+    w62-x64       Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
-    w100          Windows 10, 32-bit                (current version only)
-    w100-x64      Windows 10 / Server 2016/2019, 64-bit  (current version)
+    w100          Windows 10, 32-bit
+    w100-x64      Windows 10 / Server 2016/2019, 64-bit
 
 The options are:
-    -includesp         Include service packs
     -includecpp        Include Visual C++ Runtime Libraries
     -includedotnet     Include .NET Frameworks
-    -includewddefs     Include Windows Defender virus definitions for
-                       the built-in Defender of Windows Vista and 7.
-    -includemsse       Include Microsoft Security Essentials. The virus
-                       definitions are also used for the built-in Defender
-                       of Windows 8, 8.1 and 10.
+    -includewddefs     Include Windows Defender definition updates for
+                       the built-in Defender of Windows 8, 8.1 and 10
     -output-path <dir> Output directory for the ISO image file - the
                        default is ../iso
     -create-hashes     Create a hashes file for the ISO image file
@@ -366,14 +339,13 @@ function parse_command_line ()
 
     log_info_message "Parsing first parameter..."
     update_name="$1"
+    # Verify and set the used ExcludeListISO-*.txt
     case "${update_name}" in
-        all | all-x86 | all-win-x64 | all-ofc \
-        | wxp | w2k3 | w2k3-x64 | w60 | w60-x64 | w61 | w61-x64 \
-        | w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+        all | all-x86 | all-win-x64 | all-ofc | \
+        w62-x64 | w63 | w63-x64 | w100 | w100-x64)
             log_info_message "Found update ${update_name}"
             # Verify the exclude list: There must be one exclude list
-            # for each supported update name. This allows the script
-            # with different versions of WSUS Offline Update.
+            # for each supported update name.
             #
             # The script create-iso-image.bash uses its own set of exclude
             # lists in the directory ./exclude. A user-created file in
@@ -389,26 +361,38 @@ function parse_command_line ()
             then
                 log_info_message "Selected exclude list: ${selected_excludelist}"
             else
-                log_error_message "The file ExcludeListISO-${update_name}.txt was not found in the directory sh/exclude. The update ${update_name} may not be supported in this version of WSUS Offline update. Try the update \"all\" instead."
+                log_error_message "The file ExcludeListISO-${update_name}.txt was not found in the directory sh/exclude. The update ${update_name} may not be supported in this version of WSUS Offline update. Try the profile \"all\" instead."
                 exit 1
             fi
-        # Using a ;;& instead of the common ;; continues the evaluation
-        # of known updates with the next clauses. This means, that all
-        # updates can and must be handled again. This requires at least
-        # bash version 4.0, though.
-        ;;&
-        # There is nothing more to do for the updates all, all-x86 and
+        ;;
+        *)
+            log_error_message "The update ${update_name} was not recognized."
+            show_usage
+            exit 1
+        ;;
+    esac
+    # Check the download directories
+    #
+    # This was meant as another test, do distinguish the current version
+    # of WSUS Offline Update and previous ESR versions.
+    case "${update_name}" in
+        # There is nothing to do for the profiles all, all-x86 and
         # all-win-x64. Using a simple "no-operation" prevents error
-        # messages by the catch-all handler *) at the end.
+        # messages by the catch-all handler at the end.
+        #
+        # TODO: Actually check the download directories for all supported
+        # Windows versions w62-x64, w63, w63-x64, w100 and w100-x64.
         all | all-x86 | all-win-x64)
             :
         ;;
-        # For ofc and all single Windows downloads, the download
-        # directories should be verified.
+        # For the profile all-ofc and all single Windows downloads,
+        # the download directories should be verified.
         #
         # The shell follows symbolic links to the download directory,
         # so the test -d matches both the original directories and valid
         # symbolic links to directories.
+        #
+        # TODO: Also check the supported Office versions
         all-ofc)
             if [[ -d "../client/ofc" ]]
             then
@@ -418,8 +402,7 @@ function parse_command_line ()
                 exit 1
             fi
         ;;
-        wxp | w2k3 | w2k3-x64 | w60 | w60-x64 | w61 | w61-x64 \
-        | w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+        w62-x64 | w63 | w63-x64 | w100 | w100-x64)
             if [[ -d "../client/${update_name}" ]]
             then
                 log_info_message "Found download directory ${update_name}."
@@ -441,11 +424,7 @@ function parse_command_line ()
     do
         option_name="$1"
         case "${option_name}" in
-            -includesp)
-                log_info_message "Found option -includesp."
-                options[sp]="enabled"
-            ;;
-            -includecpp | -includedotnet | -includemsse)
+            -includecpp | -includedotnet | -includewddefs)
                 case "${update_name}" in
                     all-ofc)
                         log_warning_message "Option ${option_name} is ignored for update all-ofc."
@@ -455,20 +434,6 @@ function parse_command_line ()
                         # Strip the prefix "-include"
                         option_name="${option_name#-include}"
                         options["${option_name}"]="enabled"
-                    ;;
-                esac
-            ;;
-            -includewddefs)
-                case "${update_name}" in
-                    all-ofc)
-                        log_warning_message "Option -includewddefs is ignored for update all-ofc."
-                    ;;
-                    w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
-                        log_warning_message "Option -includewddefs is ignored for Windows 8 and higher. Use -includemsse instead."
-                    ;;
-                    *)
-                        log_info_message "Found option -includewddefs."
-                        options[wddefs]="enabled"
                     ;;
                 esac
             ;;
@@ -522,28 +487,8 @@ function create_filter_file ()
     # Remove empty lines and comments
     grep -v -e "^$" -e "^#" "${selected_excludelist}" >> "${filter_file}"
 
-    # Remove service packs, if the option -includesp was not used
-    if [[ "${options[sp]}" == "enabled" ]]
-    then
-        log_info_message "Service Packs are included."
-    else
-        log_info_message "Excluding Service Packs..."
-        if [[ -f "../exclude/ExcludeList-SPs.txt" ]]
-        then
-            while read -r line
-            do
-                # Add shell pattern around the kb numbers for mkisofs
-                # and genisoimage
-                printf '%s\n' "*${line}*"
-            done < <(cat_dos "../exclude/ExcludeList-SPs.txt") >> "${filter_file}"
-        else
-            log_error_message "File ../exclude/ExcludeList-SPs.txt was not found."
-            exit 1
-        fi
-    fi
-
     # Optional downloads
-    for option_name in cpp dotnet wddefs msse
+    for option_name in cpp dotnet wddefs
     do
         if [[ "${options[${option_name}]}" == "enabled" ]]
         then

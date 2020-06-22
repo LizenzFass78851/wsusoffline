@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: 1.19
-# Release date: 2020-03-11
-# Intended compatibility: WSUS Offline Update version 11.9
+# Version: 2.0
+# Release date: 2020-03-25
+# Intended compatibility: WSUS Offline Update version 12.0
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -46,10 +46,6 @@
 #                                [OPTIONS]
 #
 #     UPDATE
-#         w60           Windows Server 2008, 32-bit
-#         w60-x64       Windows Server 2008, 64-bit
-#         w61           Windows 7, 32-bit
-#         w61-x64       Windows 7 / Server 2008 R2, 64-bit
 #         w62-x64       Windows Server 2012, 64-bit
 #         w63           Windows 8.1, 32-bit
 #         w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
@@ -71,7 +67,7 @@
 #         all-ofc-x86   All Office updates, 32-bit
 #
 #         Notes: Multiple updates can be joined to a comma-separated
-#         list like "w60,w60-x64".
+#         list like "w63,w63-x64".
 #
 #     LANGUAGE
 #         deu    German
@@ -103,9 +99,6 @@
 #         list like "deu,enu".
 #
 #     OPTIONS
-#        -includesp
-#             Include Service Packs
-#
 #        -includecpp
 #             Include Visual C++ runtime libraries
 #
@@ -114,24 +107,8 @@
 #             and updates
 #
 #        -includewddefs
-#             Virus definition files for Windows Vista and 7. These virus
-#             definition files are only compatible with the original
-#             Windows Defender, which was included in Windows Vista and 7.
-#
-#        -includemsse
-#             Microsoft Security Essentials: localized installation files
-#             and virus definition updates. Microsoft Security Essentials
-#             is an optional installation for Windows Vista and 7.
-#
-#        -includewddefs8
-#             Virus definition files for Windows 8 and higher. These
-#             are the same virus definition updates as for Microsoft
-#             Security Essentials, and they are downloaded to the same
-#             directories, but without the localized installers.
-#
-#             Therefore, "wddefs8" is a subset of "msse", and you should
-#             use -includemsse instead for the internal lists "all" and
-#             "all-win".
+#             Windows Defender definition updates for the built-in
+#             Defender of Windows 8, 8.1 and 10.
 
 # ========== Formatting ===================================================
 
@@ -180,8 +157,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19"
-readonly release_date="2020-03-11"
+readonly script_version="2.0"
+readonly release_date="2020-03-25"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -488,7 +465,7 @@ function run_tasks ()
         file_list=( "./${task_directory}"/*.bash )
         shopt -u nullglob
 
-        if (( ${#file_list[@]} > 0 ))
+        if (( "${#file_list[@]}" > 0 ))
         then
             for current_task in "${file_list[@]}"
             do

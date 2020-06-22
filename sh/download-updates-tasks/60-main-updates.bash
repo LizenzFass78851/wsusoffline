@@ -30,6 +30,11 @@
 #     - The indexed arrays updates_list, architectures_list and
 #       languages_list are defined in the file 10-parse-command-line.bash
 
+# ========== Configuration ================================================
+
+w100_versions=( 1507 1607 1709 1803 1809 1903 1909 )
+w100_versions_file="w100-versions.ini"
+
 # ========== Global variables =============================================
 
 if [[ "${prefer_seconly}" == enabled ]]
@@ -52,69 +57,28 @@ function get_main_updates ()
     local current_arch=""
     local current_lang=""
 
-    if (( ${#updates_list[@]} > 0 ))
+    if (( "${#updates_list[@]}" > 0 ))
     then
         for current_update in "${updates_list[@]}"
         do
             case "${current_update}" in
                 # Common Windows updates
                 win)
-                    if [[ "${localized_win_updates}" == "enabled" ]]
-                    then
-                        for current_lang in "glb" "${languages_list[@]}"
-                        do
-                            process_main_update "win" "x86" "${current_lang}"
-                        done
-                    else
-                        process_main_update "win" "x86" "glb"
-                    fi
-                ;;
-                # Windows XP, 32-bit
-                wxp)
-                    for current_lang in "glb" "${languages_list[@]}"
-                    do
-                        process_main_update "wxp" "x86" "${current_lang}"
-                    done
-                ;;
-                # Windows Server 2003, 32-bit
-                w2k3)
-                    process_main_update "w2k3" "x86" "glb"
-                    for current_lang in "${languages_list[@]}"
-                    do
-                        if name_to_description "${current_lang}" "${languages_table_w2k3}" >/dev/null
-                        then
-                            process_main_update "w2k3" "x86" "${current_lang}"
-                        else
-                            log_warning_message "Language ${current_lang} is not available for w2k3."
-                        fi
-                    done
-                ;;
-                # Windows XP / Server 2003, 64-bit
-                w2k3-x64)
-                    process_main_update "w2k3" "x64" "glb"
-                    for current_lang in "${languages_list[@]}"
-                    do
-                        if name_to_description "${current_lang}" "${languages_table_w2k3_x64}" >/dev/null
-                        then
-                            process_main_update "w2k3" "x64" "${current_lang}"
-                        else
-                            log_warning_message "Language ${current_lang} is not available for w2k3-x64."
-                        fi
-                    done
+                    process_main_update "win" "x86" "glb"
                 ;;
                 # 32-bit Windows updates
-                w60 | w61 | w62 | w63 | w100)
+                w63 | w100)
                     process_main_update "${current_update}" "x86" "glb"
                 ;;
                 # 64-bit Windows updates
-                w60-x64 | w61-x64 | w62-x64 | w63-x64 | w100-x64)
+                w62-x64 | w63-x64 | w100-x64)
                     process_main_update "${current_update/-x64/}" "x64" "glb"
                 ;;
                 # Common Office updates, 32-bit
                 ofc)
                     if [[ "${need_localized_ofc}" == "enabled" ]]
                     then
-                        # This is needed for Office 2003-2013
+                        # This is needed for Office 2010 and 2013
                         for current_lang in "glb" "${languages_list[@]}"
                         do
                             process_main_update "ofc" "x86" "${current_lang}"
@@ -126,7 +90,7 @@ function get_main_updates ()
                     fi
                 ;;
                 # Localized Office versions, 32-bit
-                o2k3 | o2k7 | o2k10 | o2k13)
+                o2k10 | o2k13)
                     for current_lang in "glb" "${languages_list[@]}"
                     do
                         process_main_update "${current_update}" "x86" "${current_lang}"
@@ -150,7 +114,7 @@ function get_main_updates ()
                 # Installers and dynamic updates for .Net frameworks,
                 # which depend on the architecture
                 dotnet)
-                    if (( ${#architectures_list[@]} > 0 ))
+                    if (( "${#architectures_list[@]}" > 0 ))
                     then
                         for current_arch in "${architectures_list[@]}"
                         do
@@ -194,15 +158,15 @@ function process_main_update ()
     # of the download script, to keep track of localized downloads for
     # Internet Explorer and .Net Framework language packs.
     #
-    # 64-bit Office updates for o2k10, o2k13 and o2k16 always
-    # include 32-bit updates, and they are downloaded to the same
-    # directories. Therefore, if 64-bit updates have been downloaded,
-    # it is not necessary to download 32-bit updates again. The timestamp
-    # files should still be different, to make sure, that the additional
-    # 64-bit downloads are always included.
+    # 64-bit Office updates always include 32-bit updates, and they are
+    # downloaded to the same directories. Therefore, if 64-bit updates
+    # have been downloaded, it is not necessary to download 32-bit updates
+    # again. The timestamp files should still be different, to make sure,
+    # that the additional 64-bit downloads are always included.
     #
     # The names for the hashes_file, hashed_dir and download_dir must
-    # be synchronized with the Windows script DownloadUpdates.cmd.
+    # be synchronized with the Windows script DownloadUpdates.cmd. All
+    # other temporary files may vary.
 
     local timestamp_pattern="not-available"
     local hashes_file="not-available"
@@ -216,7 +180,7 @@ function process_main_update ()
     local interval_description="${interval_description_dependent_files}"
 
     case "${name}" in
-        win | wxp | w2k3 | w63 | w100)
+        win | w63 | w100)
             timestamp_pattern="${name}-${arch}-${lang}"
             if [[ "${arch}" == "x86" ]]
             then
@@ -229,7 +193,7 @@ function process_main_update ()
                 download_dir="../client/${name}-${arch}/${lang}"
             fi
         ;;
-        w60 | w61 | w62)
+        w62)
             # The timestamp pattern includes the language list, as passed
             # on the command-line, because the downloads include localized
             # installers for Internet Explorer.
@@ -245,7 +209,7 @@ function process_main_update ()
                 download_dir="../client/${name}-${arch}/${lang}"
             fi
         ;;
-        ofc | o2k3 | o2k7 | o2k10 | o2k13 | o2k16)
+        ofc | o2k10 | o2k13 | o2k16)
             timestamp_pattern="${name}-${arch}-${lang}"
             hashes_file="../client/md/hashes-${name}-${lang}.txt"
             hashed_dir="../client/${name}/${lang}"
@@ -271,19 +235,15 @@ function process_main_update ()
     # the values of these two options in the name of the timestamp file
     # is a simple way to achieve that much.
     #
-    # Somehow, the results for w60 are also affected by the option
-    # prefer_seconly, although there is no special configuration for
-    # Windows Vista.
-    #
     # TODO: Maybe this should be done differently, but this would
     # require the script to read and write preferences and to detect
     # changed settings.
     case "${name}" in
-        w60 | w61 | w62 | w63 | dotnet)
-            timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${include_service_packs}-${prefer_seconly}.txt"
+        w62 | w63 | dotnet)
+            timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${prefer_seconly}.txt"
         ;;
         *)
-            timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${include_service_packs}.txt"
+            timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}.txt"
         ;;
     esac
     valid_static_links="${temp_dir}/ValidStaticLinks-${timestamp_pattern}.txt"
@@ -395,12 +355,9 @@ function calculate_static_updates ()
         # global/multilingual updates. Therefore, the only download
         # directories in recent versions of WSUS Offline Update are:
         #
-        # - w60/glb
-        # - w60-x64/glb
-        # - w61/glb
-        # - w61-x64/glb
-        # - w62/glb
         # - w62-x64/glb
+        # - w63/glb
+        # - w63-x64/glb
         # - w100/glb
         # - w100-x64/glb
         # - dotnet/x86-glb
@@ -409,50 +366,20 @@ function calculate_static_updates ()
         # There are still some localized downloads, which need to
         # be added:
         #
-        # - Internet Explorer installation files for Windows Vista and 7,
-        #   and for Windows Server 2012
+        # - Internet Explorer installation files for Windows Server 2012
         # - .NET Framework language packs for languages other than English
         #
         # These downloads are added similar to the Windows script
         # AddCustomLanguageSupport.cmd, but without creating additional
         # files in the static/custom directory.
-        #
-        # TODO: w60, w61 and w62 could be combined into one selection,
-        # but simple shell pattern like * only work without quoting.
         case "${name}" in
-            w60)
-                # Localized installers for Internet Explorer 8 and 9
-                # on Windows Vista. Only IE 9 is supported in recent
-                # versions of WSUS Offline Update.
+            w62)
+                # Localized installers for Internet Explorer 11 on
+                # Windows Server 2012.
                 #
                 # There are no global installation files for Internet
                 # Explorer. This means, that glb does not need to be
                 # added to the language list at this point.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie8-w60-${arch}-${current_lang}.txt" ]]
-                    then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie8-w60-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                    fi
-                done
-            ;;
-            w61)
-                # Localized installers for Internet Explorer 9, 10,
-                # and 11 on Windows 7. Only IE 11 is supported in recent
-                # versions of WSUS Offline Update.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie9-w61-${arch}-${current_lang}.txt" ]]
-                    then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie9-w61-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                    fi
-                done
-            ;;
-            w62)
-                # Localized installers for Internet Explorer 11 on Windows
-                # Server 2012.
                 for current_lang in "${languages_list[@]}"
                 do
                     if [[ -s "${current_dir}/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" ]]
@@ -502,15 +429,6 @@ function calculate_static_updates ()
         # create copies of the file in the ../exclude/custom directory.
         exclude_lists_static=( "../exclude/custom/ExcludeListForce-all.txt" )
 
-        # Service Packs are already included in the static download links
-        # file created above. If the command line option -includesp is
-        # NOT used, then Service Packs must be removed again using the
-        # file ExcludeList-SPs.txt as a blacklist.
-        if [[ "${include_service_packs}" == "disabled" ]]
-        then
-            exclude_lists_static+=( "../exclude/ExcludeList-SPs.txt" )
-        fi
-
         # The combined exclude list is the same for all static downloads;
         # therefore, the name is just "ExcludeListStatic.txt".
         apply_exclude_lists \
@@ -553,15 +471,7 @@ function calculate_dynamic_updates ()
     local valid_dynamic_links="$4"
 
     case "${name}" in
-        win)
-            if [[ "${dynamic_win_updates}" == "enabled" ]]
-            then
-                calculate_dynamic_windows_updates "$@"
-            else
-                log_info_message "Dynamic updates for win are disabled in this version of WSUS Offline Update."
-            fi
-        ;;
-        wxp | w2k3 | w60 | w61 | w62 | w63 | w100 | dotnet)
+        w62 | w63 | w100 | dotnet)
             calculate_dynamic_windows_updates "$@"
         ;;
         ofc)
@@ -582,6 +492,9 @@ function calculate_dynamic_windows_updates ()
     local lang="$3"
     local valid_dynamic_links="$4"
     local -a exclude_lists_windows=()
+    local version=""
+    local key=""
+    local value=""
 
     require_non_empty_file "../xslt/ExtractDownloadLinks-${name}-${arch}-${lang}.xsl" || return 0
     require_non_empty_file "${used_superseded_updates_list}" || fail "The required file ${used_superseded_updates_list} is missing"
@@ -620,7 +533,7 @@ function calculate_dynamic_windows_updates ()
     fi
 
     # Step 2: The remaining dynamic download links are compared to one
-    # or more exclude lists, which contain KB numbers only.
+    # or more exclude lists, which typically contain kb numbers only.
     exclude_lists_windows=(
         "../exclude/ExcludeList-${name}-${arch}.txt"
         "../exclude/custom/ExcludeList-${name}-${arch}.txt"
@@ -633,9 +546,32 @@ function calculate_dynamic_windows_updates ()
             "../client/exclude/custom/HideList-seconly.txt"
         )
     fi
-    if [[ "${include_service_packs}" == disabled ]]
+
+    # Add Windows 10 version-specific exclude lists
+    if [[ "${name}" == w100 ]]
     then
-        exclude_lists_windows+=( "../exclude/ExcludeList-SPs.txt" )
+        if [[ -f "${w100_versions_file}" ]]
+        then
+            for version in "${w100_versions[@]}"
+            do
+                key="${version}_${arch}"
+                if value="$(read_setting "${w100_versions_file}" "${key}")"
+                then
+                    if [[ "${value}" == off ]]
+                    then
+                        # Let the function apply_exclude_lists check,
+                        # if all added files actually exist
+                        exclude_lists_windows+=(
+                            "../exclude/ExcludeList-w100-${version}.txt"
+                            "../exclude/custom/ExcludeList-w100-${version}.txt"
+                        )
+                        log_debug_message "Excluded: ${key} ${value}"
+                    fi
+                fi
+            done
+        else
+            log_warning_message "The settings file ${w100_versions_file} was not found. Please install the utility \"dialog\" and use the script update-generator.bash to select your Windows 10 versions."
+        fi
     fi
 
     apply_exclude_lists \
@@ -682,10 +618,11 @@ function calculate_dynamic_office_updates ()
     # Remove existing files
     rm -f "${valid_dynamic_links}"
 
-    # Long locales with language and region code as used in the Windows
+    # Locales with language and territory code as used in the Windows
     # script wsusoffline/client/cmd/DetermineSystemProperties.vbs
     #
-    # Details are in the individual files in /usr/share/i18n/locales
+    # For details see the configuration files in /usr/share/i18n/locales
+    # (Debian 10 Buster)
     case "${lang}" in
         deu) locale_long="de-de";;
         enu) locale_long="en-us";;
@@ -877,10 +814,6 @@ function calculate_dynamic_office_updates ()
         "../exclude/custom/ExcludeList-ofc-${lang}.txt"
         "../exclude/custom/ExcludeListForce-all.txt"
     )
-    if [[ "${include_service_packs}" == "disabled" ]]
-    then
-        exclude_lists_office+=( "../exclude/ExcludeList-SPs.txt" )
-    fi
 
     log_info_message "Creating file 10, ${valid_dynamic_links##*/} ..."
     apply_exclude_lists \
@@ -900,14 +833,13 @@ function calculate_dynamic_office_updates ()
 }
 
 
-# Safety guard for security-only updates for Windows 7, 8, 8.1 and the
+# Safety guard for security-only updates for Windows 8, 8.1 and the
 # corresponding server versions.
 #
 # The download and installation of security-only updates depends on the
 # correct configuration of the files:
 #
 # - wsusoffline/client/exclude/HideList-seconly.txt
-# - wsusoffline/client/static/StaticUpdateIds-w61-seconly.txt
 # - wsusoffline/client/static/StaticUpdateIds-w62-seconly.txt
 # - wsusoffline/client/static/StaticUpdateIds-w63-seconly.txt
 #
@@ -936,8 +868,8 @@ function seconly_safety_guard ()
         return 0
     fi
     case "${update_name}" in
-        w61 | w62 | w63)
-            log_debug_message "Recognized Windows 7, 8, or 8.1"
+        w62 | w63)
+            log_debug_message "Recognized Windows 8 or 8.1"
         ;;
         *)
             log_debug_message "Not an affected Windows version"
@@ -1080,7 +1012,6 @@ function seconly_safety_guard ()
     shopt -s nullglob
     configuration_files=(
         ../client/exclude/HideList-seconly.txt*
-        ../client/static/StaticUpdateIds-w61-seconly.txt*
         ../client/static/StaticUpdateIds-w62-seconly.txt*
         ../client/static/StaticUpdateIds-w63-seconly.txt*
     )
@@ -1112,7 +1043,6 @@ The correct handling of security-only update rollups for both download
 and installation depends on the configuration files:
 
 - wsusoffline/client/exclude/HideList-seconly.txt
-- wsusoffline/client/static/StaticUpdateIds-w61-seconly.txt
 - wsusoffline/client/static/StaticUpdateIds-w62-seconly.txt
 - wsusoffline/client/static/StaticUpdateIds-w63-seconly.txt
 
@@ -1136,10 +1066,10 @@ preferences file, to let the script continue at this point.
 "
         if [[ "${exit_on_configuration_problems}" == "enabled" ]]
         then
-            log_error_message "The script will exit now, to prevent unwanted side effects with the download and installation of security-only updates for Windows 7, 8, and 8.1."
+            log_error_message "The script will exit now, to prevent unwanted side effects with the download and installation of security-only updates for Windows 8 and 8.1."
             exit 1
         else
-            log_warning_message "There are configuration problems with the download of security-only updates for Windows 7, 8, and 8.1. Proceed with caution to prevent unwanted side effects."
+            log_warning_message "There are configuration problems with the download of security-only updates for Windows 8 and 8.1. Proceed with caution to prevent unwanted side effects."
         fi
     else
         log_info_message "No problems found."

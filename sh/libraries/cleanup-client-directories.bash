@@ -41,12 +41,7 @@
 #     The same mechanism also prevents the deletion of some other files,
 #     which are still valid, but not in the current download set:
 #
-#     - Service packs, if the option -includesp is missing
-#
 #     - 64-bit Office Updates, if only 32-bit updates are selected
-#
-#     - Installers for Microsoft Security Essentials, if virus definition
-#       updates for Windows 8 are selected
 #
 #     Generally, this situation may occur, whenever different sets of
 #     files are downloaded to the same directory.
@@ -149,11 +144,9 @@ function cleanup_client_directory ()
     if [[ ! -s "${valid_links}" ]]
     then
         # If the download set is empty, any existing files should be
-        # removed and the empty directory should be deleted. This may
-        # happen for localized Office 2013 downloads, if the option
-        # -includesp is not used. Then this is not an error.
+        # removed and the empty directory should be deleted.
         #
-        # However, as long as service packs are referenced from the
+        # However, as long as existing files are referenced from the
         # static directory, they will be treated as "valid static files"
         # and not deleted.
         log_warning_message "The current download set is empty"
@@ -165,7 +158,7 @@ function cleanup_client_directory ()
     file_list=( "${download_dir}"/*.* )
     shopt -u nullglob
 
-    if (( ${#file_list[@]} > 0 ))
+    if (( "${#file_list[@]}" > 0 ))
     then
         for pathname in "${file_list[@]}"
         do
@@ -209,37 +202,19 @@ function cleanup_client_directory ()
             then
                 if grep -F -i -q -r "${filename// /%20}" "../static"
                 then
-                    if [[ "${pathname}" == "../client/ofc/glb/office2010-kb2553065-fullfile-x86-glb.exe" \
-                       && -f "../client/o2k10/glb/office2010-kb2553065-fullfile-x86-glb.exe" ]]
-                    then
-                        # The file
-                        # office2010-kb2553065-fullfile-x86-glb.exe
-                        # was moved from ../client/ofc/glb to
-                        # ../client/o2k10/glb in WSUS Offline Update
-                        # 11.1. If it appears twice, it should be deleted
-                        # from the former location.
-                        log_info_message "The file office2010-kb2553065-fullfile-x86-glb.exe will be deleted from directory ../client/ofc/glb"
-                    else
-                        log_info_message "Kept valid static file \"${filename}\""
-                        continue
-                    fi
+                    log_info_message "Kept valid static file \"${filename}\""
+                    continue
                 fi
             fi
 
-            # The four virus definition files are
-            # referenced with "LinkIDs" in the files
-            # StaticDownloadLink-wddefs-x86-glb.txt,
-            # StaticDownloadLink-wddefs-x64-glb.txt,
-            # StaticDownloadLinks-msse-x86-glb.txt and
-            # StaticDownloadLinks-msse-x64-glb.txt. The filenames are
-            # only used after several redirections. Therefore, comparing
-            # the filenames to the URLs does not work, and the files
-            # must be preserved at this point.
-            case "${pathname}" in
-                "../client/wddefs/x86-glb/mpas-fe.exe" \
-                | "../client/wddefs/x64-glb/mpas-fe.exe" \
-                | "../client/msse/x86-glb/mpam-fe.exe" \
-                | "../client/msse/x64-glb/mpam-fe.exe")
+            # The virus definition files are referenced with "LinkIDs"
+            # in the files StaticDownloadLinks-wddefs-x86-glb.txt and
+            # StaticDownloadLinks-wddefs-x64-glb.txt. The filenames
+            # are only used after several redirections. Therefore,
+            # comparing the filenames to the URLs does not work, and
+            # the files must be preserved at this point.
+            case "${filename}" in
+                mpam-fe.exe)
                     log_debug_message "Kept virus definition file ${pathname}"
                     continue
                 ;;
@@ -259,7 +234,7 @@ function cleanup_client_directory ()
     file_list=( "${download_dir}"/* )
     shopt -u nullglob
 
-    if (( ${#file_list[@]} == 0 ))
+    if (( "${#file_list[@]}" == 0 ))
     then
         rmdir "${download_dir}"
         log_warning_message "Deleted download directory ${download_dir}, because it was empty. This is normal for localized Office 2013 directories, e.g. o2k13/deu and o2k13/enu, if service packs are excluded."

@@ -54,9 +54,10 @@ no_proxy_server=""
 #
 # Use "enabled" or "disabled" for the following options.
 
-# Prefer "security-only" update rollups over the full "quality" update
-# rollups for Windows 7 and Windows Server 2008 R2, Windows Server 2012,
-# Windows 8.1 and Windows Server 2012 R2.
+# Prefer "security-only" updates over the full "quality" update rollups
+# for:
+# - Windows Server 2012
+# - Windows 8.1 / Server 2012 R2
 prefer_seconly="disabled"
 
 # Use a revised method for the calculation of superseded updates, if

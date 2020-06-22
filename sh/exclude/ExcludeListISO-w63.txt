@@ -49,7 +49,6 @@ NDP46-*
 # The integrated Defender of Windows 8 and higher needs the virus
 # definition files from the directory msse, but not the installers for
 # Microsoft Security Essentials.
-wddefs
 MSEInstall-*.exe
 
 # Exclude unneeded files from the directory client/md

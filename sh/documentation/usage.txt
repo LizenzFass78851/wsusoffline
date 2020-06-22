@@ -5,10 +5,6 @@ USAGE
    [OPTIONS]
 
 UPDATE
-    w60           Windows Server 2008, 32-bit
-    w60-x64       Windows Server 2008, 64-bit
-    w61           Windows 7, 32-bit
-    w61-x64       Windows 7 / Server 2008 R2, 64-bit
     w62-x64       Windows Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
@@ -30,7 +26,7 @@ UPDATE
     all-ofc-x86   All Office updates, 32-bit
 
     Notes: Multiple updates can be joined to a comma-separated list like
-    "w60,w60-x64".
+    "w63,w63-x64".
 
 LANGUAGE
     deu    German
@@ -62,9 +58,6 @@ LANGUAGE
     "deu,enu".
 
 OPTIONS
-   -includesp
-        Include Service Packs
-
    -includecpp
         Include Visual C++ runtime libraries
 
@@ -72,66 +65,34 @@ OPTIONS
         Include .NET Frameworks: localized installation files and updates
 
    -includewddefs
-        Virus definition files for Windows Vista and 7. These virus
-        definition files are only compatible with the original Windows
-        Defender, which was included in Windows Vista and 7.
-
-   -includemsse
-        Microsoft Security Essentials: localized installation files and
-        virus definition updates. Microsoft Security Essentials is an
-        optional installation for Windows Vista and 7.
-
-   -includewddefs8
-        Virus definition files for Windows 8 and higher. These are
-        the same virus definition updates as for Microsoft Security
-        Essentials, and they are downloaded to the same directories,
-        but without the localized installers.
-
-        Therefore, "wddefs8" is a subset of "msse", and you should use
-        -includemsse instead for the internal lists "all" and "all-win".
+        Windows Defender definition updates for the built-in Defender
+        of  Windows 8, 8.1 and 10.
 
 COMPATIBILITY
-  - The option -includesp can be used with all updates.
+    All three options can only be used with Windows updates.
 
-  - The options -includecpp and -includedotnet can be used with all
-    Windows updates.
-
-  - The options -includewddefs and -includemsse can be used with Windows
-    7, Windows Server 2008 and 2008 R2 (w60, w60-x64, w61, w61-x64). These
-    options are also used with the internal lists "all" and "all-win".
-
-  - The option -includewddefs8 can be used with Windows 8.1 and 10,
-    Windows Server 2012, 2012 R2 and 2016 (w62-x64, w63, w63-x64, w100,
-    w100-x64). Use -includemsse instead for the internal lists "all"
-    and "all-win".
+    These optional downloads depend on the architecture of the operating
+    system, and that can only be derived from the selected Windows
+    versions, or from internal lists, which include Windows updates.
 
 NOTES
     Windows Vista and higher are multilingual, but WSUS Offline Update
-    still needs the correct language settings to get:
-    - localized installers for Internet Explorer on Windows 7, Windows
-      Server 2008 and 2008 R2
-    - language packs for .NET Frameworks, for languages other than English
-    - localized installers for Microsoft Security Essentials
+    still needs the correct language settings to download:
+    - language packs for Internet Explorer 11 on Windows Server 2012,
+      for languages other than English
+    - language packs for .NET Frameworks
 
     In the Linux download scripts, all needed languages must be given on
     the command-line. For convenience, you can join several languages
     to a comma-separated list, to allow a faster evaluation of Windows
-    7, Windows Server 2008 and 2008 R2, .NET Frameworks, and Microsoft
-    Security Essentials.
+    Server 2012 and .NET Frameworks.
 
 EXAMPLES
-    To get updates for Windows 7 with all optional downloads in German
-    and English, you could either use:
+    To get updates for Windows Server 2012 with all optional downloads
+    in German and English, you could use:
 
-    ./download-updates.bash w61 deu -includesp -includecpp \
-                -includedotnet -includewddefs -includemsse
-    ./download-updates.bash w61 enu -includesp -includecpp \
-                -includedotnet -includewddefs -includemsse
-
-    or:
-
-    ./download-updates.bash w61 deu,enu -includesp -includecpp \
-                -includedotnet -includewddefs -includemsse
+    ./download-updates.bash w62-x64 deu,enu -includecpp -includedotnet \
+                                            -includewddefs
 
     This should get the same updates as the Windows script
     DownloadUpdates.cmd in its default configuration, using the default
@@ -140,8 +101,8 @@ EXAMPLES
     To get updates for Windows 8.1 with all optional downloads in French
     and Spanish, you could use:
 
-    ./download-updates.bash w63 fra,esn -includesp -includecpp \
-                -includedotnet -includewddefs8
+    ./download-updates.bash w63 fra,esn -includecpp -includedotnet \
+                                        -includewddefs
 
     To get the same results with the Windows script DownloadUpdates.cmd,
     you need to run four additional scripts first:
@@ -151,22 +112,18 @@ EXAMPLES
     AddCustomLanguageSupport.cmd fra
     AddCustomLanguageSupport.cmd esn
 
-    Since version 1.1 of the Linux download scripts, updates can also
-    be joined to a comma-separated list. To get all updates for Windows
-    7 and Windows 8.1, you can use:
+    Since version 1.1 of the Linux download scripts, updates can also be
+    joined to a comma-separated list. To get all updates for Windows 8.1,
+    both 32-bit and 64-bit, you can use:
 
-    ./download-updates.bash w61,w61-x64,w63,w63-x64 deu,enu -includesp \
-                -includecpp -includedotnet -includewddefs -includemsse
+    ./download-updates.bash w63,w63-x64 deu,enu -includecpp \
+                                 -includedotnet -includewddefs
 
-    Note, that wddefs8 is a subset of msse, so you don't need to include
-    both for such lists.
+    Single updates can also be combined with internal lists. To get
+    updates for Windows 8.1 and all Office versions, you could use:
 
-    Single updates like w61 and w61-x64 can also be combined with the
-    internal lists. To get Windows 7 updates and all Office updates,
-    you could use:
-
-    ./download-updates.bash w61,w61-x64,all-ofc deu,enu -includesp \
-                -includecpp -includedotnet -includewddefs -includemsse
+    ./download-updates.bash w63,w63-x64,all-ofc deu,enu -includecpp \
+                                         -includedotnet -includewddefs
 
     See the script get-all-updates.bash for more examples. This script
     may also serve as a template for customization.

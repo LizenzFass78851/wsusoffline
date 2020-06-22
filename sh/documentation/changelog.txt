@@ -1,3 +1,27 @@
+Version 2.0
+
+   Release date: 2020-03-25
+   Intended compatibility: WSUS Offline Update 12.0
+
+   New features
+
+    * Support for Windows 10 versions
+
+   Removed features
+
+    * Support for Windows Server 2008 and Windows 7 / Server 2008 R2
+
+    * Support for Windows 7 Defender and Microsoft Security Essentials
+
+    * Support for Service Packs
+
+    * Support for .NET Framework 4.6 installers
+
+   Internal changes
+
+    * Removed obsolete Windows and Office versions
+
+
 Version 1.19
 
    Release date: 2020-03-11

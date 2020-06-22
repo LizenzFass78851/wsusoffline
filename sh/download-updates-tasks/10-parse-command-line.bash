@@ -32,14 +32,13 @@ languages_list=()
 downloads_list=( "wsus" )
 
 need_localized_ofc="disabled"
-include_service_packs="disabled"
 
 # ========== Functions ====================================================
 
 function parse_command_line ()
 {
     log_info_message "Parsing command-line..."
-    if (( ${#command_line_parameters[@]} < 2 ))
+    if (( "${#command_line_parameters[@]}" < 2 ))
     then
         wrong_parameter "At least two parameters are required."
     else
@@ -65,6 +64,7 @@ function parse_first_parameter_as_list ()
 {
     local update_parameter="$1"
     local update_name=""
+    local update_description=""
 
     # The first parameter may be a comma-separated list of update names,
     # which are added to an indexed array. Internal lists are expanded
@@ -107,20 +107,23 @@ function parse_first_parameter_as_list ()
                 updates_list+=( "${list_all_ofc_x86[@]}" )
             ;;
             # Single updates
-            #
-            # This step lists all known updates from all versions of
-            # WSUS Offline Update, but the ${updates_table} determines
-            # the valid updates for a particular version.
-            wxp | w2k3 | w2k3-x64 | w60 | w60-x64 | w61 | w61-x64 | w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64 | o2k3 | o2k7 | o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
-                if name_to_description "${update_name}" "${updates_table}" >/dev/null
+            wxp | w2k3 | w2k3-x64 | w62 | o2k3 | o2k7)
+                log_warning_message "Update ${update_name} is not supported anymore."
+            ;;
+            w60 | w60-x64 | w61 | w61-x64)
+                log_warning_message "Update ${update_name} is not supported by this version of WSUS Offline Update. Please use version 11.9.x ESR instead."
+            ;;
+            w62-x64 | w63 | w63-x64 | w100 | w100-x64 | o2k10 | o2k10-x64 \
+            | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+                if update_description="$(name_to_description "${update_name}" "${updates_table}")"
                 then
-                    log_info_message "Adding \"${update_name}\" to the list of updates..."
+                    log_info_message "Adding ${update_description} (${update_name}) to the list of updates..."
                     updates_list+=( "${update_name}" )
                 else
-                    log_warning_message "Update ${update_name} is not supported by this version of WSUS Offline Update."
+                    wrong_parameter "Update ${update_name} was not found."
                 fi
             ;;
-            # Unknown or unsupported updates
+            # Unknown updates
             *)
                 wrong_parameter "Update ${update_name} was not found."
             ;;
@@ -133,10 +136,9 @@ function parse_first_parameter_as_list ()
 # Parse the preliminary list of updates to add common updates for Windows
 # and Office (win and ofc), and to build a list of needed architectures.
 #
-# The architectures list is needed for the optional downloads wddefs,
-# msse, wddefs8 and dotnet. They must be downloaded in 32-bit, 64-bit,
-# or both. The selected Windows versions determine, which architectures
-# are needed.
+# The architectures list is needed for the optional downloads wddefs
+# and dotnet. They must be downloaded in 32-bit, 64-bit, or both. The
+# selected Windows versions determine, which architectures are needed.
 
 function parse_preliminary_update_list ()
 {
@@ -147,11 +149,20 @@ function parse_preliminary_update_list ()
     local need_win="disabled"
     local need_ofc="disabled"
 
+    # The list of updates could be empty, if only unsupported update
+    # names are specified
+    if (( "${#updates_list[@]}" == 0 ))
+    then
+        log_error_message "The list of updates is empty. Exiting now..."
+        exit 1
+    fi
+
     log_info_message "Parsing preliminary list of updates..."
     for update_name in "${updates_list[@]}"
     do
         # Print the update name and description for reference. The update
-        # name was already validated at the previous step.
+        # name was already validated at the previous step, but it may be
+        # useful to repeat this step after expanding the internal lists.
         if update_description="$(name_to_description "${update_name}" "${updates_table}")"
         then
             log_info_message "Found update: ${update_name}, ${update_description}"
@@ -163,10 +174,10 @@ function parse_preliminary_update_list ()
         # - win for all Windows updates
         # - ofc for all Office updates
         case "${update_name}" in
-            wxp | w2k3 | w2k3-x64 | w60 | w60-x64 | w61 | w61-x64 | w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+            w62-x64 | w63 | w63-x64 | w100 | w100-x64)
                 need_win="enabled"
             ;;
-            o2k3 | o2k7 | o2k10 | o2k10-x64 | o2k13 | o2k13-x64)
+            o2k10 | o2k10-x64 | o2k13 | o2k13-x64)
                 need_ofc="enabled"
                 need_localized_ofc="enabled"
             ;;
@@ -178,20 +189,19 @@ function parse_preliminary_update_list ()
             ;;
         esac
 
-        # Determine the needed architectures for optional updates like
-        # .NET Frameworks, Windows Defender virus definitions, and
-        # Microsoft Security Essentials. This depends on the Windows
-        # updates only.
+        # Determine the needed architectures for the optional downloads
+        # .NET Frameworks and Windows Defender definition updates. This
+        # depends on the Windows updates only.
         case "${update_name}" in
-            wxp | w2k3 | w60 | w61 | w62 | w63 | w100)
+            w63 | w100)
                 # Optional downloads will be downloaded in 32-bit versions
                 need_x86="enabled"
             ;;
-            w2k3-x64 | w60-x64 | w61-x64 | w62-x64 | w63-x64 | w100-x64)
+            w62-x64 | w63-x64 | w100-x64)
                 # Optional downloads will be downloaded in 64-bit versions
                 need_x64="enabled"
             ;;
-            o2k3 | o2k7 | o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+            o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
                 :
             ;;
             *)
@@ -232,13 +242,6 @@ function parse_preliminary_update_list ()
 }
 
 
-# The languages_table lists 24 languages. Windows Server 2003 only
-# supports a few of them. But, if several updates are specified on
-# the command-line using a comma-separated list like "wxp,w2k3,w60",
-# this can not be validated here, because all languages are valid for
-# Windows XP and Vista. The check for supported languages is done in
-# the file 60-main-updates.bash instead.
-
 function parse_second_parameter_as_list ()
 {
     language_parameter="$2" # globally defined, because it is used for the
@@ -274,14 +277,10 @@ function parse_remaining_parameters ()
     while (( $# > 0 ))
     do
         option_name="$1"
-        if option_description="$(name_to_description "${option_name}" "${options_table_all}")"
+        if option_description="$(name_to_description "${option_name}" "${options_table}")"
         then
             case "${option_name}" in
-                -includesp)
-                    log_info_message "Service Packs are included"
-                    include_service_packs="enabled"
-                ;;
-                -includecpp | -includewddefs | -includemsse | -includewddefs8)
+                -includecpp | -includewddefs)
                     # Delete the prefix -include and add the download
                     # name to the list of included downloads
                     option_name="${option_name/#-include/}"
@@ -292,6 +291,12 @@ function parse_remaining_parameters ()
                     log_info_message "Found included download: dotnet, .NET Frameworks"
                     downloads_list+=( "dotnet" ) # statically defined installers
                     updates_list+=( "dotnet" )   # dynamically calculated updates
+                ;;
+                -includesp)
+                    log_warning_message "The option -includesp is not used anymore"
+                ;;
+                -includemsse | -includewddefs8)
+                    log_warning_message "The option ${option_name} is not used anymore. Use -includewddefs instead"
                 ;;
                 *)
                     fail "Unknown option ${option_name}"
@@ -316,7 +321,7 @@ function print_command_line_summary ()
     # are selected. Bash up to version 4.3 will treat empty arrays as
     # "unset", even if the array variables were properly declared and
     # initialized. This is fixed in bash version 4.4.
-    if (( ${#architectures_list[@]} > 0 ))
+    if (( "${#architectures_list[@]}" > 0 ))
     then
         architectures_list_serialized="${architectures_list[*]}"
     fi

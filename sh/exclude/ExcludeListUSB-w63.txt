@@ -23,7 +23,6 @@
 /w62-x64
 /w63-x64
 /w100-x64
-/wddefs
 *dotnetfx35*
 *MSEInstall*
 *_x64*

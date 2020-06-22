@@ -459,7 +459,7 @@ function restart_script ()
         #echo "Cleaning up temporary files ..."
         rm -r "${temp_dir}"
     fi
-    if (( ${#command_line_parameters[@]} > 0 ))
+    if (( "${#command_line_parameters[@]}" > 0 ))
     then
         exec "./${script_name}" "${command_line_parameters[@]}"
     else

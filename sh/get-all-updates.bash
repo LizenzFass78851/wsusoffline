@@ -56,7 +56,8 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # Using the internal list "all" is a simple way to get all updates for
 # all supported Windows and Office versions:
 
-./download-updates.bash all deu,enu -includesp -includecpp -includedotnet -includewddefs -includemsse
+./download-updates.bash all deu,enu -includecpp -includedotnet \
+                                    -includewddefs
 
 
 # The remaining examples demonstrate, which optional downloads are
@@ -64,29 +65,30 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # won't be called twice.
 
 
-# Windows 7, Windows Server 2008 and 2008 R2
+# Windows Server 2012 (w62-x64)
 #
-# Setting the language is needed to get localized installers for Internet
-# Explorer 9 for Windows Vista, Internet Explorer 11 for Windows 7,
-# and for the optional downloads dotnet and msse.
+# Updates for Windows 8 / Windows Server 2012 are global, but they now
+# use localized installers for Internet Explorer. Therefore, all neeeded
+# languages should still be specified on the command-line, even if no
+# optional downloads are added:
 
-# ./download-updates.bash w60,w60-x64,w61,w61-x64 deu,enu -includesp -includecpp -includedotnet -includewddefs -includemsse
+# ./download-updates.bash w62-x64 deu,enu -includecpp -includedotnet -includewddefs
 
 
-# Windows 8.1 and 10, Windows Server 2012, 2012 R2 and 2016
+# Windows 8.1 / Server 2012 R2 and Windows 10 / Server 2016/2019
 #
-# Updates for Windows 8 to 10 are really global, and they are only
-# evaluated once for all specified languages. The language parameters
-# deu and enu are still needed for the .Net Framework downloads. Without
-# this optional download, one language (any one) would be sufficient.
+# Updates for Windows 8.1 and 10 are really global. The language
+# parameters deu and enu are still needed for the .NET Framework
+# downloads. Without this optional download, one language (any one)
+# would be sufficient.
 #
-# To be precise, the English installers for .Net Frameworks are always
+# To be precise, the English installers for .NET Frameworks are always
 # downloaded, and they are supplemented by language packs for other
-# languages. So, you could actually remove the parameter "enu" here. On
+# languages. So you could actually remove the parameter "enu" here. On
 # the other hand, if you like to include other "custom" languages,
 # they need to be listed here.
 
-# ./download-updates.bash w62-x64,w63,w63-x64,w100,w100-x64 deu,enu -includesp -includecpp -includedotnet -includewddefs8
+# ./download-updates.bash w63,w63-x64,w100,w100-x64 deu,enu -includecpp -includedotnet -includewddefs
 
 
 # Office 2010 - 2013
@@ -95,7 +97,7 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # just like the Windows script DownloadUpdates.cmd, if 64-bit Office
 # support is enabled with the script AddOffice2010x64Support.cmd.
 
-# ./download-updates.bash o2k10-x64,o2k13-x64 deu,enu -includesp
+# ./download-updates.bash o2k10-x64,o2k13-x64 deu,enu
 
 
 # Office 2016
@@ -103,6 +105,6 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # o2k16-x64 includes both 32-bit and 64-bit downloads. One language
 # (any one) is sufficient.
 
-# ./download-updates.bash o2k16-x64 deu -includesp
+# ./download-updates.bash o2k16-x64 deu
 
 exit 0

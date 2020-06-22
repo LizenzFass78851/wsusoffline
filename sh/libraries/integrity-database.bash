@@ -40,12 +40,12 @@ function verify_integrity_database ()
     local hashed_dir="$1"
     local hashes_file="$2"
     # Delete the element "client/" from the pathname, because hashdeep
-    # will be called from wsusoffline/client/md/. These directory changes
-    # could probably be omitted by using the bare option (-b) in hashdeep,
-    # which simply strips any leading directory information. This would
-    # not cause problems, since every hashdeep file corresponds to one
-    # download directory only. Only for wddefs and msse, there are two
-    # subdirectories.
+    # will be called from wsusoffline/client/md/. These directory
+    # changes could probably be omitted by using the bare option
+    # (-b) in hashdeep, which simply strips any leading directory
+    # information. This would not cause problems, since every hashdeep
+    # file corresponds to one download directory only. Only for wddefs,
+    # there are two subdirectories with the same filenames.
     local hashed_dir_truncated="${hashed_dir/'client/'/}"
     local hashes_file_basename="${hashes_file##*/}"
     local hashdeep_output=""
@@ -85,7 +85,7 @@ function verify_integrity_database ()
     # Create a copy of the hashes file in Linux format
     cat_dos "${hashes_file}" | tr '\\' '/' > "${temp_dir}/${hashes_file_basename}"
 
-    pushd "../client/md" > /dev/null
+    pushd "../client/md" > /dev/null || fail "cd failed"
     if [[ "${hashed_dir_truncated}" == "../dotnet" ]]
     then
         if ! hashdeep_output="$(hashdeep -a -vv -k "${temp_dir}/${hashes_file_basename}" -l ../dotnet/*.exe 2>&1)"
@@ -98,7 +98,7 @@ function verify_integrity_database ()
             increment_error_count
         fi
     fi
-    popd > /dev/null
+    popd > /dev/null || fail "cd failed"
 
     if same_error_count "${initial_errors}"
     then
@@ -149,7 +149,7 @@ function create_integrity_database ()
     # Count files to prevent errors and the creation of empty hashdeep
     # files
     case "${hashed_dir}" in
-        "../client/msse" | "../client/wddefs")
+        "../client/wddefs")
             shopt -s nullglob
             file_list=(
                 "${hashed_dir}/x64-glb"/*.*
@@ -180,7 +180,7 @@ function create_integrity_database ()
     # Note: standard output is written to the hashes file, but error
     # output can be caught in a variable for reference.
 
-    pushd "../client/md" > /dev/null
+    pushd "../client/md" > /dev/null || fail "cd failed"
     if [[ "${hashed_dir}" == "../client/dotnet" ]]
     then
         if ! hashdeep_error_output="$( { hashdeep -c md5,sha1,sha256 -l ../dotnet/*.exe | tr '/' '\\' | todos_line_endings > "${hashes_file_basename}"; } 2>&1 )"
@@ -193,7 +193,7 @@ function create_integrity_database ()
             increment_error_count
         fi
     fi
-    popd > /dev/null
+    popd > /dev/null || fail "cd failed"
 
     if same_error_count "${initial_errors}"
     then

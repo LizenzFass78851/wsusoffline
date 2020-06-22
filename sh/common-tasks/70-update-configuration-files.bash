@@ -113,7 +113,15 @@ function remove_obsolete_files ()
 
     # Dummy files are inserted, because zip archives cannot include
     # empty directories. They can be deleted on the first run.
-    find .. -type f -name dummy.txt -delete
+    #
+    # These files should be kept in development versions, otherwise they
+    # will be marked as missing after every run.
+    if [[ -d ./.svn ]]
+    then
+        log_warning_message "Keeping dummy.txt files in development version..."
+    else
+        find .. -type f -name dummy.txt -delete
+    fi
 
     # *** Obsolete internal stuff ***
     file_list+=(
@@ -121,6 +129,8 @@ function remove_obsolete_files ()
         ../cmd/CheckTRCerts.cmd
         ../client/static/StaticUpdateIds-w100-x86.txt
         ../client/static/StaticUpdateIds-w100-x64.txt
+        ../exclude/ExcludeList-SPs.txt
+        ../client/opt/OptionList-Q.txt
     )
 
     # The file ../client/exclude/ExcludeUpdateFiles-modified.txt was
@@ -195,11 +205,124 @@ function remove_obsolete_files ()
     )
     shopt -u nullglob
 
+    # Obsolete files in WSUS Offline Update, version 12.0
+    #
+    # *** Windows Vista / Server 2008 stuff ***
+    shopt -s nullglob
+    file_list+=(
+        ../client/static/StaticUpdateIds-ie9-w60.txt
+        ../client/static/StaticUpdateIds-w60-x64.txt
+        ../client/static/StaticUpdateIds-w60-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w60.txt
+        ../exclude/ExcludeList-w60-x64.txt
+        ../exclude/ExcludeList-w60-x86.txt
+        ../exclude/ExcludeListISO-w60-x64.txt
+        ../exclude/ExcludeListISO-w60-x86.txt
+        ../exclude/ExcludeListUSB-w60-x64.txt
+        ../exclude/ExcludeListUSB-w60-x86.txt
+        ../static/StaticDownloadLinks-w60-x64-glb.txt
+        ../static/StaticDownloadLinks-w60-x86-glb.txt
+        ../static/StaticDownloadLinks-w60-x64-5lg.txt
+        ../static/StaticDownloadLinks-w60-x86-5lg.txt
+        ../static/StaticDownloadLinks-ie8-w60-x64-*.txt
+        ../static/StaticDownloadLinks-ie8-w60-x86-*.txt
+        ../xslt/ExtractDownloadLinks-w60-x64-glb.xsl
+        ../xslt/ExtractDownloadLinks-w60-x86-glb.xsl
+    )
+    shopt -u nullglob
+
+    # *** Windows 7 / Server 2008 R2 stuff ***
+    shopt -s nullglob
+    file_list+=(
+        ../client/static/StaticUpdateIds-ie10-w61.txt
+        ../client/static/StaticUpdateIds-rdc-w61.txt
+        ../client/static/StaticUpdateIds-w61-x64.txt
+        ../client/static/StaticUpdateIds-w61-x86.txt
+        ../client/static/StaticUpdateIds-w61-seconly.txt
+        ../client/static/StaticUpdateIds-w61-dotnet35.txt
+        ../client/static/StaticUpdateIds-w61-dotnet35-seconly.txt
+        ../client/static/StaticUpdateIds-w61-dotnet4-*.txt
+        ../client/static/StaticUpdateIds-wupre-w61.txt
+        ../exclude/ExcludeList-w61-x64.txt
+        ../exclude/ExcludeList-w61-x86.txt
+        ../exclude/ExcludeListISO-w61-x64.txt
+        ../exclude/ExcludeListISO-w61-x86.txt
+        ../exclude/ExcludeListUSB-w61-x64.txt
+        ../exclude/ExcludeListUSB-w61-x86.txt
+        ../static/StaticDownloadLinks-w61-x64-glb.txt
+        ../static/StaticDownloadLinks-w61-x86-glb.txt
+        ../static/StaticDownloadLinks-ie9-w61-x64-*.txt
+        ../static/StaticDownloadLinks-ie9-w61-x86-*.txt
+        ../xslt/ExtractDownloadLinks-w61-x64-glb.xsl
+        ../xslt/ExtractDownloadLinks-w61-x86-glb.xsl
+    )
+    shopt -u nullglob
+
+    # *** Windows 10 Version 1703 stuff ***
+    file_list+=(
+        ../client/static/StaticUpdateIds-w100-15063-dotnet.txt
+        ../client/static/StaticUpdateIds-w100-15063-dotnet4-528049.txt
+        ../client/static/StaticUpdateIds-w100-15063-x64.txt
+        ../client/static/StaticUpdateIds-w100-15063-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-15063.txt
+    )
+
+    # Microsoft Security Essentials and Windows Defender definitions
+    # for Windows Vista and 7
+    #
+    # The usage of the directories msse and wddefs was basically reversed
+    # in WSUS Offline Update 12.0:
+    #
+    # - The directory client/msse is not used anymore, and the files
+    #   StaticDownloadLinks-msse-*.txt are deleted.
+    #
+    # - The directory client/wddefs is now used for the download of the
+    #   NEW virus definitions for Windows 8, 8.1 and 10 (mpam.exe)
+    #
+    # - OLD virus definitions for Windows Vista and 7 (mpas.exe) in that
+    #   directory are deleted.
+
+    # Configuration files
+    shopt -s nullglob
+    file_list+=(
+        ../static/StaticDownloadLinks-msse-*.txt
+        ../exclude/ExcludeList-msse.txt
+        ../client/md/hashes-msse.txt
+    )
+    shopt -u nullglob
+    # Download directory
+    if [[ -d ../client/msse ]]
+    then
+        rm -rf ../client/msse
+    fi
+    # Old virus definitions for the original, built-in defender of
+    # Windows Vista and 7
+    if [[ -f ../client/wddefs/x64-glb/mpas-fe.exe \
+       || -f ../client/wddefs/x86-glb/mpas-fe.exe ]]
+    then
+        file_list+=(
+            ../client/wddefs/x64-glb/mpas-fe.exe
+            ../client/wddefs/x86-glb/mpas-fe.exe
+            ../client/md/hashes-wddefs.txt
+        )
+    fi
+
+    # *** Silverlight stuff ***
+    if [[ -f ../client/win/glb/Silverlight.exe \
+       || -f ../client/win/glb/Silverlight_x64.exe ]]
+    then
+        file_list+=(
+            ../client/win/glb/Silverlight.exe
+            ../client/win/glb/Silverlight_x64.exe
+            ../client/md/hashes-win-glb.txt
+        )
+    fi
+
     # Print the resulting file list:
     log_debug_message "Obsolete files:" "${file_list[@]}"
 
     # Delete all obsolete files, if existing
-    if (( ${#file_list[@]} > 0 ))
+    if (( "${#file_list[@]}" > 0 ))
     then
         for current_file in "${file_list[@]}"
         do
@@ -235,7 +358,19 @@ function remove_obsolete_files ()
     # Office 2007 was removed in WSUS Offline Update 11.1
     if [[ -d ../client/o2k7 ]]
     then
-        log_warning_message "Office 2007 no longer supported."
+        log_warning_message "Office 2007 is no longer supported."
+    fi
+    # WSUS Offline Update 12.0 removed the support for:
+    #
+    # - Windows Server 2008
+    # - Windows 7 / Server 2008 R2
+    if [[ -d ../client/w60 || -d ../client/w60-x64 ]]
+    then
+        log_warning_message "Windows Vista / Server 2008 is no longer supported."
+    fi
+    if [[ -d ../client/w61 || -d ../client/w61-x64 ]]
+    then
+        log_warning_message "Windows 7 / Server 2008 R2 is no longer supported."
     fi
 
     return 0

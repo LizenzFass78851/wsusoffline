@@ -41,10 +41,6 @@ USAGE
    [OPTIONS]
 
 UPDATE
-    w60           Windows Server 2008, 32-bit
-    w60-x64       Windows Server 2008, 64-bit
-    w61           Windows 7, 32-bit
-    w61-x64       Windows 7 / Server 2008 R2, 64-bit
     w62-x64       Windows Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
@@ -66,7 +62,7 @@ UPDATE
     all-ofc-x86   All Office updates, 32-bit
 
     Notes: Multiple updates can be joined to a comma-separated list like
-    "w60,w60-x64".
+    "w63,w63-x64".
 
 LANGUAGE
     deu    German
@@ -98,9 +94,6 @@ LANGUAGE
     "deu,enu".
 
 OPTIONS
-   -includesp
-        Include Service Packs
-
    -includecpp
         Include Visual C++ runtime libraries
 
@@ -108,23 +101,8 @@ OPTIONS
         Include .NET Frameworks: localized installation files and updates
 
    -includewddefs
-        Virus definition files for Windows Vista and 7. These virus
-        definition files are only compatible with the original Windows
-        Defender, which was included in Windows Vista and 7.
-
-   -includemsse
-        Microsoft Security Essentials: localized installation files and
-        virus definition updates. Microsoft Security Essentials is an
-        optional installation for Windows Vista and 7.
-
-   -includewddefs8
-        Virus definition files for Windows 8 and higher. These are
-        the same virus definition updates as for Microsoft Security
-        Essentials, and they are downloaded to the same directories,
-        but without the localized installers.
-
-        Therefore, "wddefs8" is a subset of "msse", and you should use
-        -includemsse instead for the internal lists "all" and "all-win".
+        Windows Defender definition updates for the built-in Defender
+        of  Windows 8, 8.1 and 10.
 EOF
 }
 

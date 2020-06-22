@@ -258,7 +258,7 @@ inputfile_prefix=""
 # is any sort of output redirection. This may happen in cron jobs or
 # batch jobs, or when simply piping the output through cat:
 #
-# ./download-updates.bash w60 deu,enu -includesp 2>&1 | cat
+# ./download-updates.bash w63 deu,enu 2>&1 | cat
 #
 # cat just copies the input to output, but Wget itself will mess up its
 # display: The progress is indicated by dots in the terminal window,
@@ -270,7 +270,7 @@ inputfile_prefix=""
 # be checked, if they are attached to a terminal. Since Wget writes all
 # messages to error output, both descriptors 1 and 2 (standard output
 # and error output) should be tested. If one of these descriptors is
-# redirected, then the dot display will be used as a fall back, without
+# redirected, then the dot display will be used as a fallback, without
 # the option --show-progress.
 #
 # Note: The function set_wget_progress_style must be called before the
@@ -385,8 +385,6 @@ function is_valid_url ()
 # have the same remote filename, but a different path on the server.
 #
 # - The Visual C++ runtime libraries (cpp) all have similar names.
-# - The installers for Microsoft Security Essentials (msse) are localized,
-#   but all localized installers share the same remote filename.
 #
 # In WSUS Offline Update, these files are downloaded to the
 # same directories. Then it is necessary to rename them after
@@ -461,9 +459,9 @@ function download_single_file ()
     local -i previous_modification_date="0"
 
     case "${filename}" in
-        # Since version 1.12, the four virus definition files are
-        # referenced with LinkIDs, which resolve to the filenames
-        # mpas-fe.exe and mpam-fe.exe after several redirections.
+        # Since version 1.12, the virus definition files are referenced
+        # with LinkIDs, which resolve to the filename mpam-fe.exe after
+        # several redirections.
         *LinkID*)
             download_single_file_failsafe "$@"
         ;;
@@ -488,16 +486,6 @@ function download_single_file ()
             previous_modification_date="$(get_modification_date "${pathname}")"
             download_single_file_optimized "$@"
             compare_modification_dates "${pathname}" "${previous_modification_date}"
-        ;;
-        # Update for root certificates. Downloads from archive.org don't
-        # allow timestamping.
-        rootsupd.exe)
-            if [[ -f "${pathname}" ]]
-            then
-                log_info_message "File ${filename} has already been downloaded."
-            else
-                download_single_file_optimized "$@"
-            fi
         ;;
         # All other downloads
         *)
@@ -581,9 +569,9 @@ function download_single_file_failsafe ()
 
     # The filename is usually the last part of the URL and can be
     # extracted with the command "basename" or the parameter expansion
-    # "${download_link##*/}", as shown above. For the four virus
-    # definition files, this returns a LinkID, and the expected filename
-    # must be corrected manually.
+    # "${download_link##*/}", as shown above. For the virus definition
+    # files, this returns a LinkID, and the expected filename must be
+    # corrected manually.
     #
     # This is only needed for the function itself, to handle partial
     # files and backup files correctly. wget does save the files with the
@@ -594,10 +582,6 @@ function download_single_file_failsafe ()
     then
         case "${download_dir}" in
             "../client/wddefs/x86-glb" | "../client/wddefs/x64-glb")
-                filename="mpas-fe.exe"
-                log_debug_message "Used pathname: ${download_dir}/${filename}"
-            ;;
-            "../client/msse/x86-glb" | "../client/msse/x64-glb")
                 filename="mpam-fe.exe"
                 log_debug_message "Used pathname: ${download_dir}/${filename}"
             ;;

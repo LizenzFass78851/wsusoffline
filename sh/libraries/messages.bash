@@ -338,11 +338,4 @@ function ask_question ()
     return 0
 }
 
-# Example code
-# log_info_message "Information"
-# log_warning_message "Warning"
-# log_error_message "Error"
-# debug=enabled log_debug_message "Debug"
-# fail "Failure"
-
 return 0

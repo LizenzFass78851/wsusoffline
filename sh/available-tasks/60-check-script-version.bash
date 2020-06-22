@@ -237,7 +237,7 @@ function sh_self_update ()
     file_list=( "${temp_dir}/${sh_expanded_dirname}"/* )
     shopt -u nullglob
 
-    if (( ${#file_list[@]} > 0 ))
+    if (( "${#file_list[@]}" > 0 ))
     then
         for current_item in "${file_list[@]}"
         do
