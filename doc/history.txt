@@ -1716,3 +1716,4 @@ Community Edition 12.1 -- ??.??.2020
 - April to June 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - Removed obsolete static files for w60 and w61 (Thanks to "hbuhrmester")
 - Removed obsolete download links for .NET 3.5 and 4.6 (Thanks to "hbuhrmester")
+- C++ 2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
