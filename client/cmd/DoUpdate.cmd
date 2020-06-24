@@ -1314,7 +1314,7 @@ if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%.txt (
     if exist "%TEMP%\InstalledUpdateIds.txt" (
       %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
       if errorlevel 1 echo %%i>>"%TEMP%\MissingUpdateIds.txt"
-      if not "%SHA2_PREREQ_ID%"=="" (if "%%i"=="%SHA2_PREREQ_ID%" (set SHA2_PREREQ_INSTALLING=1)
+      if not "%SHA2_PREREQ_ID%"=="" (if "%%i"=="%SHA2_PREREQ_ID%" (set SHA2_PREREQ_INSTALLING=1))
     ) else (
       echo %%i>>"%TEMP%\MissingUpdateIds.txt"
     )
