@@ -1,5 +1,4 @@
 kb3005607,Vulnerability in Windows Audio Service could cause Elevation of Privilege
-kb3033929,Availability of SHA-2 code signing support for Windows 7 and Windows Server 2008 R2
 kb3138962,Security Update for Windows Media
 kb3149090,April 2016 Security Update for SAM and LSAD remote protocols
 kb3168965,Security Update for Windows kernel-mode drivers
