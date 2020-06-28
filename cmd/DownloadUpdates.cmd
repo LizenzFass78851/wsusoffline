@@ -1859,7 +1859,7 @@ goto SDDCoreSkip
 
 :SDDCoreDownload
 set NewVersionListBuffer=%NewVersionList%
-%DLDR_PATH% %DLDR_COPT% %DLDR_POPT% %3 %DLDR_LOPT% %DLDR_NCOPT% %2
+%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% %3 %DLDR_LOPT% %DLDR_NCOPT% %2
 if errorlevel 1 (
   set SDDCoreReturnValue=1
   goto SDDCoreSkip
