@@ -556,9 +556,11 @@ rem *** old self update stuff ***
 if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-this.txt
 
 rem *** Update static download definitions ***
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\static %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-sdd.txt
 set StaticUpdateDownload=
 set NewVersionList=
+%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\static %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-sdd.txt
+if errorlevel 1 (goto SkipSDDPrepare)
+if not exist ..\static\SelfUpdateVersion-sdd.txt (goto SkipSDDPrepare)
 set SDDContainsFile=0
 for /f "tokens=2,3 delims=," %%l in (..\static\SelfUpdateVersion-static.txt) do (
   set SDDContainsFile=0
@@ -603,6 +605,8 @@ for /f "tokens=2,3 delims=," %%l in (..\static\SelfUpdateVersion-static.txt) do 
   )
 )
 set SDDContainsFile=
+
+:SkipSDDPrepare
 
 ::echo StaticUpdateDownload=%StaticUpdateDownload%
 ::echo NewVersionList=%NewVersionList%
