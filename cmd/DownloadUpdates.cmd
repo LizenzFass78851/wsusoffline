@@ -605,9 +605,8 @@ for /f "tokens=2,3 delims=," %%l in (..\static\SelfUpdateVersion-static.txt) do 
   )
 )
 set SDDContainsFile=
-
+del ..\static\SelfUpdateVersion-sdd.txt
 :SkipSDDPrepare
-
 ::echo StaticUpdateDownload=%StaticUpdateDownload%
 ::echo NewVersionList=%NewVersionList%
 
