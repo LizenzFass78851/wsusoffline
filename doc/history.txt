@@ -1732,3 +1732,4 @@ Community Edition 12.1 -- ??.??.2020
 - Replaced superseded March 2020 Servicing stack update (kb4539571) by June 2020 Servicing stack update (KB4562562) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
 - Replaced superseded March 2020 Servicing stack update (kb4541338) by June 2020 Servicing stack update (KB4560959) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Added June 2020 Servicing stack update (KB4560366) for Windows 10 Version 2004 (Thanks to "aker")
+- Fix: the global part of an Office update with a global and language-specific part wasn't installed (Thanks to "aker" and "hbuhrmester")
