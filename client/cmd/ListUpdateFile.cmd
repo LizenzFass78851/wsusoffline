@@ -11,10 +11,19 @@ if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 if "%1"=="" goto NoParam
 if "%2"=="" goto NoParam
 
+set SEARCH_LEFT_MOST=0
+
+:EvalParams
+if "%3"=="" goto NoMoreParams
+if /i "%3"=="/searchleftmost" set SEARCH_LEFT_MOST=1
+shift /3
+goto EvalParams
+
+:NoMoreParams
 if exist "%TEMP%\Update.txt" goto EoF
 if not exist %2\nul goto EoF
 
-if /i "%3"=="/searchleftmost" (
+if /i "%SEARCH_LEFT_MOST%"=="1" (
   dir /A:-D /B /OD %2\%1*.* >"%TEMP%\Update.txt" 2>nul
 ) else (
   dir /A:-D /B /OD %2\*%1*.* >"%TEMP%\Update.txt" 2>nul

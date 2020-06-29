@@ -273,15 +273,18 @@ if /i "%OS_ARCH%"=="x64" (
 )
 echo Medium does not support Microsoft Windows (%OS_NAME% %OS_ARCH% %OS_LANG%).
 call :Log "Info: Medium does not support Microsoft Windows (%OS_NAME% %OS_ARCH% %OS_LANG%)"
-if "%OFC_NAME%"=="" goto InvalidMedium
 set JUST_OFFICE=1
 
 :CheckOfficeMedium
-if "%OFC_NAME%"=="" goto ProperMedium
-if exist ..\ofc\%OFC_LANG%\nul (
-  echo Medium supports Microsoft Office ^(ofc %OFC_LANG%^).
-  call :Log "Info: Medium supports Microsoft Office (ofc %OFC_LANG%)"
-  goto ProperMedium
+if "%OFC_NAME%"=="" (if "%JUST_OFFICE%"=="1" (goto InvalidMedium) else (goto ProperMedium))
+if not "%OFC_LANG%"=="" (
+  for %%l in (%OFC_LANG%) do (
+    if exist ..\ofc\%%l\nul (
+      echo Medium supports Microsoft Office ^(ofc %%l^).
+      call :Log "Info: Medium supports Microsoft Office (ofc %%l)"
+      goto ProperMedium
+    )
+  )
 )
 if exist ..\ofc\glb\nul (
   echo Medium supports Microsoft Office ^(ofc glb^).
