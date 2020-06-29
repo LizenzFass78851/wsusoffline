@@ -1,10 +1,10 @@
 http://download.microsoft.com/download/4/A/D/4AD4C749-912C-422D-93A9-7F70F7E287E1/conv2016-kb3213551-fullfile-x64-glb.exe
-http://download.microsoft.com/download/1/C/B/1CB45E2B-77DE-42C6-930A-8B7768C5F668/visio2016-kb3115041-fullfile-x64-glb.exe
-http://download.microsoft.com/download/d/6/1/d613f2f5-da2e-46ca-ba15-4ffefced30c4/project2016-kb4475589-fullfile-x64-glb.exe
+http://download.microsoft.com/download/0/4/4/0441ea00-abad-4243-b29d-9166edd95b30/visio2016-kb4484244-fullfile-x64-glb.exe
+http://download.microsoft.com/download/4/2/7/4276f198-d639-49a8-9618-9678039743d0/project2016-kb4484399-fullfile-x64-glb.exe
 http://download.microsoft.com/download/1/4/1/1413074C-87B4-412F-B0B1-6ECBBDD970FA/eqnedt322016-kb4011574-fullfile-x64-glb.exe
-http://download.microsoft.com/download/C/5/D/C5DCE3AF-CB24-4187-9FCE-C03F5AFF74D4/excel2016-kb4475513-fullfile-x64-glb.exe
-http://download.microsoft.com/download/5/7/0/5707F3B6-FE03-4C21-857C-21E6F2A9DE21/graph2016-kb4461539-fullfile-x64-glb.exe
+http://download.microsoft.com/download/8/e/9/8e90d2dc-0c47-4899-8c20-9be920e0bca4/excel2016-kb4484403-fullfile-x64-glb.exe
+http://download.microsoft.com/download/0/8/e/08e14397-1fb2-4b7c-9735-049f4743d39f/graph2016-kb4484258-fullfile-x64-glb.exe
 http://download.microsoft.com/download/E/7/E/E7E9DF36-4718-4FAB-9663-0630840A1202/lync2016-kb4475545-fullfile-x64-glb.exe
 http://download.microsoft.com/download/6/F/5/6F5426A5-74F3-4DBF-A05D-D1609F3687DA/msodll99l2016-kb4475514-fullfile-x64-glb.exe
 http://download.microsoft.com/download/3/9/B/39BD4B92-2314-4898-B2EB-90DDEE6E0F49/osfclient2016-kb4464534-fullfile-x64-glb.exe
-http://download.microsoft.com/download/2/1/6/2160EE51-B90A-49A9-A591-C009E8531B00/outlook2016-kb4475517-fullfile-x64-glb.exe
+http://download.microsoft.com/download/5/9/d/59d047ab-c694-4621-9d0f-23e2c8e099f9/outlook2016-kb4484274-fullfile-x64-glb.exe

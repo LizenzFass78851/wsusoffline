@@ -1,10 +1,9 @@
-http://download.microsoft.com/download/4/1/C/41CADC65-8F27-4387-A1FF-1A7A3AF03F0F/office2010-kb2553065-fullfile-x64-glb.exe
 http://download.microsoft.com/download/D/4/1/D4173859-30C8-4A43-BBFA-9D8898E6391D/proofloc2010-kb3203468-fullfile-x64-glb.exe
 http://download.microsoft.com/download/D/C/E/DCED76B3-6927-4081-80E7-1067E0C164B7/wordloc2010-kb4461625-fullfile-x64-glb.exe
 http://download.microsoft.com/download/0/1/0/0108A748-0CAA-4A66-AF33-4979A4C20017/convloc2010-kb3213626-fullfile-x64-glb.exe
-http://download.microsoft.com/download/5/8/3/583D14FE-14D7-4CE2-98B5-C3C2883DAA07/visio2010-kb3114872-fullfile-x64-glb.exe
+http://download.microsoft.com/download/0/1/f/01f6770c-a1f4-4f41-8ed2-6e4760f19f2d/visio2010-kb4462225-fullfile-x64-glb.exe
 http://download.microsoft.com/download/6/6/6/666512D1-CE04-49AC-BFCE-9A47EA838AC5/onenoteloc2010-kb3114885-fullfile-x64-glb.exe
-http://download.microsoft.com/download/4/4/3/4435C719-A948-4AD6-A8C4-8F866FD6653E/ace2010-kb4462226-fullfile-x64-glb.exe
-http://download.microsoft.com/download/6/3/E/63EF666E-FCED-4B6A-89EE-8D8A825FE4CF/excel2010-kb4464572-fullfile-x64-glb.exe
-http://download.microsoft.com/download/2/7/0/2702CEB9-834A-43C0-80D8-1266F8C2FAB8/graph2010-kb4462224-fullfile-x64-glb.exe
-http://download.microsoft.com/download/a/a/2/aa288aca-929e-4d6c-bfe5-da632721720e/outlookloc2010-kb4475604-fullfile-x64-glb.exe
+http://download.microsoft.com/download/f/b/1/fb14c57b-f664-4d88-8a0b-1b77e8b43cf2/ace2010-kb4484238-fullfile-x64-glb.exe
+http://download.microsoft.com/download/f/9/8/f98a8f6a-d889-4491-952b-b91fcad1072c/excel2010-kb4484415-fullfile-x64-glb.exe
+http://download.microsoft.com/download/d/9/c/d9c50b83-a9d8-4fa2-95c9-e9d204a66b4f/graph2010-kb4484266-fullfile-x64-glb.exe
+http://download.microsoft.com/download/9/7/4/9740c645-506f-4a42-9f86-377434907e23/outlookloc2010-kb4484284-fullfile-x64-glb.exe

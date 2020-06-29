@@ -1718,9 +1718,11 @@ Community Edition 12.1 -- ??.??.2020
 - Removed obsolete static files for w60 and w61 (Thanks to "hbuhrmester")
 - Removed obsolete download links for .NET 3.5 and 4.6 (Thanks to "hbuhrmester")
 - Removed obsolete supersedance-excludes for Windows Server 2008 and Windows 7 / Server 2008 R2
+- Removed obsolete Office File Validation Update kb2553065 (Thanks to "aker")
 - Added static update definition files for Windows 10 Version 2004 (build 19041)
 - Allowed to perform "feature upgrades via enablement package" (1903 -> 1909) (Thanks to "aker")
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
+- Replaced superseded Office Updates for Office 2010, 2013 and 2016 (Thanks to "aker")
 - Replaced superseded December 2019 Servicing Stack Update (kb4532920) by June 2020 Servicing Stack Update (KB4562252) for Windows Server 2012 (Thanks to "aker")
 - Replaced superseded November 2019 Servicing Stack Update (kb4524445) by June 2020 Servicing Stack Update (KB4562253) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
 - Replaced superseded March 2020 Servicing stack update (kb4540721) by June 2020 Servicing stack update (KB4562249) for Windows 10 Version 1507 (Thanks to "aker")
