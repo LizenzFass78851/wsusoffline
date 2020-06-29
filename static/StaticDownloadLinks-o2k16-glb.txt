@@ -1,10 +1,10 @@
 http://download.microsoft.com/download/F/7/C/F7C4E06B-26A9-4A8B-8AD4-672FCF8355DD/conv2016-kb3213551-fullfile-x86-glb.exe
-http://download.microsoft.com/download/C/4/6/C46C4441-44AF-4841-A637-F0C0F49BE476/visio2016-kb3115041-fullfile-x86-glb.exe
-http://download.microsoft.com/download/1/e/5/1e50828d-0fb8-4fa0-9f32-3686f61a50f5/project2016-kb4475589-fullfile-x86-glb.exe
+http://download.microsoft.com/download/5/1/9/51991cb1-db5a-4c0b-a56f-a8afcf18d941/visio2016-kb4484244-fullfile-x86-glb.exe
+http://download.microsoft.com/download/1/2/c/12cebdc7-2e4c-4b0d-a0f8-0358de097c63/project2016-kb4484399-fullfile-x86-glb.exe
 http://download.microsoft.com/download/B/1/8/B1898198-4774-45DE-AA79-3089603F5BC4/eqnedt322016-kb4011574-fullfile-x86-glb.exe
-http://download.microsoft.com/download/D/E/8/DE8B488F-1FC6-4130-BBE9-B82E21F08A97/excel2016-kb4475513-fullfile-x86-glb.exe
-http://download.microsoft.com/download/8/0/D/80D0FE8C-C150-4A49-B1E9-7AA128BC039A/graph2016-kb4461539-fullfile-x86-glb.exe
+http://download.microsoft.com/download/4/4/8/4483ce0b-9e63-4393-9718-11d89ab2ef41/excel2016-kb4484403-fullfile-x86-glb.exe
+http://download.microsoft.com/download/9/f/b/9fba854a-cedd-4baf-b4c3-c07ecc144365/graph2016-kb4484258-fullfile-x86-glb.exe
 http://download.microsoft.com/download/9/C/A/9CAB2FA9-FC3F-4539-971A-7EAC426E9DEC/lync2016-kb4475545-fullfile-x86-glb.exe
 http://download.microsoft.com/download/C/E/B/CEB94A3D-7570-430B-85FE-6C54B7A5BB78/msodll99l2016-kb4475514-fullfile-x86-glb.exe
 http://download.microsoft.com/download/D/D/6/DD6BE98F-0308-49F2-A1B6-61E5CFB49B9C/osfclient2016-kb4464534-fullfile-x86-glb.exe
-http://download.microsoft.com/download/F/D/5/FD5823E6-304F-4747-8FC7-D2A61409CB72/outlook2016-kb4475517-fullfile-x86-glb.exe
+http://download.microsoft.com/download/8/c/2/8c2024cd-77f4-4c87-83cc-42424e31c8fc/outlook2016-kb4484274-fullfile-x86-glb.exe
