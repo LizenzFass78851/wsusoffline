@@ -55,11 +55,14 @@ function extract_wsusoffline_version ()
 
 function create_logfile ()
 {
+    local timestamp=""
+    timestamp="$( date '+%Y-%m-%d %H:%M:%S' )"  # e.g. 2020-07-06 23:12:46
+
     if [[ -f "${logfile}" ]]
     then
         {
             echo ""
-            echo "--------------------------------------------------------------------------------"
+            echo "----------------------------| ${timestamp} |-----------------------------"
             echo ""
         } >> "${logfile}"
     else
@@ -76,7 +79,7 @@ function print_info_block ()
     log_info_message "Command line: ${command_line}"
     if [[ "${wsusoffline_version}" != "not-available" ]]
     then
-        log_info_message "Running on WSUS Offline Update version ${wsusoffline_version}"
+        log_info_message "Running on WSUS Offline Update, Community Edition ${wsusoffline_version}"
     fi
 
     if [[ -f ../client/catalog-creationdate.txt ]]

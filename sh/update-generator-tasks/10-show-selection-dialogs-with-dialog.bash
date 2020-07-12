@@ -127,6 +127,8 @@ declare -A w100_values=(
     [1903_x64]="on"
     [1909_x86]="on"
     [1909_x64]="on"
+    [2004_x86]="on"
+    [2004_x64]="on"
 )
 
 
@@ -152,6 +154,7 @@ all_keys=(
 w100_keys=(
     1507_x86 1507_x64 1607_x86 1607_x64 1709_x86 1709_x64 1803_x86
     1803_x64 1809_x86 1809_x64 1903_x86 1903_x64 1909_x86 1909_x64
+    2004_x86 2004_x64
 )
 
 download_parameters=()
@@ -302,17 +305,19 @@ function show_selection_dialogs_with_dialog ()
         1507_x86   "Windows 10, 1507, 32-bit"                 "${w100_values[1507_x86]}"
         1507_x64   "Windows 10, 1507, 64-bit"                 "${w100_values[1507_x64]}"
         1607_x86   "Windows 10, 1607, 32-bit"                 "${w100_values[1607_x86]}"
-        1607_x64   "Windows 10 / Server 2016, 1607, 64-bit"   "${w100_values[1607_x64]}"
+        1607_x64   "Windows 10, 1607 / Server 2016, 64-bit"   "${w100_values[1607_x64]}"
         1709_x86   "Windows 10, 1709, 32-bit"                 "${w100_values[1709_x86]}"
         1709_x64   "Windows 10, 1709, 64-bit"                 "${w100_values[1709_x64]}"
         1803_x86   "Windows 10, 1803, 32-bit"                 "${w100_values[1803_x86]}"
         1803_x64   "Windows 10, 1803, 64-bit"                 "${w100_values[1803_x64]}"
         1809_x86   "Windows 10, 1809, 32-bit"                 "${w100_values[1809_x86]}"
-        1809_x64   "Windows 10 / Server 2019, 1809, 64-bit"   "${w100_values[1809_x64]}"
+        1809_x64   "Windows 10, 1809 / Server 2019, 64-bit"   "${w100_values[1809_x64]}"
         1903_x86   "Windows 10, 1903, 32-bit"                 "${w100_values[1903_x86]}"
         1903_x64   "Windows 10, 1903, 64-bit"                 "${w100_values[1903_x64]}"
         1909_x86   "Windows 10, 1909, 32-bit"                 "${w100_values[1909_x86]}"
         1909_x64   "Windows 10, 1909, 64-bit"                 "${w100_values[1909_x64]}"
+        2004_x86   "Windows 10, 2004, 32-bit"                 "${w100_values[2004_x86]}"
+        2004_x64   "Windows 10, 2004, 64-bit"                 "${w100_values[2004_x64]}"
     )
 
     local -a languages_dialog=(

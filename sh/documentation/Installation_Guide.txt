@@ -1,6 +1,6 @@
 Installation guide for the Linux download scripts
 =================================================
-Last updated for version 1.16 (2020-01-08)
+Last updated for version 2.0 Community Edition (2020-07-12)
 
 
 WSUS Offline Update already includes the new Linux download scripts. You
@@ -129,12 +129,18 @@ again. Therefore I recommend to use wget, until this problem is solved.
 
 Download and unpack the wsusoffline archive
 -------------------------------------------
-Download the newest wsusoffline archive from the download page
-https://download.wsusoffline.net/ and unpack it. Note, that the zip
-archive comes with an accompanying hashes file. You can use it to verify
-the download with:
+Download the newest wsusoffline archive and unpack it.
 
-  hashdeep -a -v -v -l -k wsusoffline1161_hashes.txt wsusoffline1161.zip
+* For the original WSUS Offline Update, check the download page
+  <https://download.wsusoffline.net/>.
+
+* For the Community Edition, check the "Releases" page
+  <https://gitlab.com/wsusoffline/wsusoffline/-/releases>.
+
+Note, that the zip archive comes with an accompanying hashes file. You
+can use it to verify the download with:
+
+  hashdeep -a -v -v -l -k wsusofflineCE120_hashes.txt wsusofflineCE120.zip
 
 The new Linux scripts are included in the "sh" subdirectory. Due to
 the packaging on Windows, the scripts are not yet executable. Run the

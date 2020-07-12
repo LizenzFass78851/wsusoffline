@@ -160,10 +160,9 @@ function get_sysinternals_helpers ()
     log_info_message "Start processing of Sysinternals utilities..."
 
     # Create a copy of the file StaticDownloadLinks-sysinternals.txt,
-    # but use https instead of http
-    sed 's/http:/https:/g' < "../static/StaticDownloadLinks-sysinternals.txt" \
-                           | filter_cr \
-                           > "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
+    # to remove carriage returns
+    filter_cr < "../static/StaticDownloadLinks-sysinternals.txt" \
+              > "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
 
     # Remember the file modification dates of existing archives in seconds
     [[ -f "${cache_dir}/AutoLogon.zip" ]] \
@@ -198,7 +197,7 @@ function get_sysinternals_helpers ()
     if (( current_autologon > previous_autologon )) \
         || [[ ! -f "../client/bin/Autologon.exe" ]]
     then
-        log_info_message "Unpacking archive AutoLogon.zip"
+        log_info_message "Unpacking archive AutoLogon.zip ..."
         # Note: the variable unzip_upgrade must not be quoted.
         if ! ${unzip_upgrade} "${cache_dir}/AutoLogon.zip" -x "Eula.txt" -d "../client/bin"
         then
@@ -211,7 +210,7 @@ function get_sysinternals_helpers ()
         || [[ ! -f "../bin/sigcheck.exe" ]] \
         || [[ ! -f "../bin/sigcheck64.exe" ]]
     then
-        log_info_message "Unpacking archive Sigcheck.zip"
+        log_info_message "Unpacking archive Sigcheck.zip ..."
         if ! ${unzip_upgrade} "${cache_dir}/Sigcheck.zip" -x "Eula.txt" -d "../bin"
         then
             log_error_message "Unpacking of Sigcheck.zip failed."
@@ -223,7 +222,7 @@ function get_sysinternals_helpers ()
         || [[ ! -f "../bin/streams.exe" ]] \
         || [[ ! -f "../bin/streams64.exe" ]]
     then
-        log_info_message "Unpacking archive Streams.zip"
+        log_info_message "Unpacking archive Streams.zip ..."
         if ! ${unzip_upgrade} "${cache_dir}/Streams.zip" -x "Eula.txt" -d "../bin"
         then
             log_error_message "Unpacking of Streams.zip failed."

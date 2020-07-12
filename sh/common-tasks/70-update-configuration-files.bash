@@ -31,15 +31,26 @@
 #     The update of configuration files can be disabled by setting the
 #     variable check_for_self_updates to "disabled".
 
+# ========== Configuration ================================================
+
+excludelist_superseded_exclude_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude.txt"
+excludelist_superseded_exclude_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude-seconly.txt"
+hidelist_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/HideList-seconly.txt"
+static_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt"
+exclude_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt"
+static_updatefiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified.txt"
+
 # ========== Functions ====================================================
 
 function no_pending_updates ()
 {
     local result_code=1
 
-    if [[ -f "../static/StaticDownloadLink-this.txt" && -f "../static/StaticDownloadLink-recent.txt" ]]
+    if [[ -f "../static/SelfUpdateVersion-this.txt" \
+       && -f "../static/SelfUpdateVersion-recent.txt" ]]
     then
-        if diff "../static/StaticDownloadLink-this.txt" "../static/StaticDownloadLink-recent.txt" > /dev/null
+        if diff "../static/SelfUpdateVersion-this.txt" \
+                "../static/SelfUpdateVersion-recent.txt" > /dev/null
         then
             result_code="0"
         fi
@@ -62,7 +73,7 @@ function no_pending_updates ()
 # is installed. This script doesn't need to do an online check for
 # new versions, because this has already been done by the script
 # 50-check-wsusoffline-version.bash; but it does compare the files
-# StaticDownloadLink-this.txt and StaticDownloadLink-recent.txt again:
+# SelfUpdateVersion-this.txt and SelfUpdateVersion-recent.txt again:
 #
 # - If these files are the same, then the latest version is installed.
 # - If they are different, then a new version of WSUS Offline Update is
@@ -74,30 +85,28 @@ function run_update_configuration_files ()
     local timestamp_file="${timestamp_dir}/update-configuration-files.txt"
     local -i interval_length="${interval_length_configuration_files}"
     local interval_description="${interval_description_configuration_files}"
-    local -i initial_errors="0"
-    initial_errors="$(get_error_count)"
 
     if [[ "${check_for_self_updates}" == "disabled" ]]
     then
         log_info_message "The update of configuration files for WSUS Offline Update is disabled in preferences.bash"
-    elif same_day "${timestamp_file}" "${interval_length}"
+        echo ""
+        return 0
+    fi
+
+    if same_day "${timestamp_file}" "${interval_length}"
     then
         log_info_message "Skipped update of configuration files for WSUS Offline Update, because it has already been done less than ${interval_description} ago"
-    elif no_pending_updates
+        echo ""
+        return 0
+    fi
+
+    if no_pending_updates
     then
-        log_info_message "Start updating configuration files for WSUS Offline Update..."
         remove_obsolete_files
         update_configuration_files
-
-        if same_error_count "${initial_errors}"
-        then
-            log_info_message "Done updating configuration files for WSUS Offline Update."
-            update_timestamp "${timestamp_file}"
-        else
-            log_warning_message "The update of configuration files failed. See the download log for possible error messages."
-        fi
     else
         log_info_message "The update of configuration files was postponed, because there is a new version of WSUS Offline Update available, which should be installed first."
+        echo ""
     fi
     return 0
 }
@@ -318,6 +327,12 @@ function remove_obsolete_files ()
         )
     fi
 
+    # Obsolete files in the Community Edition 12.0
+    #
+    # The file StaticDownloadLink-this.txt was replaced with
+    # SelfUpdateVersion-this.txt
+    file_list+=( ../static/StaticDownloadLink-this.txt )
+
     # Print the resulting file list:
     log_debug_message "Obsolete files:" "${file_list[@]}"
 
@@ -373,73 +388,125 @@ function remove_obsolete_files ()
         log_warning_message "Windows 7 / Server 2008 R2 is no longer supported."
     fi
 
-    return 0
-}
-
-
-# Download one file and then all URLs within that file. This is used for
-# the "update of static download definitions (SDD)" in the directory
-# "static", but also for the configuration files in the directories
-# "exclude" and "client/static".
-function recursive_download ()
-{
-    local download_dir="$1"
-    local download_link="$2"
-    local filename="${download_link##*/}"
-    local -i initial_errors="0"
-    initial_errors="$(get_error_count)"
-
-    download_single_file "${download_dir}" "${download_link}"
-    if same_error_count "${initial_errors}"
-    then
-        # The downloaded file may be empty, which is actually the default
-        # state for the "update of static download definitions". These
-        # files only contain URLs for configuration files, which have
-        # changed since the latest release of WSUS Offline Update.
-        if [[ -s "${download_dir}/${filename}" ]]
-        then
-            download_multiple_files "${download_dir}" "${download_dir}/${filename}"
-        fi
-    else
-        log_warning_message "The download of ${filename} failed."
-    fi
+    log_info_message "Removed obsolete files from previous versions."
+    echo ""
     return 0
 }
 
 
 function update_configuration_files ()
 {
+    local timestamp_file="${timestamp_dir}/update-configuration-files.txt"
+    local -i initial_errors="0"
+    initial_errors="$(get_error_count)"
+
+    log_info_message "Updating configuration files for the current version of WSUS Offline Update..."
     # Testing the files ExcludeList-superseded-exclude.txt and
     # ExcludeList-superseded-exclude-seconly.txt separately seems
     # to be redundant, because they could just be added to the file
-    # ExcludeDownloadFiles-modified.txt. Most probably this is done
-    # in the Windows script DownloadUpdates.cmd, because the files
+    # ExcludeDownloadFiles-modified.txt.
+    #
+    # The Windows script DownloadUpdates.cmd does this, because the files
     # ExcludeList-superseded.txt and ExcludeList-superseded-seconly.txt
     # need to be recalculated, if these configuration files change.
-    log_info_message "Downloading/validating file ExcludeList-superseded-exclude.txt ..."
-    download_single_file "../exclude" "https://download.wsusoffline.net/ExcludeList-superseded-exclude.txt"
-    log_info_message "Downloading/validating file ExcludeList-superseded-exclude-seconly.txt ..."
-    download_single_file "../exclude" "https://download.wsusoffline.net/ExcludeList-superseded-exclude-seconly.txt"
+    download_from_gitlab "../exclude" "${excludelist_superseded_exclude_url}"
+    download_from_gitlab "../exclude" "${excludelist_superseded_exclude_seconly_url}"
+
     # The file ../client/exclude/HideList-seconly.txt was introduced
     # in WSUS Offline Update version 10.9. It replaces the former file
     # ../client/exclude/ExcludeUpdateFiles-modified.txt.
-    log_info_message "Downloading/validating file HideList-seconly.txt ..."
-    download_single_file "../client/exclude" "https://download.wsusoffline.net/HideList-seconly.txt"
-    log_info_message "Checking directory wsusoffline/static ..."
-    recursive_download "../static" "https://download.wsusoffline.net/StaticDownloadFiles-modified.txt"
-    log_info_message "Checking directory wsusoffline/exclude ..."
-    recursive_download "../exclude" "https://download.wsusoffline.net/ExcludeDownloadFiles-modified.txt"
-    log_info_message "Checking directory wsusoffline/client/static ..."
-    recursive_download "../client/static" "https://download.wsusoffline.net/StaticUpdateFiles-modified.txt"
+    download_from_gitlab "../client/exclude" "${hidelist_seconly_url}"
+    echo ""
 
-    # The final message should indicate success or warn about
-    # any errors. This is now done in the calling function
-    # run_update_configuration_files.
+    log_info_message "Checking directory wsusoffline/static ..."
+    recursive_download "../static" "${static_downloadfiles_modified_url}"
+    echo ""
+
+    log_info_message "Checking directory wsusoffline/exclude ..."
+    recursive_download "../exclude" "${exclude_downloadfiles_modified_url}"
+    echo ""
+
+    log_info_message "Checking directory wsusoffline/client/static ..."
+    recursive_download "../client/static" "${static_updatefiles_modified_url}"
+    #echo ""
+
+    if same_error_count "${initial_errors}"
+    then
+        log_info_message "Updated configuration files for WSUS Offline Update."
+        update_timestamp "${timestamp_file}"
+    else
+        log_warning_message "The update of configuration files failed. See the download log for possible error messages."
+    fi
+    echo ""
+    return 0
+}
+
+
+# Function recursive_download
+#
+# The function recursive_download is used for the configuration files
+# StaticDownloadFiles-modified.txt, ExcludeDownloadFiles-modified.txt
+# and StaticUpdateFiles-modified.txt. These files don't exist on the
+# first download run.
+#
+# They contain download links for configuration files, which have been
+# modified since the last release of WSUS Offline Update.
+#
+# Directly after a version update of WSUS Offline Update, these index
+# files are usually empty.
+#
+# If they are not empty, then the contained URLs will be recursively
+# downloaded.
+#
+# In earlier versions of WSUS Offline Update, this recursive download
+# was only used for the static directory. Therefore, this step is still
+# known as the "update of static download definitions (SDD)".
+function recursive_download ()
+{
+    local download_dir="$1"
+    local download_link="$2"
+    local filename="${download_link##*/}"
+    local -i number_of_links="0"
+    local url=""
+    local -i initial_errors="0"
+    initial_errors="$(get_error_count)"
+
+    log_info_message "Downloading/validating index file ${filename} ..."
+    download_from_gitlab "${download_dir}" "${download_link}"
+    if same_error_count "${initial_errors}"
+    then
+        log_debug_message "Downloaded/validated index file ${filename}"
+    else
+        log_warning_message "The download of index file ${filename} failed"
+        return 0
+    fi
+
+    # After installing a new release of WSUS Offline
+    # Update, the index files StaticDownloadFiles-modified.txt,
+    # ExcludeDownloadFiles-modified.txt and StaticUpdateFiles-modified.txt
+    # are usually empty.
+    if [[ -s "${download_dir}/${filename}" ]]
+    then
+        number_of_links="$( wc -l < "${download_dir}/${filename}" )"
+        log_info_message "Downloading/validating ${number_of_links} link(s) from index file ${filename} ..."
+
+        while IFS=$'\r\n' read -r url
+        do
+            download_from_gitlab "${download_dir}" "${url}"
+        done < "${download_dir}/${filename}"
+
+        if same_error_count "${initial_errors}"
+        then
+            log_info_message "Downloaded/validated ${number_of_links} link(s) from index file ${filename}"
+        else
+            log_warning_message "Some downloads from index file ${filename} failed -- see the download log for details"
+        fi
+    fi
+
     return 0
 }
 
 # ========== Commands =====================================================
 
 run_update_configuration_files
-echo ""
 return 0 # for sourced files

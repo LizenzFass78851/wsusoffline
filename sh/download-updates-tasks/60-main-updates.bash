@@ -32,7 +32,7 @@
 
 # ========== Configuration ================================================
 
-w100_versions=( 1507 1607 1709 1803 1809 1903 1909 )
+w100_versions=( 1507 1607 1709 1803 1809 1903 1909 2004 )
 w100_versions_file="w100-versions.ini"
 
 # ========== Global variables =============================================
@@ -495,6 +495,7 @@ function calculate_dynamic_windows_updates ()
     local version=""
     local key=""
     local value=""
+    local -i result_code="0"
 
     require_non_empty_file "../xslt/ExtractDownloadLinks-${name}-${arch}-${lang}.xsl" || return 0
     require_non_empty_file "${used_superseded_updates_list}" || fail "The required file ${used_superseded_updates_list} is missing"
@@ -550,13 +551,15 @@ function calculate_dynamic_windows_updates ()
     # Add Windows 10 version-specific exclude lists
     if [[ "${name}" == w100 ]]
     then
-        if [[ -f "${w100_versions_file}" ]]
-        then
-            for version in "${w100_versions[@]}"
-            do
-                key="${version}_${arch}"
-                if value="$(read_setting "${w100_versions_file}" "${key}")"
-                then
+        for version in "${w100_versions[@]}"
+        do
+            key="${version}_${arch}"
+            # The shell option errexit and a trap on ERR require some
+            # workaround to check the result code
+            value="$(read_setting "${w100_versions_file}" "${key}")" \
+                && result_code="0" || result_code="$?"
+            case "${result_code}" in
+                0)
                     if [[ "${value}" == off ]]
                     then
                         # Let the function apply_exclude_lists check,
@@ -566,12 +569,26 @@ function calculate_dynamic_windows_updates ()
                             "../exclude/custom/ExcludeList-w100-${version}.txt"
                         )
                         log_debug_message "Excluded: ${key} ${value}"
+                    else
+                        log_debug_message "Included: ${key} ${value}"
                     fi
-                fi
-            done
-        else
-            log_warning_message "The settings file ${w100_versions_file} was not found. Please install the utility \"dialog\" and use the script update-generator.bash to select your Windows 10 versions."
-        fi
+                ;;
+                1)
+                    log_warning_message "The settings file ${w100_versions_file} was not found. Please install the utility \"dialog\" and run the script update-generator.bash to select your Windows 10 versions."
+                    # Break out of the enclosing for loop. There is no
+                    # need to check all Windows 10 versions, if the
+                    # settings file does not exist. This only causes
+                    # the warning to be repeated several times.
+                    break
+                ;;
+                2)
+                    log_warning_message "The key ${key} was not found in the settings file ${w100_versions_file}. Please run the script update-generator.bash again to update your Windows 10 versions."
+                ;;
+                *)
+                    log_error_message "Unknown error ${result_code} in function calculate_dynamic_windows_updates."
+                ;;
+            esac
+        done
     fi
 
     apply_exclude_lists \

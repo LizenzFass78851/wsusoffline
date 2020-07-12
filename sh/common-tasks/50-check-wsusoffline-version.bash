@@ -42,42 +42,54 @@
 #     be disabled by setting "check_for_self_updates" to "disabled"
 #     in the preferences file.
 
+# ========== Configuration ================================================
+
+self_update_index="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt"
+self_update_links="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt"
+
 # ========== Global variables =============================================
 
 wou_installed_version="not-available"
-wou_installed_archive="not-available"
 
 wou_available_version="not-available"
-wou_available_archive="not-available"  # The URL of the archive
-wou_available_hashes="not-available"   # The URL of the hashes file
+wou_available_archive="not-available"  # The filename of the archive
+wou_available_hashes="not-available"   # The filename of the hashes file
 
 wou_timestamp_file="${timestamp_dir}/check-wsusoffline-version.txt"
 
 # ========== Functions ====================================================
 
-# The current version is in the file
-# ../static/StaticDownloadLink-this.txt, which is installed with the
-# zip archive of WSUS Offline Update.
-#
-# This file may not exist yet. In this case, the Linux scripts can do
-# an initial installation of the WSUS Offline Update archive.
+# The current version is in the file ../static/SelfUpdateVersion-this.txt,
+# which is installed with the zip archive of WSUS Offline Update. This
+# file replaces the older file StaticDownloadLink-this.txt.
 
 function get_wou_installed_version ()
 {
-    if require_non_empty_file "../static/StaticDownloadLink-this.txt"
+    wou_installed_version="not-available"  # reset global variable to defaults
+    local ignored_field_2=""
+    local ignored_field_3=""
+
+    log_info_message "Searching for the installed version of WSUS Offline Update..."
+    if require_non_empty_file "../static/SelfUpdateVersion-this.txt"
     then
-        wou_installed_archive="$(cat_dos ../static/StaticDownloadLink-this.txt)"
-        wou_installed_version="$(basename "${wou_installed_archive}" '.zip')"
+        IFS=$'\r\n,' read -r wou_installed_version  \
+                             ignored_field_2        \
+                             ignored_field_3        \
+                             < "../static/SelfUpdateVersion-this.txt"
+        log_debug_message "Installed version=${wou_installed_version}, archive=${ignored_field_2}, hashes=${ignored_field_3}"
     else
-        log_warning_message "The file StaticDownloadLink-this.txt was not found."
+        log_warning_message "The file SelfUpdateVersion-this.txt was not found."
     fi
     return 0
 }
 
 
 # The most recent available version is in the file
-# StaticDownloadLink-recent.txt, which will be downloaded from
-# "https://download.wsusoffline.net/" to the ../static/ directory.
+# SelfUpdateVersion-recent.txt, which will be downloaded from GitLab to
+# the directory ../static/.
+#
+# The download links for the archive and the hashes files are in the
+# file StaticDownloadLink-recent.txt.
 
 function get_wou_available_version ()
 {
@@ -85,19 +97,22 @@ function get_wou_available_version ()
     initial_errors="$(get_error_count)"
 
     log_info_message "Searching for the most recent version of WSUS Offline Update..."
-    download_single_file "../static" "https://download.wsusoffline.net/StaticDownloadLink-recent.txt"
+    download_from_gitlab "../static" "${self_update_index}"
+    download_from_gitlab "../static" "${self_update_links}"
     if same_error_count "${initial_errors}"
     then
-        if require_non_empty_file "../static/StaticDownloadLink-recent.txt"
+        if require_non_empty_file "../static/SelfUpdateVersion-recent.txt"
         then
-            wou_available_archive="$(cat_dos ../static/StaticDownloadLink-recent.txt)"
-            wou_available_version="$(basename "${wou_available_archive}" '.zip')"
-            wou_available_hashes="${wou_available_archive/.zip/_hashes.txt}"
+            IFS=$'\r\n,' read -r wou_available_version  \
+                                 wou_available_archive  \
+                                 wou_available_hashes   \
+                                 < "../static/SelfUpdateVersion-recent.txt"
+            log_debug_message "Available version=${wou_available_version}, archive=${wou_available_archive}, hashes=${wou_available_hashes}"
         else
-            log_warning_message "The file StaticDownloadLink-recent.txt was not found."
+            log_warning_message "The file SelfUpdateVersion-recent.txt was not found."
         fi
     else
-        log_warning_message "The online test for the most recent version of WSUS Offline Update failed."
+        log_warning_message "The online check for the most recent version of WSUS Offline Update failed."
     fi
     return 0
 }
@@ -113,45 +128,44 @@ function get_wou_available_version ()
 
 function wsusoffline_initial_installation
 {
-    local current_dir=""
-    local target_dir=""
     local answer=""
 
-    current_dir="$(pwd)"
-    target_dir="$(dirname "${current_dir}")"
-
-    if ! require_non_empty_file "../static/StaticDownloadLink-this.txt"
+    if require_non_empty_file "../static/SelfUpdateVersion-this.txt"
     then
-        log_info_message "There is no version of WSUS Offline Update installed yet."
-
-        # Search for the most recent available version of WSUS Offline
-        # Update
-        get_wou_available_version
-        if [[ "${wou_available_version}" != "not-available" ]]
-        then
-            log_info_message "The most recent version of WSUS Offline Update is ${wou_available_version}."
-            log_warning_message "Note, that the wsusoffline archive will be unpacked OUTSIDE of the Linux scripts directory. At this point, you should have created an enclosing directory, which contains the Linux scripts directory, and which will also get the contents of the wsusoffline archive."
-            log_warning_message "The target directory, to which the wsusoffline archive will be extracted, is \"${target_dir}\". Do you wish to proceed and install the wsusoffline archive into this directory?"
-            read -r -p "[Y|n]: " answer || true
-            case "${answer:-Y}" in
-                [Yy]*)
-                    log_info_message "Starting an initial installation of WSUS Offline Update..."
-                    wsusoffline_self_update
-                ;;
-                [Nn]*)
-                    log_info_message "The initial installation of WSUS Offline Update was not confirmed. The script will quit now."
-                    exit 0
-                ;;
-                *)
-                    log_warning_message "Unknown answer. The initial installation of WSUS Offline Update was not confirmed. The script will quit now."
-                    exit 0
-                ;;
-            esac
-        else
-            log_error_message "The most recent version of WSUS Offline Update could not be evaluated. The script will quit now."
-            exit 1
-        fi
+        # Silently skip this check, because WSUS Offline Update is
+        # already installed
+        return 0
     fi
+
+    log_info_message "There is no version of WSUS Offline Update installed yet."
+
+    # Search for the most recent version of WSUS Offline Update
+    get_wou_available_version
+    if [[ "${wou_available_version}" == "not-available" ]]
+    then
+        log_error_message "The most recent version of WSUS Offline Update could not be evaluated. The script will quit now."
+        exit 1
+    fi
+
+    log_info_message "The most recent version of WSUS Offline Update is ${wou_available_version}."
+    log_warning_message "Note, that the wsusoffline archive will be unpacked OUTSIDE of the Linux scripts directory. At this point, you should have created an enclosing directory, which contains the Linux scripts directory, and which will also get the contents of the wsusoffline archive."
+    log_warning_message "The target directory, to which the wsusoffline archive will be extracted, is \"${wsusoffline_directory}\". Do you wish to proceed and install the wsusoffline archive into this directory?"
+    read -r -p "[Y|n]: " answer || true
+    case "${answer:-Y}" in
+        [Yy]*)
+            log_info_message "Starting an initial installation of WSUS Offline Update..."
+            wsusoffline_self_update
+        ;;
+        [Nn]*)
+            log_info_message "The initial installation of WSUS Offline Update was not confirmed. The script will quit now."
+            exit 0
+        ;;
+        *)
+            log_warning_message "Unknown answer. The initial installation of WSUS Offline Update was not confirmed. The script will quit now."
+            exit 0
+        ;;
+    esac
+
     return 0
 }
 
@@ -160,7 +174,8 @@ function wsusoffline_initial_installation
 # new versions of WSUS Offline Update, similar to the Windows script
 # CheckOUVersion.cmd.
 #
-# If these files are different, then a new version is available.
+# If the files SelfUpdateVersion-this.txt and SelfUpdateVersion-recent.txt
+# are different, then a new version is available.
 #
 # This test is done once daily, and it can be disabled by setting the
 # variable check_for_self_updates to "disabled".
@@ -173,42 +188,48 @@ function compare_wsusoffline_versions ()
     if [[ "${check_for_self_updates}" == "disabled" ]]
     then
         log_info_message "Searching for new versions of WSUS Offline Update is disabled in preferences.bash"
-    elif same_day "${wou_timestamp_file}" "${interval_length}"
+        return 0
+    fi
+
+    if same_day "${wou_timestamp_file}" "${interval_length}"
     then
         log_info_message "Skipped searching for new versions of WSUS Offline Update, because it has already been done less than ${interval_description} ago"
-    else
-        # Get the installed version of WSUS Offline Update
-        get_wou_installed_version
-        if [[ "${wou_installed_version}" != "not-available" ]]
-        then
-            # Search for the most recent version of WSUS Offline Update
-            get_wou_available_version
-            if [[ "${wou_available_version}" != "not-available" ]]
-            then
-                # Compare versions
-                if [[ "${wou_installed_version}" == "${wou_available_version}" ]]
-                then
-                    log_info_message "No newer version of WSUS Offline Update found"
-                    # The timestamp is updated here, to do the version
-                    # check only once daily.
-                    update_timestamp "${wou_timestamp_file}"
-                else
-                    log_info_message "A new version of WSUS Offline Update is available:"
-                    log_info_message "- Installed version: ${wou_installed_version}"
-                    log_info_message "- Available version: ${wou_available_version}"
-                    confirm_wsusoffline_self_update
-                fi
-            else
-                log_warning_message "The most recent version of WSUS Offline Update could not be evaluated."
-                # The timestamp is not updated, if there was an error
-                # with the online check. Then the online check will be
-                # repeated on the next run.
-            fi
-        else
-            log_error_message "The installed version of WSUS Offline Update could not be evaluated. The script will quit now."
-            exit 1
-        fi
+        return 0
     fi
+
+    # Get the installed version of WSUS Offline Update
+    get_wou_installed_version
+    if [[ "${wou_installed_version}" == "not-available" ]]
+    then
+        log_error_message "The installed version of WSUS Offline Update could not be evaluated. The script will quit now."
+        exit 1
+    fi
+
+    # Search for the most recent version of WSUS Offline Update
+    get_wou_available_version
+    if [[ "${wou_available_version}" == "not-available" ]]
+    then
+        log_warning_message "The most recent version of WSUS Offline Update could not be evaluated."
+        # The timestamp is not updated, if there was an error
+        # with the online check. Then the online check will be
+        # repeated on the next run.
+        return 0
+    fi
+
+    # Compare versions
+    if [[ "${wou_installed_version}" == "${wou_available_version}" ]]
+    then
+        log_info_message "No newer version of WSUS Offline Update found"
+        # The timestamp is updated here, to do the version
+        # check only once daily.
+        update_timestamp "${wou_timestamp_file}"
+    else
+        log_info_message "A new version of WSUS Offline Update is available:"
+        log_info_message "- Installed version: ${wou_installed_version}"
+        log_info_message "- Available version: ${wou_available_version}"
+        confirm_wsusoffline_self_update
+    fi
+
     return 0
 }
 
@@ -277,21 +298,70 @@ EOF
 
 function wsusoffline_self_update ()
 {
-    local archive_filename="${wou_available_archive##*/}"
     local -a file_list=()
     local current_item=""
+    local url=""
+    local -i initial_errors="0"
+    initial_errors="$(get_error_count)"
 
-    download_and_verify "${temp_dir}" "${wou_available_archive}" "${wou_available_hashes}"
+    # Download archive and hashes file to the ../cache directory. This
+    # prevents errors, when the download needs to be restarted, and
+    # another temporary directory with a random name is created.
+    #
+    # Formerly, the download and validation of the archive was done by
+    # the function download_and_verify, but it is now handled inline,
+    # because GitLab does not support timestamping.
+    if require_non_empty_file "../static/StaticDownloadLink-recent.txt"
+    then
+        log_info_message "Downloading archive and accompanying hashes file..."
+        while IFS=$'\r\n' read -r url
+        do
+            download_from_gitlab "${cache_dir}" "${url}"
+        done < "../static/StaticDownloadLink-recent.txt"
+        same_error_count "${initial_errors}" || exit 1
+    else
+        log_warning_message "The file StaticDownloadLink-recent.txt was not found"
+        return 0
+    fi
 
-    # The zip archive should be unpacked to a new directory; any existing
-    # directories are removed first
+    log_info_message "Searching downloaded files..."
+    if [[ -f "${cache_dir}/${wou_available_archive}" ]]
+    then
+        log_info_message "Found archive:     ${cache_dir}/${wou_available_archive}"
+    else
+        log_error_message "Archive ${wou_available_archive} was not found"
+        exit 1
+    fi
+
+    if [[ -f "${cache_dir}/${wou_available_hashes}" ]]
+    then
+        log_info_message "Found hashes file: ${cache_dir}/${wou_available_hashes}"
+    else
+        log_error_message "Hashes file ${wou_available_hashes} was not found"
+        exit 1
+    fi
+
+    # Validate the archive using hashdeep in audit mode (-a). The bare
+    # mode (-b) removes any leading directory information. This enables
+    # us to check files without changing directories with pushd/popd.
+    log_info_message "Verifying the integrity of the archive ${wou_available_archive} ..."
+    if hashdeep -a -b -v -v -k "${cache_dir}/${wou_available_hashes}" "${cache_dir}/${wou_available_archive}"
+    then
+        log_info_message "Validated archive ${wou_available_archive}"
+    else
+        log_error_message "Validation failed"
+        exit 1
+    fi
+
+    # The zip archive should be unpacked to the temporary directory;
+    # if there is already a directory "wsusoffline", it will be removed.
     if [[ -d "${temp_dir}/wsusoffline" ]]
     then
         rm -r "${temp_dir}/wsusoffline"
     fi
 
     log_info_message "Unpacking zip archive..."
-    unzip -q "${temp_dir}/${archive_filename}" -d "${temp_dir}" || exit 1
+    unzip -q "${cache_dir}/${wou_available_archive}" -d "${temp_dir}" || exit 1
 
     log_info_message "Searching unpacked directory..."
     if [[ -d "${temp_dir}/wsusoffline" ]]
@@ -303,7 +373,7 @@ function wsusoffline_self_update ()
     fi
 
     # Copy new files and directories to the WSUS Offline Update
-    # installation directory, which is enclosing the Linux scripts
+    # installation directory, which is "outside" of the Linux scripts
     # directory.
     log_info_message "Copying new files to ${wsusoffline_directory} ..."
     shopt -s nullglob
@@ -319,33 +389,34 @@ function wsusoffline_self_update ()
         done
     fi
 
-    # Verify installation of the most recent version of WSUS Offline
-    # Update
+    # Reevaluating the installed version
     get_wou_installed_version
-    if [[ "${wou_installed_version}" != "not-available" ]]
+    if [[ "${wou_installed_version}" == "not-available" ]]
     then
-        log_info_message "Recomparing WSUS Offline Update versions:"
-        log_info_message "- Installed version: ${wou_installed_version}"
-        log_info_message "- Available version: ${wou_available_version}"
-
-        if [[ "${wou_installed_version}" == "${wou_available_version}" ]]
-        then
-            log_info_message "The most recent version of WSUS Offline Update was installed successfully"
-
-            # Postprocessing
-            check_custom_static_links
-            normalize_file_permissions
-            reschedule_updates_after_wou_update
-            update_timestamp "${wou_timestamp_file}"
-            restart_script
-        else
-            log_error_message "The installation of the most recent version of WSUS Offline Update failed for unknown reasons."
-            exit 1
-        fi
-    else
         log_error_message "The installed version of WSUS Offline Update could not be evaluated."
         exit 1
     fi
+
+    # Recompare the installed and available versions
+    log_info_message "Recomparing WSUS Offline Update versions:"
+    log_info_message "- Installed version: ${wou_installed_version}"
+    log_info_message "- Available version: ${wou_available_version}"
+
+    if [[ "${wou_installed_version}" == "${wou_available_version}" ]]
+    then
+        log_info_message "The most recent version of WSUS Offline Update was installed successfully"
+
+        # Postprocessing
+        check_custom_static_links
+        normalize_file_permissions
+        reschedule_updates_after_wou_update
+        update_timestamp "${wou_timestamp_file}"
+        restart_script
+    else
+        log_error_message "The installation of the most recent version of WSUS Offline Update failed for unknown reasons."
+        exit 1
+    fi
+
     return 0
 }
 

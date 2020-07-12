@@ -1,6 +1,6 @@
 Installationsanleitung für die Linux-Download-Skripte
 =====================================================
-Zuletzt aktualisiert für Version 1.16 (2020-01-08)
+Zuletzt aktualisiert für Version 2.0 Community Edition (2020-07-12)
 
 
 WSUS Offline Update enthält bereits die neuen Linux-Skripte. Sie
@@ -134,12 +134,19 @@ bis dieses Problem gelöst ist.
 
 Laden Sie das wsusoffline-Archiv herunter und entpacken Sie es
 --------------------------------------------------------------
-Laden Sie das neueste wsusoffline-Archiv von der Downloadseite
-https://download.wsusoffline.net/ herunter und entpacken Sie es. Beachten
-Sie, dass das Zip-Archiv von einer Hashes-Datei begleitet wird. Sie
-können das Archiv damit überprüfen:
+Laden Sie das neueste wsusoffline-Archiv herunter und entpacken Sie es.
 
-  hashdeep -a -v -v -l -k wsusoffline1161_hashes.txt wsusoffline1161.zip
+* Überprüfen Sie die Downloadseite <https://download.wsusoffline.net/>
+  für das ursprüngliche WSUS Offline Update der Originalentwickler.
+
+* Überprüfen Sie die Seite "Releases"
+  <https://gitlab.com/wsusoffline/wsusoffline/-/releases> für die
+  Community Edition.
+
+Beachten Sie, dass das Zip-Archiv von einer Hashes-Datei begleitet
+wird. Sie können das Archiv damit überprüfen:
+
+  hashdeep -a -v -v -l -k wsusofflineCE120_hashes.txt wsusofflineCE120.zip
 
 Die neuen Linux-Skripte sind im Verzeichnis "sh" enthalten. Da das
 wsusoffline-Archiv unter Windows erstellt wurde, sind die Skripte noch

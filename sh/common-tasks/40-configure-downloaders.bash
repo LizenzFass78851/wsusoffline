@@ -110,22 +110,22 @@ no_proxy_server="${no_proxy_server:-}"
 # Wget options
 
 wget_common_options=(
-    --verbose
-    --timestamping
-    --trust-server-names
-    --timeout=60
-    --no-http-keep-alive
+    "--verbose"
+    "--timestamping"
+    "--trust-server-names"
+    "--timeout=60"
+    "--no-http-keep-alive"
 )
 
 wget_optimized_options=(
-    --tries=10
-    --waitretry=10
+    "--tries=10"
+    "--waitretry=10"
 )
 
 wget_failsafe_options=(
-    --server-response
-    --tries=1
-    --no-cache
+    "--server-response"
+    "--tries=1"
+    "--no-cache"
 )
 # TODO: There may be some more options, which could be useful for the
 # failsafe download:
@@ -139,17 +139,17 @@ wget_failsafe_options=(
 # --continue option.
 
 wget_connection_test_a=(
-    --spider
-    --verbose
-    --tries=1
-    --timeout=10
+    "--spider"
+    "--verbose"
+    "--tries=1"
+    "--timeout=10"
 )
 
 wget_connection_test_b=(
-    --spider
-    --debug
-    --tries=1
-    --timeout=10
+    "--spider"
+    "--debug"
+    "--tries=1"
+    "--timeout=10"
 )
 
 wget_spider_option="--spider"
@@ -160,43 +160,43 @@ wget_inputfile_prefix="--input-file="
 # Aria2 options
 
 aria2c_common_options=(
-    --conditional-get=true
-    --remote-time=true
-    --allow-overwrite=true
-    --auto-file-renaming=false
-    --timeout=60
-    --enable-http-keep-alive=false
+    "--conditional-get=true"
+    "--remote-time=true"
+    "--allow-overwrite=true"
+    "--auto-file-renaming=false"
+    "--timeout=60"
+    "--enable-http-keep-alive=false"
 )
 
 aria2c_optimized_options=(
-    --log-level=notice
-    --max-tries=10
-    --retry-wait=10
+    "--log-level=notice"
+    "--max-tries=10"
+    "--retry-wait=10"
 )
 
 aria2c_failsafe_options=(
-    --log-level=info
-    --max-tries=1
-    --always-resume=false
-    --max-resume-failure-tries=0
-    --remove-control-file=true
-    --http-no-cache=true
+    "--log-level=info"
+    "--max-tries=1"
+    "--always-resume=false"
+    "--max-resume-failure-tries=0"
+    "--remove-control-file=true"
+    "--http-no-cache=true"
 )
 
 aria2c_connection_test_a=(
-    --dry-run=true
-    --log-level=notice
-    --max-tries=1
-    --timeout=10
-    --force-sequential=true
+    "--dry-run=true"
+    "--log-level=notice"
+    "--max-tries=1"
+    "--timeout=10"
+    "--force-sequential=true"
 )
 
 aria2c_connection_test_b=(
-    --dry-run=true
-    --log-level=info
-    --max-tries=1
-    --timeout=10
-    --force-sequential=true
+    "--dry-run=true"
+    "--log-level=info"
+    "--max-tries=1"
+    "--timeout=10"
+    "--force-sequential=true"
 )
 
 aria2c_spider_option="--dry-run=true"
@@ -214,8 +214,8 @@ aria2c_inputfile_prefix="--input-file="
 # The test could use examples from all needed servers, to detect possible
 # problems early.
 connection_test_urls=(
-    https://download.wsusoffline.net/StaticDownloadLink-recent.txt
-    http://download.windowsupdate.com/microsoftupdate/v6/wsusscan/wsusscn2.cab
+    "https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt"
+    "http://download.windowsupdate.com/microsoftupdate/v6/wsusscan/wsusscn2.cab"
 )
 
 # ========== Global variables =============================================
@@ -300,15 +300,16 @@ function set_wget_progress_style ()
             then
                 # Both file descriptors are attached to a terminal window
                 log_info_message "Setting Wget display options: Wget ${version_string} uses progress bar"
-                wget_common_options+=( --show-progress --progress=bar:noscroll )
+                wget_common_options+=( "--show-progress"
+                                       "--progress=bar:noscroll" )
             else
                 # One or both file descriptor(s) is/are redirected
                 log_info_message "Setting Wget display options: Wget ${version_string} uses dot display as a fall back for non-interactive sessions"
-                wget_common_options+=( --progress=dot:mega )
+                wget_common_options+=( "--progress=dot:mega" )
             fi
         else
             log_info_message "Setting Wget display options: Wget ${version_string} uses dot display"
-            wget_common_options+=( --progress=dot:mega )
+            wget_common_options+=( "--progress=dot:mega" )
         fi
     else
         log_warning_message "Wget was not found"
@@ -396,7 +397,7 @@ function download_static_files ()
 {
     local download_dir="$1"
     local input_file="$2"
-    local -i number_of_links=0
+    local -i number_of_links="0"
     local download_link=""
     local local_filename=""
     local remote_filename=""
@@ -476,17 +477,9 @@ function download_single_file ()
                 exit 1
             fi
         ;;
-        # WSUS Offline Update configuration files
-        ExcludeList-superseded-exclude.txt \
-        | ExcludeList-superseded-exclude-seconly.txt \
-        | HideList-seconly.txt \
-        | StaticDownloadFiles-modified.txt \
-        | ExcludeDownloadFiles-modified.txt \
-        | StaticUpdateFiles-modified.txt)
-            previous_modification_date="$(get_modification_date "${pathname}")"
-            download_single_file_optimized "$@"
-            compare_modification_dates "${pathname}" "${previous_modification_date}"
-        ;;
+        # WSUS Offline Update self-update and configuration files are
+        # now handled by the function "download_from_gitlab" below
+        #
         # All other downloads
         *)
             download_single_file_optimized "$@"
@@ -513,11 +506,11 @@ function download_single_file_optimized ()
         *.crt | *.crl)
             case "${downloader}" in
                 wget)
-                    all_options+=( --user-agent="" )
+                    all_options+=( "--user-agent=" )
                 ;;
                 aria2c)
                     :
-                    # all_options+=( --user-agent="" )
+                    # all_options+=( "--user-agent=" )
                 ;;
             esac
         ;;
@@ -595,11 +588,11 @@ function download_single_file_failsafe ()
         esac
         case "${downloader}" in
             wget)
-                all_options+=( --user-agent="" )
+                all_options+=( "--user-agent=" )
             ;;
             aria2c)
                 :
-                # all_options+=( --user-agent="" )
+                # all_options+=( "--user-agent=" )
             ;;
         esac
     fi
@@ -614,7 +607,7 @@ function download_single_file_failsafe ()
             "${download_dir_prefix}${download_dir}" \
             "${download_link}"
         then
-            result_code=0
+            result_code="0"
             log_debug_message "Download/validation of ${filename} succeeded"
         else
             result_code="$?"
@@ -674,17 +667,18 @@ function download_single_file_failsafe ()
 
 
 # The function download_multiple_files uses a text file with URLs as
-# input. This function is used for dynamic updates and for the recursive
-# update of static download definitions.
+# input. This function is used for dynamic updates. A similar function
+# recursive_download is used for the update of WSUS Offline Update
+# configuration files.
 
 function download_multiple_files ()
 {
     local download_dir="$1"
-    local input_file="$2"
-    local -i number_of_links=0
+    local input_file="$2"  # full pathname with directory and filename
+    local -i number_of_links="0"
 
     require_non_empty_file "${input_file}" || return 0
-    number_of_links="$(wc -l < "${input_file}")"
+    number_of_links="$( wc -l < "${input_file}" )"
     # The download directory should only be created after testing
     # the input file. This is needed to prevent the creation of empty
     # directories.
@@ -711,7 +705,11 @@ function download_multiple_files ()
 #
 # Download an archive and the accompanying hashes file, and use the
 # hashes file to verify the archive. This is used for the self update
-# of WSUS Offline Update and the Linux scripts.
+# of the Linux scripts.
+#
+# The files for the self-update of WSUS Offline Update are now
+# handled by the function wsusoffline_self_update in the script
+# 50-check-wsusoffline-version.bash.
 
 function download_and_verify ()
 {
@@ -758,6 +756,220 @@ function download_and_verify ()
         log_error_message "Validation failed"
         exit 1
     fi
+    return 0
+}
+
+
+# Function download_from_gitlab
+#
+# The normal timestamping with wget or aria2c does not work with GitLab,
+# because the Last-modified header is not set. This may be a problem
+# with GitLab itself or with the Cloudflare content delivery network.
+#
+# - https://gitlab.com/gitlab-org/gitlab/-/issues/18642
+# - https://gitlab.com/gitlab-org/gitlab/-/issues/23823
+#
+# Querying the Etag header is an alternative way to check for changed
+# files. Both tests use conditional requests in a similar way:
+#
+# - Timestamping with wget or aria2 uses the conditional request
+#   "If-Modified-Since: <date>"
+# - Checking the Etag is done with the conditional request
+#   "If-None-Match: <etag>"
+#
+# The server response is also similar:
+#
+# - "200 OK" indicates, that the file on the server is newer or has been
+#   modified, and that the file will be downloaded.
+# - "304 Not Modified" means, that the file on the server did not change,
+#   and that it does not need to be downloaded. This decision is made
+#   by the server - wget and aria2 only send a single GET request with
+#   a conditional header for timestamping.
+#
+# The approach in the script is:
+#
+# - save the server response to a text file
+# - on the next download run, extract the Etag and create a custom header
+#   with the conditional request "If-None-Match: <Etag>"
+# - only wget was tested so far
+
+function download_from_gitlab ()
+{
+    local download_dir="$1"
+    local download_link="$2"
+    local filename="${download_link##*/}"
+    local old_etag="na"  # the Etag is not available on the first download
+    local new_etag="na"
+    local -i result_code="0"
+
+    mkdir -p "${download_dir}"
+
+    # Search for the server response of a previous download run, and
+    # extract the Etag header.
+    #
+    # Conditional headers should only be used, if the file has been
+    # downloaded previously. This may become a problem, if the download
+    # directory is a moving target, e.g. the scripts update-generator.bash
+    # and download-updates.bash create new temporary directories with
+    # random names on each run.
+    if [[ -f "${download_dir}/${filename}" \
+       && -f "${cache_dir}/${filename}.headers" ]]
+    then
+        if old_etag="$( grep -F "Etag: " "${cache_dir}/${filename}.headers" )"
+        then
+            # Delete the string "  Etag: " from the beginning. This is
+            # done in two steps to be compatible with both wget options
+            # --debug and --server-response (but only one should be used).
+            #
+            # The correct quoting can be tricky, because the Etag contains
+            # double quotation marks itself, but the shell takes care
+            # of that. This can be tested with:
+            #
+            # $ declare -p old_etag
+            # declare -- old_etag="W/\"1d31658969f7e57c970bdbb3ef7b14a8\""
+            old_etag="${old_etag#  }"
+            old_etag="${old_etag#Etag: }"
+        fi
+    fi
+
+    log_info_message "Downloading/validating ${download_link} ..."
+    if [[ "${old_etag}" == "na" ]]
+    then
+        # wget prints all messages to error output, including all
+        # regular status messages. The standard output is reserved for
+        # the downloaded file, which could be piped to other commands
+        # for analysis or direct playback.
+        #
+        # The progress bar in wget cannot be used, if the output is
+        # redirected to a file.
+        #
+        # Using the shell option errexit or a trap on ERR require some
+        # workaround to check the result code.
+        wget --server-response                        \
+             --timeout=60 --tries=10 --waitretry=10   \
+             --progress=dot:mega                      \
+             --directory-prefix="${download_dir}"     \
+             "${download_link}"                       \
+             2> "${cache_dir}/${filename}.headers"    \
+             && result_code="0" || result_code="$?"
+    else
+        wget --server-response                        \
+             --timeout=60 --tries=10 --waitretry=10   \
+             --progress=dot:mega                      \
+             --directory-prefix="${download_dir}"     \
+             --header="If-None-Match: ${old_etag}"    \
+             "${download_link}"                       \
+             2> "${cache_dir}/${filename}.headers"    \
+             && result_code="0" || result_code="$?"
+    fi
+
+    # Copy the server response to the logfile
+    cat "${cache_dir}/${filename}.headers" >> "${logfile}"
+
+    # Check the wget result code
+    case "${result_code}" in
+        0)
+            if grep -F -q "200 OK" "${cache_dir}/${filename}.headers"
+            then
+                log_info_message "Server response \"200 OK\". Download successful."
+            fi
+        ;;
+        8)
+            # The server response "304 Not Modified" is expected for
+            # unchanged files. It is used for timestamping with the
+            # conditional request If-Modified-Since and for checking
+            # the Etag with If-None-Match.
+            #
+            # But without timestamping, wget will treat it as a real
+            # server error (result code 8).
+            if grep -F -q "304 Not Modified" "${cache_dir}/${filename}.headers"
+            then
+                log_info_message "Server response \"304 Not Modified\". Omitting download."
+            elif grep -F -q "404 Not Found" "${cache_dir}/${filename}.headers"
+            then
+                log_error_message "Server response \"404 Not Found\". Download failed."
+                increment_error_count
+            else
+                log_error_message "wget error 8 (server error)"
+                increment_error_count
+            fi
+        ;;
+        *)
+            log_error_message "Unknown wget error ${result_code}"
+            increment_error_count
+        ;;
+    esac
+
+    # Without timestamping, wget will not overwrite existing files,
+    # but create new files with incremental numbers.
+    if [[ -f "${download_dir}/${filename}" && -f "${download_dir}/${filename}.1" ]]
+    then
+        log_info_message "Renaming ${filename}.1 to ${filename} ..."
+        rm "${download_dir}/${filename}"
+        mv "${download_dir}/${filename}.1" "${download_dir}/${filename}"
+    fi
+
+    # Changes to configuration files often require post-processing:
+    #
+    # The files ExcludeList-superseded-exclude.txt,
+    # ExcludeList-superseded-exclude-seconly.txt and HideList-seconly.txt
+    # are used for the calculation of superseded updates.
+    #
+    # Most other configuration files trigger a recalculation of static
+    # and/or dynamic updates.
+    #
+    # Tracking these files is usually done by comparing the file
+    # modification date before/after the download, e.g. in the function
+    # download_single_file, but GitLab does not return the file
+    # modification date.
+    #
+    # Since we already use the Etag for download, we can also use this
+    # unique identifier locally to track file changes.
+    if [[ -f "${download_dir}/${filename}" \
+       && -f "${cache_dir}/${filename}.headers" ]]
+    then
+        if new_etag="$( grep -F "Etag: " "${cache_dir}/${filename}.headers" )"
+        then
+            new_etag="${new_etag#  }"
+            new_etag="${new_etag#Etag: }"
+        fi
+    fi
+
+    if [[ "${new_etag}" != "na" \
+       && "${new_etag}" != "${old_etag}" ]]
+    then
+        case "${filename}" in
+            SelfUpdateVersion-recent.txt           \
+            | StaticDownloadLink-recent.txt        \
+            | wsusoffline*.zip                     \
+            | wsusoffline*_hashes.txt              \
+            | StaticDownloadFiles-modified.txt     \
+            | ExcludeDownloadFiles-modified.txt    \
+            | StaticUpdateFiles-modified.txt       \
+            | StaticDownloadLinks-sysinternals.txt )
+                : # Nothing to do for these files
+            ;;
+            ExcludeList-superseded-exclude.txt            \
+            | ExcludeList-superseded-exclude-seconly.txt  \
+            | HideList-seconly.txt                        \
+            | StaticUpdateIds-w6*-seconly.txt )
+                log_info_message "The configuration file ${filename} was modified. Superseded updates and all downloads will be reevaluated."
+                # Delete superseded updates, Windows version
+                rm -f "../exclude/ExcludeList-superseded.txt"
+                rm -f "../exclude/ExcludeList-superseded-seconly.txt"
+                # Delete superseded updates, Linux version
+                rm -f "../exclude/ExcludeList-Linux-superseded.txt"
+                rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
+                rm -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
+                reevaluate_all_updates
+            ;;
+            *)
+                log_info_message "The configuration file ${filename} was modified. All downloads will be reevaluated."
+                reevaluate_all_updates
+            ;;
+        esac
+    fi
+
     return 0
 }
 

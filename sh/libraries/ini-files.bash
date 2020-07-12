@@ -88,9 +88,14 @@
 
 # The function read_setting reads a single setting from a settings
 # file. If the key was found, its value will be printed to standard
-# output, and the function return with success. If the settings file
-# does not exist yet, or if the key could not be found, an empty string
-# is returned, and the result code is set to "1".
+# output, and the function return with success.
+#
+# Result codes:
+#
+# 0  The settings file exists, and the key was found. The value (possibly
+#    an empty string) will be written to standard output.
+# 1  The settings file was not found.
+# 2  The settings file exists, but the key was not found.
 
 function read_setting ()
 {
@@ -112,11 +117,11 @@ function read_setting ()
             # rest of the line is the value from the settings file.
             value="${value/#${key}=/}"
         else
-            log_debug_message "The key ${key} was not found in ${settings_file}."
-            result_code="1"
+            log_debug_message "The key ${key} was not found in the settings file ${settings_file}."
+            result_code="2"
         fi
     else
-        log_debug_message "The file ${settings_file} does not exist yet."
+        log_debug_message "The settings file ${settings_file} was not found."
         result_code="1"
     fi
 

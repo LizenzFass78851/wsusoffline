@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: 2.0
-# Release date: 2020-03-25
-# Intended compatibility: WSUS Offline Update version 12.0
+# Version: 2.0 Community Edition (2.0-CE)
+# Release date: 2020-07-12
+# Intended compatibility: WSUS Offline Update, Community Edition 12.0
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -157,8 +157,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.0"
-readonly release_date="2020-03-25"
+readonly script_version="2.0-CE"
+readonly release_date="2020-07-12"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -379,7 +379,8 @@ function setup_working_directory ()
     # Change to the home directory of the script
     #
     # TODO: basename and dirname can be replaced with bash parameter
-    # expansions.
+    # expansions, but a complete replacement should also delete trailing
+    # slashes.
     script_name="$(basename "${canonical_name}")"
     home_directory="$(dirname "${canonical_name}")"
     cd "${home_directory}" || exit 1
