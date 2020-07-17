@@ -1,1 +1,1 @@
-kb4562030,June 2020 Servicing stack update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4565354,July 2020 Servicing stack update for Windows 7 SP1 and Windows Server 2008 R2 SP1

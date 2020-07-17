@@ -1708,22 +1708,22 @@ Community Edition 11.9.1 -- 21.06.2020
 --------------------------------------------------------------------------------
 Community Edition 11.9.2 -- ??.??.2020
 - Included complete rewrite of the Linux scripts version 1.19.1-ESR (Special thanks to H. Buhrmester)
-- September 2018 to June 2020 updates added to 'security only' lists for Windows Server 2008 (x86/x64) systems
-- February to June 2020 updates added to 'security only' lists for Windows 7 and Server 2008 R2 (x86/x64) systems
-- April to June 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
+- September 2018 to July 2020 updates added to 'security only' lists for Windows Server 2008 (x86/x64) systems
+- February to July 2020 updates added to 'security only' lists for Windows 7 and Server 2008 R2 (x86/x64) systems
+- April to July 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - Removed obsolete Office File Validation Update kb2553065 (Thanks to "aker")
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
 - Replaced superseded Office Updates for Office 2010, 2013 and 2016 (Thanks to "aker")
-- Replaced superseded February 2020 Servicing stack update (kb4537830) by June 2020 Servicing Stack Update (KB4562031) for Windows Server 2008 SP2 (Thanks to "aker")
-- Replaced superseded February 2020 Servicing stack update (kb4537829) by June 2020 Servicing Stack Update (KB4562030) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
-- Replaced superseded December 2019 Servicing Stack Update (kb4532920) by June 2020 Servicing Stack Update (KB4562252) for Windows Server 2012 (Thanks to "aker")
-- Replaced superseded November 2019 Servicing Stack Update (kb4524445) by June 2020 Servicing Stack Update (KB4562253) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4540721) by June 2020 Servicing stack update (KB4562249) for Windows 10 Version 1507 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4540723) by June 2020 Servicing stack update (KB4562561) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4540722) by June 2020 Servicing stack update (KB4562250) for Windows 10 Version 1703 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4541731) by June 2020 Servicing stack update (KB4562560) for Windows 10 Version 1709 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4540724) by June 2020 Servicing stack update (KB4562251) for Windows 10 Version 1803 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4539571) by June 2020 Servicing stack update (KB4562562) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
-- Replaced superseded March 2020 Servicing stack update (kb4541338) by June 2020 Servicing stack update (KB4560959) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
+- Replaced superseded February 2020 Servicing stack update (kb4537830) by July 2020 Servicing Stack Update (KB4565353) for Windows Server 2008 SP2 (Thanks to "aker")
+- Replaced superseded February 2020 Servicing stack update (kb4537829) by July 2020 Servicing Stack Update (KB4565354) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
+- Replaced superseded December 2019 Servicing Stack Update (kb4532920) by July 2020 Servicing Stack Update (KB4566426) for Windows Server 2012 (Thanks to "aker")
+- Replaced superseded November 2019 Servicing Stack Update (kb4524445) by July 2020 Servicing Stack Update (KB4566425) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4540721) by July 2020 Servicing stack update (KB4565911) for Windows 10 Version 1507 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4540723) by July 2020 Servicing stack update (KB4565912) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4540722) by July 2020 Servicing stack update (KB4565551) for Windows 10 Version 1703 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4541731) by July 2020 Servicing stack update (KB4565553) for Windows 10 Version 1709 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4540724) by July 2020 Servicing stack update (KB4565552) for Windows 10 Version 1803 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4539571) by July 2020 Servicing stack update (KB4558997) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
+- Replaced superseded March 2020 Servicing stack update (kb4541338) by July 2020 Servicing stack update (KB4565554) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Fix: fixed some warnings while installing the "wupre"-updates for w60 and w61
 - Fix: the global part of an Office update with a global and language-specific part wasn't installed (Thanks to "aker" and "hbuhrmester")

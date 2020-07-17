@@ -217,10 +217,19 @@ kb4556860,May 2020 Security Monthly Quality Rollup for Windows Server 2008
 kb4556836,May 2020 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4556840,May 2020 Security Monthly Quality Rollup for Windows Server 2012
 kb4556846,May 2020 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
-kb4556406,May 2020 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008kb4556403,May 2020 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
+kb4556406,May 2020 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008
+kb4556403,May 2020 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
 kb4556404,May 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
 kb4556401,May 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
 kb4561670,June 2020 Security Monthly Quality Rollup for Windows Server 2008
 kb4561643,June 2020 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4561612,June 2020 Security Monthly Quality Rollup for Windows Server 2012
 kb4561666,June 2020 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb4565536,July 2020 Security Monthly Quality Rollup for Windows Server 2008
+kb4565524,July 2020 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4565537,July 2020 Security Monthly Quality Rollup for Windows Server 2012
+kb4565541,July 2020 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb4566520,July 2020 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008
+kb4566517,July 2020 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
+kb4566518,July 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb4566519,July 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
