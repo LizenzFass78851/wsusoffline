@@ -1,11 +1,11 @@
-http://download.microsoft.com/download/5/8/3/58362B10-6044-4DD4-84C7-FF62CEE3A229/proofloc2013-kb2880463-fullfile-x64-glb.exe
 http://download.microsoft.com/download/F/2/E/F2E593B9-A5A7-4A99-BEE0-FCC3BF60F6BB/conv2013-kb3213564-fullfile-x64-glb.exe
-http://download.microsoft.com/download/1/F/E/1FE178BA-B1C7-430F-9097-E5A873C076C4/lyncmso2013-kb3039779-fullfile-x64-glb.exe
-http://download.microsoft.com/download/0/7/E/07E3B3F6-23D8-4BB8-A5E1-32171F6DD91C/lynchelploc2013-kb3191937-fullfile-x64-glb.exe
-http://download.microsoft.com/download/6/9/8/6980c4f6-a214-42aa-a150-e69b51fb5ddf/mso2013-kb4484351-fullfile-x64-glb.exe
-http://download.microsoft.com/download/3/0/4/304653E3-1C5F-447C-988B-E5139B23B63D/lync2013-kb4475519-fullfile-x64-glb.exe
 http://download.microsoft.com/download/3/C/3/3C39EBC9-1AC9-4955-A606-E21235255DBC/eqnedt322013-kb4011580-fullfile-x64-glb.exe
 http://download.microsoft.com/download/1/0/7/107235c6-1960-4fd8-87c9-4813fed44098/excel2013-kb4484410-fullfile-x64-glb.exe
 http://download.microsoft.com/download/c/1/1/c1182f55-f455-4197-a5e0-46242c9e02b6/graph2013-kb4484260-fullfile-x64-glb.exe
+http://download.microsoft.com/download/3/0/4/304653E3-1C5F-447C-988B-E5139B23B63D/lync2013-kb4475519-fullfile-x64-glb.exe
+http://download.microsoft.com/download/0/7/E/07E3B3F6-23D8-4BB8-A5E1-32171F6DD91C/lynchelploc2013-kb3191937-fullfile-x64-glb.exe
+http://download.microsoft.com/download/1/F/E/1FE178BA-B1C7-430F-9097-E5A873C076C4/lyncmso2013-kb3039779-fullfile-x64-glb.exe
+http://download.microsoft.com/download/6/9/8/6980c4f6-a214-42aa-a150-e69b51fb5ddf/mso2013-kb4484351-fullfile-x64-glb.exe
 http://download.microsoft.com/download/3/4/C/34C665F6-C965-4005-83EB-95A385920D41/osfclient2013-kb4018375-fullfile-x64-glb.exe
-http://download.microsoft.com/download/f/3/8/f38b2028-de24-4564-8b3b-42386716bdc5/outlook2013-kb4484281-fullfile-x64-glb.exe
+http://download.microsoft.com/download/2/5/1/251a3f1e-02a3-4a12-b816-aa65cef0a68d/outlook2013-kb4484363-fullfile-x64-glb.exe
+http://download.microsoft.com/download/5/8/3/58362B10-6044-4DD4-84C7-FF62CEE3A229/proofloc2013-kb2880463-fullfile-x64-glb.exe
