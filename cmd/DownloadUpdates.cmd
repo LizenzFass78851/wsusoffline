@@ -588,30 +588,55 @@ call :Log "Info: Preserved custom language and architecture additions and remova
 
 echo Updating static and exclude definitions for download and update...
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt ..\static\sdd
+if not "%SDDCoreReturnValue%"=="0" (
+  call :Log "Warning: Failed to update StaticDownloadFiles-modified.txt"
+  goto SkipSDDDownload
+)
 if exist ..\static\sdd\StaticDownloadFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\StaticDownloadFiles-modified.txt) do (
     if not "%%f"=="" (
       call :SDDCore %%f ..\static
+      if not "!SDDCoreReturnValue!"=="0" (
+        call :Log "Warning: Failed to download %%f"
+        goto SkipSDDDownload
+      )
     )
   )
 )
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt ..\static\sdd
+if not "%SDDCoreReturnValue%"=="0" (
+  call :Log "Warning: Failed to update ExcludeDownloadFiles-modified.txt"
+  goto SkipSDDDownload
+)
 if exist ..\static\sdd\ExcludeDownloadFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\ExcludeDownloadFiles-modified.txt) do (
     if not "%%f"=="" (
       call :SDDCore %%f ..\exclude
+      if not "!SDDCoreReturnValue!"=="0" (
+        call :Log "Warning: Failed to download %%f"
+        goto SkipSDDDownload
+      )
     )
   )
 )
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified.txt ..\static\sdd
+if not "%SDDCoreReturnValue%"=="0" (
+  call :Log "Warning: Failed to update StaticUpdateFiles-modified.txt"
+  goto SkipSDDDownload
+)
 if exist ..\static\sdd\StaticUpdateFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\StaticUpdateFiles-modified.txt) do (
     if not "%%f"=="" (
       call :SDDCore %%f ..\client\static
+      if not "!SDDCoreReturnValue!"=="0" (
+        call :Log "Warning: Failed to download %%f"
+        goto SkipSDDDownload
+      )
     )
   )
 )
 call :Log "Info: Updated static and exclude definitions for download and update"
+:SkipSDDDownload
 
 echo Restoring custom language and architecture additions and removals...
 if "%CUST_LANG%" NEQ "" (
@@ -1085,25 +1110,40 @@ if not errorlevel 1 (
 if "%SKIP_SDD%" NEQ "1" (
   copy /Y ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori >nul
   call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude.txt ..\exclude
-  echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
-  if errorlevel 1 (
-    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  if "%SDDCoreReturnValue%"=="0" (
+    echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
+    if errorlevel 1 (
+      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+    )
+    del ..\exclude\ExcludeList-superseded-exclude.ori
+  ) else (
+    call :Log "Warning: Failed to update ExcludeList-superseded-exclude.txt"
+    move /Y ..\exclude\ExcludeList-superseded-exclude.ori ..\exclude\ExcludeList-superseded-exclude.txt >nul
   )
-  del ..\exclude\ExcludeList-superseded-exclude.ori
   copy /Y ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori >nul
   call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude-seconly.txt ..\exclude
-  echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
-  if errorlevel 1 (
-    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  if "%SDDCoreReturnValue%"=="0" (
+    echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
+    if errorlevel 1 (
+      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+    )
+    del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
+  ) else (
+    call :Log "Warning: Failed to update ExcludeList-superseded-exclude-seconly.txt"
+    move /Y ..\exclude\ExcludeList-superseded-exclude-seconly.ori ..\exclude\ExcludeList-superseded-exclude-seconly.txt >nul
   )
-  del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
   copy /Y ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori >nul
   call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/HideList-seconly.txt ..\client\exclude
-  echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
-  if errorlevel 1 (
-    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  if "%SDDCoreReturnValue%"=="0" (
+    echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
+    if errorlevel 1 (
+      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+    )
+    del ..\client\exclude\HideList-seconly.ori
+  ) else (
+    call :Log "Warning: Failed to update HideList-seconly.txt"
+    move /Y ..\client\exclude\HideList-seconly.ori ..\client\exclude\HideList-seconly.txt >nul
   )
-  del ..\client\exclude\HideList-seconly.ori
 )
 if exist ..\exclude\ExcludeList-superseded.txt (
   echo Found valid list of superseded updates.
@@ -1792,6 +1832,7 @@ if "%2"=="" (
   goto :SDDCoreSkip
 )
 
+rem ** get file name from the URL ***
 set SDDCoreFileName=
 for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %1') do (
   if not "%%f"=="" (
@@ -1804,65 +1845,60 @@ if "%SDDCoreFileName%"=="" (
   goto :SDDCoreSkip
 )
 
+rem *** get local ETag ***
+set SDDCoreETagLocal=
+if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
+if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
+for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
+  if /i "%SDDCoreFileName%"=="%%a" (set "SDDCoreETagLocal=%%b")
+)
+
+:SDDCoreDownload
+if "%SDDCoreETagLocal%"=="" (
+  rem not downloaded yet
+  set SDDCoreWGetCmdLine=--progress=bar:noscroll -nv -S -O "%2\%SDDCoreFileName%" %1
+) else (
+  rem already some version downloaded
+  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv -S -O "%2\%SDDCoreFileName%" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" %1"
+)
+
+set SDDCoreWGetBuffer=
+set SDDCoreResultBuffer=
 set SDDCoreETagBuffer=
-for /f "delims=" %%f in ('%WGET_PATH% --spider --server-response --progress=bar:noscroll -nv %1 2^>^&1 ^| find /i ^"ETag^:^"') do (
-  if not "%%f"=="" (
-    set SDDCoreETagBuffer=%%f
+for /f "delims=" %%f in ('%WGET_PATH% %SDDCoreWGetCmdLine% 2^>^&1') do (
+  set SDDCoreWGetBuffer=%%f
+  if not "!SDDCoreWGetBuffer!"=="" (
+    if "!SDDCoreWGetBuffer:~2,8!"=="HTTP/1.1" (
+      set "SDDCoreResultBuffer=!SDDCoreWGetBuffer:~2!"
+    ) else if "!SDDCoreWGetBuffer:~2,4!"=="Etag" (
+      set "SDDCoreETagBuffer=!SDDCoreWGetBuffer:~8!"
+    )
   )
 )
+
+if "%SDDCoreResultBuffer%"=="" (
+  rem no result received
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
+
+if "%SDDCoreResultBuffer%"=="HTTP/1.1 200 OK" (
+  rem new file downloaded
+  goto SDDCoreUpdateETag
+) else if "%SDDCoreResultBuffer%"=="HTTP/1.1 304 Not Modified" (
+  rem nothing changed
+  set SDDCoreReturnValue=0
+  goto :SDDCoreSkip
+)
+rem download error
+set SDDCoreReturnValue=1
+goto :SDDCoreSkip
+
+:SDDCoreUpdateETag
 if "%SDDCoreETagBuffer%"=="" (
   rem no ETag-Header received
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
-)
-set SDDCoreETagBufferReal=
-rem get the ETag from the ETag-Header
-for /f "tokens=2 delims=:" %%f in ('echo %SDDCoreETagBuffer%') do (
-  if not "%%f"=="" (
-    set SDDCoreETagBufferReal=%%f
-  )
-)
-if "%SDDCoreETagBufferReal%"=="" (
-  rem no ETag-Header received
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
-rem remove space from the ETag
-set SDDCoreETagRemote=%SDDCoreETagBufferReal: =%
-if "%SDDCoreETagRemote%"=="" (
-  rem invalid ETag-Header received
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
-
-set SDDCoreDownloadAttemptCount=0
-
-rem get local ETag
-if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
-if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
-set SDDCoreETagLocal=
-for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
-  if /i "%SDDCoreFileName%"=="%%a" (set SDDCoreETagLocal=%%b)
-)
-rem already got this file via SDD?
-if "%SDDCoreETagLocal%"=="" goto SDDCoreDownload
-if "%SDDCoreETagLocal%"=="%SDDCoreETagRemote%" (
-  rem file is up2date
-  set SDDCoreReturnValue=0
-  goto SDDCoreSkip
-)
-
-:SDDCoreDownload
-set "SDDCoreWGetHeader=%SDDCoreETagRemote:"=\"%"
-rem download the file
-:SDDCoreDownloadLoop
-set /a SDDCoreDownloadAttemptCount+=1
-%WGET_PATH% --progress=bar:noscroll -nv -O "%2\%SDDCoreFileName%" -a %DOWNLOAD_LOGFILE% --no-check-certificate --header="If-Match: %SDDCoreWGetHeader%" %1
-if errorlevel 1 (
-  rem retry up to 4 times (5 tries at all)
-  if %SDDCoreDownloadAttemptCount% LSS 5 (goto SDDCoreDownloadLoop)
-  set SDDCoreReturnValue=1
-  goto SDDCoreSkip
 )
 
 if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreAddNewETag)
@@ -1874,19 +1910,19 @@ for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.ori) do 
 )
 del ..\static\SelfUpdateVersion-static.ori
 :SDDCoreAddNewETag
-echo %SDDCoreFileName%=%SDDCoreETagRemote%>>..\static\SelfUpdateVersion-static.txt
+echo %SDDCoreFileName%=%SDDCoreETagBuffer%>>..\static\SelfUpdateVersion-static.txt
 set SDDCoreReturnValue=0
 
 :SDDCoreSkip
 set SDDCoreFileName=
-set SDDCoreETagBuffer=
-set SDDCoreETagBufferReal=
-set SDDCoreETagRemote=
-set SDDCoreDownloadAttemptCount=
 set SDDCoreETagLocal=
-set SDDCoreWGetHeader=
+set SDDCoreWGetCmdLine=
+set SDDCoreWGetBuffer=
+set SDDCoreResultBuffer=
+set SDDCoreETagBuffer=
 verify >nul
-goto :eof
+rem goto EoF would be wrong here
+exit /b
 
 :RemindDate
 if "%SKIP_DL%"=="1" goto EoF
