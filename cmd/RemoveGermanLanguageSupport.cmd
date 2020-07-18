@@ -20,22 +20,6 @@ for %%i in (dotnet w62) do (
       del StaticDownloadLinks-%%i-%%j-glb.ori
       for %%k in (StaticDownloadLinks-%%i-%%j-glb.txt) do if %%~zk==0 del %%k
     )
-    if exist StaticDownloadLinks-%%i-%%j-5lg.txt (
-      if /i "%1" NEQ "/quiet" echo Processing file ..\static\StaticDownloadLinks-%%i-%%j-5lg.txt
-      if exist StaticDownloadLinks-%%i-%%j-5lg.ori del StaticDownloadLinks-%%i-%%j-5lg.ori
-      ren StaticDownloadLinks-%%i-%%j-5lg.txt StaticDownloadLinks-%%i-%%j-5lg.ori  
-      %SystemRoot%\System32\findstr.exe /L /I /V "deu. de. de-de" StaticDownloadLinks-%%i-%%j-5lg.ori>StaticDownloadLinks-%%i-%%j-5lg.txt
-      del StaticDownloadLinks-%%i-%%j-5lg.ori
-      for %%k in (StaticDownloadLinks-%%i-%%j-5lg.txt) do if %%~zk==0 del %%k
-    )
-    if exist StaticDownloadLinks-%%i-%%j-alg.txt (
-      if /i "%1" NEQ "/quiet" echo Processing file ..\static\StaticDownloadLinks-%%i-%%j-alg.txt
-      if exist StaticDownloadLinks-%%i-%%j-alg.ori del StaticDownloadLinks-%%i-%%j-alg.ori
-      ren StaticDownloadLinks-%%i-%%j-alg.txt StaticDownloadLinks-%%i-%%j-alg.ori  
-      %SystemRoot%\System32\findstr.exe /L /I /V "deu. de. de-de" StaticDownloadLinks-%%i-%%j-alg.ori>StaticDownloadLinks-%%i-%%j-alg.txt
-      del StaticDownloadLinks-%%i-%%j-alg.ori
-      for %%k in (StaticDownloadLinks-%%i-%%j-alg.txt) do if %%~zk==0 del %%k
-    )
   )
   if exist StaticDownloadLinks-%%i-glb.txt (
     if /i "%1" NEQ "/quiet" echo Processing file ..\static\StaticDownloadLinks-%%i-glb.txt

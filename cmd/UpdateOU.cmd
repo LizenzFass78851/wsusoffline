@@ -85,11 +85,7 @@ del ..\%FILENAME_HASH%
 echo %DATE% %TIME% - Info: Deleted %FILENAME_HASH%>>%DOWNLOAD_LOGFILE%
 echo Preserving custom language and architecture additions and removals...
 set REMOVE_CMD=
-%SystemRoot%\System32\find.exe /I "us." ..\static\StaticDownloadLinks-w61-x86-glb.txt >nul 2>&1
-if errorlevel 1 (
-  set REMOVE_CMD=RemoveEnglishLanguageSupport.cmd !REMOVE_CMD!
-)
-%SystemRoot%\System32\find.exe /I "de." ..\static\StaticDownloadLinks-w61-x86-glb.txt >nul 2>&1
+%SystemRoot%\System32\find.exe /I "-deu." ..\static\StaticDownloadLinks-dotnet.txt >nul 2>&1
 if errorlevel 1 (
   set REMOVE_CMD=RemoveGermanLanguageSupport.cmd !REMOVE_CMD!
 )

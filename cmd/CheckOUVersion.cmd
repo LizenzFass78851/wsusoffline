@@ -15,6 +15,7 @@ if not exist %WGET_PATH% goto NoWGet
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
+if /i "%1"=="/quiet" set QUIET_MODE=1
 if /i "%1"=="/exitonerror" set EXIT_ERR=1
 if /i "%1"=="/proxy" (
   set http_proxy=%2
@@ -26,13 +27,19 @@ goto EvalParams
 
 :NoMoreParams
 rem *** Check WSUS Offline Update version ***
+if "%QUIET_MODE%"=="1" goto justCheckForUpdates
 title Checking WSUS Offline Update - Community Edition - version...
 echo Checking WSUS Offline Update - Community Edition - version...
 if exist UpdateOU.new (
   if exist UpdateOU.cmd del UpdateOU.cmd
   ren UpdateOU.new UpdateOU.cmd
 )
-%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt
+:justCheckForUpdates
+if "%QUIET_MODE%"=="1" (
+  %WGET_PATH% -q -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt
+) else (
+  %WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt
+)
 if errorlevel 1 goto DownloadError
 if exist ..\static\SelfUpdateVersion-recent.txt (
   echo n | %SystemRoot%\System32\comp.exe ..\static\SelfUpdateVersion-this.txt ..\static\SelfUpdateVersion-recent.txt /A /L /N=1 /C >nul 2>&1
@@ -41,27 +48,35 @@ if exist ..\static\SelfUpdateVersion-recent.txt (
 goto EoF
 
 :NoExtensions
-echo.
-echo ERROR: No command extensions available.
-echo.
+if not "%QUIET_MODE%"=="1" (
+  echo.
+  echo ERROR: No command extensions available.
+  echo.
+)
 exit
 
 :NoWGet
-echo.
-echo ERROR: Utility %WGET_PATH% not found.
-echo.
+if not "%QUIET_MODE%"=="1" (
+  echo.
+  echo ERROR: Utility %WGET_PATH% not found.
+  echo.
+)
 goto EoF
 
 :DownloadError
-echo.
-echo ERROR: Download failure for https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt.
-echo.
+if not "%QUIET_MODE%"=="1" (
+  echo.
+  echo ERROR: Download failure for https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt.
+  echo.
+)
 goto EoF
 
 :CompError
-echo.
-echo Warning: File ..\static\SelfUpdateVersion-this.txt differs from file ..\static\SelfUpdateVersion-recent.txt.
-echo.
+if not "%QUIET_MODE%"=="1" (
+  echo.
+  echo Warning: File ..\static\SelfUpdateVersion-this.txt differs from file ..\static\SelfUpdateVersion-recent.txt.
+  echo.
+)
 goto Error
 
 :Error

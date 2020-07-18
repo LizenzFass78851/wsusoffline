@@ -189,6 +189,13 @@ shift /3
 goto EvalParams
 
 :NoMoreParams
+rem ** disable SDD, if local version != most recent version ***
+call CheckOUVersion.cmd /quiet
+if errorlevel 1 (
+  set SKIP_SDD=1
+  call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
+)
+
 echo %1 | %SystemRoot%\System32\find.exe /I "x64" >nul 2>&1
 if errorlevel 1 (set TARGET_ARCH=x86) else (set TARGET_ARCH=x64)
 if "%SKIP_TZ%"=="1" goto SkipTZ
@@ -218,13 +225,15 @@ if exist ..\doc\history.txt (
 )
 set CSCRIPT_PATH=%SystemRoot%\System32\cscript.exe
 if not exist %CSCRIPT_PATH% goto NoCScript
+if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (
+  if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (set WGET_PATH=..\bin\wget.exe)
+)
+if not exist %WGET_PATH% goto NoWGet
 if exist custom\SetAria2EnvVars.cmd (
   call ActivateAria2Downloads.cmd /reload
   call custom\SetAria2EnvVars.cmd
 ) else (
-  if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set DLDR_PATH=..\bin\wget64.exe) else (
-    if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set DLDR_PATH=..\bin\wget64.exe) else (set DLDR_PATH=..\bin\wget.exe)
-  )
+  set DLDR_PATH=%WGET_PATH%
   set DLDR_COPT=-N --progress=bar:noscroll --trust-server-names
   set DLDR_LOPT=-a %DOWNLOAD_LOGFILE%
   set DLDR_IOPT=-i
@@ -246,6 +255,7 @@ if exist ..\iso\dummy.txt del ..\iso\dummy.txt
 if exist ..\log\dummy.txt del ..\log\dummy.txt
 if exist ..\exclude\custom\dummy.txt del ..\exclude\custom\dummy.txt
 if exist ..\static\custom\dummy.txt del ..\static\custom\dummy.txt
+if exist ..\static\sdd\dummy.txt del ..\static\sdd\dummy.txt
 if exist ..\client\exclude\custom\dummy.txt del ..\client\exclude\custom\dummy.txt
 if exist ..\client\static\custom\dummy.txt del ..\client\static\custom\dummy.txt
 if exist ..\client\software\msi\dummy.txt del ..\client\software\msi\dummy.txt
@@ -555,61 +565,6 @@ if exist ..\client\md\hashes-wle.txt del ..\client\md\hashes-wle.txt
 rem *** old self update stuff ***
 if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-this.txt
 
-rem *** Update static download definitions ***
-set StaticUpdateDownload=
-set NewVersionList=
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\static %DLDR_LOPT% %DLDR_NCOPT% https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-sdd.txt
-if errorlevel 1 (goto SkipSDDPrepare)
-if not exist ..\static\SelfUpdateVersion-sdd.txt (goto SkipSDDPrepare)
-set SDDContainsFile=0
-for /f "tokens=2,3 delims=," %%l in (..\static\SelfUpdateVersion-static.txt) do (
-  set SDDContainsFile=0
-  for /f "tokens=1,2,3 delims=," %%r in (..\static\SelfUpdateVersion-sdd.txt) do (
-    if "%%s"=="%%l" (
-      if "!SDDContainsFile!"=="0" (
-        if "%%r"=="*" (
-          rem for all versions of wsusou
-          if %%t GTR %%m (
-            rem Update available
-            if "!StaticUpdateDownload!"=="" (set StaticUpdateDownload=%%l) else (set StaticUpdateDownload=!StaticUpdateDownload!;%%l)
-            if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%t) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%t)
-          ) else (
-            rem no Update available
-            if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%m) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%m)
-          )
-        ) else if "%%r"=="%WSUSOFFLINE_VERSION%" (
-          rem for this version of wsusou
-          if %%t GTR %%m (
-            rem Update available
-            if "!StaticUpdateDownload!"=="" (set StaticUpdateDownload=%%l) else (set StaticUpdateDownload=!StaticUpdateDownload!;%%l)
-            if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%t) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%t)
-          ) else (
-            rem no Update available
-            if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%m) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%m)
-          )
-        ) else (
-          rem incompatible
-          if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%m) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%m)
-        )
-        set SDDContainsFile=1
-      ) else (
-        rem two definitions of the same target in remote file list 
-      )
-    ) else (
-      rem not comparing equal things
-    )
-  )
-  if "!SDDContainsFile!" NEQ "1" (
-    rem local file not in remote file list
-    if "!NewVersionList!"=="" (set NewVersionList=%WSUSOFFLINE_VERSION%,%%l,%%m) else (set NewVersionList=!NewVersionList!;%WSUSOFFLINE_VERSION%,%%l,%%m)
-  )
-)
-set SDDContainsFile=
-del ..\static\SelfUpdateVersion-sdd.txt
-:SkipSDDPrepare
-::echo StaticUpdateDownload=%StaticUpdateDownload%
-::echo NewVersionList=%NewVersionList%
-
 if "%SKIP_SDD%"=="1" goto SkipSDD
 echo Preserving custom language and architecture additions and removals...
 set CUST_LANG=
@@ -632,20 +587,29 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 call :Log "Info: Preserved custom language and architecture additions and removals"
 
 echo Updating static and exclude definitions for download and update...
-call :SDDCore StaticDownloadFiles-modified https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt ..\static
-if exist ..\static\StaticDownloadFiles-modified.txt (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadFiles-modified.txt %DLDR_POPT% ..\static
-  del ..\static\StaticDownloadFiles-modified.txt
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt ..\static\sdd
+if exist ..\static\sdd\StaticDownloadFiles-modified.txt (
+  for /f "delims=" %%f in (..\static\sdd\StaticDownloadFiles-modified.txt) do (
+    if not "%%f"=="" (
+      call :SDDCore %%f ..\static
+    )
+  )
 )
-call :SDDCore ExcludeDownloadFiles-modified https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt ..\exclude
-if exist ..\exclude\ExcludeDownloadFiles-modified.txt (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\exclude\ExcludeDownloadFiles-modified.txt %DLDR_POPT% ..\exclude
-  del ..\exclude\ExcludeDownloadFiles-modified.txt
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt ..\static\sdd
+if exist ..\static\sdd\ExcludeDownloadFiles-modified.txt (
+  for /f "delims=" %%f in (..\static\sdd\ExcludeDownloadFiles-modified.txt) do (
+    if not "%%f"=="" (
+      call :SDDCore %%f ..\exclude
+    )
+  )
 )
-call :SDDCore StaticUpdateFiles-modified https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified.txt ..\client\static
-if exist ..\client\static\StaticUpdateFiles-modified.txt (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\client\static\StaticUpdateFiles-modified.txt %DLDR_POPT% ..\client\static
-  del ..\client\static\StaticUpdateFiles-modified.txt
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified.txt ..\static\sdd
+if exist ..\static\sdd\StaticUpdateFiles-modified.txt (
+  for /f "delims=" %%f in (..\static\sdd\StaticUpdateFiles-modified.txt) do (
+    if not "%%f"=="" (
+      call :SDDCore %%f ..\client\static
+    )
+  )
 )
 call :Log "Info: Updated static and exclude definitions for download and update"
 
@@ -664,7 +628,7 @@ call :Log "Info: Restored custom language and architecture additions and removal
 rem *** Download mkisofs tool ***
 if "%SKIP_DL%"=="1" goto SkipMkIsoFs
 echo Downloading/validating mkisofs tool...
-call :SDDCore mkisofs https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/mkisofs.exe ..\bin
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/mkisofs.exe ..\bin
 if "%SDDCoreReturnValue%"=="0" (
   call :Log "Info: Downloaded/validated mkisofs tool"
 ) else (
@@ -1120,21 +1084,21 @@ if not errorlevel 1 (
 )
 if "%SKIP_SDD%" NEQ "1" (
   copy /Y ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori >nul
-  call :SDDCore ExcludeList-superseded-exclude https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude.txt ..\exclude
+  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude.txt ..\exclude
   echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
   )
   del ..\exclude\ExcludeList-superseded-exclude.ori
   copy /Y ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori >nul
-  call :SDDCore ExcludeList-superseded-exclude-seconly https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude-seconly.txt ..\exclude
+  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude-seconly.txt ..\exclude
   echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
   )
   del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
   copy /Y ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori >nul
-  call :SDDCore HideList-seconly https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/HideList-seconly.txt ..\client\exclude
+  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/HideList-seconly.txt ..\client\exclude
   echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
   if errorlevel 1 (
     if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
@@ -1814,9 +1778,8 @@ verify >nul
 goto :eof
 
 :SDDCore
-rem %1 -> Name
-rem %2 -> URL
-rem %3 -> Target-Path
+rem %1 -> URL
+rem %2 -> Target-Path
 
 set SDDCoreReturnValue=
 
@@ -1828,70 +1791,100 @@ if "%2"=="" (
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
-if "%3"=="" (
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
 
-if "%NewVersionList%"=="" (
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
-if "%StaticUpdateDownload%"=="" (
-  rem kein Update in der Liste enthalten
-  set SDDCoreReturnValue=0
-  goto :SDDCoreSkip
-)
-
-set StaticUpdateDownloadBuffer=%StaticUpdateDownload%
-:SDDCoreParse
-for /f "tokens=1* delims=;" %%a in ("%StaticUpdateDownloadBuffer%") do (
-  if "%%a"=="%1" (goto SDDCoreDownload)
-  if not "%%b"=="" (
-    set StaticUpdateDownloadBuffer=%%b
-    goto SDDCoreParse
+set SDDCoreFileName=
+for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %1') do (
+  if not "%%f"=="" (
+    set SDDCoreFileName=%%f
   )
 )
-set StaticUpdateDownloadBuffer=
-rem "%1" ist nicht in "%StaticUpdateDownload%" enthalten
-set SDDCoreReturnValue=0
-goto SDDCoreSkip
+if "%SDDCoreFileName%"=="" (
+  rem failed to determine file name
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
+
+set SDDCoreETagBuffer=
+for /f "delims=" %%f in ('%WGET_PATH% --spider --server-response --progress=bar:noscroll -nv %1 2^>^&1 ^| find /i ^"ETag^:^"') do (
+  if not "%%f"=="" (
+    set SDDCoreETagBuffer=%%f
+  )
+)
+if "%SDDCoreETagBuffer%"=="" (
+  rem no ETag-Header received
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
+set SDDCoreETagBufferReal=
+rem get the ETag from the ETag-Header
+for /f "tokens=2 delims=:" %%f in ('echo %SDDCoreETagBuffer%') do (
+  if not "%%f"=="" (
+    set SDDCoreETagBufferReal=%%f
+  )
+)
+if "%SDDCoreETagBufferReal%"=="" (
+  rem no ETag-Header received
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
+rem remove space from the ETag
+set SDDCoreETagRemote=%SDDCoreETagBufferReal: =%
+if "%SDDCoreETagRemote%"=="" (
+  rem invalid ETag-Header received
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
+
+set SDDCoreDownloadAttemptCount=0
+
+rem get local ETag
+if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
+if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
+set SDDCoreETagLocal=
+for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
+  if /i "%SDDCoreFileName%"=="%%a" (set SDDCoreETagLocal=%%b)
+)
+rem already got this file via SDD?
+if "%SDDCoreETagLocal%"=="" goto SDDCoreDownload
+if "%SDDCoreETagLocal%"=="%SDDCoreETagRemote%" (
+  rem file is up2date
+  set SDDCoreReturnValue=0
+  goto SDDCoreSkip
+)
 
 :SDDCoreDownload
-set NewVersionListBuffer=%NewVersionList%
-%DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% %3 %DLDR_LOPT% %DLDR_NCOPT% %2
+set "SDDCoreWGetHeader=%SDDCoreETagRemote:"=\"%"
+rem download the file
+:SDDCoreDownloadLoop
+set /a SDDCoreDownloadAttemptCount+=1
+%WGET_PATH% --progress=bar:noscroll -nv -O "%2\%SDDCoreFileName%" -a %DOWNLOAD_LOGFILE% --no-check-certificate --header="If-Match: %SDDCoreWGetHeader%" %1
 if errorlevel 1 (
+  rem retry up to 4 times (5 tries at all)
+  if %SDDCoreDownloadAttemptCount% LSS 5 (goto SDDCoreDownloadLoop)
   set SDDCoreReturnValue=1
   goto SDDCoreSkip
 )
 
-set MyRelaseBuffer=
+if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreAddNewETag)
 move /Y ..\static\SelfUpdateVersion-static.txt ..\static\SelfUpdateVersion-static.ori >nul
-for /f "tokens=1,2,3 delims=," %%l in (..\static\SelfUpdateVersion-static.ori) do (
-  if "%%m"=="%1" (
-    set MyRelaseBuffer=%%l
-  ) else (
-    echo %%l,%%m,%%n >> ..\static\SelfUpdateVersion-static.txt
-  )
-)
-:SDDCoreCreateNewVersionListLoop
-for /f "tokens=1* delims=;" %%a in ("%NewVersionListBuffer%") do (
-  for /f "tokens=2,3 delims=," %%x in ("%%a") do (
-    if "%%x"=="%1" (
-      echo %MyRelaseBuffer%,%%x,%%y >> ..\static\SelfUpdateVersion-static.txt
-	)
-  )
-  if not "%%b"=="" (
-    set NewVersionListBuffer=%%b
-    goto SDDCoreCreateNewVersionListLoop
+for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.ori) do (
+  if not "%%a"=="%SDDCoreFileName%" (
+    echo %%a=%%b>>..\static\SelfUpdateVersion-static.txt
   )
 )
 del ..\static\SelfUpdateVersion-static.ori
-set MyRelaseBuffer=
-set NewVersionListBuffer=
+:SDDCoreAddNewETag
+echo %SDDCoreFileName%=%SDDCoreETagRemote%>>..\static\SelfUpdateVersion-static.txt
 set SDDCoreReturnValue=0
 
 :SDDCoreSkip
+set SDDCoreFileName=
+set SDDCoreETagBuffer=
+set SDDCoreETagBufferReal=
+set SDDCoreETagRemote=
+set SDDCoreDownloadAttemptCount=
+set SDDCoreETagLocal=
+set SDDCoreWGetHeader=
 verify >nul
 goto :eof
 
@@ -1955,6 +1948,13 @@ goto Error
 echo.
 echo ERROR: VBScript interpreter %CSCRIPT_PATH% not found.
 call :Log "Error: VBScript interpreter %CSCRIPT_PATH% not found"
+echo.
+goto Error
+
+:NoWGet
+echo.
+echo ERROR: Download utility %WGET_PATH% not found.
+call :Log "Error: Download utility %WGET_PATH% not found"
 echo.
 goto Error
 

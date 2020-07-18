@@ -1,7 +1,0 @@
-12.1,mkisofs,0000000000
-12.1,ExcludeList-superseded-exclude,2020071601
-12.1,ExcludeList-superseded-exclude-seconly,2020062202
-12.1,HideList-seconly,2020071601
-12.1,ExcludeDownloadFiles-modified,2020071601
-12.1,StaticDownloadFiles-modified,2020071601
-12.1,StaticUpdateFiles-modified,2020071601
