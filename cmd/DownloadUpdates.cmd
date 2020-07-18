@@ -44,6 +44,14 @@ if exist .\custom\InitializationHook.cmd (
   set ERR_LEVEL=
 )
 call :Log "Info: Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2"
+
+rem ** disable SDD, if local version != most recent version ***
+call CheckOUVersion.cmd /quiet
+if errorlevel 1 (
+  set SKIP_SDD=1
+  call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
+)
+
 for %%i in (w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 ofc o2k16) do (
   if /i "%1"=="%%i" (
     if /i "%2"=="glb" goto EvalParams
@@ -200,13 +208,6 @@ shift /3
 goto EvalParams
 
 :NoMoreParams
-rem ** disable SDD, if local version != most recent version ***
-call CheckOUVersion.cmd /quiet
-if errorlevel 1 (
-  set SKIP_SDD=1
-  call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
-)
-
 echo %1 | %SystemRoot%\System32\find.exe /I "x64" >nul 2>&1
 if errorlevel 1 (set TARGET_ARCH=x86) else (set TARGET_ARCH=x64)
 if "%SKIP_TZ%"=="1" goto SkipTZ
