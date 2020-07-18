@@ -1,1 +1,1 @@
-11.9.1esr,wsusofflineCE1191.zip,wsusofflineCE1191_hashes.txt
+11.9.2esr,wsusofflineCE1192.zip,wsusofflineCE1192_hashes.txt

@@ -130,6 +130,15 @@ if exist ..\exclude\ExcludeList-superseded.txt (
   del ..\exclude\ExcludeList-superseded.txt
   echo %DATE% %TIME% - Info: Deleted deprecated list of superseded updates>>%DOWNLOAD_LOGFILE%
 )
+if exist ..\static\sdd\StaticDownloadFiles-modified.txt (
+  del ..\static\sdd\StaticDownloadFiles-modified.txt
+)
+if exist ..\static\sdd\ExcludeDownloadFiles-modified.txt (
+  del ..\static\sdd\ExcludeDownloadFiles-modified.txt
+)
+if exist ..\static\sdd\StaticUpdateFiles-modified.txt (
+  del ..\static\sdd\StaticUpdateFiles-modified.txt
+)
 echo %DATE% %TIME% - Info: Ending WSUS Offline Update - Community Edition - self update>>%DOWNLOAD_LOGFILE%
 if "%RESTART_GENERATOR%"=="1" (
   cd ..
