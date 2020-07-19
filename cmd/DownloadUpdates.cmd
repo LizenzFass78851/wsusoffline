@@ -1288,6 +1288,29 @@ if not exist "%TEMP%\StaticDownloadLinks-%1-%2.txt" goto SkipStatics
 :EvalStatics
 if exist "%TEMP%\ExcludeListStatic.txt" del "%TEMP%\ExcludeListStatic.txt"
 if exist ..\exclude\custom\ExcludeListForce-all.txt copy /Y ..\exclude\custom\ExcludeListForce-all.txt "%TEMP%\ExcludeListStatic.txt" >nul
+rem *** Windows 10 version specific exclusion ***
+echo %1 | %SystemRoot%\System32\find.exe /I "w100" >nul 2>&1
+if not errorlevel 1 (
+  if exist ..\Windows10Versions.ini (
+    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
+      if "%%j"=="%3" (
+        if /i "%%k"=="Disabled" (
+          if "%%i"=="1909" (
+            if "!DISABLED1903!"=="1" (
+              if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
+              if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
+            )
+          ) else (
+            if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
+            if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
+            if "%%i"=="1903" set DISABLED1903=1
+          )
+        )
+      )
+    )
+    set DISABLED1903=
+  )
+)
 if exist "%TEMP%\ExcludeListStatic.txt" (
   %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeListStatic.txt" "%TEMP%\StaticDownloadLinks-%1-%2.txt" >"%TEMP%\ValidStaticLinks-%1-%2.txt"
   del "%TEMP%\ExcludeListStatic.txt"
@@ -1363,25 +1386,27 @@ if "%SECONLY%"=="1" (
 )
 rem *** Windows 10 version specific exclusion ***
 echo %1 | %SystemRoot%\System32\find.exe /I "w100" >nul 2>&1
-if errorlevel 1 goto ExcludeForceAll
-if not exist ..\Windows10Versions.ini goto ExcludeForceAll
-for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-  if "%%j"=="%3" (
-    if /i "%%k"=="Disabled" (
-      if "%%i"=="1909" (
-        if "!DISABLED1903!"=="1" (
-          if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-          if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+if not errorlevel 1 (
+  if exist ..\Windows10Versions.ini (
+    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
+      if "%%j"=="%3" (
+        if /i "%%k"=="Disabled" (
+          if "%%i"=="1909" (
+            if "!DISABLED1903!"=="1" (
+              if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+              if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+            )
+          ) else (
+            if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+            if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+            if "%%i"=="1903" set DISABLED1903=1
+          )
         )
-      ) else (
-        if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-        if "%%i"=="1903" set DISABLED1903=1
       )
     )
+    set DISABLED1903=
   )
 )
-set DISABLED1903=
 :ExcludeForceAll
 if exist ..\exclude\custom\ExcludeListForce-all.txt (
   type ..\exclude\custom\ExcludeListForce-all.txt >>"%TEMP%\ExcludeList-%1.txt"
