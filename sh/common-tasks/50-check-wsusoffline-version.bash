@@ -416,7 +416,6 @@ function wsusoffline_self_update ()
         check_custom_static_links
         normalize_file_permissions
         reschedule_updates_after_wou_update
-        restore_etag_database
         update_timestamp "${wou_timestamp_file}"
         restart_script
     else
@@ -496,12 +495,13 @@ function reschedule_updates_after_wou_update ()
     # The function reevaluate_all_updates removes the timestamps for
     # all updates, so that they are reevaluated on the next run.
     reevaluate_all_updates
-    rm -f "../timestamps/check-sh-version.txt"
     rm -f "../timestamps/update-configuration-files.txt"
     # Delete SDD index files
     rm -f "../static/sdd/StaticDownloadFiles-modified.txt"
     rm -f "../static/sdd/ExcludeDownloadFiles-modified.txt"
     rm -f "../static/sdd/StaticUpdateFiles-modified.txt"
+    # Delete ETag database
+    rm -f "../static/SelfUpdateVersion-static.txt"
     # Lists of superseded updates, Windows version
     rm -f "../exclude/ExcludeList-superseded.txt"
     rm -f "../exclude/ExcludeList-superseded-seconly.txt"
