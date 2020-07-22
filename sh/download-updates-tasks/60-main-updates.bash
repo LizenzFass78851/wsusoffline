@@ -166,7 +166,7 @@ function process_main_update ()
     #
     # The names for the hashes_file, hashed_dir and download_dir must
     # be synchronized with the Windows script DownloadUpdates.cmd. All
-    # other temporary files may vary.
+    # temporary files may vary.
 
     local timestamp_pattern="not-available"
     local hashes_file="not-available"
@@ -230,14 +230,10 @@ function process_main_update ()
     esac
 
     # The download results are influenced by the options to include
-    # Service Packs and to prefer security-only updates. If these options
-    # change, then the affected downloads should be reevaluated. Including
-    # the values of these two options in the name of the timestamp file
-    # is a simple way to achieve that much.
-    #
-    # TODO: Maybe this should be done differently, but this would
-    # require the script to read and write preferences and to detect
-    # changed settings.
+    # Service Packs (only in the ESR version) and to prefer security-only
+    # updates. If these options change, then the affected downloads should
+    # be reevaluated. Including the values of these two options in the
+    # name of the timestamp file is a simple way to achieve that much.
     case "${name}" in
         w62 | w63 | dotnet)
             timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${prefer_seconly}.txt"
@@ -496,6 +492,8 @@ function calculate_dynamic_windows_updates ()
     local key=""
     local value=""
     local -i result_code="0"
+    local win_10_1903=""
+    local win_10_1909=""
 
     require_non_empty_file "../xslt/ExtractDownloadLinks-${name}-${arch}-${lang}.xsl" || return 0
     require_non_empty_file "${used_superseded_updates_list}" || fail "The required file ${used_superseded_updates_list} is missing"
@@ -549,7 +547,7 @@ function calculate_dynamic_windows_updates ()
     fi
 
     # Add Windows 10 version-specific exclude lists
-    if [[ "${name}" == w100 ]]
+    if [[ "${name}" == "w100" ]]
     then
         for version in "${w100_versions[@]}"
         do
@@ -560,15 +558,15 @@ function calculate_dynamic_windows_updates ()
                 && result_code="0" || result_code="$?"
             case "${result_code}" in
                 0)
-                    if [[ "${value}" == off ]]
+                    if [[ "${value}" == "off" ]]
                     then
-                        # Let the function apply_exclude_lists check,
-                        # if all added files actually exist
                         exclude_lists_windows+=(
                             "../exclude/ExcludeList-w100-${version}.txt"
                             "../exclude/custom/ExcludeList-w100-${version}.txt"
                         )
                         log_debug_message "Excluded: ${key} ${value}"
+                        [[ "${version}" == "1903" ]] && win_10_1903="off"
+                        [[ "${version}" == "1909" ]] && win_10_1909="off"
                     else
                         log_debug_message "Included: ${key} ${value}"
                     fi
@@ -589,6 +587,14 @@ function calculate_dynamic_windows_updates ()
                 ;;
             esac
         done
+    fi
+
+    if [[ "${win_10_1903}" == "off" && "${win_10_1909}" == "off" ]]
+    then
+        exclude_lists_windows+=(
+            "../exclude/ExcludeList-w100-1903_1909.txt"
+            "../exclude/custom/ExcludeList-w100-1903_1909.txt"
+        )
     fi
 
     apply_exclude_lists \

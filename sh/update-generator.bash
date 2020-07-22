@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: 2.0 Community Edition (2.0-CE)
-# Release date: 2020-07-12
+# Version: 2.1 Community Edition (2.1-CE)
+# Release date: 2020-07-21
 # Intended compatibility: WSUS Offline Update, Community Edition 12.0
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
@@ -65,6 +65,14 @@ set -o errtrace
 set -o pipefail
 shopt -s nocasematch
 
+# The shell option lastpipe is used to export variables from the last
+# section of a pipe. It is used in the function download_from_gitlab.
+#
+# According to /usr/share/doc/bash/changelog.gz, the option lastpipe was
+# introduced in bash-4.2-alpha. Therefore, the Linux download scripts
+# now require bash 4.2 and Debian 7 Wheezy or later.
+shopt -s lastpipe
+
 # ========== Environment variables ========================================
 
 # Setting LC_ALL to C sets LC_COLLATE, LC_CTYPE and LC_MESSAGES to the
@@ -86,8 +94,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.0-CE"
-readonly release_date="2020-07-12"
+readonly script_version="2.1-CE"
+readonly release_date="2020-07-21"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -334,6 +342,9 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
+    # Also create a ../static directory for an initial installation of
+    # WSUS Offline Update by the Linux download scripts
+    mkdir -p "${wsusoffline_directory}/static"
 
     return 0
 }

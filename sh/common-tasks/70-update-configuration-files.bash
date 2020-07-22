@@ -138,8 +138,6 @@ function remove_obsolete_files ()
         ../cmd/CheckTRCerts.cmd
         ../client/static/StaticUpdateIds-w100-x86.txt
         ../client/static/StaticUpdateIds-w100-x64.txt
-        ../exclude/ExcludeList-SPs.txt
-        ../client/opt/OptionList-Q.txt
     )
 
     # The file ../client/exclude/ExcludeUpdateFiles-modified.txt was
@@ -216,6 +214,12 @@ function remove_obsolete_files ()
 
     # Obsolete files in WSUS Offline Update, version 12.0
     #
+    # *** Obsolete internal stuff (additions) ***
+    file_list+=(
+        ../exclude/ExcludeList-SPs.txt
+        ../client/opt/OptionList-Q.txt
+    )
+
     # *** Windows Vista / Server 2008 stuff ***
     shopt -s nullglob
     file_list+=(
@@ -327,7 +331,8 @@ function remove_obsolete_files ()
         )
     fi
 
-    # Obsolete files in the Community Edition 12.0
+    # Obsolete files in WSUS Offline Update, Community Editions 11.9.1
+    # and 12.0
     #
     # The file StaticDownloadLink-this.txt was replaced with
     # SelfUpdateVersion-this.txt
@@ -472,7 +477,11 @@ function recursive_download ()
     initial_errors="$(get_error_count)"
 
     log_info_message "Downloading/validating index file ${filename} ..."
-    download_from_gitlab "${download_dir}" "${download_link}"
+    # Since version 1.19.2-CE and 2.1-CE of the Linux download scripts,
+    # the three index files are downloaded to ../static/sdd, only the
+    # included links are downloaded to the specified download directories
+    # ../static, ../exclude and ../client/static.
+    download_from_gitlab "../static/sdd" "${download_link}"
     if same_error_count "${initial_errors}"
     then
         log_debug_message "Downloaded/validated index file ${filename}"
@@ -485,15 +494,15 @@ function recursive_download ()
     # Update, the index files StaticDownloadFiles-modified.txt,
     # ExcludeDownloadFiles-modified.txt and StaticUpdateFiles-modified.txt
     # are usually empty.
-    if [[ -s "${download_dir}/${filename}" ]]
+    if [[ -s "../static/sdd/${filename}" ]]
     then
-        number_of_links="$( wc -l < "${download_dir}/${filename}" )"
+        number_of_links="$( wc -l < "../static/sdd/${filename}" )"
         log_info_message "Downloading/validating ${number_of_links} link(s) from index file ${filename} ..."
 
         while IFS=$'\r\n' read -r url
         do
             download_from_gitlab "${download_dir}" "${url}"
-        done < "${download_dir}/${filename}"
+        done < "../static/sdd/${filename}"
 
         if same_error_count "${initial_errors}"
         then
@@ -509,4 +518,6 @@ function recursive_download ()
 # ========== Commands =====================================================
 
 run_update_configuration_files
-return 0 # for sourced files
+# Update the file ../static/SelfUpdateVersion-static.txt
+restore_etag_database
+return 0

@@ -31,215 +31,122 @@
 
 # ========== Functions ====================================================
 
-# Rename or remove old files from the Linux download scripts
+# WSUS Offline Update, Community Editions CE-11.9.1 and CE-12.0 are new
+# development branches.
+#
+# Both came with the Linux download scripts, version 1.19.
+#
+# Then we only need to remove obsolete files from previous versions,
+# if they are still found in version 1.19. This mainly refers to two
+# renamed files and folders: 71-make-shapshot.bash and licence. They were
+# renamed in version 1.16, but the changes never made it into svn/Trak
+# at wsusoffline.net.
+#
+# Version 1.19 of the Linux download scripts is the common predecessor
+# of versions 1.19.1-ESR and 1.20.
 
 function remove_obsolete_scripts ()
 {
     local old_name=""
-    local new_name=""
+    #local new_name=""
     local -a file_list=()
-
-    # Remove the obsolete script DownloadUpdates.sh and related files.
-    #
-    # The new Linux scripts are included in the main WSUS Offline Update
-    # archive in changeset 866 https://trac.wsusoffline.net/changeset/866 ,
-    # but then the old scripts in the same directory need to be removed.
-    rm -f ./commonparts.inc
-    rm -f ./CreateISOImage.sh
-    rm -f ./DownloadUpdates.sh
-    rm -f ./RemoveGermanAndEnglishLanguageSupport.sh
-
-    # Remove obsolete scripts from version 1.0-beta-2
-    #
-    # The directory common-tasks was refactored in version 1.0-beta-3:
-    # A new script 10-remove-obsolete-scripts.bash (this one) was added,
-    # and the script 40-check-for-self-updates.bash was split into two
-    # smaller scripts. The other scripts were renumbered. Thus, all
-    # scripts from version 1.0-beta-2 in this directory, if present,
-    # need to be removed.
-    rm -f ./common-tasks/10-start-logging.bash
-    rm -f ./common-tasks/20-check-needed-applications.bash
-    rm -f ./common-tasks/30-configure-downloaders.bash
-    rm -f ./common-tasks/40-check-for-self-updates.bash
-
-    # Remove old documentation files from version 1.0-beta-3
-    #
-    # These files were renamed in version 1.0-beta-4 to
-    # Installation_Guide.txt and Installationsanleitung.txt.
-    rm -f ./documentation/Quick_installation_guide.txt
-    rm -f ./documentation/Kurzinstallationsanleitung.txt
-
-    # Obsolete files in version 1.8
-    #
-    # The script available-tasks/70-synchronize-with-target.bash
-    # is obsolete with version 1.8, because a more elaborate script
-    # copy-to-target.bash was introduced.
-    #
-    # The new file documentation/changelog.txt has the same information
-    # as the version-history.txt, but in reverse order.
-    #
-    # The file NEWS.txt replaces the former release_notes_[version].txt,
-    # but it is not really necessary, to delete the old files now.
-    rm -f ./available-tasks/70-synchronize-with-target.bash
-    rm -f ./documentation/version-history.txt
-
-    # Obsolete files in version 1.9
-    #
-    # The script update-generator.bash uses a new script to create the
-    # selection dialogs with the external utility "dialog".
-    #
-    # The existing script 10-show-selection-dialogs.bash is used as a
-    # fallback and simply renamed to 20-show-selection-dialogs.bash.
-    rm -f ./update-generator-tasks/10-show-selection-dialogs.bash
-
-    # Correct spelling
-    if [[ -f "../cache/package-formated.xml" ]]
-    then
-        mv "../cache/package-formated.xml" "../cache/package-formatted.xml"
-    fi
+    local current_file=""
 
     # Obsolete files in version 1.16
     #
-    # The spelling of the file 71-make-shapshot.bash was corrected to
-    # 71-make-snapshot.bash.
+    # The file 71-make-shapshot.bash was spelled wrong, but this didn't
+    # get noticed for a long time. But screen fonts have a large x-height
+    # and only short ascenders, and then "n" and "h" can look pretty
+    # similar.
     #
-    # Rename the old file, until the new one actually makes it into svn.
+    # The filename was corrected to 71-make-snapshot.bash in the Linux
+    # download scripts, version 1.16.
+    # - https://forums.wsusoffline.net/viewtopic.php?f=9&t=10057
+    #
+    # In WSUS Offline Update, version 11.9.1-ESR at wsusoffline.net,
+    # there were two files:
+    #
+    # ./available-tasks/71-make-shapshot.bash
+    # ./available-tasks/71-make-snapshot.bash
+    #
+    # This was finally solved in the Community Editions 11.9.1 and
+    # 12.0. The old file, if still present, can be deleted:
+
     old_name="71-make-shapshot.bash"
-    new_name="71-make-snapshot.bash"
-    if [[ -f "./available-tasks/${old_name}" ]]
-    then
-        if [[ -f "./available-tasks/${new_name}" ]]
-        then
-            rm "./available-tasks/${old_name}"
-        else
-            mv "./available-tasks/${old_name}" \
-               "./available-tasks/${new_name}"
-        fi
-    fi
+    rm -f "./available-tasks/${old_name}"
 
     # The noun "licence" is valid British English, but the directory
     # was renamed to "license" for consistency with the use of American
     # English in the gpl itself (as shown at the top of this file).
     #
-    # Rename the old directory, until the new one makes it into svn.
+    # The old directory, if still present, can be deleted.
+
     old_name="licence"
-    new_name="license"
     if [[ -d "./${old_name}" ]]
     then
-        if [[ -d "./${new_name}" ]]
-        then
-            rm -f "./${old_name}/gpl.txt"
-            rmdir "./${old_name}"
-        else
-            mv "./${old_name}" "./${new_name}"
-        fi
+        rm -f "./${old_name}/gpl.txt"
+        rmdir "./${old_name}"
     fi
 
-    # Cleanup files from the Office patch in version 1.17
+    # Obsolete files in version 1.20
     #
-    # The private file extract-office-revision-and-update-ids.xsl is
-    # no longer needed, because it can now be found in the directory
-    # wsusoffline/xslt.
-    [[ -f "./xslt/extract-office-revision-and-update-ids.xsl" ]] \
-        && rm "./xslt/extract-office-revision-and-update-ids.xsl"
+    # Version 1.20 of the Linux download scripts was meant for WSUS
+    # Offline Update, version 12.0. This version removed support for
+    # Windows Server 2008 and Windows 7 / Server 2008 R2.
 
-    # Cleanup files from the Windows 10 patch in version 1.18
+    file_list+=(
+        ./exclude/ExcludeListISO-w60.txt
+        ./exclude/ExcludeListISO-w60-x64.txt
+        ./exclude/ExcludeListISO-w61.txt
+        ./exclude/ExcludeListISO-w61-x64.txt
+
+        ./exclude/ExcludeListUSB-w60.txt
+        ./exclude/ExcludeListUSB-w60-x64.txt
+        ./exclude/ExcludeListUSB-w61.txt
+        ./exclude/ExcludeListUSB-w61-x64.txt
+    )
+
+    # Obsolete files in version 1.21-CE
     #
-    # The file extract-file-ids-and-locations.xsl is
-    # not used anymore. A modified version of the file
-    # extract-update-cab-exe-ids-and-locations.xsl in the directory
-    # wsusoffline/xslt is used instead.
-    [[ -f "./xslt/extract-file-ids-and-locations.xsl" ]] \
-        && rm "./xslt/extract-file-ids-and-locations.xsl"
+    # The community edition 1.20-CE introduced an early implementation
+    # of the download from GitLab, comparing ETags instead of
+    # timestamping. This was more a hack and it would dump the whole
+    # server response to ../cache/filename.headers.
 
-    # The private directory ./xslt should be empty at this point
-    if [[ -d ./xslt ]]
+    shopt -s nullglob
+    file_list+=(
+        ../cache/*.headers
+    )
+    shopt -u nullglob
+
+    # The self-update of the Linux download scripts was introduced in
+    # the first beta-versions, but it is considered obsolete by now.
+
+    rm -f ./available-tasks/60-check-script-version.bash
+
+    if [[ -d ./versions ]]
     then
-        shopt -s nullglob
-        file_list=( ./xslt/* )
-        shopt -u nullglob
-        if (( "${#file_list[@]}" == 0 ))
-        then
-            rmdir ./xslt
-        fi
+        rm -f ./versions/installed-version.txt
+        rm -f ./versions/available-version.txt
+        rmdir ./versions
     fi
 
-    # Windows Server 2008 and Windows 7 / Server 2008 R2 were removed
-    # in WSUS Offline Update version 12.0.
-    rm -f ./exclude/ExcludeListISO-w60.txt
-    rm -f ./exclude/ExcludeListISO-w60-x64.txt
-    rm -f ./exclude/ExcludeListISO-w61.txt
-    rm -f ./exclude/ExcludeListISO-w61-x64.txt
-
-    rm -f ./exclude/ExcludeListUSB-w60.txt
-    rm -f ./exclude/ExcludeListUSB-w60-x64.txt
-    rm -f ./exclude/ExcludeListUSB-w61.txt
-    rm -f ./exclude/ExcludeListUSB-w61-x64.txt
-
-    return 0
-}
-
-# The files ExcludeList-superseded.txt and
-# ExcludeList-superseded-seconly.txt are
-# renamed to ExcludeList-Linux-superseded.txt and
-# ExcludeList-Linux-superseded-seconly.txt in version 1.5 of the Linux
-# download scripts. Existing files may be kept and renamed, if they are
-# sorted in C-style, and if they use Linux line endings.
-#
-# If the exclude lists were created on Windows, they are kept as is at
-# this point. They may still be removed later, if a new version of WSUS
-# Offline Update or the WSUS catalog file is available.
-
-function rename_exclude_lists ()
-{
-    if [[ -f "../exclude/ExcludeList-superseded.txt" ]]
+    if [[ -d ../timestamps ]]
     then
-        # Testing the expected sort order. GNU sort uses a C-style sort,
-        # if the environment variable LC_ALL=C is set.
-        if sort --check=quiet "../exclude/ExcludeList-superseded.txt"
-        then
-            # Testing the line endings. A carriage return can be passed
-            # to grep with the "ANSI-C quoting" of the bash.
-            if ! grep -F -q $'\r' "../exclude/ExcludeList-superseded.txt"
-            then
-                if [[ ! -f "../exclude/ExcludeList-Linux-superseded.txt" ]]
-                then
-                    # Any refactoring, e.g. renaming existing files,
-                    # should be done first, but the script should not
-                    # create any output yet. Logging should start with
-                    # the script 20-start-logging.bash, which inserts
-                    # a divider line into the log and prints a header
-                    # with the script name. Any previous output will
-                    # look out of place.
-                    #
-                    #echo "Renaming ExcludeList-superseded.txt to ExcludeList-Linux-superseded.txt"
-                    mv "../exclude/ExcludeList-superseded.txt" \
-                       "../exclude/ExcludeList-Linux-superseded.txt"
-                else
-                    #echo "Could not rename ExcludeList-superseded.txt"
-                    rm "../exclude/ExcludeList-superseded.txt"
-                fi
-            fi
-        fi
+        rm -f ../timestamps/check-sh-version.txt
     fi
 
-    if [[ -f "../exclude/ExcludeList-superseded-seconly.txt" ]]
+    # Delete all obsolete files, if existing
+    if (( "${#file_list[@]}" > 0 ))
     then
-        if sort --check=quiet "../exclude/ExcludeList-superseded-seconly.txt"
-        then
-            if ! grep -F -q $'\r' "../exclude/ExcludeList-superseded-seconly.txt"
+        for current_file in "${file_list[@]}"
+        do
+            if [[ -f "${current_file}" ]]
             then
-                if [[ ! -f "../exclude/ExcludeList-Linux-superseded-seconly.txt" ]]
-                then
-                    #echo "Renaming ExcludeList-superseded-seconly.txt to ExcludeList-Linux-superseded-seconly.txt"
-                    mv "../exclude/ExcludeList-superseded-seconly.txt" \
-                       "../exclude/ExcludeList-Linux-superseded-seconly.txt"
-                else
-                    #echo "Could not rename ExcludeList-superseded-seconly.txt"
-                    rm "../exclude/ExcludeList-superseded-seconly.txt"
-                fi
+                log_debug_message "Deleting ${current_file}"
+                rm "${current_file}"
             fi
-        fi
+        done
     fi
     return 0
 }
@@ -247,5 +154,4 @@ function rename_exclude_lists ()
 # ========== Commands =====================================================
 
 remove_obsolete_scripts
-rename_exclude_lists
 return 0

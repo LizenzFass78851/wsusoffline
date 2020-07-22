@@ -146,7 +146,7 @@ function write_setting ()
     # Create settings file, if it does not exist yet.
     if [[ ! -f "${settings_file}" ]]
     then
-        printf '%s\n' "This is an automatically generated file. Do not edit it." > "${settings_file}"
+        touch "${settings_file}"
     fi
 
     # Search for "${key}=" at the beginning of the line.
@@ -201,7 +201,13 @@ function write_setting ()
             #
             # The search and replacement patterns assume, that the values
             # are NOT quoted.
-            sed -i.bak "s/^${key}=${old_value}/${key}=${new_value}/" "${settings_file}"
+            #
+            # ETags contain two quotation marks and one slash. The
+            # quotation marks are handled well, but the slash causes
+            # the command "s/regular expression/replacement/flags"
+            # to break. Using "s#regular expression#replacement#flags"
+            # does work in this case.
+            sed -i.bak "s#^${key}=${old_value}#${key}=${new_value}#" "${settings_file}"
             rm -f "${settings_file}.bak"
         fi
     else

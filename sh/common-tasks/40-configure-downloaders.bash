@@ -234,6 +234,11 @@ logfile_prefix=""
 download_dir_prefix=""
 inputfile_prefix=""
 
+# Global variables used by the function download_from_gitlab
+global_server_response=""
+global_new_etag=""
+global_result_code=""
+
 # ========== Functions ====================================================
 
 # Wget 1.18 and later may use the combination "--show-progress
@@ -701,65 +706,6 @@ function download_multiple_files ()
 }
 
 
-# function download_and_verify
-#
-# Download an archive and the accompanying hashes file, and use the
-# hashes file to verify the archive. This is used for the self update
-# of the Linux scripts.
-#
-# The files for the self-update of WSUS Offline Update are now
-# handled by the function wsusoffline_self_update in the script
-# 50-check-wsusoffline-version.bash.
-
-function download_and_verify ()
-{
-    local download_dir="$1"
-    local archive_link="$2"
-    local hashes_link="$3"
-    local archive_filename="${archive_link##*/}"
-    local hashes_filename="${hashes_link##*/}"
-    local -i initial_errors="0"
-    initial_errors="$(get_error_count)"
-
-    log_info_message "Downloading archive and accompanying hashes file..."
-    download_single_file "${download_dir}" "${archive_link}"
-    same_error_count "${initial_errors}" || exit 1
-
-    download_single_file "${download_dir}" "${hashes_link}"
-    same_error_count "${initial_errors}" || exit 1
-
-    log_info_message "Searching downloaded files..."
-    if [[ -f "${download_dir}/${archive_filename}" ]]
-    then
-        log_info_message "Found archive:     ${download_dir}/${archive_filename}"
-    else
-        log_error_message "Archive ${archive_filename} was not found"
-        exit 1
-    fi
-
-    if [[ -f "${download_dir}/${hashes_filename}" ]]
-    then
-        log_info_message "Found hashes file: ${download_dir}/${hashes_filename}"
-    else
-        log_error_message "Hashes file ${hashes_filename} was not found"
-        exit 1
-    fi
-
-    # Validate the archive using hashdeep in audit mode (-a). The bare
-    # mode (-b) removes any leading directory information. This enables
-    # us to check files without changing directories with pushd/popd.
-    log_info_message "Verifying the integrity of the archive ${archive_filename} ..."
-    if hashdeep -a -b -v -v -k "${download_dir}/${hashes_filename}" "${download_dir}/${archive_filename}"
-    then
-        log_info_message "Validated archive ${archive_filename}"
-    else
-        log_error_message "Validation failed"
-        exit 1
-    fi
-    return 0
-}
-
-
 # Function download_from_gitlab
 #
 # The normal timestamping with wget or aria2c does not work with GitLab,
@@ -788,52 +734,55 @@ function download_and_verify ()
 #
 # The approach in the script is:
 #
-# - save the server response to a text file
-# - on the next download run, extract the Etag and create a custom header
-#   with the conditional request "If-None-Match: <Etag>"
-# - only wget was tested so far
+# - Extract the ETag header from the server response and save it to the
+#   file SelfUpdateVersion-static.txt, which serves as an ETag database.
+# - On the next download run, the Etag is used to create a custom header
+#   with the conditional request "If-None-Match: <Etag>".
+# - The server may respond with "200 OK" and send the file, or with
+#   "304 Not Modified" and omit the download.
+# - Only wget was tested so far.
 
 function download_from_gitlab ()
 {
     local download_dir="$1"
     local download_link="$2"
     local filename="${download_link##*/}"
-    local old_etag="na"  # the Etag is not available on the first download
-    local new_etag="na"
+    local pathname="${download_dir}/${filename}"
+    local old_etag=""
     local -i result_code="0"
+
+    # Reset global variables
+    global_server_response=""
+    global_new_etag=""
+    global_result_code=""
 
     mkdir -p "${download_dir}"
 
-    # Search for the server response of a previous download run, and
-    # extract the Etag header.
+    log_info_message "Downloading/validating ${filename} ..."
+    # If the file already exists, it will be renamed to filename.bak. This
+    # allows wget to save a new file with the original filename; otherwise
+    # it will create additional copies with incremental numbers like
+    # filename.1 and filename.2.
     #
     # Conditional headers should only be used, if the file has been
     # downloaded previously. This may become a problem, if the download
     # directory is a moving target, e.g. the scripts update-generator.bash
     # and download-updates.bash create new temporary directories with
     # random names on each run.
-    if [[ -f "${download_dir}/${filename}" \
-       && -f "${cache_dir}/${filename}.headers" ]]
+    rm -f "${pathname}.bak"
+    if [[ -f "${pathname}" ]]
     then
-        if old_etag="$( grep -F "Etag: " "${cache_dir}/${filename}.headers" )"
-        then
-            # Delete the string "  Etag: " from the beginning. This is
-            # done in two steps to be compatible with both wget options
-            # --debug and --server-response (but only one should be used).
-            #
-            # The correct quoting can be tricky, because the Etag contains
-            # double quotation marks itself, but the shell takes care
-            # of that. This can be tested with:
-            #
-            # $ declare -p old_etag
-            # declare -- old_etag="W/\"1d31658969f7e57c970bdbb3ef7b14a8\""
-            old_etag="${old_etag#  }"
-            old_etag="${old_etag#Etag: }"
-        fi
+        log_info_message "Renaming file ${filename} to ${filename}.bak..."
+        mv "${pathname}" "${pathname}.bak"
+
+        # Get the previous ETag from the ETag database
+        old_etag="$( read_setting                               \
+                    "${temp_dir}/SelfUpdateVersion-static.txt"  \
+                    "${filename}"                               \
+                   )" || true
     fi
 
-    log_info_message "Downloading/validating ${download_link} ..."
-    if [[ "${old_etag}" == "na" ]]
+    if [[ -n "${old_etag}" ]]
     then
         # wget prints all messages to error output, including all
         # regular status messages. The standard output is reserved for
@@ -841,72 +790,115 @@ function download_from_gitlab ()
         # for analysis or direct playback.
         #
         # The progress bar in wget cannot be used, if the output is
-        # redirected to a file.
+        # redirected to a file or a pipe.
         #
         # Using the shell option errexit or a trap on ERR require some
         # workaround to check the result code.
-        wget --server-response                        \
-             --timeout=60 --tries=10 --waitretry=10   \
-             --progress=dot:mega                      \
-             --directory-prefix="${download_dir}"     \
-             "${download_link}"                       \
-             2> "${cache_dir}/${filename}.headers"    \
-             && result_code="0" || result_code="$?"
+        {
+            wget --server-response                        \
+                 --timeout=60 --tries=10 --waitretry=10   \
+                 --progress=dot:mega                      \
+                 --directory-prefix="${download_dir}"     \
+                 --header="If-None-Match: ${old_etag}"    \
+                 "${download_link}"                       \
+                 2>&1                                     \
+                 && result_code="0" || result_code="$?"
+            # The value of the local variable result_code will be
+            # lost, because bash runs each part of a pipe in an own
+            # subshell. Using the global variable global_result_code
+            # doesn't help at this point, nor does "export result_code".
+            #
+            # The workaround here is to print the variable and to
+            # filter for this line in the function parse_output. Since
+            # parse_output is the last element of the pipe, it can set
+            # global variables, if the shell option lastpipe is used.
+            #
+            # Other shells like zsh handle this better by running the
+            # whole pipe in the same environment.
+            printf '%s\n' "wget-result-code: ${result_code}"
+        } | parse_output >> "${logfile}"
     else
-        wget --server-response                        \
-             --timeout=60 --tries=10 --waitretry=10   \
-             --progress=dot:mega                      \
-             --directory-prefix="${download_dir}"     \
-             --header="If-None-Match: ${old_etag}"    \
-             "${download_link}"                       \
-             2> "${cache_dir}/${filename}.headers"    \
-             && result_code="0" || result_code="$?"
+        {
+            wget --server-response                        \
+                 --timeout=60 --tries=10 --waitretry=10   \
+                 --progress=dot:mega                      \
+                 --directory-prefix="${download_dir}"     \
+                 "${download_link}"                       \
+                 2>&1                                     \
+                 && result_code="0" || result_code="$?"
+            printf '%s\n' "wget-result-code: ${result_code}"
+        } | parse_output >> "${logfile}"
     fi
 
-    # Copy the server response to the logfile
-    cat "${cache_dir}/${filename}.headers" >> "${logfile}"
+    # Global variables as set by the filter function parse_output
+    #log_debug_message "Filename:          ${filename}"
+    #log_debug_message "Server response:   ${global_server_response}"
+    #log_debug_message "Wget result code:  ${global_result_code}"
+    #log_debug_message "Old Etag:          ${old_etag}"
+    #log_debug_message "New Etag:          ${global_new_etag}"
 
     # Check the wget result code
-    case "${result_code}" in
+    case "${global_result_code}" in
         0)
-            if grep -F -q "200 OK" "${cache_dir}/${filename}.headers"
-            then
-                log_info_message "Server response \"200 OK\". Download successful."
-            fi
+            case "${global_server_response}" in
+                "200 OK" )
+                    log_info_message "Server response \"200 OK\". Download successful."
+                ;;
+                * )
+                    log_info_message "Server response \"${global_server_response}\". See the download.log for details."
+                ;;
+            esac
         ;;
         8)
-            # The server response "304 Not Modified" is expected for
-            # unchanged files. It is used for timestamping with the
-            # conditional request If-Modified-Since and for checking
-            # the Etag with If-None-Match.
-            #
-            # But without timestamping, wget will treat it as a real
-            # server error (result code 8).
-            if grep -F -q "304 Not Modified" "${cache_dir}/${filename}.headers"
-            then
-                log_info_message "Server response \"304 Not Modified\". Omitting download."
-            elif grep -F -q "404 Not Found" "${cache_dir}/${filename}.headers"
-            then
-                log_error_message "Server response \"404 Not Found\". Download failed."
-                increment_error_count
-            else
-                log_error_message "wget error 8 (server error)"
-                increment_error_count
-            fi
+            case "${global_server_response}" in
+                # The server response "304 Not Modified" is expected for
+                # unchanged files. It is used for timestamping with the
+                # conditional request If-Modified-Since and for checking
+                # the Etag with If-None-Match.
+                #
+                # But without timestamping, wget will treat it as a real
+                # server error (result code 8).
+                "304 Not Modified" )
+                    log_info_message "Server response \"304 Not Modified\". Omitting download."
+                    global_result_code=0
+                ;;
+                # The server response "412 Precondition Failed" is the
+                # expected answer, if the conditional headers If-Match
+                # and If-Unmodified-Since are used and the condition
+                # was not met.
+                #
+                # This response is not an error either.
+                "412 Precondition Failed" )
+                    log_info_message "Server response \"412 Precondition Failed\". Omitting download."
+                    global_result_code=0
+                ;;
+                * )
+                    log_error_message "Server response \"${global_server_response}\". Download failed. See the download.log for details."
+                    increment_error_count
+                ;;
+            esac
         ;;
         *)
-            log_error_message "Unknown wget error ${result_code}"
+            log_error_message "Unknown wget error ${global_result_code}. See the download.log for details."
             increment_error_count
         ;;
     esac
 
-    # Without timestamping, wget will not overwrite existing files,
-    # but create new files with incremental numbers.
-    if [[ -f "${download_dir}/${filename}" && -f "${download_dir}/${filename}.1" ]]
+    # If a new file was downloaded, then the backup file can be deleted.
+    # Otherwise, the backup file, if existing, will be restored.
+    if [[ -f "${pathname}" ]]
     then
-        log_info_message "Renaming ${filename}.1 to ${filename} ..."
-        rm "${download_dir}/${filename}"
-        mv "${download_dir}/${filename}.1" "${download_dir}/${filename}"
+        if [[ -f "${pathname}.bak" ]]
+        then
+            log_info_message "Deleting backup file ${filename}.bak..."
+            rm "${pathname}.bak"
+        fi
+    else
+        if [[ -f "${pathname}.bak" ]]
+        then
+            log_info_message "Restoring backup file ${filename}.bak..."
+            mv "${pathname}.bak" "${pathname}"
+        fi
     fi
 
     # Changes to configuration files often require post-processing:
@@ -925,19 +917,16 @@ function download_from_gitlab ()
     #
     # Since we already use the Etag for download, we can also use this
     # unique identifier locally to track file changes.
-    if [[ -f "${download_dir}/${filename}" \
-       && -f "${cache_dir}/${filename}.headers" ]]
+    if [[ -f "${pathname}"  \
+       && -n "${global_new_etag}"           \
+       && "${global_new_etag}" != "${old_etag}" ]]
     then
-        if new_etag="$( grep -F "Etag: " "${cache_dir}/${filename}.headers" )"
-        then
-            new_etag="${new_etag#  }"
-            new_etag="${new_etag#Etag: }"
-        fi
-    fi
+        log_info_message "Saving new ETag to database..."
+        write_setting "${temp_dir}/SelfUpdateVersion-static.txt"  \
+                      "${filename}"                               \
+                      "${global_new_etag}"
 
-    if [[ "${new_etag}" != "na" \
-       && "${new_etag}" != "${old_etag}" ]]
-    then
+        # Post-processing
         case "${filename}" in
             SelfUpdateVersion-recent.txt           \
             | StaticDownloadLink-recent.txt        \
@@ -968,6 +957,89 @@ function download_from_gitlab ()
                 reevaluate_all_updates
             ;;
         esac
+    fi
+
+    return 0
+}
+
+
+# The function parse_output reads reads the output from wget, to extract
+# the server response and the ETag. It also reads the wget result code
+# and copies it the the global variable global_result_code. As a filter
+# function, it reads from standard input and writes to standard output.
+
+function parse_output ()
+{
+    local line=""
+    local ignored_field=""
+
+    # Reset global variables
+    global_server_response=""
+    global_new_etag=""
+    global_result_code=""
+
+    # IFS is set to an empty string, to read a complete line including
+    # leading and trailing spaces. This preserves the formatting of the
+    # wget output.
+    while IFS="" read -r line
+    do
+        # The server response is indented by two spaces, if the wget
+        # option --server-response is used. It is left-aligned, if the
+        # --debug option is used.
+        case "${line}" in
+            "  HTTP/1.1"* | "HTTP/1.1"* )
+                # Using the default IFS conveniently removes leading
+                # spaces
+                read -r ignored_field global_server_response <<< "${line}"
+                printf '%s\n' "${line}"
+            ;;
+            "  Etag:"* | "Etag:"* )
+                read -r ignored_field global_new_etag <<< "${line}"
+                printf '%s\n' "${line}"
+            ;;
+            "wget-result-code:"* )
+                read -r ignored_field global_result_code <<< "${line}"
+            ;;
+            *)
+                # Copy all other lines unmodified to the output
+                printf '%s\n' "${line}"
+            ;;
+        esac
+    done
+
+    return 0
+}
+
+
+# function copy_etag_database
+#
+# Make a copy of the file "../static/SelfUpdateVersion-static.txt"
+# with Linux line endings.
+
+function copy_etag_database ()
+{
+    if [[ -s "../static/SelfUpdateVersion-static.txt" ]]
+    then
+        log_info_message "Copying ETag database..."
+        filter_cr < "../static/SelfUpdateVersion-static.txt" \
+                  > "${temp_dir}/SelfUpdateVersion-static.txt"
+    fi
+
+    return 0
+}
+
+
+# function restore_etag_database
+#
+# Copy the temporary file back and change the line endings to DOS style.
+
+function restore_etag_database ()
+{
+    if [[ -s "${temp_dir}/SelfUpdateVersion-static.txt" ]]
+    then
+        log_info_message "Restoring ETag database..."
+        todos_line_endings < "${temp_dir}/SelfUpdateVersion-static.txt" \
+                           > "../static/SelfUpdateVersion-static.txt"
     fi
 
     return 0
@@ -1058,5 +1130,6 @@ set_wget_progress_style
 configure_downloaders
 export_proxy_servers
 test_internet_connection
+copy_etag_database
 echo ""
 return 0

@@ -148,6 +148,12 @@ function wsusoffline_initial_installation
     fi
 
     log_info_message "The most recent version of WSUS Offline Update is ${wou_available_version}."
+    if [[ "${home_directory}" == */sh ]]
+    then
+        log_error_message "For an initial installation of wsusoffline by the Linux scripts, you should NOT rename the script directory to \"sh\", because this directory will be overwritten during installation. This may replace the running script with a previous version."
+        log_error_message "The script will exit now."
+        exit 1
+    fi
     log_warning_message "Note, that the wsusoffline archive will be unpacked OUTSIDE of the Linux scripts directory. At this point, you should have created an enclosing directory, which contains the Linux scripts directory, and which will also get the contents of the wsusoffline archive."
     log_warning_message "The target directory, to which the wsusoffline archive will be extracted, is \"${wsusoffline_directory}\". Do you wish to proceed and install the wsusoffline archive into this directory?"
     read -r -p "[Y|n]: " answer || true
@@ -410,6 +416,7 @@ function wsusoffline_self_update ()
         check_custom_static_links
         normalize_file_permissions
         reschedule_updates_after_wou_update
+        restore_etag_database
         update_timestamp "${wou_timestamp_file}"
         restart_script
     else
@@ -491,6 +498,10 @@ function reschedule_updates_after_wou_update ()
     reevaluate_all_updates
     rm -f "../timestamps/check-sh-version.txt"
     rm -f "../timestamps/update-configuration-files.txt"
+    # Delete SDD index files
+    rm -f "../static/sdd/StaticDownloadFiles-modified.txt"
+    rm -f "../static/sdd/ExcludeDownloadFiles-modified.txt"
+    rm -f "../static/sdd/StaticUpdateFiles-modified.txt"
     # Lists of superseded updates, Windows version
     rm -f "../exclude/ExcludeList-superseded.txt"
     rm -f "../exclude/ExcludeList-superseded-seconly.txt"
