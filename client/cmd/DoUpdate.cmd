@@ -1481,7 +1481,7 @@ goto EoF
 :EoF
 cd ..
 echo Ending WSUS Offline Update - Community Edition - at %TIME%...
-call :Log "Info: Ending WSUS Offline Update- Community Edition"
+call :Log "Info: Ending WSUS Offline Update - Community Edition"
 title %ComSpec%
 if "%RECALL_REQUIRED%"=="1" (
   verify other 2>nul
