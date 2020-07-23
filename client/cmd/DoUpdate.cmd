@@ -273,26 +273,63 @@ if /i "%OS_ARCH%"=="x64" (
 )
 echo Medium does not support Microsoft Windows (%OS_NAME% %OS_ARCH% %OS_LANG%).
 call :Log "Info: Medium does not support Microsoft Windows (%OS_NAME% %OS_ARCH% %OS_LANG%)"
+if not "%OFC_INSTALLED%"=="1" goto InvalidMedium
 set JUST_OFFICE=1
 
 :CheckOfficeMedium
-if "%OFC_NAME%"=="" (if "%JUST_OFFICE%"=="1" (goto InvalidMedium) else (goto ProperMedium))
+if not "%OFC_INSTALLED%"=="1" (if "%JUST_OFFICE%"=="1" (goto InvalidMedium) else (goto ProperMedium))
+set OFFICE_SUPPORTED=0
+if not "%O2K10_VER_MAJOR%"=="" (
+  if exist ..\o2k10\%O2K10_LANG%\nul (
+    echo Medium supports Microsoft Office ^(o2k10 %O2K10_LANG%^).
+    call :Log "Info: Medium supports Microsoft Office (o2k10 %O2K10_LANG%)"
+    set OFFICE_SUPPORTED=1
+  ) else if exist ..\o2k10\glb\nul (
+    echo Medium supports Microsoft Office ^(o2k10 glb^).
+    call :Log "Info: Medium supports Microsoft Office (o2k10 glb)"
+    set OFFICE_SUPPORTED=1
+  )
+)
+if not "%O2K13_VER_MAJOR%"=="" (
+  if exist ..\o2k13\%O2K13_LANG%\nul (
+    echo Medium supports Microsoft Office ^(o2k13 %O2K13_LANG%^).
+    call :Log "Info: Medium supports Microsoft Office (o2k13 %O2K13_LANG%)"
+    set OFFICE_SUPPORTED=1
+  ) else if exist ..\o2k13\glb\nul (
+    echo Medium supports Microsoft Office ^(o2k13 glb^).
+    call :Log "Info: Medium supports Microsoft Office (o2k13 glb)"
+    set OFFICE_SUPPORTED=1
+  )
+)
+if not "%O2K16_VER_MAJOR%"=="" (
+  if exist ..\o2k16\%O2K16_LANG%\nul (
+    echo Medium supports Microsoft Office ^(o2k16 %O2K16_LANG%^).
+    call :Log "Info: Medium supports Microsoft Office (o2k13 %O2K16_LANG%)"
+    set OFFICE_SUPPORTED=1
+  ) else if exist ..\o2k16\glb\nul (
+    echo Medium supports Microsoft Office ^(o2k16 glb^).
+    call :Log "Info: Medium supports Microsoft Office (o2k16 glb)"
+    set OFFICE_SUPPORTED=1
+  )
+)
 if not "%OFC_LANG%"=="" (
   for %%l in (%OFC_LANG%) do (
     if exist ..\ofc\%%l\nul (
       echo Medium supports Microsoft Office ^(ofc %%l^).
       call :Log "Info: Medium supports Microsoft Office (ofc %%l)"
-      goto ProperMedium
+      set OFFICE_SUPPORTED=1
     )
   )
 )
 if exist ..\ofc\glb\nul (
   echo Medium supports Microsoft Office ^(ofc glb^).
   call :Log "Info: Medium supports Microsoft Office (ofc glb)"
-  goto ProperMedium
+  set OFFICE_SUPPORTED=1
 )
-echo Medium does not support Microsoft Office (ofc glb).
-call :Log "Info: Medium does not support Microsoft Office (ofc glb)"
+if "%OFFICE_SUPPORTED%"=="1" goto ProperMedium
+
+echo Medium does not support Microsoft Office.
+call :Log "Info: Medium does not support Microsoft Office"
 if "%JUST_OFFICE%"=="1" goto InvalidMedium
 :ProperMedium
 
@@ -1127,7 +1164,7 @@ set WDDEFS_VER_TARGET_BUILD=
 set WDDEFS_VER_TARGET_REVIS=
 
 :JustOffice
-if "%OFC_NAME%"=="" goto SkipOffice
+if not "%OFC_INSTALLED%"=="1" goto SkipOffice
 rem *** Check Office Service Pack versions ***
 echo Checking Office Service Pack versions...
 if exist "%TEMP%\MissingUpdateIds.txt" del "%TEMP%\MissingUpdateIds.txt"
