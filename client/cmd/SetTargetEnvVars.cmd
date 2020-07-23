@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 if "%OS_RAM_GB%"=="" (
   if /i "%OS_ARCH%"=="x86" (set UPDATES_PER_STAGE=60) else (set UPDATES_PER_STAGE=40)

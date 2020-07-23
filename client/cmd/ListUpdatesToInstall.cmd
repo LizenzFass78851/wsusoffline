@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -157,7 +158,7 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         )
       )
     )
-	rem FIXME
+    rem FIXME
     for %%k in (%OFC_LANG% glb) do (
       if exist ..\ofc\UpdateTable-ofc-%%k.csv (
         for /F "tokens=1,2 delims=," %%l in (..\ofc\UpdateTable-ofc-%%k.csv) do (
