@@ -1,5 +1,5 @@
 ' *** Author: T. Wittrock, Kiel ***
-' ***   - Commnuity Edition -   ***
+' ***   - Community Edition -   ***
 
 Option Explicit
 
@@ -23,6 +23,7 @@ Private Const strRegKeyPowerCfg               = "HKCU\Control Panel\PowerCfg\"
 Private Const strRegValVersion                = "Version"
 Private Const strRegValRelease                = "Release"
 Private Const strRegValDisplayVersion         = "DisplayVersion"
+Private Const strRegValUBR                    = "UBR"
 Private Const strRegValBuildLabEx             = "BuildLabEx"
 Private Const strRegValInstallationType       = "InstallationType"
 Private Const strRegValPShVersion             = "PowerShellVersion"
@@ -405,11 +406,16 @@ Set objCmdFile = objFileSystem.CreateTextFile(strCmdFileName, True)
 Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
 ' Documentation: http://msdn.microsoft.com/en-us/library/aa394239(VS.85).aspx
 For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingSystem")
-  strBuildLabEx = RegRead(wshShell, strRegKeyWindowsVersion & strRegValBuildLabEx)
-  If strBuildLabEx = "" Then
-    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version
+  If RegExists(strRegKeyWindowsVersion, strRegValUBR) Then
+    strUBR = RegRead(wshShell, strRegKeyWindowsVersion & strRegValUBR)
+    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & "." & strUBR
   Else
-    WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
+    strBuildLabEx = RegRead(wshShell, strRegKeyWindowsVersion & strRegValBuildLabEx)
+    If strBuildLabEx = "" Then
+      WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version
+    Else
+      WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
+    End If
   End If
   objCmdFile.WriteLine("set OS_SP_VER_MAJOR=" & objQueryItem.ServicePackMajorVersion)
   objCmdFile.WriteLine("set OS_SP_VER_MINOR=" & objQueryItem.ServicePackMinorVersion)

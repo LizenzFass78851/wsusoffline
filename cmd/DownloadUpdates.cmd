@@ -240,6 +240,7 @@ if not exist %CSCRIPT_PATH% goto NoCScript
 if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (
   if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (set WGET_PATH=..\bin\wget.exe)
 )
+if not exist %WGET_PATH% goto NoWGet
 if exist custom\SetAria2EnvVars.cmd (
   call ActivateAria2Downloads.cmd /reload
   call custom\SetAria2EnvVars.cmd
@@ -375,6 +376,13 @@ if exist ..\xslt\ExtractDownloadLinks-w62-x86-glb.xsl del ..\xslt\ExtractDownloa
 rem *** Windows 10 Version 1511 stuff ***
 if exist ..\client\static\StaticUpdateIds-w100-10586-x64.txt del ..\client\static\StaticUpdateIds-w100-10586-x64.txt
 if exist ..\client\static\StaticUpdateIds-w100-10586-x86.txt del ..\client\static\StaticUpdateIds-w100-10586-x86.txt
+
+rem *** Windows 10 Version 1703 stuff ***
+if exist ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt del ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt
+if exist ..\client\static\StaticUpdateIds-w100-15063-dotnet4-528049.txt del ..\client\static\StaticUpdateIds-w100-15063-dotnet4-528049.txt
+if exist ..\client\static\StaticUpdateIds-w100-15063-x64.txt del ..\client\static\StaticUpdateIds-w100-15063-x64.txt
+if exist ..\client\static\StaticUpdateIds-w100-15063-x86.txt del ..\client\static\StaticUpdateIds-w100-15063-x86.txt
+if exist ..\client\static\StaticUpdateIds-wupre-w100-15063.txt del ..\client\static\StaticUpdateIds-wupre-w100-15063.txt
 
 rem *** Office and invcif.exe stuff ***
 if exist ..\static\StaticDownloadLinks-inventory.txt del ..\static\StaticDownloadLinks-inventory.txt
@@ -523,7 +531,7 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 call :Log "Info: Preserved custom language and architecture additions and removals"
 
 echo Updating static and exclude definitions for download and update...
-call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadFiles-modified.txt ..\static
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadFiles-modified.txt ..\static\sdd
 if not "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update StaticDownloadFiles-modified.txt"
   goto SkipSDDDownload
@@ -539,7 +547,7 @@ if exist ..\static\sdd\StaticDownloadFiles-modified.txt (
     )
   )
 )
-call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeDownloadFiles-modified.txt ..\exclude
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeDownloadFiles-modified.txt ..\static\sdd
 if not "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update ExcludeDownloadFiles-modified.txt"
   goto SkipSDDDownload
@@ -555,7 +563,7 @@ if exist ..\static\sdd\ExcludeDownloadFiles-modified.txt (
     )
   )
 )
-call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticUpdateFiles-modified.txt ..\client\static
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticUpdateFiles-modified.txt ..\static\sdd
 if not "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update StaticUpdateFiles-modified.txt"
   goto SkipSDDDownload
@@ -2026,6 +2034,13 @@ goto Error
 echo.
 echo ERROR: VBScript interpreter %CSCRIPT_PATH% not found.
 call :Log "Error: VBScript interpreter %CSCRIPT_PATH% not found"
+echo.
+goto Error
+
+:NoWGet
+echo.
+echo ERROR: Download utility %WGET_PATH% not found.
+call :Log "Error: Download utility %WGET_PATH% not found"
 echo.
 goto Error
 
