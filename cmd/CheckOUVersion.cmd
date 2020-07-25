@@ -26,7 +26,7 @@ shift /1
 goto EvalParams
 
 :NoMoreParams
-rem *** Check WSUS Offline Update version ***
+rem *** Check WSUS Offline Update - Community Edition - version ***
 if "%QUIET_MODE%"=="1" goto justCheckForUpdates
 title Checking WSUS Offline Update - Community Edition - version...
 echo Checking WSUS Offline Update - Community Edition - version...

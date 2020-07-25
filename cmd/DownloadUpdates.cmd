@@ -359,18 +359,6 @@ del /Q ..\xslt\*-w2k3-*.* >nul 2>&1
 rem *** Windows language specific stuff ***
 del /Q ..\static\*-win-x86-*.* >nul 2>&1
 
-rem *** Windows 8 stuff ***
-if exist ..\client\static\StaticUpdateIds-w62-x86.txt del ..\client\static\StaticUpdateIds-w62-x86.txt
-if exist ..\exclude\ExcludeList-w62-x86.txt del ..\exclude\ExcludeList-w62-x86.txt
-if exist ..\exclude\ExcludeListISO-w62-x86.txt del ..\exclude\ExcludeListISO-w62-x86.txt
-if exist ..\exclude\ExcludeListUSB-w62-x86.txt del ..\exclude\ExcludeListUSB-w62-x86.txt
-if exist ..\static\StaticDownloadLinks-w62-x86-glb.txt del ..\static\StaticDownloadLinks-w62-x86-glb.txt
-if exist ..\xslt\ExtractDownloadLinks-w62-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w62-x86-glb.xsl
-
-rem *** Windows 10 Version 1511 stuff ***
-if exist ..\client\static\StaticUpdateIds-w100-10586-x64.txt del ..\client\static\StaticUpdateIds-w100-10586-x64.txt
-if exist ..\client\static\StaticUpdateIds-w100-10586-x86.txt del ..\client\static\StaticUpdateIds-w100-10586-x86.txt
-
 rem *** Windows Vista / Server 2008 stuff ***
 if exist ..\client\static\StaticUpdateIds-ie9-w60.txt del ..\client\static\StaticUpdateIds-ie9-w60.txt
 if exist ..\client\static\StaticUpdateIds-w60-x64.txt del ..\client\static\StaticUpdateIds-w60-x64.txt
@@ -426,6 +414,18 @@ if exist ..\client\static\StaticDownloadLinks-w61-x64-5lg.txt del ..\client\stat
 if exist ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt del ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt
 if exist ..\client\static\StaticDownloadLinks-w61-x64-alg.txt del ..\client\static\StaticDownloadLinks-w61-x64-alg.txt
 if exist ..\client\static\StaticDownloadLinks-w61-x86-alg.txt del ..\client\static\StaticDownloadLinks-w61-x86-alg.txt
+
+rem *** Windows 8 stuff ***
+if exist ..\client\static\StaticUpdateIds-w62-x86.txt del ..\client\static\StaticUpdateIds-w62-x86.txt
+if exist ..\exclude\ExcludeList-w62-x86.txt del ..\exclude\ExcludeList-w62-x86.txt
+if exist ..\exclude\ExcludeListISO-w62-x86.txt del ..\exclude\ExcludeListISO-w62-x86.txt
+if exist ..\exclude\ExcludeListUSB-w62-x86.txt del ..\exclude\ExcludeListUSB-w62-x86.txt
+if exist ..\static\StaticDownloadLinks-w62-x86-glb.txt del ..\static\StaticDownloadLinks-w62-x86-glb.txt
+if exist ..\xslt\ExtractDownloadLinks-w62-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w62-x86-glb.xsl
+
+rem *** Windows 10 Version 1511 stuff ***
+if exist ..\client\static\StaticUpdateIds-w100-10586-x64.txt del ..\client\static\StaticUpdateIds-w100-10586-x64.txt
+if exist ..\client\static\StaticUpdateIds-w100-10586-x86.txt del ..\client\static\StaticUpdateIds-w100-10586-x86.txt
 
 rem *** Windows 10 Version 1703 stuff ***
 if exist ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt del ..\client\static\StaticUpdateIds-w100-15063-dotnet.txt
