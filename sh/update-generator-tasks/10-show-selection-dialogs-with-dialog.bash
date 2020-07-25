@@ -130,11 +130,14 @@ declare -A all_values=(
 # all keys must be created manually.
 
 all_keys=(
-    w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 o2k10
-    o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64 all all-x86 all-x64 all-win
-    all-win-x86 all-win-x64 all-ofc all-ofc-x86 deu enu ara chs cht csy
-    dan nld fin fra ell heb hun ita jpn kor nor plk ptg ptb rus esn sve
-    trk sp cpp dotnet wddefs msse wddefs8
+    w60 w60-x64 w61 w61-x64
+    w62-x64 w63 w63-x64 w100 w100-x64
+    o2k10 o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64
+    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
+    all-ofc-x86
+    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
+    plk ptg ptb rus esn sve trk
+    sp cpp dotnet wddefs msse wddefs8
 )
 
 download_parameters=()
@@ -237,16 +240,9 @@ function show_selection_dialogs_with_dialog ()
 
     # The three selection dialogs must be defined locally to have the
     # values evaluated at runtime.
-    #
-    # IMPORTANT NOTE
-    #     The branch WSUS Offline Update 11.9.x ESR was created to
-    #     support Windows 7 / Server 2008 R2 in particular.
-    #
-    #     Use WSUS Offline Update 12.0 or later for all other updates
-    #     listed below.
     local -a updates_dialog=(
-        w60           "Windows Server 2008, 32-bit             (deprecated)"  "${all_values[w60]}"
-        w60-x64       "Windows Server 2008, 64-bit             (deprecated)"  "${all_values[w60-x64]}"
+        w60           "Windows Server 2008, 32-bit"                           "${all_values[w60]}"
+        w60-x64       "Windows Server 2008, 64-bit"                           "${all_values[w60-x64]}"
         w61           "Windows 7, 32-bit"                                     "${all_values[w61]}"
         w61-x64       "Windows 7 / Server 2008 R2, 64-bit"                    "${all_values[w61-x64]}"
         w62-x64       "Windows Server 2012, 64-bit             (deprecated)"  "${all_values[w62-x64]}"
@@ -260,7 +256,7 @@ function show_selection_dialogs_with_dialog ()
         o2k13-x64     "Office 2013, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k13-x64]}"
         o2k16         "Office 2016, 32-bit                     (deprecated)"  "${all_values[o2k16]}"
         o2k16-x64     "Office 2016, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k16-x64]}"
-        all           "All Windows and Office updates          (deprecated)"  "${all_values[all]}"
+        all           "All Windows and Office updt, 32/64-bit  (deprecated)"  "${all_values[all]}"
         all-x86       "All Windows and Office updates, 32-bit  (deprecated)"  "${all_values[all-x86]}"
         all-x64       "All Windows and Office updates, 64-bit  (deprecated)"  "${all_values[all-x64]}"
         all-win       "All Windows updates, 32-bit and 64-bit  (deprecated)"  "${all_values[all-win]}"
@@ -321,7 +317,8 @@ function show_selection_dialogs_with_dialog ()
         if update_list="$(dialog \
             --title "Update selection" \
             --stdout \
-            --checklist "Please select your updates:" 0 0 0 "${updates_dialog[@]}" \
+            --checklist "Please select your updates:" 0 0 0 \
+                        "${updates_dialog[@]}" \
             )"
         then
             :
@@ -338,7 +335,8 @@ function show_selection_dialogs_with_dialog ()
         if language_list="$(dialog \
             --title "Language selection" \
             --stdout \
-            --checklist "Please select your languages:" 0 0 0 "${languages_dialog[@]}" \
+            --checklist "Please select your languages:" 0 0 0 \
+                        "${languages_dialog[@]}" \
             )"
         then
             :
@@ -347,12 +345,14 @@ function show_selection_dialogs_with_dialog ()
         fi
     done
 
-    # Optional downloads: Service packs are selected on the first run. The
-    # list of optional downloads may be empty, if none is selected.
+    # Optional downloads: Service packs are selected on the first run,
+    # but it can be unchecked. The list of optional downloads may be
+    # empty, if none is selected.
     if option_list="$(dialog \
         --title "Optional downloads" \
         --stdout \
-        --checklist "Please select the downloads to include:" 0 0 0 "${options_dialog[@]}" \
+        --checklist "Please select the downloads to include:" 0 0 0 \
+                    "${options_dialog[@]}" \
         )"
     then
         :
@@ -381,16 +381,16 @@ function show_selection_dialogs_with_dialog ()
     fi
 
     # Print summary and confirm download command
-    confirmation="Your selections are:\n
-\n
-* Updates: ${update_list}\n
-* Languages: ${language_list}\n
-* Included downloads: ${option_list}\n
-\n
-The command to download the updates is:\n
-\n
-./download-updates.bash ${download_parameters[*]}\n
-\n
+    confirmation="Your selections are:\\n
+\\n
+* Updates: ${update_list}\\n
+* Languages: ${language_list}\\n
+* Included downloads: ${option_list}\\n
+\\n
+The command to download the updates is:\\n
+\\n
+./download-updates.bash ${download_parameters[*]}\\n
+\\n
 Do you wish to run it now?"
 
     if dialog --title "Summary" --yesno "${confirmation}" 0 0

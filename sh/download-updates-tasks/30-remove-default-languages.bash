@@ -39,10 +39,11 @@
 # ========== Configuration ================================================
 
 # The localized installers for Internet Explorer 11 on Windows Server
-# 2012 are handled similar to the .NET Frameworks: The English installers
-# are always downloaded and installed. Other languages are supported
-# with language packs. Therefore, this script can only remove the German
-# installers for dotnet and w62, but not the English installers.
+# 2012 are handled similar to the .NET Frameworks: The English
+# installers are always downloaded and installed - these are the
+# only full installers. Other languages are supported with language
+# packs. Therefore, this script can only remove the German installers
+# for dotnet and w62, but not the English installers.
 
 german_source_files=(
     "../static/StaticDownloadLinks-dotnet.txt"
@@ -74,19 +75,22 @@ function remove_german_language_support ()
     local pathname=""
 
     log_debug_message "Removing German language support..."
-    for pathname in "${german_source_files[@]}"
-    do
-        if grep -F -i -q -e 'deu.' -e 'de.' -e 'de-de' "${pathname}"
-        then
-            log_debug_message "Removing German installers from ${pathname}"
-            mv "${pathname}" "${pathname}.bak"
-            grep -F -i -v -e 'deu.' -e 'de.' -e 'de-de' "${pathname}.bak" \
-                > "${pathname}" || true
-            # Keep file modification date
-            touch -r "${pathname}.bak" "${pathname}"
-            rm "${pathname}.bak"
-        fi
-    done
+    if (( "${#german_source_files[@]}" > 0 ))
+    then
+        for pathname in "${german_source_files[@]}"
+        do
+            if grep -F -i -q -e 'deu.' -e 'de.' -e 'de-de' "${pathname}"
+            then
+                log_debug_message "Removing German installers from ${pathname}"
+                mv "${pathname}" "${pathname}.bak"
+                grep -F -i -v -e 'deu.' -e 'de.' -e 'de-de' "${pathname}.bak" \
+                    > "${pathname}" || true
+                # Keep file modification date
+                touch -r "${pathname}.bak" "${pathname}"
+                rm "${pathname}.bak"
+            fi
+        done
+    fi
     return 0
 }
 
@@ -96,19 +100,22 @@ function remove_english_language_support ()
     local pathname=""
 
     log_debug_message "Removing English language support..."
-    for pathname in "${english_source_files[@]}"
-    do
-        if grep -F -i -q -e 'enu.' -e 'us.' "${pathname}"
-        then
-            log_debug_message "Removing English installers from ${pathname}"
-            mv "${pathname}" "${pathname}.bak"
-            grep -F -i -v -e 'enu.' -e 'us.' "${pathname}.bak" \
-                > "${pathname}" || true
-            # Keep file modification date
-            touch -r "${pathname}.bak" "${pathname}"
-            rm "${pathname}.bak"
-        fi
-    done
+    if (( "${#english_source_files[@]}" > 0 ))
+    then
+        for pathname in "${english_source_files[@]}"
+        do
+            if grep -F -i -q -e 'enu.' -e 'us.' "${pathname}"
+            then
+                log_debug_message "Removing English installers from ${pathname}"
+                mv "${pathname}" "${pathname}.bak"
+                grep -F -i -v -e 'enu.' -e 'us.' "${pathname}.bak" \
+                    > "${pathname}" || true
+                # Keep file modification date
+                touch -r "${pathname}.bak" "${pathname}"
+                rm "${pathname}.bak"
+            fi
+        done
+    fi
     return 0
 }
 

@@ -43,4 +43,4 @@ pushd .. > /dev/null
 # all available attributes.
 # The option -l, --link creates hard links instead of copying the files.
 cp -a -l "client" "client_$(date '+%F_%H-%M-%S')"
-popd > /dev/null
+popd > /dev/null || exit 0

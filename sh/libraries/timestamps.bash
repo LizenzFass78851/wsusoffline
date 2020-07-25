@@ -294,8 +294,6 @@ function reevaluate_dynamic_updates ()
     then
         shopt -s nullglob
         file_list=(
-            "${timestamp_dir}"/timestamp-wxp-*.txt
-            "${timestamp_dir}"/timestamp-w2k3-*.txt
             "${timestamp_dir}"/timestamp-w60-*.txt
             "${timestamp_dir}"/timestamp-w61-*.txt
             "${timestamp_dir}"/timestamp-w62-*.txt
@@ -306,14 +304,6 @@ function reevaluate_dynamic_updates ()
             "${timestamp_dir}"/timestamp-ofc-*.txt
         )
         shopt -u nullglob
-
-        # The ESR version uses dynamic win updates.
-        if [[ "${dynamic_win_updates}" == "enabled" ]]
-        then
-            shopt -s nullglob
-            file_list+=( "${timestamp_dir}"/timestamp-win-*.txt )
-            shopt -u nullglob
-        fi
 
         if (( "${#file_list[@]}" > 0 ))
         then

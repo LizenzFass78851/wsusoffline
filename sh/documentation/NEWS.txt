@@ -1,3 +1,63 @@
+NEWS for Community Edition 1.19.2-ESR  (CE-1.19.2-ESR)
+
+   Release date: 2020-07-25
+   Development branch: esr-11.9
+   Supported versions: WSUS Offline Update, Community Edition 11.9.1-ESR
+                       and 11.9.2-ESR
+
+   This is a port of the Linux download scripts, version 1.19.1-ESR to
+   WSUS Offline Update, Community Edition 11.9.1-ESR.
+
+   Changed Features
+
+    * Self-updates are enabled again
+
+      The Extended Support Release (ESR) versions at wsusoffline.net
+      could not get updates for the configuration files, not could they
+      upgrade itself to newer versions. Therefore, it was necessary to
+      disable any self-updates in the Linux download scripts.
+
+      In the Community Edition, the master version and the branch esr-11.9
+      get different updates from separate repositories:
+
+      https://gitlab.com/wsusoffline/wsusoffline-sdd/-/tree/master
+      https://gitlab.com/wsusoffline/wsusoffline-sdd/-/tree/esr-11.9
+
+      So the self-update of WSUS Offline Update and the update of
+      configuration files were enabled again, using the same approach
+      as for the version 2.0-CE; only the base URLs were changed.
+
+      Note, that the updates from these URLs are always meant for
+      the latest official releases of the respective development
+      branches. They provide files, which were changed after the last
+      published version.
+
+      The "configuration files" are also known as "static download
+      definitions, sdd", but they now provide updates for four
+      directories: static, exclude, client/static and client/exclude.
+
+    * Supported Windows versions corrected
+
+      The development branch WSUS Offline Update 11.9.x-ESR is meant to
+      support Windows Server 2008 and Windows 7 / Server 2008 R2. The
+      current version 12.x should be used for all recent Windows versions.
+
+      This was corrected in the update selection dialog of the script
+      update-generator.bash.
+
+   Removed Features
+
+    * Removed code for unsupported Windows and Office versions
+
+      Version 1.19.1-ESR of the Linux download scripts still contained
+      code, which was meant for the first ESR version 1.1-ESR. This
+      version supported the development branch WSUS Offline Update
+      9.2.x-ESR, but it was never included in the official releases. It
+      supported Windows XP and Server 2003, Office 2003 and 2007.
+
+      This code was now removed for clarity.
+
+
 NEWS for Version 1.19.1-ESR
 
    Release date: 2020-03-14

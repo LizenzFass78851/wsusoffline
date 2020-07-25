@@ -31,43 +31,29 @@
 
 # ========== Functions ====================================================
 
-# WSUS Offline Update 11.9.1-ESR was the first release of a new ESR
-# version for Windows 7 and Server Server 2008 (R2). It included the
-# Linux download scripts version 1.19. So we need to remove some files
-# from that version, but don't go back any further.
+# WSUS Offline Update, Community Editions CE-11.9.1 and CE-12.0 are new
+# development branches.
 #
-# In an ESR version, all self-updates should be disabled:
+# Both came with the Linux download scripts, version 1.19.
 #
-# - The self-update of WSUS Offline Update should be disabled, because
-#   the next major version 12.0 does not support Windows 7 anymore.
+# Then we only need to remove obsolete files from previous versions,
+# if they are still found in version 1.19. This mainly refers to two
+# renamed files and folders: 71-make-shapshot.bash and licence. They were
+# renamed in version 1.16, but the changes never made it into svn/Trak
+# at wsusoffline.net.
 #
-# - Self-updates of the Linux scripts should be disabled as well,
-#   because their next version won't support Windows 7 either.
-#
-# - The automatic update of configuration files should be disabled,
-#   because these files always refer to the latest version of WSUS
-#   Offline Update. Also, the configuration files for Windows 7 won't
-#   get any updates this way; they are removed instead. If there are
-#   new updates for Windows 7, then this would require a complete new
-#   release of the WSUS Offline Update 11.9.x-ESR branch.
+# Version 1.19 of the Linux download scripts is the common predecessor
+# of versions 1.19.1-ESR and 1.20.
 
 function remove_obsolete_scripts ()
 {
     local old_name=""
-    local new_name=""
+    #local new_name=""
+    #local -a file_list=()
+    #local current_file=""
 
-    # Disable the self-update of WSUS Offline Update and the Linux
-    # download scripts
-    rm -f ./common-tasks/50-check-wsusoffline-version.bash
-    rm -f ./available-tasks/60-check-script-version.bash
-
-    if [[ -d ./versions ]]
-    then
-        rm -f ./versions/installed-version.txt
-        rm -f ./versions/available-version.txt
-        rmdir ./versions
-    fi
-
+    # Obsolete files in version 1.16
+    #
     # The file 71-make-shapshot.bash was spelled wrong, but this didn't
     # get noticed for a long time. But screen fonts have a large x-height
     # and only short ascenders, and then "n" and "h" can look pretty
@@ -77,12 +63,14 @@ function remove_obsolete_scripts ()
     # download scripts, version 1.16.
     # - https://forums.wsusoffline.net/viewtopic.php?f=9&t=10057
     #
-    # The new file finally made it into svn, but now there are two files:
+    # In WSUS Offline Update, version 11.9.1-ESR at wsusoffline.net,
+    # there were two files:
     #
     # ./available-tasks/71-make-shapshot.bash
     # ./available-tasks/71-make-snapshot.bash
     #
-    # So we still need to remove the old file:
+    # This was finally solved in the Community Editions 11.9.1 and
+    # 12.0. The old file, if still present, can be deleted:
 
     old_name="71-make-shapshot.bash"
     rm -f "./available-tasks/${old_name}"
@@ -91,19 +79,40 @@ function remove_obsolete_scripts ()
     # was renamed to "license" for consistency with the use of American
     # English in the gpl itself (as shown at the top of this file).
     #
-    # Rename the old directory, until the new one makes it into svn.
+    # The old directory, if still present, can be deleted.
 
     old_name="licence"
-    new_name="license"
     if [[ -d "./${old_name}" ]]
     then
-        if [[ -d "./${new_name}" ]]
-        then
-            rm -f "./${old_name}/gpl.txt"
-            rmdir "./${old_name}"
-        else
-            mv "./${old_name}" "./${new_name}"
-        fi
+        rm -f "./${old_name}/gpl.txt"
+        rmdir "./${old_name}"
+    fi
+
+    # Obsolete files in version 1.19.1-ESR
+    #
+    # Version 1.19.1-ESR of the Linux download scripts was meant for WSUS
+    # Offline Update, version 11.9.1 ESR. It disabled all self-updates,
+    # because ESR versions at wsusoffline.net could not get any updates
+    # for the static download definitions nor upgrade itself to new
+    # versions.
+    #
+    # This was changed in WSUS Offline Update, Community Edition
+    # 11.9.1, but the self-update of the Linux download scripts is
+    # still disabled. It was introduced in the first beta-versions,
+    # but it is considered obsolete by now.
+
+    rm -f ./available-tasks/60-check-script-version.bash
+
+    if [[ -d ./versions ]]
+    then
+        rm -f ./versions/installed-version.txt
+        rm -f ./versions/available-version.txt
+        rmdir ./versions
+    fi
+
+    if [[ -d ../timestamps ]]
+    then
+        rm -f ../timestamps/check-sh-version.txt
     fi
 
     return 0
@@ -112,5 +121,4 @@ function remove_obsolete_scripts ()
 # ========== Commands =====================================================
 
 remove_obsolete_scripts
-
 return 0

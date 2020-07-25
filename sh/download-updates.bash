@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: 1.19.1-ESR
-# Release date: 2020-03-14
-# Intended compatibility: WSUS Offline Update version 11.9.1-ESR
+# Version: Community Edition 1.19.2-ESR (CE-1.19.2-ESR)
+# Release date: 2020-07-25
+# Development branch: esr-11.9
+# Supported versions: WSUS Offline Update, Community Edition 11.9.1-ESR
+#                     and 11.9.2-ESR
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -40,21 +42,14 @@
 #     The interactive setup is done by the accompanying script
 #     setup-downloads.bash .
 #
-#     IMPORTANT NOTE
-#         The branch WSUS Offline Update 11.9.x ESR was created to
-#         support Windows 7 / Server 2008 R2 in particular.
-#
-#         Use WSUS Offline Update 12.0 or later for all other updates
-#         listed below.
-#
 #     USAGE
 #        ./download-updates.bash UPDATE[,UPDATE...] \
 #                                LANGUAGE[,LANGUAGE...] \
 #                                [OPTIONS]
 #
 #     UPDATE
-#         w60           Windows Server 2008, 32-bit            (deprecated)
-#         w60-x64       Windows Server 2008, 64-bit            (deprecated)
+#         w60           Windows Server 2008, 32-bit
+#         w60-x64       Windows Server 2008, 64-bit
 #         w61           Windows 7, 32-bit
 #         w61-x64       Windows 7 / Server 2008 R2, 64-bit
 #         w62-x64       Windows Server 2012, 64-bit            (deprecated)
@@ -68,7 +63,7 @@
 #         o2k13-x64     Office 2013, 32-bit and 64-bit         (deprecated)
 #         o2k16         Office 2016, 32-bit                    (deprecated)
 #         o2k16-x64     Office 2016, 32-bit and 64-bit         (deprecated)
-#         all           All Windows and Office updates         (deprecated)
+#         all           All Windows and Office updt, 32/64-bit (deprecated)
 #         all-x86       All Windows and Office updates, 32-bit (deprecated)
 #         all-x64       All Windows and Office updates, 64-bit (deprecated)
 #         all-win       All Windows updates, 32-bit and 64-bit (deprecated)
@@ -78,7 +73,7 @@
 #         all-ofc-x86   All Office updates, 32-bit             (deprecated)
 #
 #         Notes: Multiple updates can be joined to a comma-separated
-#         list like "w60,w60-x64".
+#         list like "w63,w63-x64".
 #
 #     LANGUAGE
 #         deu    German
@@ -166,6 +161,14 @@ set -o errtrace
 set -o pipefail
 shopt -s nocasematch
 
+# The shell option lastpipe is used to export variables from the last
+# section of a pipe. It is used in the function download_from_gitlab.
+#
+# According to /usr/share/doc/bash/changelog.gz, the option lastpipe was
+# introduced in bash-4.2-alpha. Therefore, the Linux download scripts
+# now require bash 4.2 and Debian 7 Wheezy or later.
+shopt -s lastpipe
+
 # ========== Environment variables ========================================
 
 # Setting LC_ALL to C sets LC_COLLATE, LC_CTYPE and LC_MESSAGES to the
@@ -187,8 +190,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19.1-ESR"
-readonly release_date="2020-03-14"
+readonly script_version="CE-1.19.2-ESR"
+readonly release_date="2020-07-25"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -409,7 +412,8 @@ function setup_working_directory ()
     # Change to the home directory of the script
     #
     # TODO: basename and dirname can be replaced with bash parameter
-    # expansions.
+    # expansions, but a complete replacement should also delete trailing
+    # slashes.
     script_name="$(basename "${canonical_name}")"
     home_directory="$(dirname "${canonical_name}")"
     cd "${home_directory}" || exit 1
@@ -434,6 +438,9 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
+    # Also create a ../static directory for an initial installation of
+    # WSUS Offline Update by the Linux download scripts
+    mkdir -p "${wsusoffline_directory}/static"
 
     return 0
 }
@@ -495,7 +502,7 @@ function run_tasks ()
         file_list=( "./${task_directory}"/*.bash )
         shopt -u nullglob
 
-        if (( ${#file_list[@]} > 0 ))
+        if (( "${#file_list[@]}" > 0 ))
         then
             for current_task in "${file_list[@]}"
             do

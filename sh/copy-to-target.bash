@@ -35,25 +35,23 @@
 # wsusoffline/exclude/ExcludeListUSB-*.txt to create the initial filter
 # file, just like the Windows script CopyToTarget.cmd. This way, the
 # files ExcludeListUSB-*.txt define the available options for the <update>
-# parameter of the script copy-to-target.bash. Supported updates are:
+# parameter of the script copy-to-target.bash.
+#
+# The supported updates for WSUS Offline Update 11.9.1 ESR and later are:
 #
 #   all           All Windows and Office updates, 32-bit and 64-bit
 #   all-x86       All Windows and Office updates, 32-bit
 #   all-win-x64   All Windows updates, 64-bit
 #   all-ofc       All Office updates, 32-bit and 64-bit
-#   wxp           Windows XP, 32-bit                    (ESR version only)
-#   w2k3          Windows Server 2003, 32-bit           (ESR version only)
-#   w2k3-x64      Windows XP / Server 2003, 64-bit      (ESR version only)
-#   w60           Windows Vista / Server 2008, 32-bit
-#   w60-x64       Windows Vista / Server 2008, 64-bit
+#   w60           Windows Server 2008, 32-bit
+#   w60-x64       Windows Server 2008, 64-bit
 #   w61           Windows 7, 32-bit
 #   w61-x64       Windows 7 / Server 2008 R2, 64-bit
-#   w62           Windows 8, 32-bit                     (ESR version only)
-#   w62-x64       Windows 8 / Server 2012, 64-bit
+#   w62-x64       Windows Server 2012, 64-bit
 #   w63           Windows 8.1, 32-bit
 #   w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
-#   w100          Windows 10, 32-bit                (current version only)
-#   w100-x64      Windows 10 / Server 2016/2019, 64-bit  (current version)
+#   w100          Windows 10, 32-bit
+#   w100-x64      Windows 10 / Server 2016/2019, 64-bit
 #
 # The corresponding files wsusoffline/exclude/ExcludeListUSB-*.txt are:
 #
@@ -61,24 +59,15 @@
 #   all-x86       ExcludeListUSB-all-x86.txt
 #   all-win-x64   ExcludeListUSB-all-x64.txt
 #   all-ofc       ExcludeListUSB-ofc.txt
-#   wxp           ExcludeListUSB-wxp-x86.txt   (ESR version only)
-#   w2k3          ExcludeListUSB-w2k3-x86.txt  (ESR version only)
-#   w2k3-x64      ExcludeListUSB-w2k3-x64.txt  (ESR version only)
 #   w60           ExcludeListUSB-w60-x86.txt
 #   w60-x64       ExcludeListUSB-w60-x64.txt
 #   w61           ExcludeListUSB-w61-x86.txt
 #   w61-x64       ExcludeListUSB-w61-x64.txt
-#   w62           ExcludeListUSB-w62-x86.txt   (ESR version only)
 #   w62-x64       ExcludeListUSB-w62-x64.txt
 #   w63           ExcludeListUSB-w63-x86.txt
 #   w63-x64       ExcludeListUSB-w63-x64.txt
-#   w100          ExcludeListUSB-w100-x86.txt  (current version only)
-#   w100-x64      ExcludeListUSB-w100-x64.txt  (current version only)
-#
-# The script copy-to-target.bash is meant to work with both the current
-# and the ESR version of WSUS Offline Update, but some updates are only
-# supported by the ESR version and vice versa. This is determined by
-# the installed files ExcludeListUSB-*.txt.
+#   w100          ExcludeListUSB-w100-x86.txt
+#   w100-x64      ExcludeListUSB-w100-x64.txt
 #
 # The files wsusoffline/exclude/ExcludeListUSB-*.txt are used with
 # xcopy.exe on Windows. They had to be edited to work with rsync on
@@ -133,7 +122,7 @@
 #   ExcludeListUSB-w100-x86.txt  -->  ExcludeListUSB-w100.txt
 #
 #
-# The Linux script copy-to-target.bash handles two options differently
+# The Linux script copy-to-target.bash handles some options differently
 # than the Windows script CopyToTarget.cmd:
 #
 # - /excludesp is replaced with -includesp.
@@ -167,26 +156,6 @@
 # use global/multilingual updates, and all Office updates are always
 # lumped together, with most updates in the directory client/ofc/glb. Then
 # the distinction by language is not needed anymore.
-#
-#
-# Known differences in the results:
-#
-# 1. The original file wsusoffline/exclude/ExcludeListISO-w60-x86.txt
-#    misses an entry for vcredist2017_x64.exe. This means, that this
-#    file is not excluded by the Windows script, if the update "w60"
-#    is selected.
-#
-# 2. The file wsusoffline/client/bin/IfAdmin.cpp is only excluded by the
-#    Windows script CopyToTarget.cmd, if the option /includedotnet is NOT
-#    used. Then the file wsusoffline/exclude/ExcludeListISO-dotnet.txt
-#    is appended to the filter file. With xcopy.exe, the line "cpp\"
-#    matches both the directory "cpp" (as expected) and the source file
-#    "IfAdmin.cpp".
-#
-#    But the file IfAdmin.cpp is neither needed for download nor for
-#    installation, and it should always be excluded. It is only included
-#    in WSUS Offline Update, because the GPL demands, that the source
-#    code of all utilities should be made available somewhere.
 #
 #
 # This script uses associative arrays to simplify the handling of
@@ -244,19 +213,15 @@ The update can be one of:
     all-x86       All Windows and Office updates, 32-bit
     all-win-x64   All Windows updates, 64-bit
     all-ofc       All Office updates, 32-bit and 64-bit
-    wxp           Windows XP, 32-bit                    (ESR version only)
-    w2k3          Windows Server 2003, 32-bit           (ESR version only)
-    w2k3-x64      Windows XP / Server 2003, 64-bit      (ESR version only)
-    w60           Windows Vista / Server 2008, 32-bit
-    w60-x64       Windows Vista / Server 2008, 64-bit
+    w60           Windows Server 2008, 32-bit
+    w60-x64       Windows Server 2008, 64-bit
     w61           Windows 7, 32-bit
     w61-x64       Windows 7 / Server 2008 R2, 64-bit
-    w62           Windows 8, 32-bit                     (ESR version only)
-    w62-x64       Windows 8 / Server 2012, 64-bit
+    w62-x64       Windows Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
-    w100          Windows 10, 32-bit                (current version only)
-    w100-x64      Windows 10 / Server 2016/2019, 64-bit  (current version)
+    w100          Windows 10, 32-bit
+    w100-x64      Windows 10 / Server 2016/2019, 64-bit
 
 The destination directory is the directory, to which files are copied
 or hard-linked. It should be specified without a trailing slash, because
@@ -374,13 +339,11 @@ function parse_command_line ()
         # Parse first parameter
         update="${1}"
         case "${update}" in
-            # These are all known parameters. Some will only be available
-            # in the current version or in the ESR version of WSUS
-            # Offline Update.
+            # These are the supported updates in WSUS Offline Update
+            # 11.9.1 ESR and later.
             all | all-x86 | all-win-x64 | all-ofc \
-            | wxp | w2k3 | w2k3-x64 \
-            | w60 | w60-x64 | w61 | w61-x64 | w62 | w62-x64 \
-            | w63 | w63-x64 | w100 | w100-x64)
+            | w60 | w60-x64 | w61 | w61-x64 \
+            | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
                 # Note, that the script uses its own copies of the
                 # exclude lists, because the filters had to be edited
                 # to be compatible with rsync.
@@ -432,7 +395,7 @@ function parse_command_line ()
                         all-ofc)
                             log_warning_message "Option -includewddefs is ignored for update all-ofc"
                         ;;
-                        w62 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+                        w62-x64 | w63 | w63-x64 | w100 | w100-x64)
                             log_warning_message "Option -includewddefs is ignored for Windows 8 and higher. Use -includemsse instead."
                         ;;
                         *)
@@ -456,17 +419,19 @@ function parse_command_line ()
                     # is "w60", then all other Windows versions will
                     # be deleted.
                     #
-                    # This option may be needed to solve some problems:
-                    # If service packs are included with -includesp,
-                    # they won't be deleted again by simply omitting this
-                    # option. Service packs are explicitly excluded with
-                    # the file wsusoffline/exclude/ExcludeList-SPs.txt,
-                    # and such files are not deleted with the rsync
-                    # option --delete; it needs the second option
-                    # --delete-excluded as well.
+                    # This option may be needed to solve one particular
+                    # problem: Files, which are excluded in rsync, are
+                    # neither copied nor deleted; they are just ignored.
                     #
-                    # The results should be tested first with the
-                    # dryrun option.
+                    # One example would be Service Packs in WSUS Offline
+                    # Update 11.9.1 ESR: If they were copied with the
+                    # option -includesp, they won't be deleted again by
+                    # simply omitting this option.
+                    #
+                    # rsync needs both options --delete and
+                    # --delete-excluded, to actually delete excluded
+                    # files. The results should be tested with the dryrun
+                    # option first.
                     rsync_parameters+=( --delete --delete-excluded )
                 ;;
                 -hardlink)
@@ -565,8 +530,8 @@ function create_filter_file ()
         else
             log_info_message "Excluding directory ${option_name} ..."
             # Excluded directories are specified with the source directory
-            # as the root of the path, e.g. "/cpp", "/dotnet", "/msse",
-            # "/wddefs". There should be no shell pattern before or
+            # as the root of the path, e.g. "/cpp", "/dotnet", "/msse"
+            # or "/wddefs". There should be no shell pattern before or
             # after the directory name.
             printf '%s\n' "/${option_name}" >> "${filter_file}"
         fi

@@ -83,7 +83,7 @@ function remind_build_date ()
         printf '%s\r\n' "[autorun]"
         printf '%s\r\n' "open=UpdateInstaller.exe"
         printf '%s\r\n' "icon=UpdateInstaller.exe,0"
-        printf '%s\r\n' "action=Run WSUS Offline Update v. ${wsusoffline_version} (${build_date})"
+        printf '%s\r\n' "action=Run WSUS Offline Update - Community Edition - v. ${wsusoffline_version} (${build_date})"
     } > "../client/autorun.inf"
     echo ""
     return 0

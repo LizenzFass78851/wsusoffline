@@ -442,33 +442,6 @@ function restore_backup_copy ()
 }
 
 
-# The function restart_script is called after a successful self update
-# of WSUS Offline Update or the Linux scripts.
-
-function restart_script ()
-{
-    log_info_message "Restarting script ${script_name} ..."
-    echo ""
-    echo "--------------------------------------------------------------------------------"
-    echo ""
-    # The scripts update-generator.bash and download-updates.bash create
-    # new temporary directories with random names on each run. The
-    # existing temporary directory must be removed at this point.
-    if [[ -d "${temp_dir}" ]]
-    then
-        #echo "Cleaning up temporary files ..."
-        rm -r "${temp_dir}"
-    fi
-    if (( ${#command_line_parameters[@]} > 0 ))
-    then
-        exec "./${script_name}" "${command_line_parameters[@]}"
-    else
-        exec "./${script_name}"
-    fi
-    return 0
-}
-
-
 function get_catalog_creationdate ()
 {
     local creation_date=""

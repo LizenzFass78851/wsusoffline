@@ -1,3 +1,24 @@
+Community Edition 1.19.2-ESR  (CE-1.19.2-ESR)
+
+   Release date: 2020-07-25
+   Development branch: esr-11.9
+   Supported versions: WSUS Offline Update, Community Edition 11.9.1-ESR
+                       and 11.9.2-ESR
+
+   This is a port of the Linux download scripts, version 1.19.1-ESR,
+   to WSUS Offline Update, Community Edition 11.9.1-ESR.
+
+   Changed Features
+
+    * Self-updates are enabled again
+
+    * Supported Windows versions corrected
+
+   Removed Features
+
+    * Removed code for unsupported Windows and Office versions
+
+
 Version 1.19.1-ESR
 
    Release date: 2020-03-14

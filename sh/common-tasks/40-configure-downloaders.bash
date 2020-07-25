@@ -110,22 +110,22 @@ no_proxy_server="${no_proxy_server:-}"
 # Wget options
 
 wget_common_options=(
-    --verbose
-    --timestamping
-    --trust-server-names
-    --timeout=60
-    --no-http-keep-alive
+    "--verbose"
+    "--timestamping"
+    "--trust-server-names"
+    "--timeout=60"
+    "--no-http-keep-alive"
 )
 
 wget_optimized_options=(
-    --tries=10
-    --waitretry=10
+    "--tries=10"
+    "--waitretry=10"
 )
 
 wget_failsafe_options=(
-    --server-response
-    --tries=1
-    --no-cache
+    "--server-response"
+    "--tries=1"
+    "--no-cache"
 )
 # TODO: There may be some more options, which could be useful for the
 # failsafe download:
@@ -139,17 +139,17 @@ wget_failsafe_options=(
 # --continue option.
 
 wget_connection_test_a=(
-    --spider
-    --verbose
-    --tries=1
-    --timeout=10
+    "--spider"
+    "--verbose"
+    "--tries=1"
+    "--timeout=10"
 )
 
 wget_connection_test_b=(
-    --spider
-    --debug
-    --tries=1
-    --timeout=10
+    "--spider"
+    "--debug"
+    "--tries=1"
+    "--timeout=10"
 )
 
 wget_spider_option="--spider"
@@ -160,43 +160,43 @@ wget_inputfile_prefix="--input-file="
 # Aria2 options
 
 aria2c_common_options=(
-    --conditional-get=true
-    --remote-time=true
-    --allow-overwrite=true
-    --auto-file-renaming=false
-    --timeout=60
-    --enable-http-keep-alive=false
+    "--conditional-get=true"
+    "--remote-time=true"
+    "--allow-overwrite=true"
+    "--auto-file-renaming=false"
+    "--timeout=60"
+    "--enable-http-keep-alive=false"
 )
 
 aria2c_optimized_options=(
-    --log-level=notice
-    --max-tries=10
-    --retry-wait=10
+    "--log-level=notice"
+    "--max-tries=10"
+    "--retry-wait=10"
 )
 
 aria2c_failsafe_options=(
-    --log-level=info
-    --max-tries=1
-    --always-resume=false
-    --max-resume-failure-tries=0
-    --remove-control-file=true
-    --http-no-cache=true
+    "--log-level=info"
+    "--max-tries=1"
+    "--always-resume=false"
+    "--max-resume-failure-tries=0"
+    "--remove-control-file=true"
+    "--http-no-cache=true"
 )
 
 aria2c_connection_test_a=(
-    --dry-run=true
-    --log-level=notice
-    --max-tries=1
-    --timeout=10
-    --force-sequential=true
+    "--dry-run=true"
+    "--log-level=notice"
+    "--max-tries=1"
+    "--timeout=10"
+    "--force-sequential=true"
 )
 
 aria2c_connection_test_b=(
-    --dry-run=true
-    --log-level=info
-    --max-tries=1
-    --timeout=10
-    --force-sequential=true
+    "--dry-run=true"
+    "--log-level=info"
+    "--max-tries=1"
+    "--timeout=10"
+    "--force-sequential=true"
 )
 
 aria2c_spider_option="--dry-run=true"
@@ -214,8 +214,8 @@ aria2c_inputfile_prefix="--input-file="
 # The test could use examples from all needed servers, to detect possible
 # problems early.
 connection_test_urls=(
-    https://download.wsusoffline.net/StaticDownloadLink-recent.txt
-    http://download.windowsupdate.com/microsoftupdate/v6/wsusscan/wsusscn2.cab
+    "https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt"
+    "http://download.windowsupdate.com/microsoftupdate/v6/wsusscan/wsusscn2.cab"
 )
 
 # ========== Global variables =============================================
@@ -233,6 +233,11 @@ spider_option=""
 logfile_prefix=""
 download_dir_prefix=""
 inputfile_prefix=""
+
+# Global variables used by the function download_from_gitlab
+global_server_response=""
+global_new_etag=""
+global_result_code=""
 
 # ========== Functions ====================================================
 
@@ -258,7 +263,7 @@ inputfile_prefix=""
 # is any sort of output redirection. This may happen in cron jobs or
 # batch jobs, or when simply piping the output through cat:
 #
-# ./download-updates.bash w60 deu,enu -includesp 2>&1 | cat
+# ./download-updates.bash w63 deu,enu 2>&1 | cat
 #
 # cat just copies the input to output, but Wget itself will mess up its
 # display: The progress is indicated by dots in the terminal window,
@@ -270,7 +275,7 @@ inputfile_prefix=""
 # be checked, if they are attached to a terminal. Since Wget writes all
 # messages to error output, both descriptors 1 and 2 (standard output
 # and error output) should be tested. If one of these descriptors is
-# redirected, then the dot display will be used as a fall back, without
+# redirected, then the dot display will be used as a fallback, without
 # the option --show-progress.
 #
 # Note: The function set_wget_progress_style must be called before the
@@ -300,15 +305,16 @@ function set_wget_progress_style ()
             then
                 # Both file descriptors are attached to a terminal window
                 log_info_message "Setting Wget display options: Wget ${version_string} uses progress bar"
-                wget_common_options+=( --show-progress --progress=bar:noscroll )
+                wget_common_options+=( "--show-progress"
+                                       "--progress=bar:noscroll" )
             else
                 # One or both file descriptor(s) is/are redirected
                 log_info_message "Setting Wget display options: Wget ${version_string} uses dot display as a fall back for non-interactive sessions"
-                wget_common_options+=( --progress=dot:mega )
+                wget_common_options+=( "--progress=dot:mega" )
             fi
         else
             log_info_message "Setting Wget display options: Wget ${version_string} uses dot display"
-            wget_common_options+=( --progress=dot:mega )
+            wget_common_options+=( "--progress=dot:mega" )
         fi
     else
         log_warning_message "Wget was not found"
@@ -398,7 +404,7 @@ function download_static_files ()
 {
     local download_dir="$1"
     local input_file="$2"
-    local -i number_of_links=0
+    local -i number_of_links="0"
     local download_link=""
     local local_filename=""
     local remote_filename=""
@@ -461,9 +467,9 @@ function download_single_file ()
     local -i previous_modification_date="0"
 
     case "${filename}" in
-        # Since version 1.12, the four virus definition files are
-        # referenced with LinkIDs, which resolve to the filenames
-        # mpas-fe.exe and mpam-fe.exe after several redirections.
+        # Since version 1.12, the virus definition files are referenced
+        # with LinkIDs, which resolve to the filenames mpas-fe.exe and
+        # mpam-fe.exe after several redirections.
         *LinkID*)
             download_single_file_failsafe "$@"
         ;;
@@ -478,27 +484,9 @@ function download_single_file ()
                 exit 1
             fi
         ;;
-        # WSUS Offline Update configuration files
-        ExcludeList-superseded-exclude.txt \
-        | ExcludeList-superseded-exclude-seconly.txt \
-        | HideList-seconly.txt \
-        | StaticDownloadFiles-modified.txt \
-        | ExcludeDownloadFiles-modified.txt \
-        | StaticUpdateFiles-modified.txt)
-            previous_modification_date="$(get_modification_date "${pathname}")"
-            download_single_file_optimized "$@"
-            compare_modification_dates "${pathname}" "${previous_modification_date}"
-        ;;
-        # Update for root certificates. Downloads from archive.org don't
-        # allow timestamping.
-        rootsupd.exe)
-            if [[ -f "${pathname}" ]]
-            then
-                log_info_message "File ${filename} has already been downloaded."
-            else
-                download_single_file_optimized "$@"
-            fi
-        ;;
+        # WSUS Offline Update self-update and configuration files are
+        # now handled by the function "download_from_gitlab" below
+        #
         # All other downloads
         *)
             download_single_file_optimized "$@"
@@ -525,11 +513,11 @@ function download_single_file_optimized ()
         *.crt | *.crl)
             case "${downloader}" in
                 wget)
-                    all_options+=( --user-agent="" )
+                    all_options+=( "--user-agent=" )
                 ;;
                 aria2c)
                     :
-                    # all_options+=( --user-agent="" )
+                    # all_options+=( "--user-agent=" )
                 ;;
             esac
         ;;
@@ -581,9 +569,9 @@ function download_single_file_failsafe ()
 
     # The filename is usually the last part of the URL and can be
     # extracted with the command "basename" or the parameter expansion
-    # "${download_link##*/}", as shown above. For the four virus
-    # definition files, this returns a LinkID, and the expected filename
-    # must be corrected manually.
+    # "${download_link##*/}", as shown above. For the virus definition
+    # files, this returns a LinkID, and the expected filename must be
+    # corrected manually.
     #
     # This is only needed for the function itself, to handle partial
     # files and backup files correctly. wget does save the files with the
@@ -611,11 +599,11 @@ function download_single_file_failsafe ()
         esac
         case "${downloader}" in
             wget)
-                all_options+=( --user-agent="" )
+                all_options+=( "--user-agent=" )
             ;;
             aria2c)
                 :
-                # all_options+=( --user-agent="" )
+                # all_options+=( "--user-agent=" )
             ;;
         esac
     fi
@@ -630,7 +618,7 @@ function download_single_file_failsafe ()
             "${download_dir_prefix}${download_dir}" \
             "${download_link}"
         then
-            result_code=0
+            result_code="0"
             log_debug_message "Download/validation of ${filename} succeeded"
         else
             result_code="$?"
@@ -690,17 +678,18 @@ function download_single_file_failsafe ()
 
 
 # The function download_multiple_files uses a text file with URLs as
-# input. This function is used for dynamic updates and for the recursive
-# update of static download definitions.
+# input. This function is used for dynamic updates. A similar function
+# recursive_download is used for the update of WSUS Offline Update
+# configuration files.
 
 function download_multiple_files ()
 {
     local download_dir="$1"
-    local input_file="$2"
-    local -i number_of_links=0
+    local input_file="$2"  # full pathname with directory and filename
+    local -i number_of_links="0"
 
     require_non_empty_file "${input_file}" || return 0
-    number_of_links="$(wc -l < "${input_file}")"
+    number_of_links="$( wc -l < "${input_file}" )"
     # The download directory should only be created after testing
     # the input file. This is needed to prevent the creation of empty
     # directories.
@@ -723,57 +712,342 @@ function download_multiple_files ()
 }
 
 
-# function download_and_verify
+# Function download_from_gitlab
 #
-# Download an archive and the accompanying hashes file, and use the
-# hashes file to verify the archive. This is used for the self update
-# of WSUS Offline Update and the Linux scripts.
+# The normal timestamping with wget or aria2c does not work with GitLab,
+# because the Last-modified header is not set. This may be a problem
+# with GitLab itself or with the Cloudflare content delivery network.
+#
+# - https://gitlab.com/gitlab-org/gitlab/-/issues/18642
+# - https://gitlab.com/gitlab-org/gitlab/-/issues/23823
+#
+# Querying the Etag header is an alternative way to check for changed
+# files. Both tests use conditional requests in a similar way:
+#
+# - Timestamping with wget or aria2 uses the conditional request
+#   "If-Modified-Since: <date>"
+# - Checking the Etag is done with the conditional request
+#   "If-None-Match: <etag>"
+#
+# The server response is also similar:
+#
+# - "200 OK" indicates, that the file on the server is newer or has been
+#   modified, and that the file will be downloaded.
+# - "304 Not Modified" means, that the file on the server did not change,
+#   and that it does not need to be downloaded. This decision is made
+#   by the server - wget and aria2 only send a single GET request with
+#   a conditional header for timestamping.
+#
+# The approach in the script is:
+#
+# - Extract the ETag header from the server response and save it to the
+#   file SelfUpdateVersion-static.txt, which serves as an ETag database.
+# - On the next download run, the Etag is used to create a custom header
+#   with the conditional request "If-None-Match: <Etag>".
+# - The server may respond with "200 OK" and send the file, or with
+#   "304 Not Modified" and omit the download.
+# - Only wget was tested so far.
 
-function download_and_verify ()
+function download_from_gitlab ()
 {
     local download_dir="$1"
-    local archive_link="$2"
-    local hashes_link="$3"
-    local archive_filename="${archive_link##*/}"
-    local hashes_filename="${hashes_link##*/}"
-    local -i initial_errors="0"
-    initial_errors="$(get_error_count)"
+    local download_link="$2"
+    local filename="${download_link##*/}"
+    local pathname="${download_dir}/${filename}"
+    local old_etag=""
+    local -i result_code="0"
 
-    log_info_message "Downloading archive and accompanying hashes file..."
-    download_single_file "${download_dir}" "${archive_link}"
-    same_error_count "${initial_errors}" || exit 1
+    # Reset global variables
+    global_server_response=""
+    global_new_etag=""
+    global_result_code=""
 
-    download_single_file "${download_dir}" "${hashes_link}"
-    same_error_count "${initial_errors}" || exit 1
+    mkdir -p "${download_dir}"
 
-    log_info_message "Searching downloaded files..."
-    if [[ -f "${download_dir}/${archive_filename}" ]]
+    log_info_message "Downloading/validating ${filename} ..."
+    # If the file already exists, it will be renamed to filename.bak. This
+    # allows wget to save a new file with the original filename; otherwise
+    # it will create additional copies with incremental numbers like
+    # filename.1 and filename.2.
+    #
+    # Conditional headers should only be used, if the file has been
+    # downloaded previously. This may become a problem, if the download
+    # directory is a moving target, e.g. the scripts update-generator.bash
+    # and download-updates.bash create new temporary directories with
+    # random names on each run.
+    rm -f "${pathname}.bak"
+    if [[ -f "${pathname}" ]]
     then
-        log_info_message "Found archive:     ${download_dir}/${archive_filename}"
-    else
-        log_error_message "Archive ${archive_filename} was not found"
-        exit 1
+        log_info_message "Renaming file ${filename} to ${filename}.bak..."
+        mv "${pathname}" "${pathname}.bak"
+
+        # Get the previous ETag from the ETag database
+        old_etag="$( read_setting                               \
+                    "${temp_dir}/SelfUpdateVersion-static.txt"  \
+                    "${filename}"                               \
+                   )" || true
     fi
 
-    if [[ -f "${download_dir}/${hashes_filename}" ]]
+    if [[ -n "${old_etag}" ]]
     then
-        log_info_message "Found hashes file: ${download_dir}/${hashes_filename}"
+        # wget prints all messages to error output, including all
+        # regular status messages. The standard output is reserved for
+        # the downloaded file, which could be piped to other commands
+        # for analysis or direct playback.
+        #
+        # The progress bar in wget cannot be used, if the output is
+        # redirected to a file or a pipe.
+        #
+        # Using the shell option errexit or a trap on ERR require some
+        # workaround to check the result code.
+        {
+            wget --server-response                        \
+                 --timeout=60 --tries=10 --waitretry=10   \
+                 --progress=dot:mega                      \
+                 --directory-prefix="${download_dir}"     \
+                 --header="If-None-Match: ${old_etag}"    \
+                 "${download_link}"                       \
+                 2>&1                                     \
+                 && result_code="0" || result_code="$?"
+            # The value of the local variable result_code will be
+            # lost, because bash runs each part of a pipe in an own
+            # subshell. Using the global variable global_result_code
+            # doesn't help at this point, nor does "export result_code".
+            #
+            # The workaround here is to print the variable and to
+            # filter for this line in the function parse_output. Since
+            # parse_output is the last element of the pipe, it can set
+            # global variables, if the shell option lastpipe is used.
+            #
+            # Other shells like zsh handle this better by running the
+            # whole pipe in the same environment.
+            printf '%s\n' "wget-result-code: ${result_code}"
+        } | parse_output >> "${logfile}"
     else
-        log_error_message "Hashes file ${hashes_filename} was not found"
-        exit 1
+        {
+            wget --server-response                        \
+                 --timeout=60 --tries=10 --waitretry=10   \
+                 --progress=dot:mega                      \
+                 --directory-prefix="${download_dir}"     \
+                 "${download_link}"                       \
+                 2>&1                                     \
+                 && result_code="0" || result_code="$?"
+            printf '%s\n' "wget-result-code: ${result_code}"
+        } | parse_output >> "${logfile}"
     fi
 
-    # Validate the archive using hashdeep in audit mode (-a). The bare
-    # mode (-b) removes any leading directory information. This enables
-    # us to check files without changing directories with pushd/popd.
-    log_info_message "Verifying the integrity of the archive ${archive_filename} ..."
-    if hashdeep -a -b -v -v -k "${download_dir}/${hashes_filename}" "${download_dir}/${archive_filename}"
+    # Global variables as set by the filter function parse_output
+    #log_debug_message "Filename:          ${filename}"
+    #log_debug_message "Server response:   ${global_server_response}"
+    #log_debug_message "Wget result code:  ${global_result_code}"
+    #log_debug_message "Old Etag:          ${old_etag}"
+    #log_debug_message "New Etag:          ${global_new_etag}"
+
+    # Check the wget result code
+    case "${global_result_code}" in
+        0)
+            case "${global_server_response}" in
+                "200 OK" )
+                    log_info_message "Server response \"200 OK\". Download successful."
+                ;;
+                * )
+                    log_info_message "Server response \"${global_server_response}\". See the download.log for details."
+                ;;
+            esac
+        ;;
+        8)
+            case "${global_server_response}" in
+                # The server response "304 Not Modified" is expected for
+                # unchanged files. It is used for timestamping with the
+                # conditional request If-Modified-Since and for checking
+                # the Etag with If-None-Match.
+                #
+                # But without timestamping, wget will treat it as a real
+                # server error (result code 8).
+                "304 Not Modified" )
+                    log_info_message "Server response \"304 Not Modified\". Omitting download."
+                    global_result_code=0
+                ;;
+                # The server response "412 Precondition Failed" is the
+                # expected answer, if the conditional headers If-Match
+                # and If-Unmodified-Since are used and the condition
+                # was not met.
+                #
+                # This response is not an error either.
+                "412 Precondition Failed" )
+                    log_info_message "Server response \"412 Precondition Failed\". Omitting download."
+                    global_result_code=0
+                ;;
+                * )
+                    log_error_message "Server response \"${global_server_response}\". Download failed. See the download.log for details."
+                    increment_error_count
+                ;;
+            esac
+        ;;
+        *)
+            log_error_message "Unknown wget error ${global_result_code}. See the download.log for details."
+            increment_error_count
+        ;;
+    esac
+
+    # If a new file was downloaded, then the backup file can be deleted.
+    # Otherwise, the backup file, if existing, will be restored.
+    if [[ -f "${pathname}" ]]
     then
-        log_info_message "Validated archive ${archive_filename}"
+        if [[ -f "${pathname}.bak" ]]
+        then
+            log_info_message "Deleting backup file ${filename}.bak..."
+            rm "${pathname}.bak"
+        fi
     else
-        log_error_message "Validation failed"
-        exit 1
+        if [[ -f "${pathname}.bak" ]]
+        then
+            log_info_message "Restoring backup file ${filename}.bak..."
+            mv "${pathname}.bak" "${pathname}"
+        fi
     fi
+
+    # Changes to configuration files often require post-processing:
+    #
+    # The files ExcludeList-superseded-exclude.txt,
+    # ExcludeList-superseded-exclude-seconly.txt and HideList-seconly.txt
+    # are used for the calculation of superseded updates.
+    #
+    # Most other configuration files trigger a recalculation of static
+    # and/or dynamic updates.
+    #
+    # Tracking these files is usually done by comparing the file
+    # modification date before/after the download, e.g. in the function
+    # download_single_file, but GitLab does not return the file
+    # modification date.
+    #
+    # Since we already use the Etag for download, we can also use this
+    # unique identifier locally to track file changes.
+    if [[ -f "${pathname}"  \
+       && -n "${global_new_etag}"           \
+       && "${global_new_etag}" != "${old_etag}" ]]
+    then
+        log_info_message "Saving new ETag to database..."
+        write_setting "${temp_dir}/SelfUpdateVersion-static.txt"  \
+                      "${filename}"                               \
+                      "${global_new_etag}"
+
+        # Post-processing
+        case "${filename}" in
+            SelfUpdateVersion-recent.txt           \
+            | StaticDownloadLink-recent.txt        \
+            | wsusoffline*.zip                     \
+            | wsusoffline*_hashes.txt              \
+            | StaticDownloadFiles-modified.txt     \
+            | ExcludeDownloadFiles-modified.txt    \
+            | StaticUpdateFiles-modified.txt       \
+            | StaticDownloadLinks-sysinternals.txt )
+                : # Nothing to do for these files
+            ;;
+            ExcludeList-superseded-exclude.txt            \
+            | ExcludeList-superseded-exclude-seconly.txt  \
+            | HideList-seconly.txt                        \
+            | StaticUpdateIds-w6*-seconly.txt )
+                log_info_message "The configuration file ${filename} was modified. Superseded updates and all downloads will be reevaluated."
+                # Delete superseded updates, Windows version
+                rm -f "../exclude/ExcludeList-superseded.txt"
+                rm -f "../exclude/ExcludeList-superseded-seconly.txt"
+                # Delete superseded updates, Linux version
+                rm -f "../exclude/ExcludeList-Linux-superseded.txt"
+                rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
+                rm -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
+                reevaluate_all_updates
+            ;;
+            *)
+                log_info_message "The configuration file ${filename} was modified. All downloads will be reevaluated."
+                reevaluate_all_updates
+            ;;
+        esac
+    fi
+
+    return 0
+}
+
+
+# The function parse_output reads reads the output from wget, to extract
+# the server response and the ETag. It also reads the wget result code
+# and copies it the the global variable global_result_code. As a filter
+# function, it reads from standard input and writes to standard output.
+
+function parse_output ()
+{
+    local line=""
+    local ignored_field=""
+
+    # Reset global variables
+    global_server_response=""
+    global_new_etag=""
+    global_result_code=""
+
+    # IFS is set to an empty string, to read a complete line including
+    # leading and trailing spaces. This preserves the formatting of the
+    # wget output.
+    while IFS="" read -r line
+    do
+        # The server response is indented by two spaces, if the wget
+        # option --server-response is used. It is left-aligned, if the
+        # --debug option is used.
+        case "${line}" in
+            "  HTTP/1.1"* | "HTTP/1.1"* )
+                # Using the default IFS conveniently removes leading
+                # spaces
+                read -r ignored_field global_server_response <<< "${line}"
+                printf '%s\n' "${line}"
+            ;;
+            "  Etag:"* | "Etag:"* )
+                read -r ignored_field global_new_etag <<< "${line}"
+                printf '%s\n' "${line}"
+            ;;
+            "wget-result-code:"* )
+                read -r ignored_field global_result_code <<< "${line}"
+            ;;
+            *)
+                # Copy all other lines unmodified to the output
+                printf '%s\n' "${line}"
+            ;;
+        esac
+    done
+
+    return 0
+}
+
+
+# function copy_etag_database
+#
+# Make a copy of the file "../static/SelfUpdateVersion-static.txt"
+# with Linux line endings.
+
+function copy_etag_database ()
+{
+    if [[ -s "../static/SelfUpdateVersion-static.txt" ]]
+    then
+        log_info_message "Copying ETag database..."
+        filter_cr < "../static/SelfUpdateVersion-static.txt" \
+                  > "${temp_dir}/SelfUpdateVersion-static.txt"
+    fi
+
+    return 0
+}
+
+
+# function restore_etag_database
+#
+# Copy the temporary file back and change the line endings to DOS style.
+
+function restore_etag_database ()
+{
+    if [[ -s "${temp_dir}/SelfUpdateVersion-static.txt" ]]
+    then
+        log_info_message "Restoring ETag database..."
+        todos_line_endings < "${temp_dir}/SelfUpdateVersion-static.txt" \
+                           > "../static/SelfUpdateVersion-static.txt"
+    fi
+
     return 0
 }
 
@@ -862,5 +1136,6 @@ set_wget_progress_style
 configure_downloaders
 export_proxy_servers
 test_internet_connection
+copy_etag_database
 echo ""
 return 0

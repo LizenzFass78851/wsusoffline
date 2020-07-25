@@ -52,7 +52,7 @@
 #        read and written with special functions. Then these files don't
 #        necessarily need to adhere to the bash syntax:
 #
-#        - Strings like "w60-x64" can be used as keys, although they
+#        - Strings like "w63-x64" can be used as keys, although they
 #          would not be valid parameter names.
 #        - The values are not quoted, even if they consist of several
 #          words. Everything from the equals sign "=" to the end of the
@@ -88,9 +88,14 @@
 
 # The function read_setting reads a single setting from a settings
 # file. If the key was found, its value will be printed to standard
-# output, and the function return with success. If the settings file
-# does not exist yet, or if the key could not be found, an empty string
-# is returned, and the result code is set to "1".
+# output, and the function return with success.
+#
+# Result codes:
+#
+# 0  The settings file exists, and the key was found. The value (possibly
+#    an empty string) will be written to standard output.
+# 1  The settings file was not found.
+# 2  The settings file exists, but the key was not found.
 
 function read_setting ()
 {
@@ -112,11 +117,11 @@ function read_setting ()
             # rest of the line is the value from the settings file.
             value="${value/#${key}=/}"
         else
-            log_debug_message "The key ${key} was not found in ${settings_file}."
-            result_code="1"
+            log_debug_message "The key ${key} was not found in the settings file ${settings_file}."
+            result_code="2"
         fi
     else
-        log_debug_message "The file ${settings_file} does not exist yet."
+        log_debug_message "The settings file ${settings_file} was not found."
         result_code="1"
     fi
 
@@ -141,7 +146,7 @@ function write_setting ()
     # Create settings file, if it does not exist yet.
     if [[ ! -f "${settings_file}" ]]
     then
-        printf '%s\n' "This is an automatically generated file. Do not edit it." > "${settings_file}"
+        touch "${settings_file}"
     fi
 
     # Search for "${key}=" at the beginning of the line.
@@ -165,13 +170,13 @@ function write_setting ()
             # as the file extension and the sed script command. Then
             # the FreeBSD sed may print an error message like:
             #
-            # $ sed -i "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i "s/w63=off/w63=on/" update-generator.ini
             # sed: 1: "update-generator.ini": invalid command code u
             #
             # It is possible to specify an empty string as a file
             # extension, like:
             #
-            # $ sed -i "" "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i "" "s/w63=off/w63=on/" update-generator.ini
             #
             # Then FreeBSD sed will not report an error, and the script
             # command is evaluated as expected.
@@ -184,7 +189,7 @@ function write_setting ()
             # is to actually provide a file extension for backup files
             # (which will be removed afterwards):
             #
-            # $ sed -i.bak "s/w60=off/w60=on/" update-generator.ini
+            # $ sed -i.bak "s/w63=off/w63=on/" update-generator.ini
             #
             # The search pattern for sed is anchored to the beginning of
             # the line with the character "^". The end-of-line character
@@ -196,7 +201,13 @@ function write_setting ()
             #
             # The search and replacement patterns assume, that the values
             # are NOT quoted.
-            sed -i.bak "s/^${key}=${old_value}/${key}=${new_value}/" "${settings_file}"
+            #
+            # ETags contain two quotation marks and one slash. The
+            # quotation marks are handled well, but the slash causes
+            # the command "s/regular expression/replacement/flags"
+            # to break. Using "s#regular expression#replacement#flags"
+            # does work in this case.
+            sed -i.bak "s#^${key}=${old_value}#${key}=${new_value}#" "${settings_file}"
             rm -f "${settings_file}.bak"
         fi
     else

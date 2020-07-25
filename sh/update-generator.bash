@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: 1.19.1-ESR
-# Release date: 2020-03-14
-# Intended compatibility: WSUS Offline Update version 11.9.1-ESR
+# Version: Community Edition 1.19.2-ESR (CE-1.19.2-ESR)
+# Release date: 2020-07-25
+# Development branch: esr-11.9
+# Supported versions: WSUS Offline Update, Community Edition 11.9.1-ESR
+#                     and 11.9.2-ESR
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -65,6 +67,14 @@ set -o errtrace
 set -o pipefail
 shopt -s nocasematch
 
+# The shell option lastpipe is used to export variables from the last
+# section of a pipe. It is used in the function download_from_gitlab.
+#
+# According to /usr/share/doc/bash/changelog.gz, the option lastpipe was
+# introduced in bash-4.2-alpha. Therefore, the Linux download scripts
+# now require bash 4.2 and Debian 7 Wheezy or later.
+shopt -s lastpipe
+
 # ========== Environment variables ========================================
 
 # Setting LC_ALL to C sets LC_COLLATE, LC_CTYPE and LC_MESSAGES to the
@@ -86,8 +96,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19.1-ESR"
-readonly release_date="2020-03-14"
+readonly script_version="CE-1.19.2-ESR"
+readonly release_date="2020-07-25"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -308,7 +318,8 @@ function setup_working_directory ()
     # Change to the home directory of the script
     #
     # TODO: basename and dirname can be replaced with bash parameter
-    # expansions.
+    # expansions, but a complete replacement should also delete trailing
+    # slashes.
     script_name="$(basename "${canonical_name}")"
     home_directory="$(dirname "${canonical_name}")"
     cd "${home_directory}" || exit 1
@@ -333,6 +344,9 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
+    # Also create a ../static directory for an initial installation of
+    # WSUS Offline Update by the Linux download scripts
+    mkdir -p "${wsusoffline_directory}/static"
 
     return 0
 }
@@ -394,7 +408,7 @@ function run_tasks ()
         file_list=( "./${task_directory}"/*.bash )
         shopt -u nullglob
 
-        if (( ${#file_list[@]} > 0 ))
+        if (( "${#file_list[@]}" > 0 ))
         then
             for current_task in "${file_list[@]}"
             do

@@ -55,6 +55,8 @@ shopt -s nocasematch
 # information from the filenames. But this had to be changed in the
 # Windows batch files as well.
 
+# The hashdeep files are created relative to the directory client/md. The
+# following table uses the same paths.
 global_directories="\
 ../cpp               hashes-cpp.txt
 ../dotnet            hashes-dotnet.txt
@@ -66,17 +68,20 @@ global_directories="\
 ../w60-x64/glb       hashes-w60-x64-glb.txt
 ../w61/glb           hashes-w61-glb.txt
 ../w61-x64/glb       hashes-w61-x64-glb.txt
-../w62/glb           hashes-w62-glb.txt
 ../w62-x64/glb       hashes-w62-x64-glb.txt
 ../w63/glb           hashes-w63-glb.txt
 ../w63-x64/glb       hashes-w63-x64-glb.txt
 ../w100/glb          hashes-w100-glb.txt
 ../w100-x64/glb      hashes-w100-x64-glb.txt
 ../wddefs            hashes-wddefs.txt
+../win/glb           hashes-win-glb.txt
 ../wsus              hashes-wsus.txt"
 
-localized_directories=(o2k3 o2k7 o2k10 o2k13 ofc w2k3 w2k3-x64 win wxp)
-languages=(deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor plk ptg ptb rus esn sve trk glb)
+localized_directories=( o2k10 o2k13 ofc )
+languages=(
+    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
+    plk ptg ptb rus esn sve trk glb
+)
 
 # ========== Functions ====================================================
 
