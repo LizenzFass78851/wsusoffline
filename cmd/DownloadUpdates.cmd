@@ -1885,31 +1885,15 @@ if "%SDDCoreFileName%"=="" (
   goto :SDDCoreSkip
 )
 
-set SDDCoreETagBuffer=
+set SDDCoreWGetBuffer=
 for /f "delims=" %%f in ('%WGET_PATH% --spider --server-response --progress=bar:noscroll -nv %1 2^>^&1 ^| find /i ^"ETag^:^"') do (
-  if not "%%f"=="" (
-    set SDDCoreETagBuffer=%%f
+  set SDDCoreWGetBuffer=%%f
+  if not "!SDDCoreWGetBuffer!"=="" (
+    if "!SDDCoreWGetBuffer:~2,4!"=="Etag" (set "SDDCoreETagRemote=!SDDCoreWGetBuffer:~8!")
   )
 )
-if "%SDDCoreETagBuffer%"=="" (
-  rem no ETag-Header received
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
-set SDDCoreETagBufferReal=
-rem get the ETag from the ETag-Header
-for /f "tokens=2 delims=:" %%f in ('echo %SDDCoreETagBuffer%') do (
-  if not "%%f"=="" (
-    set SDDCoreETagBufferReal=%%f
-  )
-)
-if "%SDDCoreETagBufferReal%"=="" (
-  rem no ETag-Header received
-  set SDDCoreReturnValue=1
-  goto :SDDCoreSkip
-)
-rem remove space from the ETag
-set SDDCoreETagRemote=%SDDCoreETagBufferReal: =%
+set SDDCoreWGetBuffer=
+
 if "%SDDCoreETagRemote%"=="" (
   rem invalid ETag-Header received
   set SDDCoreReturnValue=1
@@ -1964,8 +1948,6 @@ set SDDCoreReturnValue=0
 
 :SDDCoreSkip
 set SDDCoreFileName=
-set SDDCoreETagBuffer=
-set SDDCoreETagBufferReal=
 set SDDCoreETagRemote=
 set SDDCoreDownloadAttemptCount=
 set SDDCoreETagLocal=
