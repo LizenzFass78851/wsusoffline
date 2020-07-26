@@ -1891,7 +1891,7 @@ if "%SDDCoreETagLocal%"=="" (
 )
 
 if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
-if exist "%2\%SDDCoreFileName%" (ren "%2\%SDDCoreFileName%" "%SDDCoreFileName%.bak")
+if exist "%2\%SDDCoreFileName%" (ren "%2\%SDDCoreFileName%" "%SDDCoreFileName%.bak" >nul)
 
 set SDDCoreWGetBuffer=
 set SDDCoreResultBuffer=
@@ -1920,17 +1920,17 @@ if "%SDDCoreResultBuffer:~9,3%"=="200" (
   goto SDDCoreUpdateETag
 ) else if "%SDDCoreResultBuffer:~9,3%"=="304" (
   rem nothing changed
-  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
   set SDDCoreReturnValue=0
   goto :SDDCoreSkip
 ) else if "%SDDCoreResultBuffer:~9,3%"=="412" (
   rem nothing changed
-  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
   set SDDCoreReturnValue=0
   goto :SDDCoreSkip
 )
 rem download error
-if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
 set SDDCoreReturnValue=1
 goto :SDDCoreSkip
 
