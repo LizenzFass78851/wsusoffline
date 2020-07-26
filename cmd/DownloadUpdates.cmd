@@ -1873,6 +1873,7 @@ if "%2"=="" (
   goto :SDDCoreSkip
 )
 
+rem ** get file name from the URL ***
 set SDDCoreFileName=
 for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %1') do (
   if not "%%f"=="" (
@@ -1885,54 +1886,73 @@ if "%SDDCoreFileName%"=="" (
   goto :SDDCoreSkip
 )
 
+rem *** get local ETag ***
+set SDDCoreETagLocal=
+if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
+if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
+for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
+  if /i "%SDDCoreFileName%"=="%%a" (set "SDDCoreETagLocal=%%b")
+)
+
+:SDDCoreDownload
+if "%SDDCoreETagLocal%"=="" (
+  rem not downloaded yet
+  set SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%2" %1
+) else (
+  rem already some version downloaded
+  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%2" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" %1"
+)
+
+if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
+if exist "%2\%SDDCoreFileName%" (ren "%2\%SDDCoreFileName%" "%SDDCoreFileName%.bak")
+
 set SDDCoreWGetBuffer=
-for /f "delims=" %%f in ('%WGET_PATH% --spider --server-response --progress=bar:noscroll -nv %1 2^>^&1 ^| find /i ^"ETag^:^"') do (
+set SDDCoreResultBuffer=
+set SDDCoreETagBuffer=
+for /f "delims=" %%f in ('%WGET_PATH% %SDDCoreWGetCmdLine% 2^>^&1') do (
   set SDDCoreWGetBuffer=%%f
   if not "!SDDCoreWGetBuffer!"=="" (
-    if "!SDDCoreWGetBuffer:~2,4!"=="Etag" (set "SDDCoreETagRemote=!SDDCoreWGetBuffer:~8!")
+    if "!SDDCoreWGetBuffer:~2,8!"=="HTTP/1.1" (
+      set "SDDCoreResultBuffer=!SDDCoreWGetBuffer:~2!"
+    ) else if "!SDDCoreWGetBuffer:~2,4!"=="Etag" (
+      set "SDDCoreETagBuffer=!SDDCoreWGetBuffer:~8!"
+    )
   )
 )
-set SDDCoreWGetBuffer=
 
-if "%SDDCoreETagRemote%"=="" (
-  rem invalid ETag-Header received
+if "%SDDCoreResultBuffer%"=="" (
+  rem no result received
+  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
 
-set SDDCoreDownloadAttemptCount=0
-
-rem get local ETag
-if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
-if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
-set SDDCoreETagLocal=
-for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
-  if /i "%SDDCoreFileName%"=="%%a" (set SDDCoreETagLocal=%%b)
-)
-rem already got this file via SDD?
-if "%SDDCoreETagLocal%"=="" goto SDDCoreDownload
-if "%SDDCoreETagLocal%"=="%SDDCoreETagRemote%" (
-  rem file is up2date
-  set SDDCoreReturnValue=0
-  goto SDDCoreSkip
-)
-
-:SDDCoreDownload
-set "SDDCoreWGetHeader=%SDDCoreETagRemote:"=\"%"
-if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
-if exist "%2\%SDDCoreFileName%" (ren "%2\%SDDCoreFileName%" "%SDDCoreFileName%.bak")
-rem download the file
-:SDDCoreDownloadLoop
-set /a SDDCoreDownloadAttemptCount+=1
-%WGET_PATH% --progress=bar:noscroll -nv -P "%2" -a %DOWNLOAD_LOGFILE% --no-check-certificate --header="If-Match: %SDDCoreWGetHeader%" %1
-if errorlevel 1 (
-  rem retry up to 4 times (5 tries at all)
-  if %SDDCoreDownloadAttemptCount% LSS 5 (goto SDDCoreDownloadLoop)
+if "%SDDCoreResultBuffer:~9,3%"=="200" (
+  rem new file downloaded
+  if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
+  goto SDDCoreUpdateETag
+) else if "%SDDCoreResultBuffer:~9,3%"=="304" (
+  rem nothing changed
   if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
-  set SDDCoreReturnValue=1
-  goto SDDCoreSkip
+  set SDDCoreReturnValue=0
+  goto :SDDCoreSkip
+) else if "%SDDCoreResultBuffer:~9,3%"=="412" (
+  rem nothing changed
+  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+  set SDDCoreReturnValue=0
+  goto :SDDCoreSkip
 )
-if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
+rem download error
+if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+set SDDCoreReturnValue=1
+goto :SDDCoreSkip
+
+:SDDCoreUpdateETag
+if "%SDDCoreETagBuffer%"=="" (
+  rem no ETag-Header received
+  set SDDCoreReturnValue=1
+  goto :SDDCoreSkip
+)
 
 if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreAddNewETag)
 move /Y ..\static\SelfUpdateVersion-static.txt ..\static\SelfUpdateVersion-static.ori >nul
@@ -1943,15 +1963,16 @@ for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.ori) do 
 )
 del ..\static\SelfUpdateVersion-static.ori
 :SDDCoreAddNewETag
-echo %SDDCoreFileName%=%SDDCoreETagRemote%>>..\static\SelfUpdateVersion-static.txt
+echo %SDDCoreFileName%=%SDDCoreETagBuffer%>>..\static\SelfUpdateVersion-static.txt
 set SDDCoreReturnValue=0
 
 :SDDCoreSkip
 set SDDCoreFileName=
-set SDDCoreETagRemote=
-set SDDCoreDownloadAttemptCount=
 set SDDCoreETagLocal=
-set SDDCoreWGetHeader=
+set SDDCoreWGetCmdLine=
+set SDDCoreWGetBuffer=
+set SDDCoreResultBuffer=
+set SDDCoreETagBuffer=
 verify >nul
 rem goto EoF would be wrong here
 exit /b
