@@ -668,9 +668,9 @@ Dim $result
 
   DisableGUI()
   If $strproxy = "" Then
-    $result = RunWait(@ComSpec & " /D /C CheckOUVersion.cmd /exitonerror", @ScriptDir & "\cmd", @SW_SHOWMINNOACTIVE)
+    $result = RunWait(@ComSpec & " /D /C CheckOUVersion.cmd /mode:newer /exitonerror", @ScriptDir & "\cmd", @SW_SHOWMINNOACTIVE)
   Else
-    $result = RunWait(@ComSpec & " /D /C CheckOUVersion.cmd /exitonerror /proxy " & $strproxy, @ScriptDir & "\cmd", @SW_SHOWMINNOACTIVE)
+    $result = RunWait(@ComSpec & " /D /C CheckOUVersion.cmd /mode:newer /exitonerror /proxy " & $strproxy, @ScriptDir & "\cmd", @SW_SHOWMINNOACTIVE)
   EndIf
   If @error <> 0 Then
     If $gergui Then

@@ -1735,3 +1735,4 @@ Community Edition 12.1 -- ??.??.2020
 - Replaced superseded March 2020 Servicing stack update (kb4541338) by July 2020 Servicing stack update (KB4565554) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Added July 2020 Servicing stack update (KB4566785) for Windows 10 Version 2004 (Thanks to "aker")
 - Fix: the global part of an Office update with a global and language-specific part wasn't installed (Thanks to "aker" and "hbuhrmester")
+- Fix: CheckOUVersion.cmd will not report an outdated version anymore, if the current version is newer than the most recent one (Thanks to W. Wenzel and "aker")
