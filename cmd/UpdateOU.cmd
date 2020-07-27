@@ -41,7 +41,7 @@ goto EvalParams
 :NoMoreParams
 rem *** Update WSUS Offline Update - Community Edition ***
 title Updating WSUS Offline Update - Community Edition...
-call CheckOUVersion.cmd
+call CheckOUVersion.cmd /mode:newer
 if not errorlevel 1 goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update - Community Edition...

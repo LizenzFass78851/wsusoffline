@@ -46,7 +46,7 @@ if exist .\custom\InitializationHook.cmd (
 call :Log "Info: Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2"
 
 rem ** disable SDD, if local version != most recent version ***
-call CheckOUVersion.cmd /quiet
+call CheckOUVersion.cmd /mode:different /quiet
 if errorlevel 1 (
   set SKIP_SDD=1
   call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
