@@ -1,1 +1,1 @@
-11.9.3,wsusofflineCE1193.zip,wsusofflineCE1193_hashes.txt
+11.9.3
