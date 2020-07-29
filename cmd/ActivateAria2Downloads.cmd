@@ -56,7 +56,7 @@ goto DLx86
 :DLx64
 echo Downloading most recent version of Aria2 (x64)...
 for /F %%i in ('%SystemRoot%\System32\findstr.exe /I "64bit" ..\static\StaticDownloadLinks-aria2.txt') do (
-  %WGET_PATH% -N -P ..\bin --no-check-certificate %%i
+  %WGET_PATH% -N -P ..\bin %%i
   if errorlevel 1 goto DownloadError
   pushd ..\bin
   unzip.exe -o %%~nxi %%~ni\aria2c.exe
@@ -70,7 +70,7 @@ for /F %%i in ('%SystemRoot%\System32\findstr.exe /I "64bit" ..\static\StaticDow
 :DLx86
 echo Downloading most recent version of Aria2 (x86)...
 for /F %%i in ('%SystemRoot%\System32\findstr.exe /I "32bit" ..\static\StaticDownloadLinks-aria2.txt') do (
-  %WGET_PATH% -N -P ..\bin --no-check-certificate %%i
+  %WGET_PATH% -N -P ..\bin %%i
   if errorlevel 1 goto DownloadError
   pushd ..\bin
   unzip.exe -o %%~nxi %%~ni\aria2c.exe
@@ -101,7 +101,7 @@ echo set DLDR_LOPT=--log-level=notice -l %%DOWNLOAD_LOGFILE%%>>custom\SetAria2En
 echo set DLDR_IOPT=-i>>custom\SetAria2EnvVars.cmd
 echo set DLDR_POPT=-d>>custom\SetAria2EnvVars.cmd
 echo set DLDR_NVOPT=--console-log-level=warn>>custom\SetAria2EnvVars.cmd
-echo set DLDR_NCOPT=--check-certificate=false>>custom\SetAria2EnvVars.cmd
+rem echo set DLDR_NCOPT=--check-certificate=false>>custom\SetAria2EnvVars.cmd
 echo set DLDR_UOPT=-U "Mozilla/5.0 (Windows NT 10.0)">>custom\SetAria2EnvVars.cmd
 echo %DATE% %TIME% - Info: Activated Aria2 downloads>>%DOWNLOAD_LOGFILE%
 goto EoF

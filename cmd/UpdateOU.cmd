@@ -66,14 +66,14 @@ if "%FILENAME_HASH%"=="" (
   goto DownloadError
 )
 echo Downloading most recent released version of WSUS Offline Update - Community Edition...
-%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt
+%WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
 if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
-%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+%WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
 if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
 echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
-%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+%WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
 echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
 pushd ..
 echo Verifying integrity of %FILENAME_ZIP%...
