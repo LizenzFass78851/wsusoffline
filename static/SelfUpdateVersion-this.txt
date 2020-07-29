@@ -1,1 +1,1 @@
-12.2,wsusofflineCE122.zip,wsusofflineCE122_hashes.txt
+12.2
