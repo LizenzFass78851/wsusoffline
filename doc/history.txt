@@ -1706,7 +1706,7 @@ Community Edition 11.9.1 -- 21.06.2020
 - INSTALLATION HINT: In spite of the different name, you still may unpack the Community Edition into an existing structure, overwriting existing files
 - Moved the whole project to GitLab
 --------------------------------------------------------------------------------
-Community Edition 11.9.2 -- ??.??.2020
+Community Edition 11.9.2 -- 29.07.2020
 - Support removed for Windows 10 version 1703 since Microsoft discontinued support for it on October 8th, 2019
 - Included complete rewrite of the Linux scripts version CE-1.19.2-ESR (Special thanks to H. Buhrmester)
 - Improved static and exclude definitions download (Thanks to "hbuhrmester" and "aker")
@@ -1730,3 +1730,5 @@ Community Edition 11.9.2 -- ??.??.2020
 - Fix: fixed some warnings while installing the "wupre"-updates for w60 and w61
 - Fix: the global part of an Office update with a global and language-specific part wasn't installed (Thanks to "aker" and "hbuhrmester")
 - Fix: CheckOUVersion.cmd will not report an outdated version anymore, if the current version is newer than the most recent one (Thanks to W. Wenzel and "aker")
+--------------------------------------------------------------------------------
+Community Edition 11.9.x -- ??.??.2020
