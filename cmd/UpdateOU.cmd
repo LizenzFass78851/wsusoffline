@@ -44,27 +44,36 @@ title Updating WSUS Offline Update - Community Edition...
 call CheckOUVersion.cmd /mode:newer
 if not errorlevel 1 goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
-echo Downloading most recent released version of WSUS Offline Update - Community Edition...
-%WGET_PATH% -N -P ..\static --no-check-certificate https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
-if errorlevel 1 goto DownloadError
-if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
-%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
-if errorlevel 1 goto DownloadError
-if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
-echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
-set FILENAME_ZIP=empty
-set FILENAME_HASH=empty
-for /F "tokens=2,3 delims=," %%a in (..\static\SelfUpdateVersion-recent.txt) do (
-  if not "%%a"=="" (
-    if not "%%b"=="" (
-      set FILENAME_ZIP=%%a
-      set FILENAME_HASH=%%b
+set FILENAME_ZIP=
+set FILENAME_HASH=
+set bufFILENAME=
+for /f "delims=" %%u in (..\static\SelfUpdateVersion-recent.txt) do (
+  for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %%u') do (
+    set bufFILENAME=%%f
+    if "!bufFILENAME:~-4!"==".zip" (
+      set FILENAME_ZIP=%%f
+    ) else if "!bufFILENAME:~-4!"==".txt" (
+      set FILENAME_HASH=%%f
     )
   )
 )
-if "%FILENAME_ZIP%"=="empty" goto DownloadError
-if "%FILENAME_HASH%"=="empty" goto DownloadError
-%WGET_PATH% -N -P .. --no-check-certificate -i ..\static\StaticDownloadLink-recent.txt
+if "%FILENAME_ZIP%"=="" (
+  rem failed to determine file name
+  goto DownloadError
+)
+if "%FILENAME_HASH%"=="" (
+  rem failed to determine file name
+  goto DownloadError
+)
+echo Downloading most recent released version of WSUS Offline Update - Community Edition...
+%WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
+%WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
+echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
+%WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
 echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
 pushd ..
 echo Verifying integrity of %FILENAME_ZIP%...

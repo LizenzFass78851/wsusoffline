@@ -251,7 +251,7 @@ if exist custom\SetAria2EnvVars.cmd (
   set DLDR_IOPT=-i
   set DLDR_POPT=-P
   set DLDR_NVOPT=-nv
-  set DLDR_NCOPT=--no-check-certificate
+  rem set DLDR_NCOPT=--no-check-certificate
   set DLDR_UOPT=-U "Mozilla/5.0 (Windows NT 10.0)"
 )
 if not exist %DLDR_PATH% goto NoDLdr
