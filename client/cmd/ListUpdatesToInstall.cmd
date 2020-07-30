@@ -8,6 +8,8 @@ if errorlevel 1 goto NoExtensions
 
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 
+set OFC_DEBUG=0
+
 if "%TEMP%"=="" goto NoTemp
 pushd "%TEMP%"
 if errorlevel 1 goto NoTempDir
@@ -139,6 +141,7 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
     )
     call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
     if not exist "%TEMP%\Update.txt" (
+      rem statisch definierte Office-Updates als EXE
       if not "%O2K10_VER_MAJOR%"=="" (
         for %%k in (%O2K10_LANG% glb) do (
           call ListUpdateFile.cmd %%i*%O2K10_ARCH% ..\o2k10\%%k
@@ -158,19 +161,33 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         )
       )
     )
-    rem FIXME
-    for %%k in (%OFC_LANG% glb) do (
-      if exist ..\ofc\UpdateTable-ofc-%%k.csv (
-        for /F "tokens=1,2 delims=," %%l in (..\ofc\UpdateTable-ofc-%%k.csv) do (
-          if "%%l"=="%%j" (
-            if exist "%TEMP%\Update.txt" del "%TEMP%\Update.txt"
-            call ListUpdateFile.cmd %%m ..\ofc\%%k /searchleftmost
+    set SKIP_OFC_SCAN=0
+	if exist "%TEMP%\Update.txt" (
+	  if not "%OFC_DEBUG%"=="1" (set SKIP_OFC_SCAN=1) else (set SKIP_OFC_SCAN=0)
+	)
+    if not "%SKIP_OFC_SCAN%"=="0" (
+      rem dynamisch ermittelte Office-Updates als CAB/MSP
+      for %%k in (%OFC_LANG% glb) do (
+        if exist ..\ofc\UpdateTable-ofc-%%k.csv (
+          for /F "tokens=1,2 delims=," %%l in (..\ofc\UpdateTable-ofc-%%k.csv) do (
+            if "%%l"=="%%j" (
+              call ListUpdateFile.cmd %%m ..\ofc\%%k /searchleftmost /append
+            )
           )
         )
       )
     )
     if exist "%TEMP%\Update.txt" (
-      del "%TEMP%\Update.txt"
+      if "%OFC_DEBUG%"=="1" (
+        if not exist "%SystemRoot%\wsusofflineupdate_Debug" (mkdir "%SystemRoot%\wsusofflineupdate_Debug" >nul)
+        if "%%j"=="" (
+          move /y "%TEMP%\Update.txt" "%SystemRoot%\wsusofflineupdate_Debug\ListUpdatesToInstall_%%i.txt" >nul
+        ) else (
+          move /y "%TEMP%\Update.txt" "%SystemRoot%\wsusofflineupdate_Debug\ListUpdatesToInstall_%%i_%%j.txt" >nul
+        )
+	  ) else (
+        del "%TEMP%\Update.txt"
+	  )
     ) else (
       if "%%j"=="" (
         echo Warning: Update kb%%i not found.

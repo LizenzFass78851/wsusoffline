@@ -12,26 +12,39 @@ if "%1"=="" goto NoParam
 if "%2"=="" goto NoParam
 
 set SEARCH_LEFT_MOST=0
+set APPEND_UPDATES=0
 
 :EvalParams
 if "%3"=="" goto NoMoreParams
 if /i "%3"=="/searchleftmost" set SEARCH_LEFT_MOST=1
+if /i "%3"=="/append" set APPEND_UPDATES=1
 shift /3
 goto EvalParams
 
 :NoMoreParams
-if exist "%TEMP%\Update.txt" goto EoF
+if exist "%TEMP%\Update.txt" (
+  if not "%APPEND_UPDATES%"=="1" (
+    goto EoF
+  )
+)
 if not exist %2\nul goto EoF
 
 if /i "%SEARCH_LEFT_MOST%"=="1" (
-  dir /A:-D /B /OD %2\%1*.* >"%TEMP%\Update.txt" 2>nul
+  set UPDATE_SEARCH_MASK=%2\%1*.*
 ) else (
-  dir /A:-D /B /OD %2\*%1*.* >"%TEMP%\Update.txt" 2>nul
+  set UPDATE_SEARCH_MASK=%2\*%1*.*
 )
+dir /A:-D /B /OD %UPDATE_SEARCH_MASK% >"%TEMP%\Update.tmp" 2>nul
 if errorlevel 1 (
-  if exist "%TEMP%\Update.txt" del "%TEMP%\Update.txt"
+  if exist "%TEMP%\Update.tmp" del "%TEMP%\Update.tmp"
 ) else (
-  for /F "usebackq" %%i in ("%TEMP%\Update.txt") do echo %2\%%i >>"%TEMP%\UpdatesToInstall.txt"
+  for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i >>"%TEMP%\UpdatesToInstall.txt"
+  if "%APPEND_UPDATES%"=="1" (
+    type "%TEMP%\Update.tmp">>"%TEMP%\Update.txt"
+    del "%TEMP%\Update.tmp"
+  ) else (
+    move /y "%TEMP%\Update.tmp" "%TEMP%\Update.txt" >nul
+  )
 )
 goto EoF
 
@@ -40,8 +53,8 @@ echo ERROR: No command extensions available.
 goto Error
 
 :NoParam
-echo ERROR: Invalid parameter. Usage: %~n0 {kbid} {directory} [/searchleftmost]
-echo %DATE% %TIME% - Error: Invalid parameter. Usage: %~n0 {kbid} {directory} [/searchleftmost]>>%UPDATE_LOGFILE%
+echo ERROR: Invalid parameter. Usage: %~n0 {kbid} {directory} [/searchleftmost] [/append]
+echo %DATE% %TIME% - Error: Invalid parameter. Usage: %~n0 {kbid} {directory} [/searchleftmost] [/append]>>%UPDATE_LOGFILE%
 goto Error
 
 :Error
