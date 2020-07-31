@@ -21,8 +21,6 @@ set CheckOUVersion_mode=
 if "%1"=="" goto NoMoreParams
 if /i "%1"=="/mode:different" set CheckOUVersion_mode=different
 if /i "%1"=="/mode:newer" set CheckOUVersion_mode=newer
-if /i "%1"=="/mode=different" set CheckOUVersion_mode=different
-if /i "%1"=="/mode=newer" set CheckOUVersion_mode=newer
 if /i "%1"=="/quiet" set QUIET_MODE=1
 if /i "%1"=="/quiet" set QUIET_MODE=1
 if /i "%1"=="/exitonerror" set EXIT_ERR=1

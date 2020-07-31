@@ -1,4 +1,3 @@
-/visio
 -fullfile-
 -fullfile_
 -server-
