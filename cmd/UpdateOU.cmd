@@ -158,6 +158,13 @@ echo ERROR: No command extensions available.
 echo.
 exit
 
+:NoCScript
+echo.
+echo ERROR: VBScript interpreter %CSCRIPT_PATH% not found.
+echo %DATE% %TIME% - Error: VBScript interpreter %CSCRIPT_PATH% not found>>%DOWNLOAD_LOGFILE%
+echo.
+goto Error
+
 :NoWGet
 echo.
 echo ERROR: Download utility %WGET_PATH% not found.

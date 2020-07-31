@@ -1736,3 +1736,5 @@ Community Edition 11.9.3 -- 31.07.2020
 - Fix: fixed typo in UpdateOU.cmd which prevented the self update from working (Thanks to "hbuhrmester")
 --------------------------------------------------------------------------------
 Community Edition 11.9.4 -- ??.??.2020
+- updates ofc-ExcludeLists and removed some static links
+- Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
