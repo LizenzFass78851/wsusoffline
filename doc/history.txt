@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.3
+WSUS Offline Update - Community Edition - 11.9.4
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1735,3 +1735,4 @@ Community Edition 11.9.3 -- 31.07.2020
 - Cleaned up static download links for Office 2010, 2013 and 2016
 - Fix: fixed typo in UpdateOU.cmd which prevented the self update from working (Thanks to "hbuhrmester")
 --------------------------------------------------------------------------------
+Community Edition 11.9.4 -- ??.??.2020
