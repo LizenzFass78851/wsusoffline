@@ -59,18 +59,26 @@ if exist ..\static\SelfUpdateVersion-recent.txt (
 )
 
 rem Now compare the versions
-set CheckOUVersion_this=
-set CheckOUVersion_recent=
-for /f "tokens=1 delims=," %%f in (..\static\SelfUpdateVersion-this.txt) do (set CheckOUVersion_this=%%f)
-for /f "tokens=1 delims=," %%f in (..\static\SelfUpdateVersion-recent.txt) do (set CheckOUVersion_recent=%%f)
-if "%CheckOUVersion_this%"=="" (goto CompError)
-if "%CheckOUVersion_recent%"=="" (goto CompError)
+set CheckOUVersion_version_this=
+set CheckOUVersion_version_recent=
+set CheckOUVersion_type_this=
+set CheckOUVersion_type_recent=
+for /f "tokens=1,2 delims=," %%a in (..\static\SelfUpdateVersion-this.txt) do (
+  set CheckOUVersion_version_this=%%a
+  set CheckOUVersion_type_this=%%b
+)
+for /f "tokens=1,2 delims=," %%a in (..\static\SelfUpdateVersion-recent.txt) do (
+  set CheckOUVersion_version_recent=%%a
+  set CheckOUVersion_type_recent=%%b
+)
+if "%CheckOUVersion_version_this%"=="" (goto CompError)
+if "%CheckOUVersion_version_recent%"=="" (goto CompError)
 
-%CSCRIPT_PATH% //Nologo //B //E:vbs .\CompareVersions.vbs %CheckOUVersion_this% %CheckOUVersion_recent%
+%CSCRIPT_PATH% //Nologo //B //E:vbs .\CompareVersions.vbs %CheckOUVersion_version_this% %CheckOUVersion_version_recent%
 set CheckOUVersion_result=%errorlevel%
 if "%CheckOUVersion_result%"=="0" (
   rem %errorlevel%==0 -> equal
-  goto Result_OK
+  if "%CheckOUVersion_type_this%"=="%CheckOUVersion_type_recent%" (goto Result_OK) else (goto Result_UpdateAvailable)
 ) else if "%CheckOUVersion_result%"=="2" (
   rem %errorlevel%==2 -> this > recent
   if "%CheckOUVersion_mode%"=="different" (goto Result_UpdateAvailable) else (goto Result_OK)

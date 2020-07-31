@@ -44,10 +44,14 @@ title Updating WSUS Offline Update - Community Edition...
 call CheckOUVersion.cmd /mode:newer
 if not errorlevel 1 goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
+echo Downloading most recent released version of WSUS Offline Update - Community Edition...
+%WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt
+if errorlevel 1 goto DownloadError
+if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
 set FILENAME_ZIP=
 set FILENAME_HASH=
 set bufFILENAME=
-for /f "delims=" %%u in (..\static\SelfUpdateVersion-recent.txt) do (
+for /f "delims=" %%u in (..\static\StaticDownloadLink-recent.txt) do (
   for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %%u') do (
     set bufFILENAME=%%f
     if "!bufFILENAME:~-4!"==".zip" (
@@ -65,10 +69,6 @@ if "%FILENAME_HASH%"=="" (
   rem failed to determine file name
   goto DownloadError
 )
-echo Downloading most recent released version of WSUS Offline Update - Community Edition...
-%WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadLink-recent.txt
-if errorlevel 1 goto DownloadError
-if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
 %WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
 if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
