@@ -1557,11 +1557,17 @@ echo Creating file 10, ValidDynamicLinks-ofc-%2.txt ...
 call :Log "Info: Creating file 10, ValidDynamicLinks-ofc-%2.txt ..."
 if exist "%TEMP%\ExcludeList-ofc.txt" del "%TEMP%\ExcludeList-ofc.txt"
 if exist ..\exclude\ExcludeList-ofc.txt copy /Y ..\exclude\ExcludeList-ofc.txt "%TEMP%\ExcludeList-ofc.txt" >nul
+if not "%2"=="glb" (
+  if exist ..\exclude\ExcludeList-ofc-lng.txt type ..\exclude\ExcludeList-ofc-lng.txt >>"%TEMP%\ExcludeList-ofc.txt"
+)
 if exist ..\exclude\ExcludeList-ofc-%2.txt (
   type ..\exclude\ExcludeList-ofc-%2.txt >>"%TEMP%\ExcludeList-ofc.txt"
 )
 if exist ..\exclude\custom\ExcludeList-ofc.txt (
   type ..\exclude\custom\ExcludeList-ofc.txt >>"%TEMP%\ExcludeList-ofc.txt"
+)
+if not "%2"=="glb" (
+  if exist ..\exclude\custom\ExcludeList-ofc-lng.txt type ..\exclude\custom\ExcludeList-ofc-lng.txt >>"%TEMP%\ExcludeList-ofc.txt"
 )
 if exist ..\exclude\custom\ExcludeList-ofc-%2.txt (
   type ..\exclude\custom\ExcludeList-ofc-%2.txt >>"%TEMP%\ExcludeList-ofc.txt"
