@@ -1741,6 +1741,7 @@ Community Edition 12.1.1 -- 31.07.2020
 - Cleaned up static download links for Office 2010, 2013 and 2016
 - Fix: fixed typo in UpdateOU.cmd which prevented the self update from working (Thanks to "hbuhrmester")
 --------------------------------------------------------------------------------
-Community Edition 12.2 -- ??.??.2020
+Community Edition 12.2 -- 01.08.2020
 - Updated the ofc-ExcludeLists and removed some static links
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
+--------------------------------------------------------------------------------
