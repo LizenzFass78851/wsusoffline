@@ -1,4 +1,4 @@
-; ***  WSUS Offline Update 12.2 - Installer  ***
+; ***  WSUS Offline Update 12.3 - Installer  ***
 ; ***       Author: T. Wittrock, Kiel        ***
 ; ***         - Community Edition -          ***
 ; ***   Dialog scaling added by Th. Baisch   ***
@@ -8,14 +8,14 @@
 #RequireAdmin
 #pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Installer")
-#pragma compile(FileVersion, 12.2.0)
+#pragma compile(FileVersion, 12.3.0)
 #pragma compile(InternalName, "Installer")
 #pragma compile(LegalCopyright, "GNU GPLv3")
 #pragma compile(OriginalFilename, UpdateInstaller.exe)
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
-#pragma compile(ProductVersion, 12.2.0)
+#pragma compile(ProductVersion, 12.3.0)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.2 - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.3 (b1) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"

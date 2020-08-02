@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 12.2
+WSUS Offline Update - Community Edition - 12.3
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1745,3 +1745,4 @@ Community Edition 12.2 -- 01.08.2020
 - Updated the ofc-ExcludeLists and removed some static links
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
 --------------------------------------------------------------------------------
+Community Edition 12.3 -- ??.??.2020
