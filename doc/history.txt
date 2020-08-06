@@ -1740,3 +1740,4 @@ Community Edition 11.9.4 -- 01.08.2020
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
 --------------------------------------------------------------------------------
 Community Edition 11.9.5 -- ??.??.2020
+- C++ 2019 Redistributable Runtime Libraries updated to v. 14.27.29016.0 (Thanks to "harry")
