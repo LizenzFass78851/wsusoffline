@@ -6,6 +6,11 @@ verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
+rem clear vars storing parameters
+set SECONLY=
+set EXC_STATICS=
+set IGNORE_BL=
+
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 
 set OFC_DEBUG=0

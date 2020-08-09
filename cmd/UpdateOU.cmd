@@ -9,6 +9,11 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
+rem clear vars storing parameters
+set RESTART_GENERATOR=
+set http_proxy=
+set https_proxy=
+
 set DOWNLOAD_LOGFILE=..\log\download.log
 if exist %DOWNLOAD_LOGFILE% (
   echo.>>%DOWNLOAD_LOGFILE%
@@ -43,7 +48,7 @@ goto EvalParams
 :NoMoreParams
 rem *** Update WSUS Offline Update - Community Edition ***
 title Updating WSUS Offline Update - Community Edition...
-call CheckOUVersion.cmd /mode:newer
+if "%http_proxy%" NEQ "" (call CheckOUVersion.cmd /mode:newer /proxy %http_proxy%) else (call CheckOUVersion.cmd /mode:newer)
 if not errorlevel 1 goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update - Community Edition...

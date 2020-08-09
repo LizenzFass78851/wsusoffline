@@ -1,11 +1,20 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
 cd /D "%~dp0"
+
+rem clear vars storing parameters
+set OUTPUT_PATH=
+set EXC_SW=
+set INC_DOTNET=
+set INC_WDDEFS=
+set CLEANUP=
+set EXIT_ERR=
 
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting copying for %1 %2 %3 %4 %5 %6 %7 %8 %9...

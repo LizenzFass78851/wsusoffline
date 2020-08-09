@@ -8,6 +8,13 @@ if errorlevel 1 goto NoExtensions
 
 cd /D "%~dp0"
 
+rem clear vars storing parameters
+set CheckOUVersion_mode=
+set QUIET_MODE=
+set EXIT_ERR=
+set http_proxy=
+set https_proxy=
+
 set CSCRIPT_PATH=%SystemRoot%\System32\cscript.exe
 if not exist %CSCRIPT_PATH% goto NoCScript
 if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else (
@@ -15,13 +22,10 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else
 )
 if not exist %WGET_PATH% goto NoWGet
 
-set CheckOUVersion_mode=
-
 :EvalParams
 if "%1"=="" goto NoMoreParams
 if /i "%1"=="/mode:different" set CheckOUVersion_mode=different
 if /i "%1"=="/mode:newer" set CheckOUVersion_mode=newer
-if /i "%1"=="/quiet" set QUIET_MODE=1
 if /i "%1"=="/quiet" set QUIET_MODE=1
 if /i "%1"=="/exitonerror" set EXIT_ERR=1
 if /i "%1"=="/proxy" (

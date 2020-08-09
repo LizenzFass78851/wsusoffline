@@ -7,6 +7,9 @@ if errorlevel 1 goto NoExtensions
 
 cd /D "%~dp0"
 
+rem clear vars storing parameters
+set CLEANUP=
+
 title %~n0 %1 %2 %3 %4
 set DOWNLOAD_LOGFILE=..\log\download.log
 if exist %DOWNLOAD_LOGFILE% (

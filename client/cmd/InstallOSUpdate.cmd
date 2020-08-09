@@ -1,9 +1,17 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
+
+rem clear vars storing parameters
+set SELECT_OPTIONS=
+set VERIFY_FILES=
+set DISM_PROGRESS=
+set ERRORS_AS_WARNINGS=
+set IGNORE_ERRORS=
 
 if "%DIRCMD%" NEQ "" set DIRCMD=
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log

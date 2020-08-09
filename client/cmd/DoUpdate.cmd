@@ -10,7 +10,27 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.3 (b3)
+rem clear vars storing parameters
+set UPDATE_CPP=
+set INSTALL_DOTNET35=
+set UPDATE_RCERTS=
+set INSTALL_DOTNET4=
+set INSTALL_WMF=
+set SKIP_IEINST=
+set DO_UPGRADES=
+set SKIP_DEFS=
+set SKIP_DYNAMIC=
+set LIST_MODE_IDS=
+set LIST_MODE_UPDATES=
+set VERIFY_MODE=
+set BOOT_MODE=
+set FINISH_MODE=
+set SHOW_LOG=
+set DISM_MODE=
+set MONITOR_ON=
+set INSTALL_MSI=
+
+set WSUSOFFLINE_VERSION=12.3 (b4)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log

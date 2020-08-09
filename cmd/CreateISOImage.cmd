@@ -1,11 +1,20 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
 cd /D "%~dp0"
+
+rem clear vars storing parameters
+set EXC_SW=
+set INC_DOTNET=
+set INC_WDDEFS=
+set EXIT_ERR=
+set SKIP_HASHES=
+set OUTPUT_PATH=
 
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting ISO image creation for %1 %2 %3 %4 %5 %6 %7 %8 %9...

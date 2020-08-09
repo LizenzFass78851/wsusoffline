@@ -9,9 +9,14 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
+rem clear vars storing parameters
+set http_proxy=
+set https_proxy=
+set JUST_RELOAD=
+
 :EvalParams
 if "%1"=="" goto NoMoreParams
-if /i "%1"=="/reload" goto Reload
+if /i "%1"=="/reload" set JUST_RELOAD=1
 if /i "%1"=="/proxy" (
   set http_proxy=%2
   set https_proxy=%2
@@ -21,6 +26,7 @@ shift /1
 goto EvalParams
 
 :NoMoreParams
+if "%JUST_RELOAD%"=="1" goto Reload
 set DOWNLOAD_LOGFILE=..\log\download.log
 if exist %DOWNLOAD_LOGFILE% (
   echo.>>%DOWNLOAD_LOGFILE%
