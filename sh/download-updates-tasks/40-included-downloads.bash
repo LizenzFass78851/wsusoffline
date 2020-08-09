@@ -50,7 +50,7 @@ function get_included_downloads ()
                 ;;
                 # At this point, only the .NET Framework installers are
                 # downloaded. These are architecture-independent, but the
-                # dynamic updates are not. There is tested here, to avoid
+                # dynamic updates are not. This is tested here, to avoid
                 # downloading only the installers, without any updates.
                 dotnet)
                     if (( "${#architectures_list[@]}" > 0 ))

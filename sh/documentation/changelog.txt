@@ -1,3 +1,29 @@
+Version 2.2 Community Edition (2.2-CE)
+
+   Release date: 2020-08-09
+   Development branch: master
+   Supported versions: WSUS Offline Update, Community Edition 12.2
+
+   Changed Features
+
+    * Revised wsusoffline self-update, matching the Community Editions
+      esr-11.9.4 and 12.2
+
+    * Six more obsolete files are deleted
+
+    * Windows 10 version-specific exclude lists are applied to both
+      static and dynamic updates
+
+    * Windows 10, versions 1903 and 1909 share a common
+      ExcludeList-w100-1903_1909.txt
+
+    * Dynamic Office updates use a new ExcludeList-ofc-lng.txt
+
+    * Support for .NET Framework 3.5 removed
+
+    * Small changes to comments, labels and menus
+
+
 Version 2.1 Community Edition (2.1-CE)
 
    Release date: 2020-07-21

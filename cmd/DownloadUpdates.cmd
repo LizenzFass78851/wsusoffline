@@ -15,7 +15,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.3 (b2)
+set WSUSOFFLINE_VERSION=12.3 (b3)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -305,6 +305,9 @@ if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLin
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
 del /Q ..\xslt\*-win-x86-*.* >nul 2>&1
+if exist ../static/StaticDownloadFiles-modified.txt del ../static/StaticDownloadFiles-modified.txt
+if exist ../exclude/ExcludeDownloadFiles-modified.txt del ../exclude/ExcludeDownloadFiles-modified.txt
+if exist ../client/static/StaticUpdateFiles-modified.txt del ../client/static/StaticUpdateFiles-modified.txt
 
 rem *** Obsolete external stuff ***
 if exist ..\bin\extract.exe del ..\bin\extract.exe
@@ -376,12 +379,12 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 )
 if exist ..\xslt\ExtractDownloadLinks-w60-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w60-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-w60-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w60-x86-glb.xsl
-if exist ..\client\static\StaticDownloadLinks-w60-x64-glb.txt del ..\client\static\StaticDownloadLinks-w60-x64-glb.txt
-if exist ..\client\static\StaticDownloadLinks-w60-x86-glb.txt del ..\client\static\StaticDownloadLinks-w60-x86-glb.txt
-if exist ..\client\static\StaticDownloadLinks-w60-x64-5lg.txt del ..\client\static\StaticDownloadLinks-w60-x64-5lg.txt
-if exist ..\client\static\StaticDownloadLinks-w60-x86-5lg.txt del ..\client\static\StaticDownloadLinks-w60-x86-5lg.txt
-if exist ..\client\static\StaticDownloadLinks-w60-x64-alg.txt del ..\client\static\StaticDownloadLinks-w60-x64-alg.txt
-if exist ..\client\static\StaticDownloadLinks-w60-x86-alg.txt del ..\client\static\StaticDownloadLinks-w60-x86-alg.txt
+if exist ..\static\StaticDownloadLinks-w60-x64-glb.txt del ..\static\StaticDownloadLinks-w60-x64-glb.txt
+if exist ..\static\StaticDownloadLinks-w60-x86-glb.txt del ..\static\StaticDownloadLinks-w60-x86-glb.txt
+if exist ..\static\StaticDownloadLinks-w60-x64-5lg.txt del ..\static\StaticDownloadLinks-w60-x64-5lg.txt
+if exist ..\static\StaticDownloadLinks-w60-x86-5lg.txt del ..\static\StaticDownloadLinks-w60-x86-5lg.txt
+if exist ..\static\StaticDownloadLinks-w60-x64-alg.txt del ..\static\StaticDownloadLinks-w60-x64-alg.txt
+if exist ..\static\StaticDownloadLinks-w60-x86-alg.txt del ..\static\StaticDownloadLinks-w60-x86-alg.txt
 
 rem *** Windows 7 / Server 2008 R2 stuff ***
 if exist ..\client\static\StaticUpdateIds-ie10-w61.txt del ..\client\static\StaticUpdateIds-ie10-w61.txt
@@ -408,12 +411,12 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 )
 if exist ..\xslt\ExtractDownloadLinks-w61-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w61-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-w61-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-w61-x86-glb.xsl
-if exist ..\client\static\StaticDownloadLinks-w61-x64-glb.txt del ..\client\static\StaticDownloadLinks-w61-x64-glb.txt
-if exist ..\client\static\StaticDownloadLinks-w61-x86-glb.txt del ..\client\static\StaticDownloadLinks-w61-x86-glb.txt
-if exist ..\client\static\StaticDownloadLinks-w61-x64-5lg.txt del ..\client\static\StaticDownloadLinks-w61-x64-5lg.txt
-if exist ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt del ..\client\static\StaticDownloadLinks-w61-x86-5lg.txt
-if exist ..\client\static\StaticDownloadLinks-w61-x64-alg.txt del ..\client\static\StaticDownloadLinks-w61-x64-alg.txt
-if exist ..\client\static\StaticDownloadLinks-w61-x86-alg.txt del ..\client\static\StaticDownloadLinks-w61-x86-alg.txt
+if exist ..\static\StaticDownloadLinks-w61-x64-glb.txt del ..\static\StaticDownloadLinks-w61-x64-glb.txt
+if exist ..\static\StaticDownloadLinks-w61-x86-glb.txt del ..\static\StaticDownloadLinks-w61-x86-glb.txt
+if exist ..\static\StaticDownloadLinks-w61-x64-5lg.txt del ..\static\StaticDownloadLinks-w61-x64-5lg.txt
+if exist ..\static\StaticDownloadLinks-w61-x86-5lg.txt del ..\static\StaticDownloadLinks-w61-x86-5lg.txt
+if exist ..\static\StaticDownloadLinks-w61-x64-alg.txt del ..\static\StaticDownloadLinks-w61-x64-alg.txt
+if exist ..\static\StaticDownloadLinks-w61-x86-alg.txt del ..\static\StaticDownloadLinks-w61-x86-alg.txt
 
 rem *** Windows 8 stuff ***
 if exist ..\client\static\StaticUpdateIds-w62-x86.txt del ..\client\static\StaticUpdateIds-w62-x86.txt
@@ -588,6 +591,7 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 call :Log "Info: Preserved custom language and architecture additions and removals"
 
 echo Updating static and exclude definitions for download and update...
+if not exist ..\static\sdd md ..\static\sdd
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt ..\static\sdd
 if not "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update StaticDownloadFiles-modified.txt"

@@ -143,6 +143,9 @@ Laden Sie das neueste wsusoffline-Archiv herunter und entpacken Sie es.
   <https://gitlab.com/wsusoffline/wsusoffline/-/releases> für die
   Community Edition.
 
+  Wählen sie das neueste Release aus dem "master" Zweig, also Version
+  12.2-CE oder höher.
+
 Beachten Sie, dass das Zip-Archiv von einer Hashes-Datei begleitet
 wird. Sie können das Archiv damit überprüfen:
 

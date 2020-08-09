@@ -1746,4 +1746,7 @@ Community Edition 12.2 -- 01.08.2020
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
 --------------------------------------------------------------------------------
 Community Edition 12.3 -- ??.??.2020
+- Included complete rewrite of the Linux scripts version CE-2.2 (Special thanks to H. Buhrmester)
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.27.29016.0 (Thanks to "harry")
+- Fix: The root certificates are downloaded using https:// instead of http:// now (Thanks to "hbuhrmester")
+- Fix: old files for w60/w61 were not cleaned up (Thanks to "hbuhrmester")

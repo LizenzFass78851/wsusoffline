@@ -325,6 +325,13 @@ function calculate_static_updates ()
     local current_dir=""
     local current_lang=""
     local -a exclude_lists_static=()
+    # Added for the determination of Windows 10 exclude lists
+    local version=""
+    local key=""
+    local value=""
+    local -i result_code="0"
+    local win_10_1903=""
+    local win_10_1909=""
 
     log_info_message "Determining static update links ..."
 
@@ -385,30 +392,6 @@ function calculate_static_updates ()
                     fi
                 done
             ;;
-            dotnet)
-                # This script only handles architecture-dependent
-                # downloads in the directories:
-                #
-                # - dotnet/x86-glb
-                # - dotnet/x64-glb
-                #
-                # Localized, but architecture-independent downloads are
-                # handled by the script 40-included-downloads.bash.
-                #
-                # Global static download links for "dotnet ${arch} glb"
-                # are already included in the patterns above. This means,
-                # that glb does not need to be added to the language
-                # list at this point.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-dotnet-${arch}-${current_lang}.txt" ]]
-                    then
-                        grep_dos -F -i "dotnetfx35langpack_${arch}" \
-                            "${current_dir}/StaticDownloadLinks-dotnet-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" || true
-                    fi
-                done
-            ;;
         esac
     done
 
@@ -425,12 +408,68 @@ function calculate_static_updates ()
         # create copies of the file in the ../exclude/custom directory.
         exclude_lists_static=( "../exclude/custom/ExcludeListForce-all.txt" )
 
-        # The combined exclude list is the same for all static downloads;
-        # therefore, the name is just "ExcludeListStatic.txt".
+        # Since Community Edition 12.2, Windows 10 version-specific
+        # exclude lists are applied to both static and dynamic updates.
+        #
+        # TODO: This code should only be used once
+        if [[ "${name}" == "w100" ]]
+        then
+            for version in "${w100_versions[@]}"
+            do
+                key="${version}_${arch}"
+                # The shell option errexit and a trap on ERR require some
+                # workaround to check the result code
+                value="$(read_setting "${w100_versions_file}" "${key}")" \
+                    && result_code="0" || result_code="$?"
+                case "${result_code}" in
+                    0)
+                        if [[ "${value}" == "off" ]]
+                        then
+                            exclude_lists_static+=(
+                                "../exclude/ExcludeList-w100-${version}.txt"
+                                "../exclude/custom/ExcludeList-w100-${version}.txt"
+                            )
+                            #log_debug_message "Excluded: ${key} ${value}"
+                            [[ "${version}" == "1903" ]] && win_10_1903="off"
+                            [[ "${version}" == "1909" ]] && win_10_1909="off"
+                        else
+                            :
+                            #log_debug_message "Included: ${key} ${value}"
+                        fi
+                    ;;
+                    1)
+                        log_warning_message "The settings file ${w100_versions_file} was not found. Please install the utility \"dialog\" and run the script update-generator.bash to select your Windows 10 versions."
+                        # Break out of the enclosing for loop. There is no
+                        # need to check all Windows 10 versions, if the
+                        # settings file does not exist. This only causes
+                        # the warning to be repeated several times.
+                        break
+                    ;;
+                    2)
+                        log_warning_message "The key ${key} was not found in the settings file ${w100_versions_file}. Please run the script update-generator.bash again to update your Windows 10 versions."
+                    ;;
+                    *)
+                        log_error_message "Unknown error ${result_code} in function calculate_dynamic_windows_updates."
+                    ;;
+                esac
+            done
+        fi
+
+        if [[ "${win_10_1903}" == "off" && "${win_10_1909}" == "off" ]]
+        then
+            exclude_lists_static+=(
+                "../exclude/ExcludeList-w100-1903_1909.txt"
+                "../exclude/custom/ExcludeList-w100-1903_1909.txt"
+            )
+        fi
+
+        # The filename for the combined exclude list includes the
+        # update name and architecture, to distinguish between different
+        # Windows versions
         apply_exclude_lists \
             "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
             "${valid_static_links}" \
-            "${temp_dir}/ExcludeListStatic.txt" \
+            "${temp_dir}/ExcludeListStatic-${name}-${arch}.txt" \
             "${exclude_lists_static[@]}"
     fi
 
@@ -600,7 +639,7 @@ function calculate_dynamic_windows_updates ()
     apply_exclude_lists \
         "${temp_dir}/CurrentDynamicLinks-${name}-${arch}-${lang}.txt" \
         "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeList-${name}-${arch}.txt" \
+        "${temp_dir}/ExcludeListDynamic-${name}-${arch}.txt" \
         "${exclude_lists_windows[@]}"
 
     # Dynamic updates should always be found, so an empty output file
@@ -837,12 +876,21 @@ function calculate_dynamic_office_updates ()
         "../exclude/custom/ExcludeList-ofc-${lang}.txt"
         "../exclude/custom/ExcludeListForce-all.txt"
     )
+    # The file ExcludeList-ofc-lng.txt was added in Community Edition
+    # 11.9.4 ESR and 12.2
+    if [[ "${lang}" != "glb" ]]
+    then
+        exclude_lists_office+=(
+            "../exclude/ExcludeList-ofc-lng.txt"
+            "../exclude/custom/ExcludeList-ofc-lng.txt"
+        )
+    fi
 
     log_info_message "Creating file 10, ${valid_dynamic_links##*/} ..."
     apply_exclude_lists \
         "${temp_dir}/CurrentDynamicLinks-ofc-${lang}.txt" \
         "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeList-ofc-${lang}.txt" \
+        "${temp_dir}/ExcludeListDynamic-ofc-${lang}.txt" \
         "${exclude_lists_office[@]}"
 
     # Dynamic updates should always be found for "ofc".

@@ -113,8 +113,8 @@ function parse_first_parameter_as_list ()
             w60 | w60-x64 | w61 | w61-x64)
                 log_warning_message "Update ${update_name} is not supported by this version of WSUS Offline Update. Please use version 11.9.x ESR instead."
             ;;
-            w62-x64 | w63 | w63-x64 | w100 | w100-x64 | o2k10 | o2k10-x64 \
-            | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+            w62-x64 | w63 | w63-x64 | w100 | w100-x64 \
+            | o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
                 if update_description="$(name_to_description "${update_name}" "${updates_table}")"
                 then
                     log_info_message "Adding ${update_description} (${update_name}) to the list of updates..."
@@ -135,10 +135,6 @@ function parse_first_parameter_as_list ()
 
 # Parse the preliminary list of updates to add common updates for Windows
 # and Office (win and ofc), and to build a list of needed architectures.
-#
-# The architectures list is needed for the optional downloads wddefs
-# and dotnet. They must be downloaded in 32-bit, 64-bit, or both. The
-# selected Windows versions determine, which architectures are needed.
 
 function parse_preliminary_update_list ()
 {
@@ -189,9 +185,9 @@ function parse_preliminary_update_list ()
             ;;
         esac
 
-        # Determine the needed architectures for the optional downloads
-        # .NET Frameworks and Windows Defender definition updates. This
-        # depends on the Windows updates only.
+        # Determine the needed architectures for the optional virus
+        # definition updates and .NET Frameworks. This depends on the
+        # Windows updates only.
         case "${update_name}" in
             w63 | w100)
                 # Optional downloads will be downloaded in 32-bit versions

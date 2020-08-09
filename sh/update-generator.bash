@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: 2.1 Community Edition (2.1-CE)
-# Release date: 2020-07-21
-# Intended compatibility: WSUS Offline Update, Community Edition 12.0
+# Version: 2.2 Community Edition (2.2-CE)
+# Release date: 2020-08-09
+# Development branch: master
+# Supported versions: WSUS Offline Update, Community Edition 12.2
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -94,8 +95,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.1-CE"
-readonly release_date="2020-07-21"
+readonly script_version="2.2-CE"
+readonly release_date="2020-08-09"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -342,9 +343,11 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
-    # Also create a ../static directory for an initial installation of
-    # WSUS Offline Update by the Linux download scripts
-    mkdir -p "${wsusoffline_directory}/static"
+    # Also create the directory ../static/sdd for an initial installation
+    # of WSUS Offline Update by the Linux download scripts and for the
+    # update of static download definitions (and other configuration
+    # files)
+    mkdir -p "${wsusoffline_directory}/static/sdd"
 
     return 0
 }
@@ -406,7 +409,7 @@ function run_tasks ()
         file_list=( "./${task_directory}"/*.bash )
         shopt -u nullglob
 
-        if (( ${#file_list[@]} > 0 ))
+        if (( "${#file_list[@]}" > 0 ))
         then
             for current_task in "${file_list[@]}"
             do

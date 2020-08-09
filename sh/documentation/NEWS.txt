@@ -1,3 +1,108 @@
+NEWS for Version 2.2 Community Edition (2.2-CE)
+
+   Release date: 2020-08-09
+   Development branch: master
+   Supported versions: WSUS Offline Update, Community Edition 12.2
+
+   Changed Features
+
+    * Revised wsusoffline self-update
+
+      The implementation of the wsusoffline self-update was revised to
+      match that of the Community Editions esr-11.9.4 and 12.2.
+
+      The files SelfUpdateVersion-this.txt and
+      SelfUpdateVersion-recent.txt contain a version number and the
+      installation type, which can be beta or release.
+
+      The comparison of the installed version and the latest available
+      release distinguishes three different cases:
+
+      1. The version numbers and installation types are the same. There
+         is no update available.
+
+         This implies, that the files SelfUpdateVersion-this.txt and
+         SelfUpdateVersion-recent.txt are the same. A quick version
+         check may use diff to compare these files.
+
+      2. A newer release is available. This usually means, that a
+         new release with a higher version number is available. If the
+         version numbers are the same, then a release can replace a beta
+         (development) version.
+
+      3. The installed version is newer than the latest available release.
+         This may happen, if a beta (development) version is installed.
+
+         In this case, you are responsible for updating your installation
+         yourself. The self-update of WSUS Offline Update always
+         installs the latest available release. The update of static
+         download definitions (sdd) also refers to the latest available
+         release. To skip all self-updates, you could change the option
+         check_for_self_updates to "disabled" in the preferences file.
+
+      The filenames of the archive and the hashes file are extracted
+      from the file StaticDownloadLink-recent.txt.
+
+      Since the self-update of the Linux download scripts was removed,
+      several variable and function names could be simplified:
+
+         wou_installed_version      ->  installed_version
+         wou_available_version      ->  available_version
+         wou_available_archive      ->  archive_filename
+         wou_available_hashes       ->  hashes_filename
+         wou_timestamp_file         ->  wsusoffline_timestamp
+         get_wou_installed_version  ->  get_installed_version
+         get_wou_available_version  ->  get_available_version
+
+
+    * Removal of obsolete files
+
+      The following batch files are no longer needed:
+
+         ../cmd/ActivateAllLanguageServicePacks.cmd
+         ../cmd/ActivateFiveLanguageServicePacks.cmd
+         ../cmd/RemoveEnglishLanguageSupport.cmd
+
+      The following configuration files are removed from their previous
+      locations. They are now downloaded to the directory ../static/sdd:
+
+         ../static/StaticDownloadFiles-modified.txt
+         ../exclude/ExcludeDownloadFiles-modified.txt
+         ../client/static/StaticUpdateFiles-modified.txt
+
+
+    * Windows 10 updates
+
+      Windows 10 version-specific exclude lists are now applied to both
+      static and dynamic updates.
+
+      In WSUS Offline Update 12.0, the versions 1903 and 1909 were linked:
+      If version 1903 was selected, then version 1909 was automatically
+      selected as well.
+
+      In the Community Edition 12.2, the versions 1903 and 1909 are not
+      directly linked anymore; they can be enabled/disabled separately. If
+      both 1903 and 1909 are disabled, then a combined exclude list
+      ExcludeList-w100-1903_1909.txt will be applied.
+
+
+    * Office updates
+
+      An additional exclude list ExcludeList-ofc-lng.txt is used for
+      the calculation of dynamic office updates.
+
+
+    * .NET Frameworks
+
+      Support for .NET Framework 3.5 (dotnetfx35) was removed.
+
+
+    * Small changes to comments, labels and menus
+
+      These are meant to make the master version and the esr-19.1 branch
+      better comparable.
+
+
 NEWS for Version 2.1 Community Edition (2.1-CE)
 
    Release date: 2020-07-21

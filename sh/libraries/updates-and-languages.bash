@@ -56,13 +56,16 @@
 
 # ========== Version specific configuration ===============================
 
-# This is the configuration file for the current (or trunk) version WSUS
-# Offline Update 12.0.
+# This is the configuration file for the current (master/trunk)
+# development branch of WSUS Offline Update.
+#
+# Supported releases are:
+# - WSUS Offline Update 12.0
+# - WSUS Offline Update 12.0 CE (Community Edition)
+# - WSUS Offline Update 12.1 CE
+# - WSUS Offline Update 12.2 CE
 
 # Supported updates
-#
-# The indexed arrays updates_menu, languages_menu and options_menu are
-# used as menus for the internal command "select" of the bash.
 updates_menu=(
     "w62-x64       Windows Server 2012, 64-bit"
     "w63           Windows 8.1, 32-bit"
@@ -131,30 +134,20 @@ languages_menu=(
 )
 
 # Options for Windows 8, 8.1 and 10
-#
-# These options are not displayed for Office
 options_menu=(
     "-includecpp      Visual C++ Runtime Libraries"
     "-includedotnet   .NET Frameworks"
     "-includewddefs   Windows Defender definition updates"
 )
 
+# Note: After the removal of Service Packs in WSUS Offline Update 12.0,
+# there are no options for Office.
+
 # Tables (string variables with multiple lines) are created from the
-# indexed arrays above
+# indexed arrays above.
 updates_table="$(printf '%s\n' "${updates_menu[@]}")"
 languages_table="$(printf '%s\n' "${languages_menu[@]}")"
 options_table="$(printf '%s\n' "${options_menu[@]}")"
-
-# Some debug output
-#echo "--- Updates ---"
-#echo "${updates_table}"
-#echo ""
-#echo "--- Languages ---"
-#echo "${languages_table}"
-#echo ""
-#echo "--- Options ---"
-#echo "${options_table}"
-#echo ""
 
 # ========== Functions ====================================================
 

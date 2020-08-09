@@ -466,8 +466,8 @@ function download_single_file ()
 
     case "${filename}" in
         # Since version 1.12, the virus definition files are referenced
-        # with LinkIDs, which resolve to the filename mpam-fe.exe after
-        # several redirections.
+        # with LinkIDs, which resolve to the filenames mpas-fe.exe and
+        # mpam-fe.exe after several redirections.
         *LinkID*)
             download_single_file_failsafe "$@"
         ;;

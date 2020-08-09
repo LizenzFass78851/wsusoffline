@@ -125,17 +125,17 @@ function select_options ()
     # and Windows Defender definition updates are only available for
     # Windows, because they depend on the architecture of the operating
     # system.
+    #
+    # There are no options for Office, after Service Packs were removed
+    # in WSUS Offline Update 12.0
+
     case "${update_name}" in
-        # Supported Windows versions and internal lists, which include
-        # Windows
-        w62-x64 | w63 | w63-x64 | w100 | w100-x64 | all | all-x86 | \
-        all-x64 | all-win | all-win-x86 | all-win-x64)
+        w62-x64 | w63 | w63-x64 | w100 | w100-x64 \
+        | all | all-x86 | all-x64 | all-win | all-win-x86 | all-win-x64)
             :
         ;;
-        o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 | \
-        all-ofc | all-ofc-x86)
-            # There are no options for Office, after Service Packs were
-            # removed in WSUS Offline Update 12.0
+        o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 \
+        | all-ofc | all-ofc-x86)
             return 0
         ;;
         *)

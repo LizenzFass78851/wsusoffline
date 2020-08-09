@@ -55,7 +55,7 @@
 #   all-x86       All Windows and Office updates, 32-bit
 #   all-win-x64   All Windows updates, 64-bit
 #   all-ofc       All Office updates, 32-bit and 64-bit
-#   w62-x64       Server 2012, 64-bit
+#   w62-x64       Windows Server 2012, 64-bit
 #   w63           Windows 8.1, 32-bit
 #   w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
 #   w100          Windows 10, 32-bit
@@ -70,15 +70,6 @@
 #   -output-path <dir> Output directory for the ISO image file - the
 #                      default is ../iso
 #   -create-hashes     Create a hashes file for the ISO image file
-#
-# The script create-iso-image.bash is meant to support both the current
-# version WSUS Offline Update 12.0 and the branch 11.9.x ESR, but some
-# updates are only available in the ESR version.
-#
-# The distinction is the presence of the filter files ExcludeListISO-*.txt
-# and the download directories: Windows 7 is not supported by the current
-# version, because neither the filter file ExcludeListISO-w61.txt nor
-# the download directory client/w61 can be found.
 #
 #
 # The script create-iso-image.bash has basically three modes of operation:
@@ -207,7 +198,7 @@ The update can be one of:
     all-x86       All Windows and Office updates, 32-bit
     all-win-x64   All Windows updates, 64-bit
     all-ofc       All Office updates, 32-bit and 64-bit
-    w62-x64       Server 2012, 64-bit
+    w62-x64       Windows Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
     w100          Windows 10, 32-bit
@@ -341,8 +332,8 @@ function parse_command_line ()
     update_name="$1"
     # Verify and set the used ExcludeListISO-*.txt
     case "${update_name}" in
-        all | all-x86 | all-win-x64 | all-ofc | \
-        w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+        all | all-x86 | all-win-x64 | all-ofc \
+        | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
             log_info_message "Found update ${update_name}"
             # Verify the exclude list: There must be one exclude list
             # for each supported update name.
@@ -371,17 +362,11 @@ function parse_command_line ()
             exit 1
         ;;
     esac
-    # Check the download directories
-    #
-    # This was meant as another test, do distinguish the current version
-    # of WSUS Offline Update and previous ESR versions.
+    # Verify the download directories
     case "${update_name}" in
         # There is nothing to do for the profiles all, all-x86 and
         # all-win-x64. Using a simple "no-operation" prevents error
         # messages by the catch-all handler at the end.
-        #
-        # TODO: Actually check the download directories for all supported
-        # Windows versions w62-x64, w63, w63-x64, w100 and w100-x64.
         all | all-x86 | all-win-x64)
             :
         ;;
@@ -391,8 +376,6 @@ function parse_command_line ()
         # The shell follows symbolic links to the download directory,
         # so the test -d matches both the original directories and valid
         # symbolic links to directories.
-        #
-        # TODO: Also check the supported Office versions
         all-ofc)
             if [[ -d "../client/ofc" ]]
             then

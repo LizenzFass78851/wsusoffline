@@ -33,8 +33,8 @@
 #
 # The Linux script copy-to-target.bash uses the existing files
 # wsusoffline/exclude/ExcludeListUSB-*.txt to create the initial filter
-# file, just like the Windows script CopyToTarget.cmd. This way, the files
-# ExcludeListUSB-*.txt define the available options for the <update>
+# file, just like the Windows script CopyToTarget.cmd. This way, the
+# files ExcludeListUSB-*.txt define the available options for the <update>
 # parameter of the script copy-to-target.bash.
 #
 # The supported updates for WSUS Offline Update 12.0 and later are:
@@ -43,7 +43,7 @@
 #   all-x86       All Windows and Office updates, 32-bit
 #   all-win-x64   All Windows updates, 64-bit
 #   all-ofc       All Office updates, 32-bit and 64-bit
-#   w62-x64       Server 2012, 64-bit
+#   w62-x64       Windows Server 2012, 64-bit
 #   w63           Windows 8.1, 32-bit
 #   w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
 #   w100          Windows 10, 32-bit
@@ -186,7 +186,7 @@ The update can be one of:
     all-x86       All Windows and Office updates, 32-bit
     all-win-x64   All Windows updates, 64-bit
     all-ofc       All Office updates, 32-bit and 64-bit
-    w62-x64       Server 2012, 64-bit
+    w62-x64       Windows Server 2012, 64-bit
     w63           Windows 8.1, 32-bit
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
     w100          Windows 10, 32-bit
@@ -306,8 +306,8 @@ function parse_command_line ()
         case "${update}" in
             # These are the supported updates in WSUS Offline Update
             # 12.0 and later.
-            all | all-x86 | all-win-x64 | all-ofc | \
-            w62-x64 | w63 | w63-x64 | w100 | w100-x64)
+            all | all-x86 | all-win-x64 | all-ofc \
+            | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
                 # Note, that the script uses its own copies of the
                 # exclude lists, because the filters had to be edited
                 # to be compatible with rsync.
@@ -368,6 +368,11 @@ function parse_command_line ()
                     # This option may be needed to solve one particular
                     # problem: Files, which are excluded in rsync, are
                     # neither copied nor deleted; they are just ignored.
+                    #
+                    # One example would be Service Packs in WSUS Offline
+                    # Update 11.9.1 ESR: If they were copied with the
+                    # option -includesp, they won't be deleted again by
+                    # simply omitting this option.
                     #
                     # rsync needs both options --delete and
                     # --delete-excluded, to actually delete excluded

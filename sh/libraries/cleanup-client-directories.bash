@@ -208,11 +208,10 @@ function cleanup_client_directory ()
             fi
 
             # The virus definition files are referenced with "LinkIDs"
-            # in the files StaticDownloadLinks-wddefs-x86-glb.txt and
-            # StaticDownloadLinks-wddefs-x64-glb.txt. The filenames
-            # are only used after several redirections. Therefore,
-            # comparing the filenames to the URLs does not work, and
-            # the files must be preserved at this point.
+            # in the static download files, and the filenames are only
+            # used after several redirections. Therefore, comparing the
+            # filenames to the URLs does not work, and the files must
+            # be preserved at this point.
             case "${filename}" in
                 mpam-fe.exe)
                     log_debug_message "Kept virus definition file ${pathname}"

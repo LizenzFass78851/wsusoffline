@@ -40,12 +40,16 @@ function verify_integrity_database ()
     local hashed_dir="$1"
     local hashes_file="$2"
     # Delete the element "client/" from the pathname, because hashdeep
-    # will be called from wsusoffline/client/md/. These directory
-    # changes could probably be omitted by using the bare option
-    # (-b) in hashdeep, which simply strips any leading directory
-    # information. This would not cause problems, since every hashdeep
-    # file corresponds to one download directory only. Only for wddefs,
-    # there are two subdirectories with the same filenames.
+    # will be called from wsusoffline/client/md/.
+    #
+    # TODO: These directory changes could probably be omitted by using
+    # the bare option (-b) in hashdeep, which simply strips any leading
+    # directory information. This would not cause problems, since
+    # in most cases every hashdeep file corresponds to one download
+    # directory only. Only for wddefs and msse (in the ESR version),
+    # there are two subdirectories with the same filenames. Still, this
+    # should not create problems, because hashdeep identifies files by
+    # the hash first, not the filename.
     local hashed_dir_truncated="${hashed_dir/'client/'/}"
     local hashes_file_basename="${hashes_file##*/}"
     local hashdeep_output=""

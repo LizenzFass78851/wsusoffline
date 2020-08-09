@@ -145,10 +145,13 @@ declare -A w100_values=(
 # all keys must be created manually.
 
 all_keys=(
-    w62-x64 w63 w63-x64 w100 w100-x64 o2k10 o2k10-x64 o2k13 o2k13-x64
-    o2k16 o2k16-x64 all all-x86 all-x64 all-win all-win-x86 all-win-x64
-    all-ofc all-ofc-x86 deu enu ara chs cht csy dan nld fin fra ell heb
-    hun ita jpn kor nor plk ptg ptb rus esn sve trk cpp dotnet wddefs
+    w62-x64 w63 w63-x64 w100 w100-x64
+    o2k10 o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64
+    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
+    all-ofc-x86
+    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
+    plk ptg ptb rus esn sve trk
+    cpp dotnet wddefs
 )
 
 w100_keys=(
@@ -521,16 +524,6 @@ Do you wish to run it now?"
         do
             w100_values["${key}"]="on"
         done
-
-        # Special rules for Windows 10: If version 1903 is selected,
-        # then version 1909 should also be selected. This allows a
-        # "small" upgrade from version 1903 to 1909.
-        #
-        # - https://forums.wsusoffline.net/viewtopic.php?f=6&t=9720
-        [[ "${w100_values[1903_x86]}" == "on" ]] \
-            && w100_values["1909_x86"]="on"
-        [[ "${w100_values[1903_x64]}" == "on" ]] \
-            && w100_values["1909_x64"]="on"
     fi
 
     return 0
