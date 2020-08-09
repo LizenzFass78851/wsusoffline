@@ -1,14 +1,15 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set CLEANUP=
+
+cd /D "%~dp0"
 
 title %~n0 %1 %2 %3 %4
 set DOWNLOAD_LOGFILE=..\log\download.log

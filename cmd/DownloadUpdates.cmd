@@ -11,10 +11,6 @@ verify other 2>nul
 setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
-if "%DIRCMD%" NEQ "" set DIRCMD=
-
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set EXC_STATICS=
 set EXC_WINGLB=
@@ -33,6 +29,10 @@ set https_proxy=
 set WSUS_URL=
 set WSUS_ONLY=
 set WSUS_BY_PROXY=
+
+if "%DIRCMD%" NEQ "" set DIRCMD=
+
+cd /D "%~dp0"
 
 set WSUSOFFLINE_VERSION=12.3 (b4)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9

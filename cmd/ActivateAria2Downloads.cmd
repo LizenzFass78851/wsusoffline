@@ -1,18 +1,19 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
-if "%DIRCMD%" NEQ "" set DIRCMD=
-
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set http_proxy=
 set https_proxy=
 set JUST_RELOAD=
+
+if "%DIRCMD%" NEQ "" set DIRCMD=
+
+cd /D "%~dp0"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams

@@ -6,14 +6,14 @@ verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set CheckOUVersion_mode=
 set QUIET_MODE=
 set EXIT_ERR=
 set http_proxy=
 set https_proxy=
+
+cd /D "%~dp0"
 
 set CSCRIPT_PATH=%SystemRoot%\System32\cscript.exe
 if not exist %CSCRIPT_PATH% goto NoCScript

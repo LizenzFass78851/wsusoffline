@@ -1,18 +1,19 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
-if "%DIRCMD%" NEQ "" set DIRCMD=
-
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set RESTART_GENERATOR=
 set http_proxy=
 set https_proxy=
+
+if "%DIRCMD%" NEQ "" set DIRCMD=
+
+cd /D "%~dp0"
 
 set DOWNLOAD_LOGFILE=..\log\download.log
 if exist %DOWNLOAD_LOGFILE% (

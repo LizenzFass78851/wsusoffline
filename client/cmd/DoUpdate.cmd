@@ -6,10 +6,6 @@ verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
-if "%DIRCMD%" NEQ "" set DIRCMD=
-
-cd /D "%~dp0"
-
 rem clear vars storing parameters
 set UPDATE_CPP=
 set INSTALL_DOTNET35=
@@ -29,6 +25,10 @@ set SHOW_LOG=
 set DISM_MODE=
 set MONITOR_ON=
 set INSTALL_MSI=
+
+if "%DIRCMD%" NEQ "" set DIRCMD=
+
+cd /D "%~dp0"
 
 set WSUSOFFLINE_VERSION=12.3 (b4)
 title %~n0 %*
