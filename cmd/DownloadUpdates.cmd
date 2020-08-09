@@ -15,7 +15,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b2)
+set WSUSOFFLINE_VERSION=11.9.5 (b3)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -311,6 +311,9 @@ if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLin
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
 del /Q ..\xslt\*-win-x86-*.* >nul 2>&1
+if exist ../static/StaticDownloadFiles-modified.txt del ../static/StaticDownloadFiles-modified.txt
+if exist ../exclude/ExcludeDownloadFiles-modified.txt del ../exclude/ExcludeDownloadFiles-modified.txt
+if exist ../client/static/StaticUpdateFiles-modified.txt del ../client/static/StaticUpdateFiles-modified.txt
 
 rem *** Obsolete external stuff ***
 if exist ..\bin\extract.exe del ..\bin\extract.exe
@@ -531,6 +534,7 @@ for %%i in (enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve 
 call :Log "Info: Preserved custom language and architecture additions and removals"
 
 echo Updating static and exclude definitions for download and update...
+if not exist ..\static\sdd md ..\static\sdd
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadFiles-modified.txt ..\static\sdd
 if not "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update StaticDownloadFiles-modified.txt"
