@@ -1,18 +1,20 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
+
+rem clear vars storing parameters
+set SEARCH_LEFT_MOST=
+set APPEND_UPDATES=
 
 if "%DIRCMD%" NEQ "" set DIRCMD=
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 
 if "%1"=="" goto NoParam
 if "%2"=="" goto NoParam
-
-set SEARCH_LEFT_MOST=0
-set APPEND_UPDATES=0
 
 :EvalParams
 if "%3"=="" goto NoMoreParams

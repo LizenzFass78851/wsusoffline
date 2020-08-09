@@ -82,7 +82,7 @@ goto EoF
 :InvalidParams
 echo.
 echo ERROR: Invalid parameter: %*
-echo Usage: %~n0 {fra ^| esn ^| jpn ^| kor ^| rus ^| ptg ^| ptb ^| nld ^| ita ^| chs ^| cht ^| plk ^| hun ^| csy ^| sve ^| trk ^| ell ^| ara ^| heb ^| dan ^| nor ^| fin}
+echo Usage: %~n0 {fra ^| esn ^| jpn ^| kor ^| rus ^| ptg ^| ptb ^| nld ^| ita ^| chs ^| cht ^| plk ^| hun ^| csy ^| sve ^| trk ^| ell ^| ara ^| heb ^| dan ^| nor ^| fin} [/quiet]
 echo.
 goto EoF
 

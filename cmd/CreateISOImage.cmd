@@ -1,9 +1,20 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
+
+rem clear vars storing parameters
+set EXC_SP=
+set EXC_SW=
+set INC_DOTNET=
+set INC_MSSE=
+set INC_WDDEFS=
+set EXIT_ERR=
+set SKIP_HASHES=
+set OUTPUT_PATH=
 
 cd /D "%~dp0"
 

@@ -6,11 +6,33 @@ verify other 2>nul
 setlocal enableextensions
 if errorlevel 1 goto NoExtensions
 
+rem clear vars storing parameters
+set UPDATE_CPP=
+set INSTALL_MSSL=
+set INSTALL_DOTNET35=
+set UPDATE_RCERTS=
+set INSTALL_DOTNET4=
+set INSTALL_WMF=
+set INSTALL_MSSE=
+set UPDATE_TSC=
+set SKIP_IEINST=
+set SKIP_DEFS=
+set SKIP_DYNAMIC=
+set LIST_MODE_IDS=
+set LIST_MODE_UPDATES=
+set VERIFY_MODE=
+set BOOT_MODE=
+set FINISH_MODE=
+set SHOW_LOG=
+set DISM_MODE=
+set MONITOR_ON=
+set INSTALL_MSI=
+
 if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b3)
+set WSUSOFFLINE_VERSION=11.9.5 (b4)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log

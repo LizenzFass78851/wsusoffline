@@ -11,11 +11,31 @@ verify other 2>nul
 setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
+rem clear vars storing parameters
+set EXC_SP=
+set EXC_STATICS=
+set EXC_WINGLB=
+set INC_DOTNET=
+set INC_MSSE=
+set INC_WDDEFS=
+set CLEANUP_DL=
+set VERIFY_DL=
+set EXIT_ERR=
+set SKIP_SDD=
+set SKIP_TZ=
+set SKIP_DL=
+set SKIP_PARAM=
+set http_proxy=
+set https_proxy=
+set WSUS_URL=
+set WSUS_ONLY=
+set WSUS_BY_PROXY=
+
 if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b3)
+set WSUSOFFLINE_VERSION=11.9.5 (b4)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -44,13 +64,6 @@ if exist .\custom\InitializationHook.cmd (
   set ERR_LEVEL=
 )
 call :Log "Info: Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2"
-
-rem ** disable SDD, if local version != most recent version ***
-call CheckOUVersion.cmd /mode:different /quiet
-if errorlevel 1 (
-  set SKIP_SDD=1
-  call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
-)
 
 for %%i in (w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 ofc o2k16) do (
   if /i "%1"=="%%i" (
@@ -242,7 +255,7 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=..\bin\wget64.exe) else
 )
 if not exist %WGET_PATH% goto NoWGet
 if exist custom\SetAria2EnvVars.cmd (
-  call ActivateAria2Downloads.cmd /reload
+  if "%http_proxy%" NEQ "" (call ActivateAria2Downloads.cmd /reload /proxy %http_proxy%) else (call ActivateAria2Downloads.cmd /reload)
   call custom\SetAria2EnvVars.cmd
 ) else (
   set DLDR_PATH=%WGET_PATH%
@@ -259,6 +272,13 @@ if not exist ..\bin\unzip.exe goto NoUnZip
 if not exist ..\client\bin\unzip.exe copy ..\bin\unzip.exe ..\client\bin >nul
 if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set HASHDEEP_EXE=hashdeep64.exe) else (
   if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set HASHDEEP_EXE=hashdeep64.exe) else (set HASHDEEP_EXE=hashdeep.exe)
+)
+
+rem ** disable SDD, if local version != most recent version ***
+if "%http_proxy%" NEQ "" (call CheckOUVersion.cmd /mode:different /quiet /proxy %http_proxy%) else (call CheckOUVersion.cmd /mode:different /quiet)
+if errorlevel 1 (
+  set SKIP_SDD=1
+  call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
 )
 
 rem *** Clean up existing directories ***

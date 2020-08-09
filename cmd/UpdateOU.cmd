@@ -1,9 +1,15 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
+
+rem clear vars storing parameters
+set RESTART_GENERATOR=
+set http_proxy=
+set https_proxy=
 
 if "%DIRCMD%" NEQ "" set DIRCMD=
 
@@ -43,7 +49,7 @@ goto EvalParams
 :NoMoreParams
 rem *** Update WSUS Offline Update - Community Edition ***
 title Updating WSUS Offline Update - Community Edition...
-call CheckOUVersion.cmd /mode:newer
+if "%http_proxy%" NEQ "" (call CheckOUVersion.cmd /mode:newer /proxy %http_proxy%) else (call CheckOUVersion.cmd /mode:newer)
 if not errorlevel 1 goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update - Community Edition...
