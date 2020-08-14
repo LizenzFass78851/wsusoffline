@@ -1,1 +1,1 @@
-kb4565554,July 2020 Servicing stack update for Windows 10 Version 1903
+kb4569073,August 2020 Servicing stack update for Windows 10 Version 1903

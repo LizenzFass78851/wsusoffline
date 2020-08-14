@@ -1,1 +1,1 @@
-kb4514359,September 2019 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 version 1903
+kb4569751,August 2020 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 version 1903

@@ -16,3 +16,6 @@ kb4495615,May 2019 Security only update for the .NET Framework 3.5 SP1 for Windo
 kb4506977,July 2019 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
 kb4514350,September 2019 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
 kb4532961,January 2020 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
+kb4552966,May 2020 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
+kb4565580,July 2020 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
+kb4569737,August 2020 Security only update for the .NET Framework 3.5 SP1 for Windows 8.1 and Windows Server 2012 R2
