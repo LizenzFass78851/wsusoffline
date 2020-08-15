@@ -12,3 +12,6 @@ kb4483474,February 2019 Security only update for the .NET Framework 4.5.2 for Wi
 kb4495593,May 2019 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4506966,July 2019 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4532964,January 2020 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4552952,May 2020 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4565586,July 2020 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4569743,August 2020 Security only update for the .NET Framework 4.5.2 for Windows 7 SP1 and Windows Server 2008 R2 SP1

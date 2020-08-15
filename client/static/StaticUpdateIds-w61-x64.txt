@@ -1,2 +1,3 @@
 kb2506014,Update for the Windows Operating System Loader
 kb3018238,Vulnerability in SChannel could allow remote code execution
+kb4019990,Update for the d3dcompiler_47.dll component on Windows 7 and Windows Server 2008 R2

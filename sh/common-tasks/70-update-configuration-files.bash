@@ -33,6 +33,7 @@
 
 # ========== Configuration ================================================
 
+# URLs for the "esr-11.9" development branch
 excludelist_superseded_exclude_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude.txt"
 excludelist_superseded_exclude_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude-seconly.txt"
 hidelist_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/HideList-seconly.txt"
@@ -105,7 +106,12 @@ function run_update_configuration_files ()
         remove_obsolete_files
         update_configuration_files
     else
-        log_info_message "The update of configuration files was postponed, because there is a new version of WSUS Offline Update available, which should be installed first."
+        log_warning_message "The update of configuration files was skipped, because the installed version of WSUS Offline Update is not the latest available release."
+        # The timestamp can be updated here, to do this check once
+        # daily. A successful wsusoffline self-update will delete this
+        # timestamp and reschedule the update of configuration files
+        # again.
+        update_timestamp "${timestamp_file}"
         echo ""
     fi
     return 0
@@ -140,12 +146,6 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-x64.txt
     )
 
-    # The file ../client/exclude/ExcludeUpdateFiles-modified.txt was
-    # removed in WSUS Offline Update 10.9
-#    file_list+=(
-#        ../client/exclude/ExcludeUpdateFiles-modified.txt
-#    )
-
     # *** Windows Server 2003 stuff ***
     shopt -s nullglob
     file_list+=(
@@ -177,8 +177,7 @@ function remove_obsolete_files ()
 
     # *** Windows 8, 32-bit stuff ***
     #
-    # The server version Windows Server 2012, 64-bit (w62-x64) is still
-    # supported.
+    # Windows Server 2012, 64-bit (w62-x64) is still supported
     file_list+=(
         ../client/static/StaticUpdateIds-w62-x86.txt
         ../exclude/ExcludeList-w62-x86.txt
@@ -194,7 +193,29 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-10586-x64.txt
     )
 
-    # Office 2007 was removed in WSUS Offline Update 11.1
+    # *** Windows 10 Version 1703 stuff ***
+    #
+    # Removed in WSUS Offline Update 12.0 and in the Community Edition
+    # esr-11.9.2
+    file_list+=(
+        ../client/static/StaticUpdateIds-w100-15063-dotnet.txt
+        ../client/static/StaticUpdateIds-w100-15063-dotnet4-528049.txt
+        ../client/static/StaticUpdateIds-w100-15063-x64.txt
+        ../client/static/StaticUpdateIds-w100-15063-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-15063.txt
+    )
+
+    # *** Office 2003 stuff ***
+    shopt -s nullglob
+    file_list+=(
+        ../client/static/StaticUpdateIds-o2k3.txt
+        ../static/StaticDownloadLinks-o2k3-*.txt
+    )
+    shopt -u nullglob
+
+    # *** Office 2007 stuff ***
+    #
+    # Removed in WSUS Offline Update 11.1
     shopt -s nullglob
     file_list+=(
         ../client/static/StaticUpdateIds-o2k7.txt
@@ -202,7 +223,9 @@ function remove_obsolete_files ()
     )
     shopt -u nullglob
 
-    # *** Windows Essentials 2012 (Windows Live Essentials) stuff ***
+    # *** Windows Essentials 2012 stuff ***
+    #
+    # Also known as Windows Live Essentials (wle)
     shopt -s nullglob
     file_list+=(
         ../static/StaticDownloadLinks-wle-*.txt
@@ -212,15 +235,30 @@ function remove_obsolete_files ()
     )
     shopt -u nullglob
 
-    # Obsolete files in WSUS Offline Update, Community Editions 11.9.1
-    # and 12.0
+    # The file ../client/exclude/ExcludeUpdateFiles-modified.txt was
+    # removed in WSUS Offline Update 10.9
+    file_list+=(
+        ../client/exclude/ExcludeUpdateFiles-modified.txt
+    )
+
+    # Obsolete files in the Community Editions 11.9.1 and 12.0
     #
     # The file StaticDownloadLink-this.txt was replaced with
     # SelfUpdateVersion-this.txt
     file_list+=( ../static/StaticDownloadLink-this.txt )
 
+    # Obsolete files in the Community Editions 11.9.2 and 12.1
+    #
+    # The index files *-modified.txt for the update of static download
+    # definitions (sdd) were moved to ../static/sdd
+    file_list+=(
+        ../static/StaticDownloadFiles-modified.txt
+        ../exclude/ExcludeDownloadFiles-modified.txt
+        ../client/static/StaticUpdateFiles-modified.txt
+    )
+
     # Print the resulting file list:
-    log_debug_message "Obsolete files:" "${file_list[@]}"
+    #log_debug_message "Obsolete files:" "${file_list[@]}"
 
     # Delete all obsolete files, if existing
     if (( "${#file_list[@]}" > 0 ))
@@ -252,14 +290,14 @@ function remove_obsolete_files ()
     then
         log_warning_message "Office 2003 is no longer supported."
     fi
-    if [[ -d ../client/wle ]]
-    then
-        log_warning_message "Windows Live Essentials are no longer supported."
-    fi
     # Office 2007 was removed in WSUS Offline Update 11.1
     if [[ -d ../client/o2k7 ]]
     then
         log_warning_message "Office 2007 is no longer supported."
+    fi
+    if [[ -d ../client/wle ]]
+    then
+        log_warning_message "Windows Live Essentials are no longer supported."
     fi
 
     log_info_message "Removed obsolete files from previous versions."

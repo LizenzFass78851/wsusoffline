@@ -2,6 +2,7 @@ kb3005607,Vulnerability in Windows Audio Service could cause Elevation of Privil
 kb3138962,Security Update for Windows Media
 kb3149090,April 2016 Security Update for SAM and LSAD remote protocols
 kb3168965,Security Update for Windows kernel-mode drivers
+kb4019990,Update for the d3dcompiler_47.dll component on Windows 7 and Windows Server 2008 R2
 kb3192391,October 2016 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb3197867,November 2016 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb3205394,December 2016 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
@@ -41,3 +42,10 @@ kb4520003,October 2019 Security Only Quality Update for Windows 7 SP1 and Window
 kb4525233,November 2019 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4530692,December 2019 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4534314,January 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+KB4537813,February 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4541500,March 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4550965,April 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4556843,May 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4561669,June 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4565539,July 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4571719,August 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1

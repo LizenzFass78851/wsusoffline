@@ -1,3 +1,96 @@
+NEWS for Community Edition 1.19.3-ESR
+
+   Release date: 2020-08-12
+   Development branch: esr-11.9
+   Supported versions: WSUS Offline Update, Community Edition 11.9.4
+
+   Changed Features
+
+    * Revised wsusoffline self-update
+
+      The implementation of the wsusoffline self-update was revised to
+      match that of the Community Editions esr-11.9.4 and 12.2.
+
+      The files SelfUpdateVersion-this.txt and
+      SelfUpdateVersion-recent.txt contain a version number and the
+      installation type, which can be beta or release.
+
+      The comparison of the installed version and the latest available
+      release distinguishes three different cases:
+
+      1. The version numbers and installation types are the same. There
+         is no update available.
+
+         This implies, that the files SelfUpdateVersion-this.txt and
+         SelfUpdateVersion-recent.txt are the same. A quick version
+         check may use diff to compare these files.
+
+      2. A newer release is available. This usually means, that a
+         new release with a higher version number is available. If the
+         version numbers are the same, then a release can replace a beta
+         (development) version.
+
+      3. The installed version is newer than the latest available release.
+         This may happen, if a beta (development) version is installed.
+
+         In this case, you are responsible for updating your installation
+         yourself. The self-update of WSUS Offline Update always
+         installs the latest available release. The update of static
+         download definitions (sdd) also refers to the latest available
+         release. To skip all self-updates, you could change the option
+         check_for_self_updates to "disabled" in the preferences file.
+
+      The filenames of the archive and the hashes file are extracted
+      from the file StaticDownloadLink-recent.txt.
+
+      Since the self-update of the Linux download scripts was removed,
+      several variable and function names could be simplified:
+
+         wou_installed_version      ->  installed_version
+         wou_available_version      ->  available_version
+         wou_available_archive      ->  archive_filename
+         wou_available_hashes       ->  hashes_filename
+         wou_timestamp_file         ->  wsusoffline_timestamp
+         get_wou_installed_version  ->  get_installed_version
+         get_wou_available_version  ->  get_available_version
+
+
+    * Removal of obsolete files
+
+      The following configuration files are removed from their previous
+      locations. They are now downloaded to the directory ../static/sdd:
+
+         ../static/StaticDownloadFiles-modified.txt
+         ../exclude/ExcludeDownloadFiles-modified.txt
+         ../client/static/StaticUpdateFiles-modified.txt
+
+
+    * Office updates
+
+      An additional exclude list ExcludeList-ofc-lng.txt is used for
+      the calculation of dynamic office updates.
+
+
+    * Temporary files renamed
+
+      Two temporary files for the determination of dynamic Windows and
+      Office updates were renamed, to match those of version 2.2 for the
+      "master" development version:
+
+      ExcludeList-${name}-${arch}.txt  ->  ExcludeListDynamic-${name}-${arch}.txt
+      ExcludeList-ofc-${lang}.txt      ->  ExcludeListDynamic-ofc-${lang}.txt
+
+
+    * Compatibility
+
+      The handling of pipes in the bash often requires workarounds. The
+      download scripts now use the bash option "lastpipe", to scan the
+      wget output and set global variables. This option was introduced
+      in bash 4.2, as in Debian 7 Wheezy.
+
+      The file documentation/compatibility.txt was changed accordingly.
+
+
 NEWS for Community Edition 1.19.2-ESR  (CE-1.19.2-ESR)
 
    Release date: 2020-07-25

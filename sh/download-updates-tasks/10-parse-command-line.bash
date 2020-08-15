@@ -134,10 +134,6 @@ function parse_first_parameter_as_list ()
 
 # Parse the preliminary list of updates to add common updates for Windows
 # and Office (win and ofc), and to build a list of needed architectures.
-#
-# The architectures list is needed for the virus definition updates and
-# .NET Frameworks. They must be downloaded in 32-bit, 64-bit, or both. The
-# selected Windows versions determine, which architectures are needed.
 
 function parse_preliminary_update_list ()
 {

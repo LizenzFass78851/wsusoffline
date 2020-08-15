@@ -1,3 +1,22 @@
+Community Edition 1.19.3-ESR
+
+   Release date: 2020-08-12
+   Development branch: esr-11.9
+   Supported versions: WSUS Offline Update, Community Edition 11.9.4
+
+   Changed Features
+
+    * Revised wsusoffline self-update
+
+    * Three more obsolete files are deleted
+
+    * Dynamic Office updates use a new ExcludeList-ofc-lng.txt
+
+    * Two temporary files renamed
+
+    * Compatibility: bash 4.2, as in Debian 7 Wheezy, is now required
+
+
 Community Edition 1.19.2-ESR  (CE-1.19.2-ESR)
 
    Release date: 2020-07-25

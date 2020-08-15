@@ -1,6 +1,6 @@
 Installation guide for the Linux download scripts
 =================================================
-Last updated for the Community Edition 1.19.2-ESR (2020-07-25)
+Last updated for the Community Edition 1.19.3-ESR (2020-08-12)
 
 
 WSUS Offline Update already includes the new Linux download scripts. You
@@ -138,7 +138,7 @@ Download the newest wsusoffline archive and unpack it.
   <https://gitlab.com/wsusoffline/wsusoffline/-/releases>.
 
   Select the latest release from the "11.9-esr" branch, for example
-  version 11.9.2-CE or later.
+  version 11.9.4 or later.
 
 Note, that the zip archive comes with an accompanying hashes file. You
 can use it to verify the download with:

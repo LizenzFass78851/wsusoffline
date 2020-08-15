@@ -1,2 +1,2 @@
-kb4565353,July 2020 Servicing Stack Update for Windows Server 2008 SP2
+kb4572374,August 2020 Servicing Stack Update for Windows Server 2008 SP2
 kb4525106,November 2019 Cumulative security update for Internet Explorer

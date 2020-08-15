@@ -586,7 +586,7 @@ function calculate_dynamic_windows_updates ()
     apply_exclude_lists \
         "${temp_dir}/CurrentDynamicLinks-${name}-${arch}-${lang}.txt" \
         "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeList-${name}-${arch}.txt" \
+        "${temp_dir}/ExcludeListDynamic-${name}-${arch}.txt" \
         "${exclude_lists_windows[@]}"
 
     # Dynamic updates should always be found, so an empty output file
@@ -823,6 +823,15 @@ function calculate_dynamic_office_updates ()
         "../exclude/custom/ExcludeList-ofc-${lang}.txt"
         "../exclude/custom/ExcludeListForce-all.txt"
     )
+    # The file ExcludeList-ofc-lng.txt was added in Community Edition
+    # 11.9.4 ESR and 12.2
+    if [[ "${lang}" != "glb" ]]
+    then
+        exclude_lists_office+=(
+            "../exclude/ExcludeList-ofc-lng.txt"
+            "../exclude/custom/ExcludeList-ofc-lng.txt"
+        )
+    fi
     if [[ "${include_service_packs}" == "disabled" ]]
     then
         exclude_lists_office+=( "../exclude/ExcludeList-SPs.txt" )
@@ -832,7 +841,7 @@ function calculate_dynamic_office_updates ()
     apply_exclude_lists \
         "${temp_dir}/CurrentDynamicLinks-ofc-${lang}.txt" \
         "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeList-ofc-${lang}.txt" \
+        "${temp_dir}/ExcludeListDynamic-ofc-${lang}.txt" \
         "${exclude_lists_office[@]}"
 
     # Dynamic updates should always be found for "ofc".

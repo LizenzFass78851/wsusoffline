@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: Community Edition 1.19.2-ESR (CE-1.19.2-ESR)
-# Release date: 2020-07-25
+# Version: Community Edition 1.19.3-ESR
+# Release date: 2020-08-12
 # Development branch: esr-11.9
-# Supported versions: WSUS Offline Update, Community Edition 11.9.1-ESR
-#                     and 11.9.2-ESR
+# Supported versions: WSUS Offline Update, Community Edition 11.9.4
 #
 # Copyright (C) 2016-2020 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -190,8 +189,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="CE-1.19.2-ESR"
-readonly release_date="2020-07-25"
+readonly script_version="1.19.3-ESR"
+readonly release_date="2020-08-12"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -439,8 +438,10 @@ function setup_working_directory ()
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
     # Also create a ../static directory for an initial installation of
-    # WSUS Offline Update by the Linux download scripts
-    mkdir -p "${wsusoffline_directory}/static"
+    # WSUS Offline Update by the Linux download scripts and for the
+    # update of static download definitions (and other configuration
+    # files)
+    mkdir -p "${wsusoffline_directory}/static/sdd"
 
     return 0
 }

@@ -1,5 +1,5 @@
 http://download.windowsupdate.com/d/msdownload/update/software/secu/2019/05/pciclearstalecache_d243a607b50db10ed50f03cff570498018c61a59.exe
-http://download.microsoft.com/download/0/A/F/0AFB5316-3062-494A-AB78-7FB0D4461357/windows6.1-KB976932-X64.exe
+http://download.windowsupdate.com/msdownload/update/software/svpk/2011/02/windows6.1-kb976932-x64_74865ef2562006e51d7f9333b4a8d45b7a749dab.exe
 http://download.microsoft.com/download/D/0/7/D07A8332-3B08-4919-9683-BFDD4D6F7BDC/Windows6.1-KB2574819-v2-x64.msu
 http://download.microsoft.com/download/D/0/7/D07A8332-3B08-4919-9683-BFDD4D6F7BDC/Windows6.1-KB2830477-x64.msu
 http://download.microsoft.com/download/D/0/7/D07A8332-3B08-4919-9683-BFDD4D6F7BDC/Windows6.1-KB2857650-x64.msu

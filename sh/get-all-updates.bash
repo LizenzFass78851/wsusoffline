@@ -78,15 +78,15 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # Windows Server 2012
 #
 # Updates for Windows Server 2012 are global, but they now use localized
-# installers for Internet Explorer. Therefore, all neeeded languages
+# installers for Internet Explorer. Therefore, all needed languages
 # should still be specified on the command-line, even if no optional
 # downloads are added:
 
 # ./download-updates.bash w62-x64 deu,enu -includesp -includecpp \
 #                                 -includedotnet -includewddefs8
 
-# Windows 8.1 / Server 2012 R2
-# Windows 10 / Server 2016/2019
+# Windows  8.1 / Server 2012 R2
+# Windows 10   / Server 2016/2019
 #
 # Updates for Windows 8.1 and 10 are really global. The language
 # parameters deu and enu are still needed for the .NET Framework
