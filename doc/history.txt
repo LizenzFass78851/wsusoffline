@@ -1756,3 +1756,4 @@ Community Edition 12.3 -- ??.??.2020
 - Fix: The root certificates are downloaded using https:// instead of http:// now (Thanks to "hbuhrmester")
 - Fix: old files for w60/w61 were not cleaned up (Thanks to "hbuhrmester")
 - [UNTESTED] Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
+- Fix: DetermineSystemProperties.vbs might fail to return OS_VER_REVIS on some configurations (Thanks to "rbronca")
