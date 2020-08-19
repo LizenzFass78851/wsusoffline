@@ -406,7 +406,7 @@ Set objCmdFile = objFileSystem.CreateTextFile(strCmdFileName, True)
 Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
 ' Documentation: http://msdn.microsoft.com/en-us/library/aa394239(VS.85).aspx
 For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingSystem")
-  If RegExists(strRegKeyWindowsVersion, strRegValUBR) Then
+  If RegExists(wshShell, strRegKeyWindowsVersion & strRegValUBR) Then
     strUBR = RegRead(wshShell, strRegKeyWindowsVersion & strRegValUBR)
     WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & "." & strUBR
   Else
