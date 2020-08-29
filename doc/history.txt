@@ -1753,6 +1753,7 @@ Community Edition 12.3 -- ??.??.2020
 - Replaced superseded July 2020 Servicing stack update (KB4558997) by August 2020 Servicing stack update (KB4566424) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
 - Replaced superseded July 2020 Servicing stack update (KB4565554) by August 2020 Servicing stack update (KB4569073) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Replaced superseded July 2020 Servicing stack update (KB4566785) by August 2020 Servicing stack update (KB4570334) for Windows 10 Version 2004 (Thanks to "aker")
+- wsusscn2.cab does not include September 2017 security update for Office 2010 (KB3213638)
 - Fix: The root certificates are downloaded using https:// instead of http:// now (Thanks to "hbuhrmester")
 - Fix: old files for w60/w61 were not cleaned up (Thanks to "hbuhrmester")
 - [UNTESTED] Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
