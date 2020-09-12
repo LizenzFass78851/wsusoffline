@@ -1,1 +1,2 @@
-http://download.microsoft.com/download/F/7/8/F7821DDF-9B7A-4FEE-8777-4722BCC91825/IE9-WindowsVista-x86-plk.exe
+http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/wu-ie9-windowsvista-x86_a2b66ff9e9affda9675dd85ba2b637a882979a25.exe
+http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/ie9-langpack-windowsvista-x86-plk_76f16115c7d9c870d898c58874aea9e9f6335da6.exe

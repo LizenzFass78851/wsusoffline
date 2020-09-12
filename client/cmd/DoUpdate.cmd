@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b12)
+set WSUSOFFLINE_VERSION=11.9.5 (b13)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -551,9 +551,11 @@ goto IE%OS_NAME%
 :IEw60
 if exist %SystemRoot%\Temp\wou_ie_tried.txt goto SkipIEInst
 if /i "%OS_ARCH%"=="x64" (
-  set IE_FILENAME=..\%OS_NAME%-%OS_ARCH%\glb\IE9-WindowsVista-%OS_ARCH%-%OS_LANG%*.exe
+  set IE_FILENAME=..\%OS_NAME%-%OS_ARCH%\glb\wu-ie9-windowsvista-%OS_ARCH%*.exe
+  set IE_LANG_FILENAME=..\%OS_NAME%-%OS_ARCH%\glb\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%*.exe
 ) else (
-  set IE_FILENAME=..\%OS_NAME%\glb\IE9-WindowsVista-%OS_ARCH%-%OS_LANG%*.exe
+  set IE_FILENAME=..\%OS_NAME%\glb\wu-ie9-windowsvista-%OS_ARCH%*.exe
+  set IE_LANG_FILENAME=..\%OS_NAME%\glb\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%*.exe
 )
 dir /B %IE_FILENAME% >nul 2>&1
 if errorlevel 1 (
@@ -561,6 +563,41 @@ if errorlevel 1 (
   call :Log "Warning: File %IE_FILENAME% not found"
   goto SkipIEInst
 )
+for /F %%i in ('dir /B %IE_FILENAME%') do (
+  if not "%%i"=="" set IE_FILENAME_REAL=%%i
+)
+if "%IE_FILENAME_REAL%"=="" (
+  echo Warning: File %IE_FILENAME% not found.
+  call :Log "Warning: File %IE_FILENAME% not found"
+  goto SkipIEInst
+)
+if /i "%OS_ARCH%"=="x64" (
+  set IE_FILENAME_REAL=..\%OS_NAME%-%OS_ARCH%\glb\%IE_FILENAME_REAL%
+) else (
+  set IE_FILENAME_REAL=..\%OS_NAME%\glb\%IE_FILENAME_REAL%
+)
+
+if /i "%OS_LANG%"=="enu" (goto SkipIEw60LPSearch)
+dir /B %IE_LANG_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %IE_LANG_FILENAME% not found.
+  call :Log "Warning: File %IE_LANG_FILENAME% not found"
+  goto SkipIEInst
+)
+for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
+  if not "%%i"=="" set IE_LANG_FILENAME_REAL=%%i
+)
+if "%IE_LANG_FILENAME_REAL%"=="" (
+  echo Warning: File %IE_LANG_FILENAME% not found.
+  call :Log "Warning: File %IE_LANG_FILENAME% not found"
+  goto SkipIEInst
+)
+if /i "%OS_ARCH%"=="x64" (
+  set IE_LANG_FILENAME_REAL=..\%OS_NAME%-%OS_ARCH%\glb\%IE_LANG_FILENAME_REAL%
+) else (
+  set IE_LANG_FILENAME_REAL=..\%OS_NAME%\glb\%IE_LANG_FILENAME_REAL%
+)
+:SkipIEw60LPSearch
 if exist %SystemRoot%\Temp\wou_iepre_tried.txt goto SkipIEw60Pre
 echo Checking Internet Explorer 9 prerequisites...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
@@ -583,17 +620,46 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   )
 )
 :SkipIEw60Pre
-for /F %%i in ('dir /B %IE_FILENAME%') do (
-  echo Installing Internet Explorer 9...
-  if /i "%OS_ARCH%"=="x64" (
-    call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
-  ) else (
-    call InstallOSUpdate.cmd ..\%OS_NAME%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
-  )
-  if not errorlevel 1 set RECALL_REQUIRED=1
+echo Installing Internet Explorer 9...
+call InstallOSUpdate.cmd %IE_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
+if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_ie_tried.txt
+  goto IEInstalled
 )
+set RECALL_REQUIRED=1
+if /i "%OS_LANG%"=="enu" (goto SkipIEw60LPInst)
+echo Installing Internet Explorer 9 Language Pack...
+if "%VERIFY_MODE%" NEQ "/verify" (goto SkipIEw60LPVerify)
+if /i "%OS_ARCH%"=="x64" (
+  set HASH_FILE_NAME=..\md\hashes-%OS_NAME%-%OS_ARCH%-glb.txt
+) else (
+  set HASH_FILE_NAME=..\md\hashes-%OS_NAME%-glb.txt
+)
+if not exist "%HASH_FILE_NAME%" (
+  echo Warning: Hash file %HASH_FILE_NAME% not found.
+  call :Log "Warning: Hash file %HASH_FILE_NAME% not found"
+  goto SkipIEw60LPVerify
+)
+if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%IE_LANG_FILENAME_REAL%" %HASH_FILE_NAME% >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-ieLangPack.txt" "%IE_LANG_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
+  echo ERROR: File hash does not match stored value ^(%IE_LANG_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%IE_LANG_FILENAME_REAL%)"
+  goto SkipIEw60LPInst
+)
+if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
+:SkipIEw60LPVerify
+if exist "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%" rmdir /s /q "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
+mkdir "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
+start /wait %IE_LANG_FILENAME_REAL% /T:"%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%" /C
+call InstallOSUpdate.cmd "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%\ieLangPack-%OS_LANG%.cab" /ignoreerrors
+rmdir /s /q "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
+:SkipIEw60LPInst
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+echo. >%SystemRoot%\Temp\wou_ie_tried.txt
 goto IEInstalled
 
 :IEw61
@@ -887,7 +953,7 @@ if not exist %DOTNET35_FILENAME% (
   goto SkipDotNet35Inst
 )
 echo Installing .NET Framework 3.5 SP1...
-call InstallOSUpdate.cmd %DOTNET35_FILENAME% %VERIFY_MODE% /ignoreerrors /qb /norestart /lang:enu
+call InstallOSUpdate.cmd %DOTNET35_FILENAME% %VERIFY_MODE% /ignoreerrors /passive /norestart /lang:enu
 if "%OS_LANG%" NEQ "enu" (
   dir /B %DOTNET35LP_FILENAME% >nul 2>&1
   if errorlevel 1 (
@@ -895,7 +961,7 @@ if "%OS_LANG%" NEQ "enu" (
     call :Log "Warning: .NET Framework 3.5 SP1 Language Pack installation file (%DOTNET35LP_FILENAME%) not found"
   ) else (
     echo Installing .NET Framework 3.5 SP1 Language Pack...
-    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%OS_ARCH%-glb\%%i %VERIFY_MODE% /ignoreerrors /qb /norestart /nopatch
+    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%OS_ARCH%-glb\%%i %VERIFY_MODE% /ignoreerrors /passive /norestart /nopatch /lang:%OS_LANG%
   )
 )
 copy /Y ..\static\StaticUpdateIds-dotnet35.txt "%TEMP%\MissingUpdateIds.txt" >nul

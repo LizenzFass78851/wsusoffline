@@ -1,1 +1,2 @@
-http://download.microsoft.com/download/E/5/E/E5E6EC34-C908-43F9-B352-1427D5F8C004/IE9-WindowsVista-x86-chs.exe
+http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/wu-ie9-windowsvista-x86_a2b66ff9e9affda9675dd85ba2b637a882979a25.exe
+http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/ie9-langpack-windowsvista-x86-chs_d7597eab3a000dafa18c6a955ffcca804de18ddf.exe
