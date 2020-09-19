@@ -34,7 +34,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.3 (b12)
+set WSUSOFFLINE_VERSION=12.3 (b15)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1425,8 +1425,8 @@ if not errorlevel 1 (
     )
     if "!DISABLED1903!"=="1" (
       if "!DISABLED1909!"=="1" (
-        if exist ..\exclude\ExcludeList-w100-1903_1909.txt type ..\exclude\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeListStatic.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-1903_1909.txt type ..\exclude\custom\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeListStatic.txt"
+        if exist ..\exclude\ExcludeList-w100-1903_1909.txt type ..\exclude\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeList-%1.txt"
+        if exist ..\exclude\custom\ExcludeList-w100-1903_1909.txt type ..\exclude\custom\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeList-%1.txt"
       )
     )
     set DISABLED1903=
