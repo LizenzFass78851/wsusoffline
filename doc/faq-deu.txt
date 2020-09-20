@@ -27,23 +27,10 @@ Beim Ausschluss von Updates von der Installation muss ebenfalls zwischen statisc
   b) Dynamische ermittelte Updates
     Wollen Sie dynamisch ermittelte Updates von der Installation ausschließen, so tragen Sie deren "knowledge base ids" (KBxxxxxx bzw. nur xxxxxx) in die Datei "ExcludeList.txt" im Verzeichnis "client\exclude\custom" ein. Das Update wird nun nicht mehr berücksichtigt; bei der Installation erhalten Sie eine entsprechende Warnung.
     Bereits ausgeschlossene Updates sind folgende:
-    - kb816093 (Sicherheitsupdate für Microsoft VM)
-    - kb951847 (.NET Framework 3.5 SP1 Family Update (wird ggf. explizit installiert)) 
     - kb890830 (Windows-Tool zum Entfernen bösartiger Software (MSRT))
-    - kb944036 (Internet Explorer 8 (wird ggf. explizit installiert))
-    - kb982861 (Internet Explorer 9 (wird ggf. explizit installiert))
-    - kb2718695 (Internet Explorer 10 (wird ggf. explizit installiert))
-    - kb2841134 (Internet Explorer 11 (wird ggf. explizit installiert))
-    - kb976002 (Browserauswahlbildschirm)
-    - kb923618 (Office 2003 Service Pack 3 (wird ggf. implizit installiert))
-    - kb2526086 (Office 2007 Service Pack 3 (wird ggf. implizit installiert))
+    - kb2841134 (Internet Explorer 11 (wird ggf. implizit installiert))
     - kb2687455 (Office 2010 Service Pack 2 (wird ggf. implizit installiert))
     - kb2817430 (Office 2013 Service Pack 1 (wird ggf. implizit installiert))
-    - kb936929 (Windows XP Service Pack 3 (wird ggf. implizit installiert))
-    - kb914961 (Windows Server 2003 Service Pack 2 (wird ggf. implizit installiert))
-    - kb936330 (Windows Vista Service Pack 1 (wird ggf. implizit installiert))
-    - kb948465 (Windows Vista Service Pack 2 (wird ggf. implizit installiert))
-    - kb976932 (Windows 7 Service Pack 1 (wird ggf. implizit installiert))
     
 Bitte bedenken Sie dabei, dass Sie durch den Ausschluss von Updates die Sicherheit des Computers beeinträchtigen können.  
 --------------------------------------------------------------------------------
@@ -156,7 +143,7 @@ Hilft dies nicht, gehen Sie bitte wie folgt vor:
       - AutoAdminLogon: Wert löschen
       - ForceAutoLogon: Wert löschen
   - Löschen Sie in der Computerverwaltung das Benutzerkonto "WOUTempAdmin"
-  - Löschen Sie das Benutzerprofil des "WOUTempAdmin", also i.d.R. das Verzeichnis "WOUTempAdmin" unter "C:\Dokumente und Einstellungen".
+  - Löschen Sie das Benutzerprofil des "WOUTempAdmin", also i.d.R. das Verzeichnis "WOUTempAdmin" unter "C:\Benutzer"/"C:\Users".
   - Starten Sie den Rechner neu.
 --------------------------------------------------------------------------------
 F: Während des Downloads erhalte ich einen "file integrity verification"-Fehler. Was kann ich dagegen tun?
@@ -190,4 +177,7 @@ A: Bitte führen Sie einmalig das Skript ...\cmd\RemoveGermanLanguageSupport.cmd 
 --------------------------------------------------------------------------------
 F: Vor der Updateinstallation wird das System geprüft um festzulegen, wieviele Updates in einem Lauf max. installiert werden. Gibt es einen Parameter, um diesen Wert vorzugeben?
 A: Der Parameter kann in der Datei ...\client\cmd\custom\SetUpdatesPerStage.cmdt vorgegeben werden. Er sollte nicht kleiner sein als der Parameter "UPDATES_PER_STAGE" in der Datei \client\cmd\SetTargetEnvVars.cmd (derzeit 40). Kleinere Werte werden automatisch korrigiert. Nach Vorgabe des Stage-Limits muss die Datei in SetUpdatesPerStage.cmd (cmd ohne t) umbenannt werden!
+--------------------------------------------------------------------------------
+F: Beim Download melden wget/aria2 einen Zertifikatfehler.
+A: Dieser Fehler wird durch fehlende Stammzertifikate auf der Download-Maschine hervorgerufen. Zur Umgehung des Problems können die Stammzertifikate auf den neusten Stand gebracht werden. Download-Links sind unter https://gitlab.com/wsusoffline/wsusoffline/-/wikis/Root-CA-Update veröffentlicht.
 --------------------------------------------------------------------------------
