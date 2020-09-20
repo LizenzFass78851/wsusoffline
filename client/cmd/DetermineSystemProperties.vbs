@@ -4,6 +4,7 @@
 Option Explicit
 
 Private Const strRegKeyWindowsVersion         = "HKLM\Software\Microsoft\Windows NT\CurrentVersion\"
+Private Const strRegKeySHA2Support            = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Servicing\Codesigning\SHA2\"
 Private Const strRegKeyIE                     = "HKLM\Software\Microsoft\Internet Explorer\"
 Private Const strRegKeyMSSL_x86               = "HKLM\Software\Microsoft\Silverlight\"
 Private Const strRegKeyMSSL_x64               = "HKLM\Software\Wow6432Node\Microsoft\Silverlight\"
@@ -22,6 +23,8 @@ Private Const strRegValRelease                = "Release"
 Private Const strRegValDisplayVersion         = "DisplayVersion"
 Private Const strRegValUBR                    = "UBR"
 Private Const strRegValBuildLabEx             = "BuildLabEx"
+Private Const strRegValSHA2Support            = "SHA2-Codesigning-Support"
+Private Const strRegValSHA2Support2           = "SHA2-Core-Codesigning-Support"
 Private Const strRegValInstallationType       = "InstallationType"
 Private Const strRegValPShVersion             = "PowerShellVersion"
 Private Const strRegValAVSVersion             = "AVSignatureVersion"
@@ -48,9 +51,10 @@ Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
 
-Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
+Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
 Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strProduct, strPatch, languageCode, i, j
+Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, ServicingStack_OSVer_Major, ServicingStack_OSVer_Minor, ServicingStack_OSVer_Build
 Dim cpp2005_x86_old, cpp2005_x86_new, cpp2005_x64_old, cpp2005_x64_new
 Dim cpp2008_x86_old, cpp2008_x86_new, cpp2008_x64_old, cpp2008_x64_new
 Dim cpp2010_x86_old, cpp2010_x86_new, cpp2010_x64_old, cpp2010_x64_new
@@ -411,11 +415,49 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
       WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
     End If
   End If
+  ServicingStack_OSVer_Major = CInt(Split(objQueryItem.Version, ".")(0))
+  ServicingStack_OSVer_Minor = CInt(Split(objQueryItem.Version, ".")(1))
+  ServicingStack_OSVer_Build = CInt(Split(objQueryItem.Version, ".")(2))
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))
   WriteLanguageToFile objCmdFile, "OS_LANG", objQueryItem.OSLanguage, True, True
   strInstallationType = RegRead(wshShell, strRegKeyWindowsVersion & strRegValInstallationType)
   If InStr(1, strInstallationType, "Core", vbTextCompare) > 0 Then
     objCmdFile.WriteLine("set OS_SRV_CORE=1")
+  End If
+  If CInt(Split(objQueryItem.Version, ".")(0)) < 6 Then
+    ' Windows 2000, Windows XP, Windows Server 2003 never got SHA2-support
+    objCmdFile.WriteLine("set OS_SHA2_SUPPORT=0")
+  ElseIf CInt(Split(objQueryItem.Version, ".")(0)) = 6 Then
+    If CInt(Split(objQueryItem.Version, ".")(1)) = 0 Then
+      ' Windows Vista never got SHA2-support
+      ' Windows Server 2008 needs an update for SHA2-support
+      If RegExists(wshShell, strRegKeySHA2Support & strRegValSHA2Support) And RegExists(wshShell, strRegKeySHA2Support & strRegValSHA2Support2) Then
+        If (CInt(RegRead(wshShell, strRegKeySHA2Support & strRegValSHA2Support)) > 0) And (CInt(RegRead(wshShell, strRegKeySHA2Support & strRegValSHA2Support2)) > 0) Then
+          objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
+        Else
+          objCmdFile.WriteLine("set OS_SHA2_SUPPORT=0")
+        End If
+	  Else
+        objCmdFile.WriteLine("set OS_SHA2_SUPPORT=0")
+	  End If
+    ElseIf CInt(Split(objQueryItem.Version, ".")(1)) = 1 Then
+      ' Windows 7 / Windows Server 2008 R2 needs an update for SHA2-support
+      If RegExists(wshShell, strRegKeySHA2Support & strRegValSHA2Support) And RegExists(wshShell, strRegKeySHA2Support & strRegValSHA2Support2) Then
+        If (CInt(RegRead(wshShell, strRegKeySHA2Support & strRegValSHA2Support)) > 0) And (CInt(RegRead(wshShell, strRegKeySHA2Support & strRegValSHA2Support2)) > 0) Then
+          objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
+        Else
+          objCmdFile.WriteLine("set OS_SHA2_SUPPORT=0")
+        End If
+	  Else
+        objCmdFile.WriteLine("set OS_SHA2_SUPPORT=0")
+	  End If
+    ElseIf CInt(Split(objQueryItem.Version, ".")(1)) >= 2 Then
+      ' Windows 8 / Windows Server 2012, Windows 8.1 / Windows Server 2012 R2 have native SHA2-support
+      objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
+	End If
+  ElseIf CInt(Split(objQueryItem.Version, ".")(0)) > 6 Then
+    ' Windows 10 / Windows Server 2016 / Windows Server 2019 have native SHA2-support
+    objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
   End If
   objCmdFile.WriteLine("set SystemDirectory=" & objQueryItem.SystemDirectory)
 Next
@@ -432,6 +474,43 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_Service Wh
 Next
 ' Documentation: http://msdn.microsoft.com/en-us/library/hww8txat(v=VS.85).aspx
 objCmdFile.WriteLine("set FS_TYPE=" & objFileSystem.GetDrive(objFileSystem.GetDriveName(wshShell.CurrentDirectory)).FileSystem)
+
+' Determine Servicing Stack version
+If ServicingStack_OSVer_Major >= 6 Then
+  ServicingStack_Major = 0
+  ServicingStack_Minor = 0
+  ServicingStack_Build = 0
+  ServicingStack_Revis = 0
+  For Each objFolder In objFileSystem.GetFolder(wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\servicing\Version").SubFolders
+    If (CInt(Split(objFolder.Name, ".")(0)) = ServicingStack_OSVer_Major) And (CInt(Split(objFolder.Name, ".")(1)) = ServicingStack_OSVer_Minor) And ((ServicingStack_OSVer_Major = 6) Or (CInt(Split(objFolder.Name, ".")(2)) = ServicingStack_OSVer_Build)) Then
+      If CInt(Split(objFolder.Name, ".")(0)) > ServicingStack_Major Then
+        ServicingStack_Major = CInt(Split(objFolder.Name, ".")(0))
+        ServicingStack_Minor = CInt(Split(objFolder.Name, ".")(1))
+        ServicingStack_Build = CInt(Split(objFolder.Name, ".")(2))
+        ServicingStack_Revis = CInt(Split(objFolder.Name, ".")(3))
+      ElseIf (CInt(Split(objFolder.Name, ".")(0)) = ServicingStack_Major) And (CInt(Split(objFolder.Name, ".")(1)) > ServicingStack_Minor) Then
+        ServicingStack_Major = CInt(Split(objFolder.Name, ".")(0))
+        ServicingStack_Minor = CInt(Split(objFolder.Name, ".")(1))
+        ServicingStack_Build = CInt(Split(objFolder.Name, ".")(2))
+        ServicingStack_Revis = CInt(Split(objFolder.Name, ".")(3))
+      ElseIf (CInt(Split(objFolder.Name, ".")(0)) = ServicingStack_Major) And (CInt(Split(objFolder.Name, ".")(1)) = ServicingStack_Minor) And (CInt(Split(objFolder.Name, ".")(2)) > ServicingStack_Build) Then
+        ServicingStack_Major = CInt(Split(objFolder.Name, ".")(0))
+        ServicingStack_Minor = CInt(Split(objFolder.Name, ".")(1))
+        ServicingStack_Build = CInt(Split(objFolder.Name, ".")(2))
+        ServicingStack_Revis = CInt(Split(objFolder.Name, ".")(3))
+      ElseIf (CInt(Split(objFolder.Name, ".")(0)) = ServicingStack_Major) And (CInt(Split(objFolder.Name, ".")(1)) = ServicingStack_Minor) And (CInt(Split(objFolder.Name, ".")(2)) = ServicingStack_Build) And (CInt(Split(objFolder.Name, ".")(3)) > ServicingStack_Revis) Then
+        ServicingStack_Major = CInt(Split(objFolder.Name, ".")(0))
+        ServicingStack_Minor = CInt(Split(objFolder.Name, ".")(1))
+        ServicingStack_Build = CInt(Split(objFolder.Name, ".")(2))
+        ServicingStack_Revis = CInt(Split(objFolder.Name, ".")(3))
+      End If
+    End If
+  Next
+  objCmdFile.WriteLine("set SERVICING_VER_MAJOR=" & ServicingStack_Major)
+  objCmdFile.WriteLine("set SERVICING_VER_MINOR=" & ServicingStack_Minor)
+  objCmdFile.WriteLine("set SERVICING_VER_BUILD=" & ServicingStack_Build)
+  objCmdFile.WriteLine("set SERVICING_VER_REVIS=" & ServicingStack_Revis)
+End If
 
 ' Determine Windows Update Agent version
 If objFileSystem.FileExists(strWUAFileName) Then
