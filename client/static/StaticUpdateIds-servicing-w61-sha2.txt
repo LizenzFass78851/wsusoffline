@@ -1,0 +1,1 @@
+6.1.7601.24559,kb4570673,August 2020 Servicing stack update for Windows 7 SP1 and Windows Server 2008 R2 SP1

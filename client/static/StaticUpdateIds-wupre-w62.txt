@@ -1,3 +1,2 @@
 kb3173426,July 2016 Servicing stack update for Windows Server 2012
-kb4566426,July 2020 Servicing stack update for Windows Server 2012
 kb3172615,July 2016 update rollup for Windows Server 2012

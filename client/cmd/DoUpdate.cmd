@@ -3,7 +3,7 @@ rem *** Author: T. Wittrock, Kiel ***
 rem ***   - Community Edition -   ***
 
 verify other 2>nul
-setlocal enableextensions
+setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b14)
+set WSUSOFFLINE_VERSION=11.9.5 (b16)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -188,6 +188,7 @@ if exist "%TEMP%\wou_slmgr.txt" (
   for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /B /L /I "1: 2: 3: 4: 5: 6:" "%TEMP%\wou_slmgr.txt"') do echo %%j
 )
 rem echo Found total physical memory: %OS_RAM_GB% GB
+rem echo Found Servicing Stack version: %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%
 rem echo Found Windows Update Agent version: %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%
 rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%
 rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
@@ -218,6 +219,7 @@ if exist "%TEMP%\wou_slmgr.txt" (
   del "%TEMP%\wou_slmgr.txt"
 )
 call :Log "Info: Found total physical memory: %OS_RAM_GB% GB"
+call :Log "Info: Found Servicing Stack version %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%"
 call :Log "Info: Found Windows Update Agent version %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%"
 call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%"
 call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
@@ -524,6 +526,74 @@ for /F "tokens=*" %%i in ('dir /B ..\win\glb\*.crl') do (
   call :Log "Info: Installed ..\win\glb\%%i"
 )
 :SkipTRCertsInst
+
+rem *** Install Servicing Stack ***
+echo Checking Servicing Stack version...
+if %OS_VER_MAJOR% LSS 6 goto SkipServicingStack
+set SERVICING_VER=%SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%
+:CheckServicingStack
+if exist ..\static\StaticUpdateIds-servicing-%OS_NAME%.txt (
+  for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-servicing-%OS_NAME%.txt) do (
+    %CSCRIPT_PATH% //Nologo //B //E:vbs CompareVersions.vbs %SERVICING_VER% %%a
+    if "!errorlevel!"=="3" (
+      echo Installing %%c...
+      call :Log "Info: Installing %%c"
+      echo %%b>"%TEMP%\MissingUpdateIds.txt"
+      set SERVICING_VER_NEW=%%a
+      goto InstallServicingStack
+    )
+  )
+)
+if "%OS_SHA2_SUPPORT%"=="1" (
+  if exist ..\static\StaticUpdateIds-servicing-%OS_NAME%-sha2.txt (
+    for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-servicing-%OS_NAME%-sha2.txt) do (
+      %CSCRIPT_PATH% //Nologo //B //E:vbs CompareVersions.vbs %SERVICING_VER% %%a
+      if "!errorlevel!"=="3" (
+        echo Installing %%c...
+        call :Log "Info: Installing %%c"
+        echo %%b>"%TEMP%\MissingUpdateIds.txt"
+        set SERVICING_VER_NEW=%%a
+        goto InstallServicingStack
+      )
+    )
+  )
+)
+if exist ..\static\StaticUpdateIds-servicing-%OS_NAME%-%OS_VER_BUILD%.txt (
+  for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-servicing-%OS_NAME%-%OS_VER_BUILD%.txt) do (
+    %CSCRIPT_PATH% //Nologo //B //E:vbs CompareVersions.vbs %SERVICING_VER% %%a
+    if "!errorlevel!"=="3" (
+      echo Installing %%c...
+      call :Log "Info: Installing %%c"
+      echo %%b>"%TEMP%\MissingUpdateIds.txt"
+      set SERVICING_VER_NEW=%%a
+      goto InstallServicingStack
+    )
+  )
+)
+if "%OS_SHA2_SUPPORT%"=="1" (
+  if exist ..\static\StaticUpdateIds-servicing-%OS_NAME%-%OS_VER_BUILD%-sha2.txt (
+    for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-servicing-%OS_NAME%-%OS_VER_BUILD%-sha2.txt) do (
+      %CSCRIPT_PATH% //Nologo //B //E:vbs CompareVersions.vbs %SERVICING_VER% %%a
+      if "!errorlevel!"=="3" (
+        echo Installing %%c...
+        call :Log "Info: Installing %%c"
+        echo %%b>"%TEMP%\MissingUpdateIds.txt"
+        set SERVICING_VER_NEW=%%a
+        goto InstallServicingStack
+      )
+    )
+  )
+)
+goto ServicingStackInstalled
+:InstallServicingStack
+call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE%
+if errorlevel 1 goto SkipServicingStack
+call :Log "Updated Servicing Stack to %SERVICING_VER_NEW%"
+set SERVICING_VER=%SERVICING_VER_NEW%
+goto CheckServicingStack
+:ServicingStackInstalled
+:SkipServicingStack
 
 rem *** Install Internet Explorer ***
 if "%OS_SRV_CORE%"=="1" goto SkipIEInst
@@ -1429,12 +1499,6 @@ if "%SKIP_DYNAMIC%"=="/skipdynamic" (
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt goto ListMissingIds
 echo Checking Windows Update scan prerequisites...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
-if exist "%TEMP%\InstalledUpdateIds.txt" (
-  if not "%SHA2_PREREQ_ID%"=="" (
-    %SystemRoot%\System32\find.exe /I "%SHA2_PREREQ_ID%" "%TEMP%\InstalledUpdateIds.txt" >nul 2>&1
-    if not errorlevel 1 set SHA2_READY=1
-  )
-)
 set SHA2_PREREQ_INSTALLING=0
 if exist "%TEMP%\MissingUpdateIds.txt" del "%TEMP%\MissingUpdateIds.txt"
 if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%.txt (
@@ -1448,7 +1512,7 @@ if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%.txt (
     )
   )
 )
-if "%SHA2_READY%"=="1" (
+if "%OS_SHA2_SUPPORT%"=="1" (
   if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-sha2.txt (
     for /F "tokens=1* delims=kbKB,;" %%i in (..\static\StaticUpdateIds-wupre-%OS_NAME%-sha2.txt) do (
       if exist "%TEMP%\InstalledUpdateIds.txt" (
@@ -1471,7 +1535,7 @@ if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%.txt (
     )
   )
 )
-if "%SHA2_READY%"=="1" (
+if "%OS_SHA2_SUPPORT%"=="1" (
   if exist ..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%-sha2.txt (
     for /F "tokens=1* delims=kbKB,;" %%i in (..\static\StaticUpdateIds-wupre-%OS_NAME%-%OS_VER_BUILD%-sha2.txt) do (
       if exist "%TEMP%\InstalledUpdateIds.txt" (
@@ -1494,7 +1558,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
   if not errorlevel 1 (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-    if "%SHA2_READY%"=="1" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt) else (if "%SHA2_PREREQ_INSTALLING%"=="0" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt))
+    if "%OS_SHA2_SUPPORT%"=="1" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt) else (if "%SHA2_PREREQ_INSTALLING%"=="0" (echo. >%SystemRoot%\Temp\wou_wupre_tried.txt))
     set RECALL_REQUIRED=1
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
