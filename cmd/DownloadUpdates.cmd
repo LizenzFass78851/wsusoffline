@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b17)
+set WSUSOFFLINE_VERSION=11.9.5 (b18)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -483,6 +483,9 @@ if exist ..\client\dotnet\glb\nul (
   move /Y ..\client\dotnet\glb\*-x86_*.* ..\client\dotnet\x86-glb >nul
   rd /S /Q ..\client\dotnet\glb
 )
+
+rem *** IE restructuring stuff ***
+if exist ..\client\static\StaticUpdateIds-ie10-w61.txt del ..\client\static\StaticUpdateIds-ie10-w61.txt
 
 rem *** Microsoft Security Essentials stuff ***
 if exist ..\static\StaticDownloadLink-mssedefs-x64.txt del ..\static\StaticDownloadLink-mssedefs-x64.txt

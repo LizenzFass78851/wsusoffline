@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.5 (b17)
+set WSUSOFFLINE_VERSION=11.9.5 (b18)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -749,10 +749,10 @@ if exist %SystemRoot%\Temp\wou_iepre_tried.txt goto SkipIEw61Pre
 echo Checking Internet Explorer 11 prerequisites...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
 if exist "%TEMP%\InstalledUpdateIds.txt" (
-  %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\InstalledUpdateIds.txt" ..\static\StaticUpdateIds-ie10-w61.txt >"%TEMP%\MissingUpdateIds.txt"
+  %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\InstalledUpdateIds.txt" ..\static\StaticUpdateIds-ie11-w61.txt >"%TEMP%\MissingUpdateIds.txt"
   del "%TEMP%\InstalledUpdateIds.txt"
 ) else (
-  copy /Y ..\static\StaticUpdateIds-ie10-w61.txt "%TEMP%\MissingUpdateIds.txt" >nul
+  copy /Y ..\static\StaticUpdateIds-ie11-w61.txt "%TEMP%\MissingUpdateIds.txt" >nul
 )
 call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
 if errorlevel 1 goto ListError
