@@ -1,1 +1,1 @@
-kb4569776,August 2020 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 version 1809 and Windows Server 2019
+kb4570720,September 2020 Cumulative Update for .NET Framework 3.5 and 4.7.2 for Windows 10 version 1809 and Windows Server 2019

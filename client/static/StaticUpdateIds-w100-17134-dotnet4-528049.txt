@@ -1,1 +1,1 @@
-kb4569749,August 2020 Cumulative Update for .NET Framework 4.8 for Windows 10 version 1803
+kb4576482,September 2020 Cumulative Update for .NET Framework 4.8 for Windows 10 version 1803

@@ -21,12 +21,12 @@ windows10.0-kb3172729
 windows10.0-kb4022727
 windows10.0-kb4022730-x86_ad125b5e079babea62b5b977d34fb1652bc76fc1
 windows10.0-kb4565911
-windows10.0-kb4565912
+windows10.0-kb4576750
 windows10.0-kb4565553
 windows10.0-kb4565552
-windows10.0-kb4566424
-windows10.0-kb4569073
-windows10.0-kb4570334
+windows10.0-kb4570332
+windows10.0-kb4576751
+windows10.0-kb4577266
 windows10.0-kb4495610
 windows10.0-kb4495611
 windows10.0-kb4495613
