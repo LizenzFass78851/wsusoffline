@@ -1,1 +1,1 @@
-10.0.17763.1394,kb4566424,August 2020 Servicing stack update for Windows 10 Version 1809 and Windows Server 2019
+10.0.17763.1450,kb4570332,September 2020 Servicing stack update for Windows 10 Version 1809 and Windows Server 2019

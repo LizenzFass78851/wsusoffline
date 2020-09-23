@@ -49,3 +49,4 @@ kb4556843,May 2020 Security Only Quality Update for Windows 7 SP1 and Windows Se
 kb4561669,June 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4565539,July 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4571719,August 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4577053,September 2020 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
