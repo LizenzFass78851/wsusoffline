@@ -59,6 +59,8 @@ if exist "%TEMP%\AllStaticUpdateIds.txt" del "%TEMP%\AllStaticUpdateIds.txt"
 if "%OS_NAME%"=="w100" (
   call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%-%OS_ARCH%.txt
   call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%-%OS_ARCH%.txt
+  call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%.txt
+  call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%.txt
   if exist ..\static\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%-dotnet4-%DOTNET4_RELEASE%.txt (
     call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%-dotnet4-%DOTNET4_RELEASE%.txt
     call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-%OS_VER_BUILD%-dotnet4-%DOTNET4_RELEASE%.txt
@@ -73,12 +75,14 @@ if "%OS_NAME%"=="w100" (
 ) else (
   call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-%OS_ARCH%.txt
   call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-%OS_ARCH%.txt
+  call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%.txt
+  call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%.txt
 )
 if "%SECONLY%"=="1" (
-  call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-seconly.txt
   call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-%OS_ARCH%-seconly.txt
-  call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-seconly.txt
+  call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-seconly.txt
   call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-%OS_ARCH%-seconly.txt
+  call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-seconly.txt
   call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-dotnet%DOTNET35_VER_MAJOR%%DOTNET35_VER_MINOR%-seconly.txt
   call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-dotnet%DOTNET35_VER_MAJOR%%DOTNET35_VER_MINOR%-seconly.txt
   call :EvalStatics ..\static\custom\StaticUpdateIds-%OS_NAME%-dotnet4-%DOTNET4_RELEASE%-seconly.txt
