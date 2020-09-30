@@ -1741,7 +1741,7 @@ Community Edition 11.9.4 -- 01.08.2020
 --------------------------------------------------------------------------------
 Community Edition 11.9.5 -- ??.??.2020
 - Included complete rewrite of the Linux scripts version CE-1.19.3-ESR (Special thanks to H. Buhrmester)
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.27.29016.0 (Thanks to "harry")
+- C++ 2019 Redistributable Runtime Libraries updated to v. 14.27.29112.0 (Thanks to "harry")
 - August and September 2020 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Replaced superseded July 2020 Servicing stack update (KB4565353) by August 2020 Servicing Stack Update (KB4572374) for Windows Server 2008 SP2 (Thanks to "aker")
 - Replaced superseded July 2020 Servicing stack update (KB4565354) by August 2020 Servicing Stack Update (KB4570673) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
