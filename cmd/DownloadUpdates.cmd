@@ -34,7 +34,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.3 (b24)
+set WSUSOFFLINE_VERSION=12.3 (b25)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -526,6 +526,8 @@ if exist ..\client\win\glb\ndp*.* (
 )
 if exist ..\static\StaticDownloadLink-dotnet.txt del ..\static\StaticDownloadLink-dotnet.txt
 if exist ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl
+if exist ..\xslt\ExtractDownloadLinks-dotnet-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-x64-glb.xsl
+if exist ..\xslt\ExtractDownloadLinks-dotnet-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-x86-glb.xsl
 if exist ..\client\static\StaticUpdateIds-dotnet.txt del ..\client\static\StaticUpdateIds-dotnet.txt
 if exist ..\client\dotnet\glb\nul (
   if not exist ..\client\dotnet\x64-glb\nul md ..\client\dotnet\x64-glb
@@ -809,10 +811,7 @@ for %%i in (..\client\md\hashes-wsus.txt) do if %%~zi==0 del %%i
 
 rem *** Download installation files for .NET Frameworks 3.5 SP1 and 4.x ***
 if "%INC_DOTNET%" NEQ "1" goto SkipDotNet
-if "%SKIP_DL%"=="1" (
-  call :DownloadCore dotnet %TARGET_ARCH%-glb %TARGET_ARCH% %SKIP_PARAM%
-  goto SkipDotNet
-)
+if "%SKIP_DL%"=="1" goto SkipDotNet
 if "%VERIFY_DL%" NEQ "1" goto DownloadDotNet
 if not exist ..\client\dotnet\nul goto DownloadDotNet
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
@@ -864,8 +863,6 @@ for /F "usebackq tokens=*" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
   )
 )
 call :Log "Info: Downloaded/validated installation files for .NET Frameworks 3.5 SP1 and 4.x"
-call :DownloadCore dotnet %TARGET_ARCH%-glb %TARGET_ARCH% %SKIP_PARAM%
-if errorlevel 1 goto Error
 if "%CLEANUP_DL%"=="0" (
   del "%TEMP%\ValidStaticLinks-dotnet.txt"
   goto VerifyDotNet
