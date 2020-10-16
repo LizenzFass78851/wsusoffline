@@ -7,3 +7,4 @@ kb4532971,January 2020 Security Update for the .NET Framework 4.6 on Windows Ser
 kb4552951,May 2020 Security Update for the .NET Framework 4.6 on Windows Server 2008 SP2
 kb4565586,July 2020 Security Update for the .NET Framework 4.6 on Windows Server 2008 SP2
 kb4569740,August 2020 Security Update for the .NET Framework 4.6 on Windows Server 2008 SP2
+kb4578987,October 2020 Security Update for the .NET Framework 4.6 on Windows Server 2008 SP2

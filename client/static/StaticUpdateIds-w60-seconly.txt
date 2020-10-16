@@ -34,3 +34,5 @@ kb4565578,July 2020 Security Update for the .NET Framework 2.0 SP2 and 3.0 SP2 o
 kb4571746,August 2020 Security Only Quality Update for Windows Server 2008 SP2
 kb4569735,August 2020 Security Update for the .NET Framework 2.0 SP2 and 3.0 SP2 on Windows Server 2008 SP2
 kb4577070,September 2020 Security Only Quality Update for Windows Server 2008 SP2
+kb4580385,October 2020 Security Only Quality Update for Windows Server 2008 SP2
+kb4578979,October 2020 Security Update for the .NET Framework 2.0 SP2 and 3.0 SP2 on Windows Server 2008 SP2

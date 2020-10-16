@@ -7,7 +7,7 @@ windows6.0-kb2957509
 windows6.0-kb2973201
 windows6.0-kb3033889
 windows6.0-kb4493730
-windows6.0-kb4572374
+windows6.0-kb4580971
 ndp46-kb3074233
 ndp46-kb3098001
 ndp46-kb3098786
@@ -31,7 +31,7 @@ windows6.1-kb3122648
 windows6.1-kb4507004
 windows6.1-kb4474419-v3
 windows6.1-kb4490628
-windows6.1-kb4570673
+windows6.1-kb4580970
 windows8-rt-kb3122649
 windows8-rt-kb3173426
 windows8-rt-kb4566426
@@ -48,9 +48,9 @@ windows10.0-kb4022730-x86_ad125b5e079babea62b5b977d34fb1652bc76fc1
 windows10.0-kb4565911
 windows10.0-kb4576750
 windows10.0-kb4565553
-windows10.0-kb4565552
-windows10.0-kb4570332
-windows10.0-kb4576751
+windows10.0-kb4580398
+windows10.0-kb4577667
+windows10.0-kb4577670
 windows10.0-kb4577266
 windows10.0-kb4495611
 windows10.0-kb4495613

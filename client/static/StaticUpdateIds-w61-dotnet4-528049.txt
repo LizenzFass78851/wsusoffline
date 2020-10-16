@@ -1,1 +1,1 @@
-kb4576487,September 2020 Security and Quality Rollup for .NET Framework 4.8 on Windows 7 and Windows Server 2008 R2
+kb4578977,October 2020 Security and Quality Rollup for .NET Framework 4.8 on Windows 7 and Windows Server 2008 R2

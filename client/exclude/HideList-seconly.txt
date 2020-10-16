@@ -249,3 +249,11 @@ kb4576631,September 2020 Security and Quality Rollup for .NET Framework 2.0, 3.0
 kb4576628,September 2020 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
 kb4576629,September 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
 kb4576630,September 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
+kb4580378,October 2020 Security Monthly Quality Rollup for Windows Server 2008
+kb4580345,October 2020 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4580382,October 2020 Security Monthly Quality Rollup for Windows Server 2012
+kb4579978,October 2020 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb4579980,October 2020 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008
+kb4579977,October 2020 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
+kb4580347,October 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb4579979,October 2020 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
