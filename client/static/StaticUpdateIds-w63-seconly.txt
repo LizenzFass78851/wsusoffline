@@ -49,3 +49,4 @@ kb4561673,June 2020 Security Only Quality Update for Windows 8.1 and Windows Ser
 kb4565540,July 2020 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
 kb4571723,August 2020 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
 kb4577071,September 2020 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
+kb4580358,October 2020 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2

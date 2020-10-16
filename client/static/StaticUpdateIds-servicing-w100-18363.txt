@@ -1,1 +1,1 @@
-10.0.18362.1073,kb4576751,September 2020 Servicing stack update for Windows 10 Version 1909
+10.0.18362.1130,kb4577670,October 2020 Servicing stack update for Windows 10 Version 1909

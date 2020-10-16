@@ -1,1 +1,1 @@
-10.0.17134.1600,kb4565552,July 2020 Servicing stack update for Windows 10 Version 1803
+10.0.17134.1780,kb4580398,October 2020 Servicing stack update for Windows 10 Version 1803

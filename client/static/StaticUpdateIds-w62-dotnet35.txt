@@ -1,1 +1,1 @@
-kb4569765,August 2020 Security and Quality Rollup for .NET Framework 3.5 on Windows Server 2012
+kb4578950,October 2020 Security and Quality Rollup for .NET Framework 3.5 on Windows Server 2012
