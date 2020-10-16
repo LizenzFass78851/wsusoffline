@@ -76,7 +76,7 @@ for /f "tokens=1,2 delims=," %%a in (..\static\SelfUpdateVersion-recent.txt) do 
 if "%CheckOUVersion_version_this%"=="" (goto CompError)
 if "%CheckOUVersion_version_recent%"=="" (goto CompError)
 
-%CSCRIPT_PATH% //Nologo //B //E:vbs .\CompareVersions.vbs %CheckOUVersion_version_this% %CheckOUVersion_version_recent%
+%CSCRIPT_PATH% //Nologo //B //E:vbs ..\client\cmd\CompareVersions.vbs %CheckOUVersion_version_this% %CheckOUVersion_version_recent%
 set CheckOUVersion_result=%errorlevel%
 if "%CheckOUVersion_result%"=="0" (
   rem %errorlevel%==0 -> equal
