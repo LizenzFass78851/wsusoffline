@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 12.3
+WSUS Offline Update - Community Edition - 12.4
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1765,3 +1765,4 @@ Community Edition 12.3 -- 20.10.2020
 - Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
 - Fix: DetermineSystemProperties.vbs might fail to return OS_VER_REVIS on some configurations (Thanks to "rbronca")
 --------------------------------------------------------------------------------
+Community Edition 12.4 -- ??.??.2020
