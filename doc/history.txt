@@ -1745,7 +1745,7 @@ Community Edition 12.2 -- 01.08.2020
 - Updated the ofc-ExcludeLists and removed some static links
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
 --------------------------------------------------------------------------------
-Community Edition 12.3 -- ??.??.2020
+Community Edition 12.3 -- 20.10.2020
 - NOTE: This version will be the last one supporting Windows 10 (1709)
 - NOTE: This version will be the last one supporting Office 2010
 - Included complete rewrite of the Linux scripts version CE-2.2 (Special thanks to H. Buhrmester)
@@ -1764,3 +1764,4 @@ Community Edition 12.3 -- ??.??.2020
 - Fix: old files for w60/w61 were not cleaned up (Thanks to "hbuhrmester")
 - Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
 - Fix: DetermineSystemProperties.vbs might fail to return OS_VER_REVIS on some configurations (Thanks to "rbronca")
+--------------------------------------------------------------------------------
