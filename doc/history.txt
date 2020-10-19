@@ -1739,7 +1739,7 @@ Community Edition 11.9.4 -- 01.08.2020
 - Updated the ofc-ExcludeLists and removed some static links to shrink the download size
 - Fix: more fixes for CheckOUVersion.cmd/UpdateOU.cmd
 --------------------------------------------------------------------------------
-Community Edition 11.9.5 -- ??.??.2020
+Community Edition 11.9.5 -- 10.10.2020
 - NOTE: This version will be the last one supporting Windows 10 (1709)
 - NOTE: This version will be the last one supporting Office 2010
 - Included complete rewrite of the Linux scripts version CE-1.19.3-ESR (Special thanks to H. Buhrmester)
@@ -1759,3 +1759,4 @@ Community Edition 11.9.5 -- ??.??.2020
 - Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
 - Fix: DetermineSystemProperties.vbs might fail to return OS_VER_REVIS on some configurations (Thanks to "rbronca")
 - Fix: Microsoft removed the IE9 standalone installers for Windows Vista / Server 2008 (Thanks to "hbuhrmester" and "aker")
+--------------------------------------------------------------------------------
