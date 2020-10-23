@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.6
+WSUS Offline Update - Community Edition - 11.9.7
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
