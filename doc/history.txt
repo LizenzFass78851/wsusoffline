@@ -1772,3 +1772,4 @@ Community Edition 12.3.1 -- 23.10.2020
 - Fix: The Servicing Stack update for Windows 10 1909 and 20H2 could be installed multiple times (Thanks to "aker")
 --------------------------------------------------------------------------------
 Community Edition 12.4 -- ??.??.2020
+- Support removed for Windows 10 version 1709 since Microsoft discontinued support for it on October 13th, 2020

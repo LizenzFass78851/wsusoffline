@@ -5,9 +5,6 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2018/10/windows10.0-kb4091664-v6-x86_71cfbc857af104a87873d106ec20377cf65a6c24.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2019/02/windows10.0-kb4346087-v3-x86_20f490a4493ec5ac99b6a4c357dca9d86b3ee96b.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/windows10.0-kb4494175-v5-x86_696c2122abdc19e0ab38aad613b289a23381d163.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2018/10/windows10.0-kb4090007-v6-x86_4a3435641882299e339513fc8e7c731b0f91aacb.msu
-http://download.windowsupdate.com/c/msdownload/update/software/updt/2019/02/windows10.0-kb4346085-v3-x86_1f47d4b7b492a39d0392832303461b6d8c7e8d90.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/windows10.0-kb4494452-v5-x86_fc13aed7b483de071e89d17125f78a1e9521cdef.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2018/10/windows10.0-kb4100347-v4-x86_aa12891fd9c5fc2cc8a261ecc72ea6a8f8d54437.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2019/02/windows10.0-kb4346084-v3-x86_f52f592f9829095d5ec976cb0fa554233a91a11c.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/windows10.0-kb4494451-v4-x86_80f3c5ffb7a58a07b932780247f300b311210e75.msu
