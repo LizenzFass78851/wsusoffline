@@ -16,3 +16,4 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/windows10.0-kb4497165-v5-x86_8a87181bc56525a9f28ccfb00a6fe9af0559405e.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/08/windows10.0-kb4558130-x86_9257122380f7eb528b8f7b6321ac3415843ee305.msu
 http://b1.download.windowsupdate.com/d/upgr/2019/11/windows10.0-kb4517245-x86_8463271782b79ce8214772c62552b8961feb7ccb.cab
+http://b1.download.windowsupdate.com/c/upgr/2020/10/windows10.0-kb4562830-x86_d75cbd33d604ae192de14ff04283ef785f1d079a.msu

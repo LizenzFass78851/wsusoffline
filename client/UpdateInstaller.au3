@@ -1,4 +1,4 @@
-; ***  WSUS Offline Update 12.4 - Installer  ***
+; *** WSUS Offline Update 12.3.1 - Installer ***
 ; ***       Author: T. Wittrock, Kiel        ***
 ; ***         - Community Edition -          ***
 ; ***   Dialog scaling added by Th. Baisch   ***
@@ -8,14 +8,14 @@
 #RequireAdmin
 #pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Installer")
-#pragma compile(FileVersion, 12.4.0)
+#pragma compile(FileVersion, 12.3.1)
 #pragma compile(InternalName, "Installer")
 #pragma compile(LegalCopyright, "GNU GPLv3")
 #pragma compile(OriginalFilename, UpdateInstaller.exe)
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
-#pragma compile(ProductVersion, 12.4.0)
+#pragma compile(ProductVersion, 12.3.1)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.4 (b0) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.3.1 - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -91,6 +91,8 @@ Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
 Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
 Dim Const $path_rel_w100_18363_x86    = "\w100\glb\windows10.0-kb4517245-x86*."
 Dim Const $path_rel_w100_18363_x64    = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
+Dim Const $path_rel_w100_19042_x86    = "\w100\glb\windows10.0-kb4562830-x86*."
+Dim Const $path_rel_w100_19042_x64    = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
 
@@ -234,7 +236,15 @@ Func BuildUpgradeAvailable($basepath)
           Return FileExists($basepath & $path_rel_w100_18363_x86)
         EndIf
 	Else
-      Return 0
+ 	   If (@OSBuild = "19041") Then
+ 	       If (@OSArch <> "X86") Then
+  	        Return FileExists($basepath & $path_rel_w100_19042_x64)
+  	      Else
+  	        Return FileExists($basepath & $path_rel_w100_19042_x86)
+   	     EndIf
+		Else
+			Return 0
+		EndIf
 	EndIf
   Else
     Return 0

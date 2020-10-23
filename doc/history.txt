@@ -1765,4 +1765,10 @@ Community Edition 12.3 -- 20.10.2020
 - Fix: The script files could fail to parse the command line parameters as the should (Thanks to "hbuhrmester" and "aker")
 - Fix: DetermineSystemProperties.vbs might fail to return OS_VER_REVIS on some configurations (Thanks to "rbronca")
 --------------------------------------------------------------------------------
+Community Edition 12.3.1 -- 23.10.2020
+- NOTE: This version will really be the last one supporting Windows 10 (1709)
+- NOTE: This version will really be the last one supporting Office 2010
+- Added static update definition files for Windows 10 Version 20H2 (build 19042)
+- Fix: The Servicing Stack update for Windows 10 1909 and 20H2 could be installed multiple times (Thanks to "aker")
+--------------------------------------------------------------------------------
 Community Edition 12.4 -- ??.??.2020

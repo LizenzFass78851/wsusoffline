@@ -35,3 +35,4 @@ windows10.0-kb4495590
 windows10.0-kb4495618
 windows10.0-kb4495620
 windows10.0-kb4517389
+windows10.0-kb4579311
