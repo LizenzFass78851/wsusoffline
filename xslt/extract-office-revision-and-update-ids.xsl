@@ -4,7 +4,6 @@
      Filename: extract-office-revision-and-update-ids.xsl
 
      This file selects Office updates by their Product Ids:
-     Office 2010 = 84f5f325-30d7-41c4-81d1-87a0e6535b66
      Office 2013 = 704a0a4a-518f-4d69-9e03-10ba44198bd5
      Office 2016 = 25aed893-7c2d-4a31-ae22-28ff8ac150ed
 
@@ -16,8 +15,7 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text"/>
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:Categories/__:Category[@Type='Product']">
-      <xsl:if test="contains(@Id, '84f5f325-30d7-41c4-81d1-87a0e6535b66')
-                 or contains(@Id, '704a0a4a-518f-4d69-9e03-10ba44198bd5')
+      <xsl:if test="contains(@Id, '704a0a4a-518f-4d69-9e03-10ba44198bd5')
                  or contains(@Id, '25aed893-7c2d-4a31-ae22-28ff8ac150ed')">
         <xsl:text>#</xsl:text>
         <xsl:value-of select="../../@RevisionId"/>

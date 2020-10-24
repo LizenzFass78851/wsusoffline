@@ -38,7 +38,7 @@ Private Const strRegValCurrentPowerPolicy     = "CurrentPowerPolicy"
 Private Const strRegKeyOfficePrefix_Mx86      = "HKLM\Software\Microsoft\Office\"
 Private Const strRegKeyOfficePrefix_Mx64      = "HKLM\Software\Wow6432Node\Microsoft\Office\"
 Private Const strRegKeyOfficePrefix_User      = "HKCU\Software\Microsoft\Office\"
-Private Const strRegKeyOfficeInfixes_Version  = "14.0,15.0,16.0"
+Private Const strRegKeyOfficeInfixes_Version  = "15.0,16.0"
 Private Const strRegKeyOfficeSuffix_InstRoot  = "\Common\InstallRoot\"
 Private Const strRegKeyOfficeSuffix_Language  = "\Common\LanguageResources\"
 Private Const strRegKeyOfficeSuffix_Outlook   = "\Outlook\"
@@ -48,10 +48,9 @@ Private Const strRegValOfficeLanguage_User    = "InstallLanguage"
 Private Const strRegValOfficeVersion          = "LastProduct"
 Private Const strRegValOfficeArchitecture     = "Bitness"
 Private Const strVersionSuffixes              = "MAJOR,MINOR,BUILD,REVIS"
-Private Const strOfficeNames                  = "o2k10,o2k13,o2k16"
+Private Const strOfficeNames                  = "o2k13,o2k16"
 Private Const strOfficeAppNames               = "Word,Excel,Outlook,Powerpoint,Access,FrontPage"
 Private Const strOfficeExeNames               = "WINWORD.EXE,EXCEL.EXE,OUTLOOK.EXE,POWERPNT.EXE,MSACCESS.EXE,FRONTPG.EXE"
-Private Const strBuildNumbers_o2k10           = "4762,4756,4760,4754,4750,4750;6024,6024,6025,6009,6024,6024;7015,7015,7012,6009,7015,7015"
 Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4569,4569,4569,4454,4569,4569"
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
@@ -362,8 +361,6 @@ Dim arrayVersion, arraySPs, arrayBuilds, i
   OfficeSPVersion = 0
   arrayVersion = Split(strExeVersion, ".")
   Select Case CInt(arrayVersion(0))
-    Case 14
-      arraySPs = Split(strBuildNumbers_o2k10, ";")
     Case 15
       arraySPs = Split(strBuildNumbers_o2k13, ";")
     Case 16

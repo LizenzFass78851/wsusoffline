@@ -1,2 +1,0 @@
-http://download.microsoft.com/download/8/8/2/882795D2-DC90-4A8C-B48C-46ECECCF6058/proofloc2010-kb3203468-fullfile-x86-glb.exe
-https://download.microsoft.com/download/6/F/1/6F13F16E-458F-420A-BF0E-0A3BA24FC6B2/ogl2010-kb3213638-fullfile-x86-glb.exe

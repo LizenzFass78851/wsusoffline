@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.7 (b1)
+set WSUSOFFLINE_VERSION=11.9.7 (b2.1)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -203,9 +203,6 @@ rem echo Found Microsoft Security Essentials version: %MSSE_VER_MAJOR%.%MSSE_VER
 rem echo Found Microsoft Security Essentials definitions version: %MSSEDEFS_VER_MAJOR%.%MSSEDEFS_VER_MINOR%.%MSSEDEFS_VER_BUILD%.%MSSEDEFS_VER_REVIS%
 rem echo Found Network Inspection System definitions version: %NISDEFS_VER_MAJOR%.%NISDEFS_VER_MINOR%.%NISDEFS_VER_BUILD%.%NISDEFS_VER_REVIS%
 rem echo Found Windows Defender definitions version: %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%
-if "%O2K10_VER_MAJOR%" NEQ "" (
-  echo Found Microsoft Office 2010 %O2K10_VER_APP% version: %O2K10_VER_MAJOR%.%O2K10_VER_MINOR%.%O2K10_VER_BUILD%.%O2K10_VER_REVIS% ^(o2k10 %O2K10_ARCH% %O2K10_LANG% sp%O2K10_SP_VER%^)
-)
 if "%O2K13_VER_MAJOR%" NEQ "" (
   echo Found Microsoft Office 2013 %O2K13_VER_APP% version: %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% ^(o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%^)
 )
@@ -238,9 +235,6 @@ call :Log "Info: Found Microsoft Security Essentials definitions version %MSSEDE
 call :Log "Info: Found Network Inspection System definitions version %NISDEFS_VER_MAJOR%.%NISDEFS_VER_MINOR%.%NISDEFS_VER_BUILD%.%NISDEFS_VER_REVIS%"
 :SkipLogMSSEVer
 call :Log "Info: Found Windows Defender definitions version %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%"
-if "%O2K10_VER_MAJOR%" NEQ "" (
-  call :Log "Info: Found Microsoft Office 2010 %O2K10_VER_APP% version %O2K10_VER_MAJOR%.%O2K10_VER_MINOR%.%O2K10_VER_BUILD%.%O2K10_VER_REVIS% (o2k10 %O2K10_ARCH% %O2K10_LANG% sp%O2K10_SP_VER%)"
-)
 if "%O2K13_VER_MAJOR%" NEQ "" (
   call :Log "Info: Found Microsoft Office 2013 %O2K13_VER_APP% version %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% (o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%)"
 )
@@ -303,17 +297,6 @@ set JUST_OFFICE=1
 :CheckOfficeMedium
 if not "%OFC_INSTALLED%"=="1" (if "%JUST_OFFICE%"=="1" (goto InvalidMedium) else (goto ProperMedium))
 set OFFICE_SUPPORTED=0
-if not "%O2K10_VER_MAJOR%"=="" (
-  if exist ..\o2k10\%O2K10_LANG%\nul (
-    echo Medium supports Microsoft Office ^(o2k10 %O2K10_LANG%^).
-    call :Log "Info: Medium supports Microsoft Office (o2k10 %O2K10_LANG%)"
-    set OFFICE_SUPPORTED=1
-  ) else if exist ..\o2k10\glb\nul (
-    echo Medium supports Microsoft Office ^(o2k10 glb^).
-    call :Log "Info: Medium supports Microsoft Office (o2k10 glb)"
-    set OFFICE_SUPPORTED=1
-  )
-)
 if not "%O2K13_VER_MAJOR%"=="" (
   if exist ..\o2k13\%O2K13_LANG%\nul (
     echo Medium supports Microsoft Office ^(o2k13 %O2K13_LANG%^).
@@ -1326,9 +1309,6 @@ if not "%OFC_INSTALLED%"=="1" goto SkipOffice
 rem *** Check Office Service Pack versions ***
 echo Checking Office Service Pack versions...
 if exist "%TEMP%\MissingUpdateIds.txt" del "%TEMP%\MissingUpdateIds.txt"
-if "%O2K10_VER_MAJOR%"=="" goto SkipSPo2k10
-if %O2K10_SP_VER% LSS %O2K10_SP_VER_TARGET% echo %O2K10_SP_TARGET_ID%>>"%TEMP%\MissingUpdateIds.txt"
-:SkipSPo2k10
 if "%O2K13_VER_MAJOR%"=="" goto SkipSPo2k13
 if %O2K13_SP_VER% LSS %O2K13_SP_VER_TARGET% echo %O2K13_SP_TARGET_ID%>>"%TEMP%\MissingUpdateIds.txt"
 :SkipSPo2k13

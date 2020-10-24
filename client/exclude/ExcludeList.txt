@@ -3,7 +3,6 @@ kb890830,Malicious Software Removal Tool
 kb982861,Internet Explorer 9
 kb2841134,Internet Explorer 11
 kb976002,Browser Choice
-kb2687455,Office 2010 Service Pack 2
 kb2817430,Office 2013 Service Pack 1
 kb936330,Windows Server 2008 Service Pack 1
 kb948465,Windows Server 2008 Service Pack 2
