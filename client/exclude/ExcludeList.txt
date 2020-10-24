@@ -1,5 +1,4 @@
 kb890830,Malicious Software Removal Tool
-kb2687455,Office 2010 Service Pack 2
 kb2817430,Office 2013 Service Pack 1
 kb3081444,August 2015 cumulative update for Windows 10
 kb3081448,August 2015 cumulative update for Windows 10

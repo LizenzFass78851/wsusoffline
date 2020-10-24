@@ -93,10 +93,6 @@ if "%OS_NAME%"=="w100" (
     call :EvalStatics ..\static\StaticUpdateIds-%OS_NAME%-dotnet4-%DOTNET4_RELEASE%.txt
   )
 )
-if "%O2K10_VER_MAJOR%" NEQ "" (
-  call :EvalStatics ..\static\custom\StaticUpdateIds-o2k10.txt
-  call :EvalStatics ..\static\StaticUpdateIds-o2k10.txt
-)
 if "%O2K13_VER_MAJOR%" NEQ "" (
   call :EvalStatics ..\static\custom\StaticUpdateIds-o2k13.txt
   call :EvalStatics ..\static\StaticUpdateIds-o2k13.txt
@@ -153,12 +149,6 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
     call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
     if not exist "%TEMP%\Update.txt" (
       rem statisch definierte Office-Updates als EXE
-      if not "%O2K10_VER_MAJOR%"=="" (
-        for %%k in (%O2K10_LANG% glb) do (
-          call ListUpdateFile.cmd %%i*%O2K10_ARCH% ..\o2k10\%%k
-          call ListUpdateFile.cmd %%i ..\o2k10\%%k
-        )
-      )
       if not "%O2K13_VER_MAJOR%"=="" (
         for %%k in (%O2K13_LANG% glb) do (
           call ListUpdateFile.cmd %%i*%O2K13_ARCH% ..\o2k13\%%k

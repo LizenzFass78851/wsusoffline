@@ -118,24 +118,13 @@ goto SetOfficeName
 
 :SetOfficeName
 set OFC_INSTALLED=0
-if "%O2K10_VER_MAJOR%"=="" goto NoO2k10
-rem *** Office 2010 ***
-set OFC_INSTALLED=1
-if "%OFC_LANG%"=="" (
-  set OFC_LANG=%O2K10_LANG%
-) else (
-  set OFC_LANG=%OFC_LANG% %O2K10_LANG%
-)
-set O2K10_SP_VER_TARGET=2
-set O2K10_SP_TARGET_ID=2687455-fullfile-%O2K10_ARCH%
-:NoO2k10
 if "%O2K13_VER_MAJOR%"=="" goto NoO2k13
 rem *** Office 2013 ***
 set OFC_INSTALLED=1
 if "%OFC_LANG%"=="" (
   set OFC_LANG=%O2K13_LANG%
 ) else (
-  if not "%O2K13_LANG%"=="%O2K10_LANG%" (set OFC_LANG=%OFC_LANG% %O2K13_LANG%)
+  set OFC_LANG=%OFC_LANG% %O2K13_LANG%
 )
 set O2K13_SP_VER_TARGET=1
 set O2K13_SP_TARGET_ID=2817430-fullfile-%O2K13_ARCH%
@@ -146,7 +135,7 @@ set OFC_INSTALLED=1
 if "%OFC_LANG%"=="" (
   set OFC_LANG=%O2K16_LANG%
 ) else (
-  if not "%O2K16_LANG%"=="%O2K10_LANG%" (if not "%O2K16_LANG%"=="%O2K13_LANG%" (set OFC_LANG=%OFC_LANG% %O2K16_LANG%))
+  if not "%O2K16_LANG%"=="%O2K13_LANG%" (set OFC_LANG=%OFC_LANG% %O2K16_LANG%)
 )
 set O2K16_SP_VER_TARGET=0
 :NoO2k16
