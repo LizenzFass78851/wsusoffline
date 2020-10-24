@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.7 (b0)
+set WSUSOFFLINE_VERSION=11.9.7 (b1)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -406,6 +406,16 @@ if exist ..\client\static\StaticUpdateIds-w100-15063-dotnet4-528049.txt del ..\c
 if exist ..\client\static\StaticUpdateIds-w100-15063-x64.txt del ..\client\static\StaticUpdateIds-w100-15063-x64.txt
 if exist ..\client\static\StaticUpdateIds-w100-15063-x86.txt del ..\client\static\StaticUpdateIds-w100-15063-x86.txt
 if exist ..\client\static\StaticUpdateIds-wupre-w100-15063.txt del ..\client\static\StaticUpdateIds-wupre-w100-15063.txt
+
+rem *** Windows 10 Version 1709 stuff ***
+if exist ..\exclude\ExcludeList-w100-1709.txt del ..\exclude\ExcludeList-w100-1709.txt
+if exist ..\client\static\StaticUpdateIds-w100-16299.txt del ..\client\static\StaticUpdateIds-w100-16299.txt
+if exist ..\client\static\StaticUpdateIds-w100-16299-x64.txt del ..\client\static\StaticUpdateIds-w100-16299-x64.txt
+if exist ..\client\static\StaticUpdateIds-w100-16299-x86.txt del ..\client\static\StaticUpdateIds-w100-16299-x86.txt
+if exist ..\client\static\StaticUpdateIds-wupre-w100-16299.txt del ..\client\static\StaticUpdateIds-wupre-w100-16299.txt
+if exist ..\client\static\StaticUpdateIds-servicing-w100-16299.txt del ..\client\static\StaticUpdateIds-servicing-w100-16299.txt
+if exist ..\client\static\StaticUpdateIds-w100-16299-dotnet.txt del ..\client\static\StaticUpdateIds-w100-16299-dotnet.txt
+if exist ..\client\static\StaticUpdateIds-w100-16299-dotnet4-528049.txt del ..\client\static\StaticUpdateIds-w100-16299-dotnet4-528049.txt
 
 rem *** Office and invcif.exe stuff ***
 if exist ..\static\StaticDownloadLinks-inventory.txt del ..\static\StaticDownloadLinks-inventory.txt
