@@ -1769,3 +1769,4 @@ Community Edition 11.9.7 -- ??.??.2020
 - Support removed for Windows 10 version 1709 since Microsoft discontinued support for it on October 13th, 2020
 - Support removed for Office 2010 since Microsoft discontinued support for it on October 13th, 2020
 - cleaned up ExcludeList-ofc*.txt
+- Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")

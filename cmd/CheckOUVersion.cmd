@@ -152,7 +152,17 @@ if "%EXIT_ERR%"=="1" (
 )
 
 :Result_UpdateAvailable
-verify other 2>nul
+if "%EXIT_ERR%"=="1" (
+  endlocal
+  verify other 2>nul
+  exit
+) else (
+  title %ComSpec%
+  endlocal
+  verify other 2>nul
+  goto :eof
+)
+
 :Result_OK
 :EoF
 title %ComSpec%
