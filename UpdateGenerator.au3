@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.7)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.7 (b3)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.7 (b4)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -1353,7 +1353,11 @@ EndIf
 ;  Windows Server 2008 group
 $txtxpos = 2 * $txtxoffset
 $txtypos = 3.5 * $txtyoffset + $txtheight
-GUICtrlCreateGroup("Windows Server 2008 (w60 / w60-x64)", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+If $gergui Then
+  GUICtrlCreateGroup("Windows Server 2008 (w60 / w60-x64) [ESU-Lizenz erforderlich]", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+Else
+  GUICtrlCreateGroup("Windows Server 2008 (w60 / w60-x64) [ESU license required]", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+EndIf
 ;  Windows Server 2008 global
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = 3 * $txtxoffset
@@ -1383,7 +1387,11 @@ EndIf
 ;  Windows 7 / Server 2008 R2 group
 $txtxpos = 2 * $txtxoffset
 $txtypos = $txtypos + 2.5 * $txtyoffset
-GUICtrlCreateGroup("Windows 7 / Server 2008 R2 (w61 / w61-x64)", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+If $gergui Then
+  GUICtrlCreateGroup("Windows 7 / Server 2008 R2 (w61 / w61-x64) [ESU-Lizenz erforderlich]", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+Else
+  GUICtrlCreateGroup("Windows 7 / Server 2008 R2 (w61 / w61-x64) [ESU license required]", $txtxpos, $txtypos, $groupwidth, $groupheight_glb)
+EndIf
 ;  Windows 7 global
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = 3 * $txtxoffset
