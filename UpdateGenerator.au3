@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.4.0)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 12.4 (b3)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 12.4 (b4)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -89,7 +89,7 @@ Dim Const $iso_token_skiphashes     = "skiphashes"
 Dim Const $usb_token_copy           = "copy"
 Dim Const $usb_token_path           = "path"
 Dim Const $usb_token_cleanup        = "cleanup"
-Dim Const $opts_token_allowsp       = "allowsp"
+Dim Const $opts_token_excludesp     = "excludesp"
 Dim Const $opts_token_includedotnet = "includedotnet"
 Dim Const $opts_token_allowdotnet   = "allowdotnet"
 Dim Const $opts_token_seconly       = "seconly"
@@ -560,6 +560,9 @@ EndFunc
 Func DetermineDownloadSwitches($chkbox_dotnet, $chkbox_seconly, $chkbox_wddefs, $chkbox_verifydownloads, $strproxy, $strwsus)
 Dim $result = ""
 
+  If IniRead($inifilename, $ini_section_opts, $opts_token_excludesp, $disabled) = $enabled Then
+    $result = $result & " /excludesp"
+  EndIf
   If IsCheckBoxChecked($chkbox_dotnet) Then
     $result = $result & " /includedotnet"
   EndIf

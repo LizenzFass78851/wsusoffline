@@ -12,6 +12,7 @@ setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
+set EXC_SP=
 set EXC_STATICS=
 set EXC_WINGLB=
 set INC_DOTNET=
@@ -34,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.4 (b3)
+set WSUSOFFLINE_VERSION=12.4 (b4)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -176,9 +177,10 @@ goto EvalParams
 
 :EvalParams
 if "%3"=="" goto NoMoreParams
-for %%i in (/excludestatics /excludewinglb /includedotnet /seconly /includewddefs /nocleanup /verify /exitonerror /skipsdd /skiptz /skipdownload /skipdynamic /proxy /wsus /wsusonly /wsusbyproxy) do (
+for %%i in (/excludesp /excludestatics /excludewinglb /includedotnet /seconly /includewddefs /nocleanup /verify /exitonerror /skipsdd /skiptz /skipdownload /skipdynamic /proxy /wsus /wsusonly /wsusbyproxy) do (
   if /i "%3"=="%%i" call :Log "Info: Option %%i detected"
 )
+if /i "%3"=="/excludesp" set EXC_SP=1
 if /i "%3"=="/excludestatics" set EXC_STATICS=1
 if /i "%3"=="/excludewinglb" set EXC_WINGLB=1
 if /i "%3"=="/includedotnet" set INC_DOTNET=1
@@ -1324,6 +1326,10 @@ if not exist "%TEMP%\StaticDownloadLinks-%1-%2.txt" goto SkipStatics
 :EvalStatics
 if exist "%TEMP%\ExcludeListStatic.txt" del "%TEMP%\ExcludeListStatic.txt"
 if exist ..\exclude\custom\ExcludeListForce-all.txt copy /Y ..\exclude\custom\ExcludeListForce-all.txt "%TEMP%\ExcludeListStatic.txt" >nul
+if "%EXC_SP%"=="1" (
+  type "..\client\static\StaticUpdateIds-w63-upd1.txt" >>"%TEMP%\ExcludeListStatic.txt"
+  type "..\client\static\StaticUpdateIds-w63-upd2.txt" >>"%TEMP%\ExcludeListStatic.txt"
+)
 rem *** Windows 10 version specific exclusion ***
 set DISABLED1903=
 set DISABLED1909=
@@ -1338,9 +1344,9 @@ if not errorlevel 1 (
           if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
           if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
           if "%%i"=="1903" set DISABLED1903=1
-		  if "%%i"=="1909" set DISABLED1909=1
+          if "%%i"=="1909" set DISABLED1909=1
           if "%%i"=="2004" set DISABLED2004=1
-		  if "%%i"=="20H2" set DISABLED20H2=1
+          if "%%i"=="20H2" set DISABLED20H2=1
         )
       )
     )
@@ -1476,6 +1482,10 @@ if not errorlevel 1 (
 :ExcludeForceAll
 if exist ..\exclude\custom\ExcludeListForce-all.txt (
   type ..\exclude\custom\ExcludeListForce-all.txt >>"%TEMP%\ExcludeList-%1.txt"
+)
+if "%EXC_SP%"=="1" (
+  type "..\client\static\StaticUpdateIds-w63-upd1.txt" >>"%TEMP%\ExcludeList-%1.txt"
+  type "..\client\static\StaticUpdateIds-w63-upd2.txt" >>"%TEMP%\ExcludeList-%1.txt"
 )
 for %%i in ("%TEMP%\ExcludeList-%1.txt") do if %%~zi==0 del %%i
 if exist "%TEMP%\ExcludeList-%1.txt" (
