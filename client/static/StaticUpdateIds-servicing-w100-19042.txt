@@ -1,1 +1,1 @@
-10.0.19041.504,kb4577266,September 2020 Servicing stack update for Windows 10 Version 20H2
+10.0.19041.621,kb4586864,November 2020 Servicing stack update for Windows 10 Version 20H2

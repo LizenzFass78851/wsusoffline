@@ -1,1 +1,1 @@
-kb4578975,October 2020 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
+kb4585211,November 2020 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
