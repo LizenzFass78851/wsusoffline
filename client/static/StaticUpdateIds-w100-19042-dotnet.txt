@@ -1,1 +1,1 @@
-kb4580419,November 2020 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 version 20H2
+kb4578968,October 2020 Cumulative Update for .NET Framework 3.5 and 4.8 for Windows 10 version 20H2
