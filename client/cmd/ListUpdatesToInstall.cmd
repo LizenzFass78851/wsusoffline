@@ -146,7 +146,6 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         call ListUpdateFile.cmd %%i ..\%%k\%%l
       )
     )
-    call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
     if not exist "%TEMP%\Update.txt" (
       rem statisch definierte Office-Updates als EXE
       if not "%O2K13_VER_MAJOR%"=="" (
