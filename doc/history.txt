@@ -1765,7 +1765,7 @@ Community Edition 11.9.6 -- 23.10.2020
 - NOTE: This version will really be the last one supporting Office 2010
 - Fix: The Servicing Stack update for Windows 10 1909 could be installed multiple times (Thanks to "aker")
 --------------------------------------------------------------------------------
-Community Edition 11.9.7 -- ??.??.2020
+Community Edition 11.9.7 -- 06.12.2020
 - Support removed for Windows 10 version 1709 since Microsoft discontinued support for it on October 13th, 2020
 - Support removed for Office 2010 since Microsoft discontinued support for it on October 13th, 2020
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.28.29325.2 (Thanks to "aker")
@@ -1775,3 +1775,4 @@ Community Edition 11.9.7 -- ??.??.2020
 - Replaced superseded October 2020 Servicing stack update (KB4577667) by November 2020 Servicing stack update (KB4587735) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
 - Replaced superseded October 2020 Servicing stack update (KB4577670) by November 2020 Servicing stack update (KB4586863) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
+--------------------------------------------------------------------------------
