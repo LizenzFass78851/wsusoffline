@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.7
+WSUS Offline Update - Community Edition - 11.9.8
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1776,3 +1776,4 @@ Community Edition 11.9.7 -- 06.12.2020
 - Replaced superseded October 2020 Servicing stack update (KB4577670) by November 2020 Servicing stack update (KB4586863) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
+Community Edition 11.9.8 -- ??.??.????
