@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.5.0)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5 (b2) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5 (b3) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -89,8 +89,6 @@ Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
 Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
-Dim Const $path_rel_w100_18363_x86    = "\w100\glb\windows10.0-kb4517245-x86*."
-Dim Const $path_rel_w100_18363_x64    = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
 Dim Const $path_rel_w100_19042_x86    = "\w100\glb\windows10.0-kb4562830-x86*."
 Dim Const $path_rel_w100_19042_x64    = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
@@ -230,11 +228,7 @@ EndFunc
 Func BuildUpgradeAvailable($basepath)
   If (@OSVersion = "WIN_10") Then
     If (@OSBuild = "18362") Then
-        If (@OSArch <> "X86") Then
-          Return FileExists($basepath & $path_rel_w100_18363_x64)
-        Else
-          Return FileExists($basepath & $path_rel_w100_18363_x86)
-        EndIf
+        Return 1 ; skip checks...
 	Else
  	   If (@OSBuild = "19041") Then
  	       If (@OSArch <> "X86") Then
@@ -735,6 +729,16 @@ If ( (@OSVersion = "WIN_2012") _
                            & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
   Else
      MsgBox(0x2040, "Information", "On this system, the most recent version of Internet Explorer (IE11)" _
+                           & @LF & "will be automatically installed, when you start the updating process.")
+  EndIf
+EndIf
+If ( (@OSVersion = "WIN_10") _
+ AND (@OSBuild = "18362") ) Then
+  If $gergui Then
+     MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package" _
+                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
+  Else
+     MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package" _
                            & @LF & "will be automatically installed, when you start the updating process.")
   EndIf
 EndIf

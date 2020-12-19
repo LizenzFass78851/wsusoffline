@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b2)
+set WSUSOFFLINE_VERSION=12.5 (b3)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1331,8 +1331,6 @@ if "%EXC_SP%"=="1" (
   type "..\client\static\StaticUpdateIds-w63-upd2.txt" >>"%TEMP%\ExcludeListStatic.txt"
 )
 rem *** Windows 10 version specific exclusion ***
-set DISABLED1903=
-set DISABLED1909=
 set DISABLED2004=
 set DISABLED20H2=
 echo %1 | %SystemRoot%\System32\find.exe /I "w100" >nul 2>&1
@@ -1343,17 +1341,9 @@ if not errorlevel 1 (
         if /i "%%k"=="Disabled" (
           if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
           if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
-          if "%%i"=="1903" set DISABLED1903=1
-          if "%%i"=="1909" set DISABLED1909=1
           if "%%i"=="2004" set DISABLED2004=1
           if "%%i"=="20H2" set DISABLED20H2=1
         )
-      )
-    )
-    if "!DISABLED1903!"=="1" (
-      if "!DISABLED1909!"=="1" (
-        if exist ..\exclude\ExcludeList-w100-1903_1909.txt type ..\exclude\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeListStatic.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-1903_1909.txt type ..\exclude\custom\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeListStatic.txt"
       )
     )
     if "!DISABLED2004!"=="1" (
@@ -1362,8 +1352,6 @@ if not errorlevel 1 (
         if exist ..\exclude\custom\ExcludeList-w100-2004_20H2.txt type ..\exclude\custom\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeListStatic.txt"
       )
     )
-    set DISABLED1903=
-    set DISABLED1909=
     set DISABLED2004=
     set DISABLED20H2=
   )
@@ -1442,8 +1430,6 @@ if "%SECONLY%"=="1" (
   )
 )
 rem *** Windows 10 version specific exclusion ***
-set DISABLED1903=
-set DISABLED1909=
 set DISABLED2004=
 set DISABLED20H2=
 echo %1 | %SystemRoot%\System32\find.exe /I "w100" >nul 2>&1
@@ -1454,17 +1440,9 @@ if not errorlevel 1 (
         if /i "%%k"=="Disabled" (
           if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
           if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-          if "%%i"=="1903" set DISABLED1903=1
-          if "%%i"=="1909" set DISABLED1909=1
           if "%%i"=="2004" set DISABLED2004=1
           if "%%i"=="20H2" set DISABLED20H2=1
         )
-      )
-    )
-    if "!DISABLED1903!"=="1" (
-      if "!DISABLED1909!"=="1" (
-        if exist ..\exclude\ExcludeList-w100-1903_1909.txt type ..\exclude\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeList-%1.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-1903_1909.txt type ..\exclude\custom\ExcludeList-w100-1903_1909.txt >>"%TEMP%\ExcludeList-%1.txt"
       )
     )
     if "!DISABLED2004!"=="1" (
@@ -1473,8 +1451,6 @@ if not errorlevel 1 (
         if exist ..\exclude\custom\ExcludeList-w100-2004_20H2.txt type ..\exclude\custom\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeList-%1.txt"
       )
     )
-    set DISABLED1903=
-    set DISABLED1909=
     set DISABLED2004=
     set DISABLED20H2=
   )

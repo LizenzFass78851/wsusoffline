@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b2)
+set WSUSOFFLINE_VERSION=12.5 (b3)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1147,6 +1147,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
 :SkipWuPre
+if "%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%"=="10.0.18362" goto DoBuildUpgrade
 if "%DO_UPGRADES%"=="/upgradebuilds" (goto DoBuildUpgrade) else (goto ListMissingIds)
 
 :DoBuildUpgrade

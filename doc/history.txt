@@ -1785,3 +1785,4 @@ Community Edition 12.4 -- 06.12.2020
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
 Community Edition 12.5 -- ??.??.????
+- Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
