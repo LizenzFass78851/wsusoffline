@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b3)
+set WSUSOFFLINE_VERSION=12.5 (b4)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -897,6 +897,266 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 set RECALL_REQUIRED=1
 :SkipWMFInst
 if "%RECALL_REQUIRED%"=="1" goto Installed
+
+rem *** .NET 5 and newer ***
+echo Checking .NET 5 (and newer) installation state...
+if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt goto SkipDotNet5Inst
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+goto InstDotNet5%OS_ARCH%
+
+:InstDotNet5x64
+if not "%DOTNET5_DESKTOPRUNTIME_x64%"=="1" goto SkipDotNet5DesktopRuntimex64
+set DOTNET5_FILENAME=..\dotnet\windowsdesktop-runtime-*-win-x64.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5DesktopRuntimex64
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5DesktopRuntimex64
+)
+echo Installing .NET 5 (and newer) Windows Desktop Runtime (x64)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5DesktopRuntimex64Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5DesktopRuntimex64
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5DesktopRuntimex64Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+
+:SkipDotNet5DesktopRuntimex64
+if "%DOTNET5_DESKTOPRUNTIME_x64%"=="1" goto SkipDotNet5Runtimex64
+if not "%DOTNET5_RUNTIME_x64%"=="1" goto SkipDotNet5Runtimex64
+set DOTNET5_FILENAME=..\dotnet\dotnet-runtime-*-win-x64.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5Runtimex64
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5Runtimex64
+)
+echo Installing .NET 5 (and newer) Windows Runtime (x64)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5Runtimex64Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5Runtimex64
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5Runtimex64Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+
+:SkipDotNet5Runtimex64
+if not "%DOTNET5_ASPNET_x64%"=="1" goto SkipDotNet5AspNetx64
+set DOTNET5_FILENAME=..\dotnet\aspnetcore-runtime-*-win-x64.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5AspNetx64
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5AspNetx64
+)
+echo Installing .NET 5 (and newer) ASP.NET Core Runtime (x64)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5AspNetx64Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5AspNetx64
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5AspNetx64Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+
+:SkipDotNet5AspNetx64
+:InstDotNet5x86
+if not "%DOTNET5_DESKTOPRUNTIME_x86%"=="1" goto SkipDotNet5DesktopRuntimex86
+set DOTNET5_FILENAME=..\dotnet\windowsdesktop-runtime-*-win-x86.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5DesktopRuntimex86
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5DesktopRuntimex86
+)
+echo Installing .NET 5 (and newer) Windows Desktop Runtime (x86)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5DesktopRuntimex86Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5DesktopRuntimex86
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5DesktopRuntimex86Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+
+:SkipDotNet5DesktopRuntimex86
+if "%DOTNET5_DESKTOPRUNTIME_x86%"=="1" goto SkipDotNet5Runtimex86
+if not "%DOTNET5_RUNTIME_x86%"=="1" goto SkipDotNet5Runtimex86
+set DOTNET5_FILENAME=..\dotnet\dotnet-runtime-*-win-x86.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5Runtimex86
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5Runtimex86
+)
+echo Installing .NET 5 (and newer) Windows Runtime (x86)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5Runtimex86Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5Runtimex86
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5Runtimex86Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+
+:SkipDotNet5Runtimex86
+if not "%DOTNET5_ASPNET_x86%"=="1" goto SkipDotNet5AspNetx86
+set DOTNET5_FILENAME=..\dotnet\aspnetcore-runtime-*-win-x86.exe
+dir /B %DOTNET5_FILENAME% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5AspNetx86
+)
+for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
+  if not "%%i"=="" set DOTNET5_FILENAME_REAL=%%i
+)
+if "%DOTNET5_FILENAME_REAL%"=="" (
+  echo Warning: File %DOTNET5_FILENAME% not found.
+  call :Log "Warning: File %DOTNET5_FILENAME% not found"
+  goto SkipDotNet5AspNetx86
+)
+echo Installing .NET 5 (and newer) ASP.NET Core Runtime (x86)...
+if not exist "..\md\hashes-dotnet.txt" (
+  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
+  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
+  goto SkipDotNet5AspNetx86Verify
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+if errorlevel 1 (
+  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
+  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_REAL%)"
+  goto SkipDotNet5AspNetx86
+)
+if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
+:SkipDotNet5AspNetx86Verify
+call InstallOSUpdate.cmd %DOTNET5_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+if errorlevel 1 (
+  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+  goto SkipDotNet5Inst
+)
+:SkipDotNet5AspNetx86
+:DotNet5Installed
+if "%RECALL_REQUIRED%"=="1" goto Installed
+:SkipDotNet5Inst
 
 rem *** Update Windows Defender definitions ***
 echo Checking Windows Defender installation state...

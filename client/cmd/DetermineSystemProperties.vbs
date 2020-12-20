@@ -60,6 +60,9 @@ Dim cpp2010_x86_old, cpp2010_x86_new, cpp2010_x64_old, cpp2010_x64_new
 Dim cpp2012_x86_old, cpp2012_x86_new, cpp2012_x64_old, cpp2012_x64_new
 Dim cpp2013_x86_old, cpp2013_x86_new, cpp2013_x64_old, cpp2013_x64_new
 Dim cpp2019_x86_old, cpp2019_x86_new, cpp2019_x64_old, cpp2019_x64_new
+Dim dotNET5_Runtime_x86_old, dotNET5_Runtime_x86_new, dotNET5_Runtime_x64_old, dotNET5_Runtime_x64_new
+Dim dotNET5_DesktopRuntime_x86_old, dotNET5_DesktopRuntime_x86_new, dotNET5_DesktopRuntime_x64_old, dotNET5_DesktopRuntime_x64_new
+Dim dotNET5_ASPNETRuntime_x86_old, dotNET5_ASPNETRuntime_x86_new, dotNET5_ASPNETRuntime_x64_old, dotNET5_ASPNETRuntime_x64_new
 
 Private Function RegExists(objShell, strName)
 Dim dummy
@@ -635,6 +638,18 @@ cpp2019_x86_old = False
 cpp2019_x86_new = False
 cpp2019_x64_old = False
 cpp2019_x64_new = False
+dotNET5_Runtime_x86_old = False
+dotNET5_Runtime_x64_old = False
+dotNET5_Runtime_x86_new = False
+dotNET5_Runtime_x64_new = False
+dotNET5_DesktopRuntime_x86_old = False
+dotNET5_DesktopRuntime_x64_old = False
+dotNET5_DesktopRuntime_x86_new = False
+dotNET5_DesktopRuntime_x64_new = False
+dotNET5_ASPNETRuntime_x86_old = False
+dotNET5_ASPNETRuntime_x64_old = False
+dotNET5_ASPNETRuntime_x86_new = False
+dotNET5_ASPNETRuntime_x64_new = False
 Set objInstaller = CreateObject("WindowsInstaller.Installer")
 For Each strProduct In objInstaller.Products
   Select Case UCase(strProduct)
@@ -759,6 +774,30 @@ For Each strProduct In objInstaller.Products
       cpp2019_x86_new = True
     Case "{26AF0C35-55EC-4025-8D83-349E8FB1419F}", "{7D0362D5-C699-4403-BC09-0C1DAD1D93AB}"
       cpp2019_x64_new = True
+    Case "{364D5AED-307A-423D-AABC-E68FFDDAA513}", "{C8878F77-0D03-4303-ACBA-C114001B3261}", "{C1213BF8-6544-4AB7-A439-6ECAF59C64F2}"
+      dotNET5_Runtime_x86_old = True
+    Case "{FE6FF6ED-93DE-42E3-991D-346F0C1FC187}", "{1D88C674-5064-4E7F-BB8C-1E6F8374C35D}", "{0DA2670C-83CF-4F3A-929C-19FB3C26B094}"
+      dotNET5_Runtime_x64_old = True
+    Case "{138E0C15-7714-4E60-BCED-E3A113C82CBC}", "{C0311FD6-C773-4F5C-804A-CE7E5E03CCF3}", "{22617777-0F0E-4CB8-BDA6-9EC8F8B0E0F1}"
+      dotNET5_Runtime_x86_new = True
+    Case "{0247081A-1F68-4F20-BC87-07F5A66E5CB9}", "{1219DD98-A1A0-44BD-9ED1-B58F31F52F31}", "{96EB5175-8755-4344-B5C1-3996EB58D8A4}"
+      dotNET5_Runtime_x64_new = True
+    Case "{445166D9-79B3-4768-B515-4B7FCD43DF8E}"
+      dotNET5_DesktopRuntime_x86_old = True
+    Case "{B4FC1E81-3264-49A2-80C7-24C296546D67}"
+      dotNET5_DesktopRuntime_x64_old = True
+    Case "{11A04ABA-50D9-47DC-9AEB-DB0A0CB14D67}"
+      dotNET5_DesktopRuntime_x86_new = True
+    Case "{54424219-B505-485F-B3DA-9F1DA802FFC5}"
+      dotNET5_DesktopRuntime_x64_new = True
+    Case "{6BD7DD23-C813-3592-931C-74A5812AF305}"
+      dotNET5_ASPNETRuntime_x86_old = True
+    Case "{42FA1C47-718A-3946-9570-144D5B9FAFA9}"
+      dotNET5_ASPNETRuntime_x64_old = True
+    Case "{C30E7D63-6765-3027-8E8B-C0CEBECA99E3}"
+      dotNET5_ASPNETRuntime_x86_new = True
+    Case "{538D264D-7A4A-32F4-ADE5-A3E1A371C99D}"
+      dotNET5_ASPNETRuntime_x64_new = True
   End Select
 Next
 
@@ -774,6 +813,13 @@ If (cpp2013_x86_old) And (Not cpp2013_x86_new) Then objCmdFile.WriteLine("set CP
 If (cpp2013_x64_old) And (Not cpp2013_x64_new) Then objCmdFile.WriteLine("set CPP_2013_x64=1")
 If (cpp2019_x86_old) And (Not cpp2019_x86_new) Then objCmdFile.WriteLine("set CPP_2019_x86=1")
 If (cpp2019_x64_old) And (Not cpp2019_x64_new) Then objCmdFile.WriteLine("set CPP_2019_x64=1")
+
+If (dotNET5_Runtime_x86_old) And (Not dotNET5_Runtime_x86_new) And (Not ((dotNET5_DesktopRuntime_x86_old) And (Not dotNET5_DesktopRuntime_x86_new))) Then objCmdFile.WriteLine("set DOTNET5_RUNTIME_x86=1")
+If (dotNET5_Runtime_x64_old) And (Not dotNET5_Runtime_x64_new) And (Not ((dotNET5_DesktopRuntime_x64_old) And (Not dotNET5_DesktopRuntime_x64_new))) Then objCmdFile.WriteLine("set DOTNET5_RUNTIME_x64=1")
+If (dotNET5_DesktopRuntime_x86_old) And (Not dotNET5_DesktopRuntime_x86_new) Then objCmdFile.WriteLine("set DOTNET5_DESKTOPRUNTIME_x86=1")
+If (dotNET5_DesktopRuntime_x64_old) And (Not dotNET5_DesktopRuntime_x64_new) Then objCmdFile.WriteLine("set DOTNET5_DESKTOPRUNTIME_x64=1")
+If (dotNET5_ASPNETRuntime_x86_old) And (Not dotNET5_ASPNETRuntime_x86_new) Then objCmdFile.WriteLine("set DOTNET5_ASPNET_x86=1")
+If (dotNET5_ASPNETRuntime_x64_old) And (Not dotNET5_ASPNETRuntime_x64_new) Then objCmdFile.WriteLine("set DOTNET5_ASPNET_x64=1")
 
 objCmdFile.Close
 WScript.Quit(0)
