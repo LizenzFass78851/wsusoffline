@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b2)
+set WSUSOFFLINE_VERSION=11.9.8 (b6)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -570,9 +570,13 @@ if "%OS_SHA2_SUPPORT%"=="1" (
 goto ServicingStackInstalled
 :InstallServicingStack
 call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+if errorlevel 1 goto ListError
+if not exist "%TEMP%\UpdatesToInstall.txt" (
+  goto SkipServicingStack
+)
 call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE%
 if errorlevel 1 goto SkipServicingStack
-call :Log "Updated Servicing Stack to %SERVICING_VER_NEW%"
+call :Log "Info: Updated Servicing Stack to %SERVICING_VER_NEW%"
 set SERVICING_VER=%SERVICING_VER_NEW%
 goto CheckServicingStack
 :ServicingStackInstalled
