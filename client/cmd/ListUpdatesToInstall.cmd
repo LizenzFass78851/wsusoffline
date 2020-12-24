@@ -3,7 +3,7 @@ rem *** Author: T. Wittrock, Kiel ***
 rem ***   - Community Edition -   ***
 
 verify other 2>nul
-setlocal enableextensions
+setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
@@ -189,13 +189,16 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         del "%TEMP%\Update.txt"
 	  )
     ) else (
+      set TMP_UPDATE_NAME=%%i
+      if not "!TMP_UPDATE_NAME:~0,2!"=="kb" (set TMP_UPDATE_NAME=kb!TMP_UPDATE_NAME!)
       if "%%j"=="" (
-        echo Warning: Update kb%%i not found.
-        echo %DATE% %TIME% - Warning: Update kb%%i not found>>%UPDATE_LOGFILE%
+        echo Warning: Update !TMP_UPDATE_NAME! not found.
+        echo %DATE% %TIME% - Warning: Update !TMP_UPDATE_NAME! not found>>%UPDATE_LOGFILE%
       ) else (
-        echo Warning: Update kb%%i ^(id: %%j^) not found.
-        echo %DATE% %TIME% - Warning: Update kb%%i ^(id: %%j^) not found>>%UPDATE_LOGFILE%
+        echo Warning: Update !TMP_UPDATE_NAME! ^(id: %%j^) not found.
+        echo %DATE% %TIME% - Warning: Update !TMP_UPDATE_NAME! ^(id: %%j^) not found>>%UPDATE_LOGFILE%
       )
+      set TMP_UPDATE_NAME=
     )
   ) else (
     for /F "tokens=1* delims=,;" %%k in ('%SystemRoot%\System32\findstr.exe /I "%%i" "%TEMP%\ExcludeList.txt"') do (
