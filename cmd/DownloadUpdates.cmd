@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b6)
+set WSUSOFFLINE_VERSION=12.5 (b7)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -326,6 +326,8 @@ if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\Stat
 if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLinks-wua-x86.xsl
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
+if exist ..\xslt\ExtractUpdateCategoriesAndFileIds.xsl del ..\xslt\ExtractUpdateCategoriesAndFileIds.xsl
+if exist ..\xslt\ExtractUpdateCabExeIdsAndLocations.xsl del ..\xslt\ExtractUpdateCabExeIdsAndLocations.xsl
 del /Q ..\xslt\*-win-x86-*.* >nul 2>&1
 if exist ..\static\StaticDownloadFiles-modified.txt del ..\static\StaticDownloadFiles-modified.txt
 if exist ..\exclude\ExcludeDownloadFiles-modified.txt del ..\exclude\ExcludeDownloadFiles-modified.txt
