@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b9)
+set WSUSOFFLINE_VERSION=12.5 (b10)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -329,6 +329,11 @@ if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLin
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
 if exist ..\xslt\ExtractUpdateCategoriesAndFileIds.xsl del ..\xslt\ExtractUpdateCategoriesAndFileIds.xsl
 if exist ..\xslt\ExtractUpdateCabExeIdsAndLocations.xsl del ..\xslt\ExtractUpdateCabExeIdsAndLocations.xsl
+if exist ..\xslt\ExtractSupersededUpdateRelations.xsl del ..\xslt\ExtractSupersededUpdateRelations.xsl
+if exist ..\xslt\ExtractSupersedingRevisionIds.xsl del ..\xslt\ExtractSupersedingRevisionIds.xsl
+if exist ..\xslt\ExtractUpdateFileIdsAndLocations.xsl del ..\xslt\ExtractUpdateFileIdsAndLocations.xsl
+if exist ..\xslt\ExtractUpdateRevisionAndFileIds.xsl del ..\xslt\ExtractUpdateRevisionAndFileIds.xsl
+if exist ..\xslt\ExtractUpdateRevisionIds.xsl del ..\xslt\ExtractUpdateRevisionIds.xsl
 if exist ..\xslt\extract-office-revision-and-update-ids.xsl del ..\xslt\extract-office-revision-and-update-ids.xsl
 if exist ..\xslt\ExtractDownloadLinks-w62-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w62-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-w63-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-w63-x64-glb.xsl
