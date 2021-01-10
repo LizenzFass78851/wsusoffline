@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b8)
+set WSUSOFFLINE_VERSION=12.5 (b9)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1203,7 +1203,6 @@ del "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
 echo Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids.txt to ValidSupersededRevisionIds.txt...
 ..\bin\join.exe -t "," -o "2.2" "%TEMP%\existing-bundle-revision-ids.txt" "%TEMP%\superseding-and-superseded-revision-ids.txt" >"%TEMP%\ValidSupersededRevisionIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidSupersededRevisionIds-unsorted.txt" >"%TEMP%\ValidSupersededRevisionIds.txt"
-del "%TEMP%\existing-bundle-revision-ids.txt"
 del "%TEMP%\superseding-and-superseded-revision-ids.txt"
 del "%TEMP%\ValidSupersededRevisionIds-unsorted.txt"
 
@@ -1212,18 +1211,19 @@ echo Extracting BundledUpdateRevisionAndFileIds.txt...
 %CSCRIPT_PATH% //Nologo //B //E:vbs ..\cmd\XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt" >"%TEMP%\BundledUpdateRevisionAndFileIds.txt"
 del "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
-echo Joining existing-bundle-revision-ids.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt...
+echo Joining ValidSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt...
 ..\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\SupersededFileIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\SupersededFileIds-unsorted.txt" >"%TEMP%\SupersededFileIds.txt"
 del "%TEMP%\SupersededFileIds-unsorted.txt"
 echo Creating ValidNonSupersededRevisionIds.txt...
 %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ValidSupersededRevisionIds.txt" "%TEMP%\existing-bundle-revision-ids.txt" > "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt" >"%TEMP%\ValidNonSupersededRevisionIds.txt"
+del "%TEMP%\existing-bundle-revision-ids.txt"
 del "%TEMP%\ValidSupersededRevisionIds.txt"
 del "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt"
 echo Joining ValidNonSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to NonSupersededFileIds.txt...
-.\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidNonSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\NonSupersededFileIds-unsorted.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\NonSupersededFileIds-unsorted.txt" >"%TEMP%\NonSupersededFileIds.txt"
+..\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidNonSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\NonSupersededFileIds-unsorted.txt"
+..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\NonSupersededFileIds-unsorted.txt" >"%TEMP%\NonSupersededFileIds.txt"
 rem The file BundledUpdateRevisionAndFileIds.txt can be reused for the
 rem determination of dynamic Office updates. It should be deleted after
 rem the function :DownloadCore.
@@ -1231,7 +1231,7 @@ del "%TEMP%\ValidNonSupersededRevisionIds.txt"
 del "%TEMP%\NonSupersededFileIds-unsorted.txt"
 echo Creating OnlySupersededFileIds.txt...
 %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\NonSupersededFileIds.txt" "%TEMP%\SupersededFileIds.txt" >"%TEMP%\OnlySupersededFileIds-unsorted.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\OnlySupersededFileIds-unsorted.txt" >"%TEMP%\OnlySupersededFileIds.txt"
+..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\OnlySupersededFileIds-unsorted.txt" >"%TEMP%\OnlySupersededFileIds.txt"
 del "%TEMP%\NonSupersededFileIds.txt"
 del "%TEMP%\SupersededFileIds.txt"
 del "%TEMP%\OnlySupersededFileIds-unsorted.txt"
