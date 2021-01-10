@@ -27,31 +27,50 @@ echo Extracting file 2...
 rem del "%TEMP%\superseding-and-superseded-revision-ids.txt"
 echo Joining files 1 and 2 to file 3...
 .\bin\join.exe -t "," -o "2.2" "%TEMP%\existing-bundle-revision-ids-unique.txt" "%TEMP%\superseding-and-superseded-revision-ids-unique.txt" >"%TEMP%\ValidSupersededRevisionIds.txt"
-rem del "%TEMP%\existing-bundle-revision-ids-unique.txt"
 rem del "%TEMP%\superseding-and-superseded-revision-ids-unique.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidSupersededRevisionIds.txt" >"%TEMP%\ValidSupersededRevisionIds-unique.txt"
 rem del "%TEMP%\ValidSupersededRevisionIds.txt"
 
 rem *** Second step ***
 echo Extracting file 4...
+findstr /l /i /v /g:"%TEMP%\ValidSupersededRevisionIds-unique.txt" "%TEMP%\existing-bundle-revision-ids-unique.txt" > "%TEMP%\ValidNonSupersededRevisionIds.txt"
+rem del "%TEMP%\existing-bundle-revision-ids-unique.txt"
+.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidNonSupersededRevisionIds.txt" >"%TEMP%\ValidNonSupersededRevisionIds-unique.txt"
+rem del "%TEMP%\ValidNonSupersededRevisionIds.txt"
+
+rem *** Third step ***
+echo Extracting file 5...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\BundledUpdateRevisionAndFileIds-unique.txt"
 rem del "%TEMP%\BundledUpdateRevisionAndFileIds.txt"
-echo Joining files 3 and 4 to file 5...
+echo Joining files 3 and 5 to file 6...
 .\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidSupersededRevisionIds-unique.txt" "%TEMP%\BundledUpdateRevisionAndFileIds-unique.txt" >"%TEMP%\SupersededFileIds.txt"
 rem del "%TEMP%\ValidSupersededRevisionIds-unique.txt"
-rem del "%TEMP%\BundledUpdateRevisionAndFileIds-unique.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\SupersededFileIds.txt" >"%TEMP%\SupersededFileIds-unique.txt"
 rem del "%TEMP%\SupersededFileIds.txt"
+echo Joining files 4 and 5 to file 7...
+.\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidNonSupersededRevisionIds-unique.txt" "%TEMP%\BundledUpdateRevisionAndFileIds-unique.txt" >"%TEMP%\NonSupersededFileIds.txt"
+rem del "%TEMP%\ValidNonSupersededRevisionIds-unique.txt"
+rem del "%TEMP%\BundledUpdateRevisionAndFileIds-unique.txt"
+.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\NonSupersededFileIds.txt" >"%TEMP%\NonSupersededFileIds-unique.txt"
+rem del "%TEMP%\NonSupersededFileIds.txt"
 
-rem *** Third step ***
-echo Extracting file 6...
+rem *** Fourth Step ***
+echo Extracting file 8...
+%SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\NonSupersededFileIds-unique.txt" "%TEMP%\SupersededFileIds-unique.txt" >"%TEMP%\OnlySupersededFileIds.txt"
+rem del "%TEMP%\NonSupersededFileIds-unique.txt"
+rem del "%TEMP%\SupersededFileIds-unique.txt"
+.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\OnlySupersededFileIds.txt" >"%TEMP%\OnlySupersededFileIds-unique.txt"
+rem del "%TEMP%\OnlySupersededFileIds.txt"
+
+rem *** Fifth step ***
+echo Extracting file 9...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-update-cab-exe-ids-and-locations.xsl "%TEMP%\UpdateCabExeIdsAndLocations.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\UpdateCabExeIdsAndLocations.txt" >"%TEMP%\UpdateCabExeIdsAndLocations-unique.txt"
 rem del "%TEMP%\UpdateCabExeIdsAndLocations.txt"
-echo Joining files 5 and 6 to file 7...
-.\bin\join.exe -t "," -o "2.2" "%TEMP%\SupersededFileIds-unique.txt" "%TEMP%\UpdateCabExeIdsAndLocations-unique.txt" >"%TEMP%\ExcludeListLocations-superseded-all.txt"
-rem del "%TEMP%\SupersededFileIds-unique.txt"
+echo Joining files 8 and 9 to file 10...
+.\bin\join.exe -t "," -o "2.2" "%TEMP%\OnlySupersededFileIds-unique.txt" "%TEMP%\UpdateCabExeIdsAndLocations-unique.txt" >"%TEMP%\ExcludeListLocations-superseded-all.txt"
+rem del "%TEMP%\OnlySupersededFileIds-unique.txt"
 rem del "%TEMP%\UpdateCabExeIdsAndLocations-unique.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ExcludeListLocations-superseded-all.txt" >"%TEMP%\ExcludeListLocations-superseded-all-unique.txt"
 rem del "%TEMP%\ExcludeListLocations-superseded-all.txt"

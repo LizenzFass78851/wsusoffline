@@ -731,7 +731,7 @@ function calculate_dynamic_office_updates ()
         # Extract file 1, featuring a new xslt file
         log_info_message "Extracting file 1, office-revision-and-update-ids.txt ..."
         "${xmlstarlet}" transform \
-            ../xslt/extract-office-revision-and-update-ids.xsl \
+            ../xslt/extract-revision-and-update-ids-ofc.xsl \
             "${cache_dir}/package.xml" \
             > "${temp_dir}/office-revision-and-update-ids.txt"
         sort_in_place "${temp_dir}/office-revision-and-update-ids.txt"
