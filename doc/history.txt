@@ -1785,6 +1785,7 @@ Community Edition 12.4 -- 06.12.2020
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
 Community Edition 12.5 -- ??.??.????
+- NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
 - Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
 - Support added for .NET 5 (Thanks to "aker" and "boco")
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
