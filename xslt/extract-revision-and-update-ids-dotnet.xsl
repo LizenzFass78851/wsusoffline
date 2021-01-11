@@ -1,11 +1,12 @@
 <?xml version="1.0"?>
 <!--
      Author: H. Buhrmester, 2020
-     Filename: extract-office-revision-and-update-ids.xsl
+     Filename: extract-revision-and-update-ids-dotnet.xsl
 
-     This file selects Office updates by their Product Ids:
-     Office 2013 = 704a0a4a-518f-4d69-9e03-10ba44198bd5
-     Office 2016 = 25aed893-7c2d-4a31-ae22-28ff8ac150ed
+     This file selects updates by their Product Ids:
+     Windows Server 2008 = ba0ae9cc-5f01-40b4-ac3f-50192b5d6aaf
+     Windows 7 = bfe5b177-a086-47a0-b102-097e4fa1f807
+     Windows Server 2008 R2 = fdfe8200-9d98-44ba-a12a-772282bf60ef
 
      It extracts the following fields:
      Field 1: Bundle RevisionId
@@ -15,8 +16,9 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text"/>
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:Categories/__:Category[@Type='Product']">
-      <xsl:if test="contains(@Id, '704a0a4a-518f-4d69-9e03-10ba44198bd5')
-                 or contains(@Id, '25aed893-7c2d-4a31-ae22-28ff8ac150ed')">
+      <xsl:if test="contains(@Id, 'ba0ae9cc-5f01-40b4-ac3f-50192b5d6aaf')
+                 or contains(@Id, 'bfe5b177-a086-47a0-b102-097e4fa1f807')
+                 or contains(@Id, 'fdfe8200-9d98-44ba-a12a-772282bf60ef')">
         <xsl:text>#</xsl:text>
         <xsl:value-of select="../../@RevisionId"/>
         <xsl:text>#,</xsl:text>

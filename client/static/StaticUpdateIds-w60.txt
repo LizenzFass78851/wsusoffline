@@ -1,3 +1,1 @@
 kb3078601,August 2015 security update for Windows
-kb4019478,Update for the d3dcompiler_47.dll component on Windows Server 2008 SP2
-kb4578951,October 2020 Security and Quality Rollup for .NET Framework 2.0 SP2 and 3.0 SP2 for Windows Server 2008 SP2

@@ -13,7 +13,7 @@ set IGNORE_BL=
 
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 
-set OFC_DEBUG=0
+set UPDATEID_DEBUG=0
 
 if "%TEMP%"=="" goto NoTemp
 pushd "%TEMP%"
@@ -135,26 +135,64 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
   if exist "%TEMP%\Update.txt" del "%TEMP%\Update.txt"
   %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ExcludeList.txt" >nul 2>&1
   if errorlevel 1 (
-    for %%k in (%OS_SEARCH_DIR%) do (
-      for %%l in (%OS_LANG% glb) do (
-        if %IE_VER_MAJOR%%IE_VER_MINOR%0 GEQ 9100 (
-          call ListUpdateFile.cmd ie%IE_VER_MINOR%-*%%i ..\%%k\%%l
-        ) else (
-          call ListUpdateFile.cmd ie%IE_VER_MAJOR%-*%%i ..\%%k\%%l
+    if not "%%j"=="" (
+      rem dynamisch ermittelte Updates als CAB
+      for %%k in (%OS_LANG% glb) do (
+        if exist ..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv (
+          for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv) do (
+            if "%%l"=="%%j" (
+              call ListUpdateFile.cmd %%m ..\%OS_SEARCH_DIR%\%%k /searchleftmost /append
+              call ListUpdateFile.cmd %%m ..\dotnet\%OS_ARCH%-glb /searchleftmost /append
+            )
+          )
         )
-        call ListUpdateFile.cmd windows*%%i ..\%%k\%%l /searchleftmost
-        call ListUpdateFile.cmd %%i ..\%%k\%%l
+      )
+      if not "%O2K13_VER_MAJOR%"=="" (
+        for %%k in (%O2K13_LANG% glb) do (
+          if exist ..\UpdateTable\UpdateTable-o2k13-%%k.csv (
+            for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-o2k13-%%k.csv) do (
+              if "%%l"=="%%j" (
+                call ListUpdateFile.cmd %%m ..\o2k13\%%k /searchleftmost /append
+              )
+            )
+          )
+        )
+      )
+      if not "%O2K16_VER_MAJOR%"=="" (
+        for %%k in (%O2K16_LANG% glb) do (
+          if exist ..\UpdateTable\UpdateTable-o2k16-%%k.csv (
+            for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-o2k16-%%k.csv) do (
+              if "%%l"=="%%j" (
+                call ListUpdateFile.cmd %%m ..\o2k16\%%k /searchleftmost /append
+              )
+            )
+          )
+        )
       )
     )
-    call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
+    rem statisch definierte Windows-Updates als CAB/MSU/...
     if not exist "%TEMP%\Update.txt" (
-      rem statisch definierte Office-Updates als EXE
+      for %%l in (%OS_LANG% glb) do (
+        if %IE_VER_MAJOR%%IE_VER_MINOR%0 GEQ 9100 (
+          call ListUpdateFile.cmd ie%IE_VER_MINOR%-*%%i ..\%OS_SEARCH_DIR%\%%l
+        ) else (
+          call ListUpdateFile.cmd ie%IE_VER_MAJOR%-*%%i ..\%OS_SEARCH_DIR%\%%l
+        )
+        call ListUpdateFile.cmd windows*%%i ..\%OS_SEARCH_DIR%\%%l /searchleftmost
+        call ListUpdateFile.cmd %%i ..\%OS_SEARCH_DIR%\%%l
+      )
+	  call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
+    )
+    rem statisch definierte Office-Updates als EXE
+    if not exist "%TEMP%\Update.txt" (
       if not "%O2K13_VER_MAJOR%"=="" (
         for %%k in (%O2K13_LANG% glb) do (
           call ListUpdateFile.cmd %%i*%O2K13_ARCH% ..\o2k13\%%k
           call ListUpdateFile.cmd %%i ..\o2k13\%%k
         )
       )
+    )
+    if not exist "%TEMP%\Update.txt" (
       if not "%O2K16_VER_MAJOR%"=="" (
         for %%k in (%O2K16_LANG% glb) do (
           call ListUpdateFile.cmd %%i*%O2K16_ARCH% ..\o2k16\%%k
@@ -162,24 +200,8 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         )
       )
     )
-    set SKIP_OFC_SCAN=0
-	if exist "%TEMP%\Update.txt" (
-	  if not "%OFC_DEBUG%"=="1" (set SKIP_OFC_SCAN=1) else (set SKIP_OFC_SCAN=0)
-	)
-    if not "%SKIP_OFC_SCAN%"=="0" (
-      rem dynamisch ermittelte Office-Updates als CAB/MSP
-      for %%k in (%OFC_LANG% glb) do (
-        if exist ..\ofc\UpdateTable-ofc-%%k.csv (
-          for /F "tokens=1,2 delims=," %%l in (..\ofc\UpdateTable-ofc-%%k.csv) do (
-            if "%%l"=="%%j" (
-              call ListUpdateFile.cmd %%m ..\ofc\%%k /searchleftmost /append
-            )
-          )
-        )
-      )
-    )
     if exist "%TEMP%\Update.txt" (
-      if "%OFC_DEBUG%"=="1" (
+      if "%UPDATEID_DEBUG%"=="1" (
         if not exist "%SystemRoot%\wsusofflineupdate_Debug" (mkdir "%SystemRoot%\wsusofflineupdate_Debug" >nul)
         if "%%j"=="" (
           move /y "%TEMP%\Update.txt" "%SystemRoot%\wsusofflineupdate_Debug\ListUpdatesToInstall_%%i.txt" >nul
