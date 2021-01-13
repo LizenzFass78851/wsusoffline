@@ -26,3 +26,16 @@ ndp48-kb4565589-x86_712141da8bd5761d240d3a16cabde697ef48b456
 ndp48-kb4565589-v2-x86_6772c0a0b56d1beeb9131da13ae44dbf86514eaa
 windows6.0-
 windows6.1-
+mpsyschk_
+msipatchregfix-
+msxml4-
+netfx35_x86_e373ad8671f10692049f2de380020a9afa003c2b
+pciclearstalecache_
+pcicompatforserialnumber_
+kb890830
+wme09-
+wsussetup_
+wu-ie9-
+wu-ie10-
+wu-ie11-
+kb2463332

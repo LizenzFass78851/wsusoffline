@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b12)
+set WSUSOFFLINE_VERSION=11.9.8 (b13)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -792,10 +792,7 @@ for %%i in (..\client\md\hashes-wsus.txt) do if %%~zi==0 del %%i
 
 rem *** Download installation files for .NET Frameworks 3.5 SP1 and 4.x ***
 if "%INC_DOTNET%" NEQ "1" goto SkipDotNet
-if "%SKIP_DL%"=="1" (
-  call :DownloadCore dotnet %TARGET_ARCH%-glb %TARGET_ARCH% %SKIP_PARAM%
-  goto SkipDotNet
-)
+if "%SKIP_DL%"=="1" goto SkipDotNet
 if "%VERIFY_DL%" NEQ "1" goto DownloadDotNet
 if not exist ..\client\dotnet\nul goto DownloadDotNet
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep

@@ -1,6 +1,7 @@
 kb886903
 kb928366
 kb971108
+ndp1.0sp3-
 ndp20
 ndp30
 kb971111
@@ -25,3 +26,16 @@ ndp48-kb4565589-x64_7c416fd20707f15eaecb8d3c91e89a4a24e8fd83
 ndp48-kb4565589-v2-x64_c07869aae9b791fbb281a00ec4b902676f90965f
 windows6.0-
 windows6.1-
+mpsyschk_
+msipatchregfix-
+msxml4-
+netfx35_x64_1085bd79d6841b238358ea029bcc48a7fbf248ab
+pciclearstalecache_
+pcicompatforserialnumber_
+kb890830
+wme09-
+wsussetup_
+wu-ie9-
+wu-ie10-
+wu-ie11-
+kb2463332

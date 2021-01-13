@@ -1,7 +1,15 @@
+msxml4-
+ndp1.0sp3-
+netfx35_
+ndp35-
 ndp35sp1-
+ndp40
 ndp45-
 ndp46-
 ndp47-
+mpsyschk_
+kb2463332
+kb944036
 KB936330
 KB948465
 v6001
