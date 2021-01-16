@@ -48,7 +48,7 @@ if exist ..\bin\StaticDownloadLinks-aria2.txt (
   if errorlevel 1 (
     goto Download
   ) else (
-    if /i "%1"=="/reload" (goto EoF) else (goto Activate)
+    if "%JUST_RELOAD%"=="1" (goto EoF) else (goto Activate)
   )
 ) else (
   goto Download
@@ -88,7 +88,7 @@ for /F %%i in ('%SystemRoot%\System32\findstr.exe /I "32bit" ..\static\StaticDow
   copy /Y ..\static\StaticDownloadLinks-aria2.txt ..\bin >nul
   echo %DATE% %TIME% - Info: Downloaded most recent version of Aria2 ^(x86^)>>%DOWNLOAD_LOGFILE%
 )
-if /i "%1"=="/reload" goto EoF
+if "%JUST_RELOAD%"=="1" goto EoF
 
 :Activate
 echo if /i "%%PROCESSOR_ARCHITECTURE%%"=="AMD64" goto x64>custom\SetAria2EnvVars.cmd
