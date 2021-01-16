@@ -1781,3 +1781,4 @@ Community Edition 11.9.8 -- ??.??.????
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
 - update .\xslt\extract-update-cab-exe-ids-and-locations.xsl to include more updates (Thanks to "hbuhrmester")
 - improve determination of superseded updates to prevent exclusion of files used in multiple updates (Thanks to "aker" and "hbuhrmester")
+- Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
