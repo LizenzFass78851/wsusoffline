@@ -39,3 +39,14 @@ wu-ie9-
 wu-ie10-
 wu-ie11-
 kb2463332
+cleanupwindowsdefendertasks_
+clwireg_
+ftp7_
+ftp75_
+ie9-
+kb944036
+mschart_
+ochelper_
+rdwabackup_
+sts-x-none_
+wme9-

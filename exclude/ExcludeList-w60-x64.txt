@@ -1,5 +1,6 @@
 msxml4-
 ndp1.0sp3-
+ndp1.1
 netfx35_
 ndp35-
 ndp35sp1-
@@ -8,6 +9,19 @@ ndp45-
 ndp46-
 ndp47-
 mpsyschk_
+wme09-
+wme9-
+wsussetup_
+clwireg_
+ftp7_
+ftp75_
+mschart_
+msipatchregfix-
+ochelper_
+pcicompatforserialnumber_
+sts-x-none_
+ie8-windows6.0-
+ie9-langpack-windowsvista-
 kb2463332
 kb944036
 KB936330

@@ -1,6 +1,7 @@
 kb886903
 kb928366
 kb971108
+ndp1.0sp3
 ndp1.1
 ndp20
 ndp30
@@ -39,3 +40,13 @@ wu-ie9-
 wu-ie10-
 wu-ie11-
 kb2463332
+cleanupwindowsdefendertasks_
+clwireg_
+ftp7_
+ftp75_
+ie9-
+kb944036
+mschart_
+ochelper_
+rdwabackup_
+sts-x-none_
