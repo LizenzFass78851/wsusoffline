@@ -6,6 +6,7 @@ windows6.0-kb2570947
 windows6.0-kb2957509
 windows6.0-kb2973201
 windows6.0-kb3033889
+windows6.0-kb3170455
 windows6.0-kb4493730
 windows6.0-kb4580971
 ndp46-kb3074233
