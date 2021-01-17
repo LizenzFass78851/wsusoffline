@@ -7,10 +7,6 @@ mschart_
 msipatchregfix-
 msxml4-
 ndp40-
-ndp45-
-ndp46-
-ndp47-
-ndp48-
 pciclearstalecache_
 rdwabackup_
 sts-x-none_

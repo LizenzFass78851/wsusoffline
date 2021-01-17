@@ -142,7 +142,6 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
           for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv) do (
             if "%%l"=="%%j" (
               call ListUpdateFile.cmd %%m ..\%OS_SEARCH_DIR%\%%k /searchleftmost /append
-              call ListUpdateFile.cmd %%m ..\dotnet\%OS_ARCH%-glb /searchleftmost /append
             )
           )
         )
@@ -178,10 +177,10 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         ) else (
           call ListUpdateFile.cmd ie%IE_VER_MAJOR%-*%%i ..\%OS_SEARCH_DIR%\%%l
         )
+	    call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\%OS_SEARCH_DIR%\%%l /searchleftmost
         call ListUpdateFile.cmd windows*%%i ..\%OS_SEARCH_DIR%\%%l /searchleftmost
         call ListUpdateFile.cmd %%i ..\%OS_SEARCH_DIR%\%%l
       )
-	  call ListUpdateFile.cmd ndp*%%i*-%OS_ARCH% ..\dotnet\%OS_ARCH%-glb /searchleftmost
     )
     rem statisch definierte Office-Updates als EXE
     if not exist "%TEMP%\Update.txt" (

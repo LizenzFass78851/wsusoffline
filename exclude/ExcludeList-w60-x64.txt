@@ -3,11 +3,7 @@ ndp1.0sp3-
 ndp1.1
 netfx35_
 ndp35-
-ndp35sp1-
-ndp40
-ndp45-
-ndp46-
-ndp47-
+ndp40-
 mpsyschk_
 wme09-
 wme9-

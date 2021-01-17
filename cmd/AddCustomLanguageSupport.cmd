@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -15,13 +16,11 @@ call RemoveCustomLanguageSupport.cmd %1 /quiet
 
 rem *** Add support for %1 to .NET custom URL files ***
 if /i "%2" NEQ "/quiet" echo Adding support for %1 to .NET custom URL files...
-for /F %%i in (..\static\StaticDownloadLinks-dotnet-x86-%1.txt) do (
+for /F %%i in (..\static\StaticDownloadLinks-dotnet-%1.txt) do (
   echo %%i | %SystemRoot%\System32\find.exe /I "NDP46-KB3045557-">>..\static\custom\StaticDownloadLinks-dotnet.txt
   echo %%i | %SystemRoot%\System32\find.exe /I "ndp48-x86-x64-allos-">>..\static\custom\StaticDownloadLinks-dotnet.txt
-  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x86">>..\static\custom\StaticDownloadLinks-dotnet-x86-glb.txt
-)
-for /F %%i in (..\static\StaticDownloadLinks-dotnet-x64-%1.txt) do (
-  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x64">>..\static\custom\StaticDownloadLinks-dotnet-x64-glb.txt
+  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x86">>..\static\custom\StaticDownloadLinks-dotnet.txt
+  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x64">>..\static\custom\StaticDownloadLinks-dotnet.txt
 )
 rem *** Add support for %1 to IEx custom URL files ***
 if /i "%2" NEQ "/quiet" echo Adding support for %1 to IEx custom URL files...

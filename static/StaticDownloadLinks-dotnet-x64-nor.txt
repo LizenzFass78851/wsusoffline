@@ -1,3 +1,0 @@
-http://download.microsoft.com/download/7/8/b/78bdff4f-c803-46e0-96e5-1758b715d43a/dotnetfx35langpack_x64no.exe
-http://download.microsoft.com/download/5/D/E/5DE71FBF-4E49-48AC-A9E6-A3B6A5FAEF2C/NDP46-KB3045557-x86-x64-AllOS-NOR.exe
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/5f4eab0f2b79c7474f5acf52d153de51/ndp48-x86-x64-allos-nor.exe

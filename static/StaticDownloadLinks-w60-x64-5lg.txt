@@ -9,3 +9,4 @@ http://download.windowsupdate.com/msdownload/update/software/uprl/2011/03/wu-ie9
 http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/ie9-langpack-windowsvista-x64-deu_a48597efd25c128471637086ff7becf4aa019d31.exe
 http://download.microsoft.com/download/E/7/6/E76850B8-DA6E-4FF5-8CCE-A24FC513FD16/Windows6.0-KB2506146-x64.msu
 http://download.windowsupdate.com/msdownload/update/software/crup/2011/03/windows6.0-kb2506014-x64_e4a62be05adf6d07841dd3df49fb5d63d1d3ba05.msu
+http://download.windowsupdate.com/c/msdownload/update/software/updt/2017/10/ndp46-kb4041778-x64_1e36c362f9f6c4dfdef1a3c0abe4fb560ec7f25c.exe

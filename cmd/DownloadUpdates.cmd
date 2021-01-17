@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b15.1)
+set WSUSOFFLINE_VERSION=11.9.8 (b16)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -503,12 +503,15 @@ if exist ..\client\cpp\x86-glb\nul (
 
 rem *** .NET restructuring stuff ***
 if exist ..\exclude\ExcludeList-dotnet.txt del ..\exclude\ExcludeList-dotnet.txt
+if exist ..\exclude\ExcludeList-dotnet-x86.txt del ..\exclude\ExcludeList-dotnet-x86.txt
+if exist ..\exclude\ExcludeList-dotnet-x64.txt del ..\exclude\ExcludeList-dotnet-x64.txt
 if exist ..\client\win\glb\ndp*.* (
   if not exist ..\client\dotnet\x86-glb\nul md ..\client\dotnet\x86-glb
   move /Y ..\client\win\glb\ndp*.* ..\client\dotnet\x86-glb >nul
 )
-if exist ..\static\StaticDownloadLink-dotnet.txt del ..\static\StaticDownloadLink-dotnet.txt
+del /Q ..\static\StaticDownloadLinks-dotnet-x*-*.txt >nul 2>&1
 if exist ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl
+if exist ..\xslt\extract-revision-and-update-ids-dotnet.xsl del ..\xslt\extract-revision-and-update-ids-dotnet.xsl
 if exist ..\client\static\StaticUpdateIds-dotnet.txt del ..\client\static\StaticUpdateIds-dotnet.txt
 if exist ..\client\dotnet\glb\nul (
   if not exist ..\client\dotnet\x64-glb\nul md ..\client\dotnet\x64-glb
@@ -517,6 +520,7 @@ if exist ..\client\dotnet\glb\nul (
   move /Y ..\client\dotnet\glb\*-x86_*.* ..\client\dotnet\x86-glb >nul
   rd /S /Q ..\client\dotnet\glb
 )
+
 
 rem *** IE restructuring stuff ***
 if exist ..\client\static\StaticUpdateIds-ie10-w61.txt del ..\client\static\StaticUpdateIds-ie10-w61.txt
@@ -844,8 +848,6 @@ for /F "usebackq tokens=*" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
   )
 )
 call :Log "Info: Downloaded/validated installation files for .NET Frameworks 3.5 SP1 and 4.x"
-call :DownloadCore dotnet %TARGET_ARCH%-glb %TARGET_ARCH% %SKIP_PARAM%
-if errorlevel 1 goto Error
 if "%CLEANUP_DL%"=="0" (
   del "%TEMP%\ValidStaticLinks-dotnet.txt"
   goto VerifyDotNet
@@ -1165,15 +1167,7 @@ for %%i in (o2k13) do (
     if errorlevel 1 goto Error
   )
 )
-for %%i in (w60 w60-x64 w61 w61-x64) do (
-  if /i "%1"=="%%i" (
-    call :DownloadCore dotnet %TARGET_ARCH%-glb %TARGET_ARCH% %SKIP_PARAM%
-    if errorlevel 1 goto Error
-    call :DownloadCore %1 glb %TARGET_ARCH% %SKIP_PARAM%
-    if errorlevel 1 goto Error
-  )
-)
-for %%i in (w62-x64 w63 w63-x64 w100 w100-x64 o2k16) do (
+for %%i in (w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 o2k16) do (
   if /i "%1"=="%%i" (
     call :DownloadCore %1 glb %TARGET_ARCH% %SKIP_PARAM%
     if errorlevel 1 goto Error
@@ -1433,7 +1427,7 @@ if "%4"=="/skipdynamic" (
 )
 if not exist ..\client\UpdateTable\nul md ..\client\UpdateTable
 
-set PLATFORM_WINDOWS=dotnet w60 w61 w62 w63 w100
+set PLATFORM_WINDOWS=w60 w61 w62 w63 w100
 set PLATFORM_OFFICE=o2k13 o2k16
 
 rem *** Determine dynamic update urls for %1 %2 ***
