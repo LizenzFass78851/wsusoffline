@@ -25,7 +25,7 @@ for %%j in (..\static\custom\StaticDownloadLinks-dotnet.txt) do if %%~zj==0 del 
 rem *** Remove support for %1 from IEx custom URL files ***
 if /i "%2" NEQ "/quiet" echo Removing support for %1 from IEx custom URL files...
 for %%i in (x86 x64) do (
-  for /F %%j in (..\static\StaticDownloadLinks-ie8-w60-%%i-%1.txt) do (
+  for /F %%j in (..\static\StaticDownloadLinks-ie9-w60-%%i-%1.txt) do (
     if exist ..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt (
       ren ..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt StaticDownloadLinks-w60-%%i-glb.tmp
       %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-w60-%%i-glb.tmp>..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt
@@ -33,7 +33,7 @@ for %%i in (x86 x64) do (
     )
   )
   for %%j in (..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt) do if %%~zj==0 del %%j
-  for /F %%j in (..\static\StaticDownloadLinks-ie9-w61-%%i-%1.txt) do (
+  for /F %%j in (..\static\StaticDownloadLinks-ie11-w61-%%i-%1.txt) do (
     if exist ..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt (
       ren ..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt StaticDownloadLinks-w61-%%i-glb.tmp
       %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-w61-%%i-glb.tmp>..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt

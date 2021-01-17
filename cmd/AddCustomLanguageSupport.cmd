@@ -25,11 +25,11 @@ for /F %%i in (..\static\StaticDownloadLinks-dotnet-%1.txt) do (
 rem *** Add support for %1 to IEx custom URL files ***
 if /i "%2" NEQ "/quiet" echo Adding support for %1 to IEx custom URL files...
 for %%i in (x86 x64) do (
-  if exist ..\static\StaticDownloadLinks-ie8-w60-%%i-%1.txt (
-    type ..\static\StaticDownloadLinks-ie8-w60-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt
+  if exist ..\static\StaticDownloadLinks-ie9-w60-%%i-%1.txt (
+    type ..\static\StaticDownloadLinks-ie9-w60-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt
   )
-  if exist ..\static\StaticDownloadLinks-ie9-w61-%%i-%1.txt (
-    type ..\static\StaticDownloadLinks-ie9-w61-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt
+  if exist ..\static\StaticDownloadLinks-ie11-w61-%%i-%1.txt (
+    type ..\static\StaticDownloadLinks-ie11-w61-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt
   )
   if exist ..\static\StaticDownloadLinks-ie11-w62-%%i-%1.txt (
     type ..\static\StaticDownloadLinks-ie11-w62-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w62-%%i-glb.txt

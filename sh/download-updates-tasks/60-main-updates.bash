@@ -383,9 +383,9 @@ function calculate_static_updates ()
                 # added to the language list at this point.
                 for current_lang in "${languages_list[@]}"
                 do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie8-w60-${arch}-${current_lang}.txt" ]]
+                    if [[ -s "${current_dir}/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" ]]
                     then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie8-w60-${arch}-${current_lang}.txt" \
+                        cat_dos "${current_dir}/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" \
                             >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
                     fi
                 done
@@ -396,9 +396,9 @@ function calculate_static_updates ()
                 # versions of WSUS Offline Update.
                 for current_lang in "${languages_list[@]}"
                 do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie9-w61-${arch}-${current_lang}.txt" ]]
+                    if [[ -s "${current_dir}/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" ]]
                     then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie9-w61-${arch}-${current_lang}.txt" \
+                        cat_dos "${current_dir}/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" \
                             >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
                     fi
                 done

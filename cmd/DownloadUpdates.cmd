@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b16)
+set WSUSOFFLINE_VERSION=11.9.8 (b17)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -328,6 +328,8 @@ if exist ..\client\msi\nul rd /S /Q ..\client\msi
 if exist ..\client\static\StaticUpdateIds-ie9-w61.txt del ..\client\static\StaticUpdateIds-ie9-w61.txt
 if exist ..\client\static\StaticUpdateIds-w100-x86.txt del ..\client\static\StaticUpdateIds-w100-x86.txt
 if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\StaticUpdateIds-w100-x64.txt
+del /Q ..\static\StaticDownloadLinks-ie8-w60-*.txt >nul 2>&1
+del /Q ..\static\StaticDownloadLinks-ie9-w61-*.txt >nul 2>&1
 if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLinks-wua-x86.xsl
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
@@ -459,6 +461,7 @@ del /Q ..\exclude\ExcludeList*-oxp.txt >nul 2>&1
 del /Q ..\exclude\ExcludeList*-o2k3.txt >nul 2>&1
 del /Q ..\exclude\ExcludeList*-o2k7*.txt >nul 2>&1
 del /Q ..\exclude\ExcludeList*-o2k10.txt >nul 2>&1
+del /Q ..\static\StaticDownloadLinks-ofc-*.txt >nul 2>&1
 del /Q ..\xslt\ExtractDownloadLinks-o*.* >nul 2>&1
 del /Q ..\xslt\ExtractExpiredIds-o*.* >nul 2>&1
 del /Q ..\xslt\ExtractValidIds-o*.* >nul 2>&1
@@ -520,7 +523,6 @@ if exist ..\client\dotnet\glb\nul (
   move /Y ..\client\dotnet\glb\*-x86_*.* ..\client\dotnet\x86-glb >nul
   rd /S /Q ..\client\dotnet\glb
 )
-
 
 rem *** IE restructuring stuff ***
 if exist ..\client\static\StaticUpdateIds-ie10-w61.txt del ..\client\static\StaticUpdateIds-ie10-w61.txt
