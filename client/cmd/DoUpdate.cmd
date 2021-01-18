@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b18)
+set WSUSOFFLINE_VERSION=11.9.8 (b19)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1003,7 +1003,7 @@ if "%OS_NAME%"=="w62" goto InstallDotNet35%OS_NAME%
 if "%OS_NAME%"=="w63" goto InstallDotNet35%OS_NAME%
 if "%OS_NAME%"=="w100" goto InstallDotNet35%OS_NAME%
 set DOTNET35_FILENAME=..\dotnet\dotnetfx35.exe
-set DOTNET35LP_FILENAME=..\dotnet\%OS_ARCH%-glb\dotnetfx35langpack_%OS_ARCH%%OS_LANG_SHORT%*.exe
+set DOTNET35LP_FILENAME=..\dotnet\dotnetfx35langpack_%OS_ARCH%%OS_LANG_SHORT%*.exe
 if not exist %DOTNET35_FILENAME% (
   echo Warning: .NET Framework 3.5 SP1 installation file ^(%DOTNET35_FILENAME%^) not found.
   call :Log "Warning: .NET Framework 3.5 SP1 installation file (%DOTNET35_FILENAME%) not found"
@@ -1018,7 +1018,7 @@ if "%OS_LANG%" NEQ "enu" (
     call :Log "Warning: .NET Framework 3.5 SP1 Language Pack installation file (%DOTNET35LP_FILENAME%) not found"
   ) else (
     echo Installing .NET Framework 3.5 SP1 Language Pack...
-    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%OS_ARCH%-glb\%%i %VERIFY_MODE% /ignoreerrors /passive /norestart /nopatch /lang:%OS_LANG%
+    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%%i %VERIFY_MODE% /ignoreerrors /passive /norestart /nopatch /lang:%OS_LANG%
   )
 )
 copy /Y ..\static\StaticUpdateIds-dotnet35.txt "%TEMP%\MissingUpdateIds.txt" >nul

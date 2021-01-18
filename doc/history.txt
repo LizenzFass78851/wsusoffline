@@ -1777,7 +1777,7 @@ Community Edition 11.9.7 -- 06.12.2020
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
 Community Edition 11.9.8 -- ??.??.????
-- NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
+- NOTE: The directories ".\client\dotnet\x86-glb", ".\client\dotnet\x64-glb" and ".\client\ofc" are not used anymore and can safely be deleted
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
 - update .\xslt\extract-update-cab-exe-ids-and-locations.xsl to include more updates (Thanks to "hbuhrmester")
 - improve determination of superseded updates to prevent exclusion of files used in multiple updates (Thanks to "aker" and "hbuhrmester")
