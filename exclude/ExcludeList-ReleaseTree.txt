@@ -5,6 +5,7 @@ ProductIds-final.txt
 ProductIds-final-inverted.txt
 ExcludeList-ProductionTree.txt
 ExcludeList-ReleaseTree.txt
+ExcludeList-w100_documented.txt
 ico\
 Include\
 extract-revision-and-update-ids.xsl
