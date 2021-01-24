@@ -138,8 +138,8 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
     if not "%%j"=="" (
       rem dynamisch ermittelte Updates als CAB
       for %%k in (%OS_LANG% glb) do (
-        if exist ..\wsus\UpdateTable-%OS_NAME%-%%k.csv (
-          for /F "tokens=1,2 delims=," %%l in (..\wsus\UpdateTable-%OS_NAME%-%%k.csv) do (
+        if exist ..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv (
+          for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv) do (
             if "%%l"=="%%j" (
               call ListUpdateFile.cmd %%m ..\%OS_SEARCH_DIR%\%%k /searchleftmost /append
             )
@@ -148,8 +148,8 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
       )
       if not "%O2K13_VER_MAJOR%"=="" (
         for %%k in (%O2K13_LANG% glb) do (
-          if exist ..\wsus\UpdateTable-o2k13-%%k.csv (
-            for /F "tokens=1,2 delims=," %%l in (..\wsus\UpdateTable-o2k13-%%k.csv) do (
+          if exist ..\UpdateTable\UpdateTable-o2k13-%%k.csv (
+            for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-o2k13-%%k.csv) do (
               if "%%l"=="%%j" (
                 call ListUpdateFile.cmd %%m ..\o2k13\%%k /searchleftmost /append
               )
@@ -159,8 +159,8 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
       )
       if not "%O2K16_VER_MAJOR%"=="" (
         for %%k in (%O2K16_LANG% glb) do (
-          if exist ..\wsus\UpdateTable-o2k16-%%k.csv (
-            for /F "tokens=1,2 delims=," %%l in (..\wsus\UpdateTable-o2k16-%%k.csv) do (
+          if exist ..\UpdateTable\UpdateTable-o2k16-%%k.csv (
+            for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-o2k16-%%k.csv) do (
               if "%%l"=="%%j" (
                 call ListUpdateFile.cmd %%m ..\o2k16\%%k /searchleftmost /append
               )

@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b20.1)
+set WSUSOFFLINE_VERSION=12.5 (b21)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -281,6 +281,7 @@ if exist ..\static\sdd\dummy.txt del ..\static\sdd\dummy.txt
 if exist ..\client\exclude\custom\dummy.txt del ..\client\exclude\custom\dummy.txt
 if exist ..\client\static\custom\dummy.txt del ..\client\static\custom\dummy.txt
 if exist ..\client\software\msi\dummy.txt del ..\client\software\msi\dummy.txt
+if exist ..\client\UpdateTable\dummy.txt del ..\client\UpdateTable\dummy.txt
 if exist .\custom\InitializationHook.cmd (
   if exist .\custom\InitializationHook.cmdt del .\custom\InitializationHook.cmdt
 )
@@ -811,7 +812,7 @@ call :Log "Info: Downloaded/validated most recent Windows Update catalog file"
 if "%VERIFY_DL%" NEQ "1" goto SkipWSUS
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signature of Windows Update catalog file...
-for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% ..\client\wsus\wsusscn2.* ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
+for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\wsus ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
   del %%i
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
@@ -1398,6 +1399,7 @@ if "%4"=="/skipdynamic" (
   call :Log "Info: Skipped determination of dynamic update urls for %1 %2 on demand"
   goto DoDownload
 )
+if not exist ..\client\UpdateTable\nul md ..\client\UpdateTable
 
 set PLATFORM_WINDOWS=w62 w63 w100
 set PLATFORM_OFFICE=o2k13 o2k16
@@ -1520,12 +1522,12 @@ if "%2"=="glb" (
 goto DetermineShared
 
 :DetermineShared
-rem Create the files ../client/wsus/UpdateTable-*-*.csv, which are
+rem Create the files ../client/UpdateTable/UpdateTable-*-*.csv, which are
 rem needed during the installation of the updates. They link the UpdateIds
 rem (in form of UUIDs) to the file names.
 echo Creating file 7, UpdateTable-%TMP_PLATFORM%-%2.csv ...
 call :Log "Info: Creating file 7, UpdateTable-%TMP_PLATFORM%-%2.csv ..."
-%CSCRIPT_PATH% //Nologo //B //E:vbs ExtractIdsAndFileNames.vbs "%TEMP%\update-ids-and-locations-%2.txt" ..\client\wsus\UpdateTable-%TMP_PLATFORM%-%2.csv
+%CSCRIPT_PATH% //Nologo //B //E:vbs ExtractIdsAndFileNames.vbs "%TEMP%\update-ids-and-locations-%2.txt" ..\client\UpdateTable\UpdateTable-%TMP_PLATFORM%-%2.csv
 
 rem At this point, the UpdateIds are no longer needed. Only the locations
 rem (URLs) are needed to create the initial list of dynamic download
