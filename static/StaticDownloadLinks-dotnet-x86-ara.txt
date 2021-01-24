@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/26064ac7e45aa4f47d6860b56411611a/ndp48-x86-x64-allos-ara.exe

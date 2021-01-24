@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/84295631217e65cf2ce576b42e7c715c/ndp48-x86-x64-allos-hun.exe

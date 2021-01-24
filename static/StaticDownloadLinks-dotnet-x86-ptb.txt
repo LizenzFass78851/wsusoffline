@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/1eca58815ccde3af6663329a2dd92643/ndp48-x86-x64-allos-ptb.exe

@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/1c01173f1c67027f3760dfa9adb80b12/ndp48-x86-x64-allos-plk.exe

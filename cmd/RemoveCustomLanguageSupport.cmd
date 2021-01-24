@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -13,22 +14,19 @@ goto InvalidParams
 :ValidParams
 rem *** Remove support for %1 from .NET custom URL files ***
 if /i "%2" NEQ "/quiet" echo Removing support for %1 from .NET custom URL files...
-for %%i in (x86 x64) do (
-  for /F %%j in (..\static\StaticDownloadLinks-dotnet-%%i-%1.txt) do (
-    if exist ..\static\custom\StaticDownloadLinks-dotnet.txt (
-      ren ..\static\custom\StaticDownloadLinks-dotnet.txt StaticDownloadLinks-dotnet.tmp
-      %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-dotnet.tmp>..\static\custom\StaticDownloadLinks-dotnet.txt
-      del ..\static\custom\StaticDownloadLinks-dotnet.tmp
-    )
-    if exist ..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.txt (
-      ren ..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.txt StaticDownloadLinks-dotnet-%%i-glb.tmp
-      %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.tmp>..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.txt
-      del ..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.tmp
-    )
+for /F %%j in (..\static\StaticDownloadLinks-dotnet-%1.txt) do (
+  if exist ..\static\custom\StaticDownloadLinks-dotnet.txt (
+    ren ..\static\custom\StaticDownloadLinks-dotnet.txt StaticDownloadLinks-dotnet.tmp
+    %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-dotnet.tmp>..\static\custom\StaticDownloadLinks-dotnet.txt
+    del ..\static\custom\StaticDownloadLinks-dotnet.tmp
   )
-  for %%j in (..\static\custom\StaticDownloadLinks-dotnet.txt) do if %%~zj==0 del %%j
-  for %%j in (..\static\custom\StaticDownloadLinks-dotnet-%%i-glb.txt) do if %%~zj==0 del %%j
+  if exist ..\static\custom\StaticDownloadLinks-dotnet-glb.txt (
+    ren ..\static\custom\StaticDownloadLinks-dotnet-glb.txt StaticDownloadLinks-dotnet-glb.tmp
+    %SystemRoot%\System32\findstr.exe /L /I /V "%%~nxj" ..\static\custom\StaticDownloadLinks-dotnet-glb.tmp>..\static\custom\StaticDownloadLinks-dotnet-glb.txt
+    del ..\static\custom\StaticDownloadLinks-dotnet-glb.tmp
+  )
 )
+for %%j in (..\static\custom\StaticDownloadLinks-dotnet.txt) do if %%~zj==0 del %%j
 rem *** Remove support for %1 from IEx custom URL files ***
 if /i "%2" NEQ "/quiet" echo Removing support for %1 from IEx custom URL files...
 for %%i in (x86 x64) do (

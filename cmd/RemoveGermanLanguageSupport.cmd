@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions

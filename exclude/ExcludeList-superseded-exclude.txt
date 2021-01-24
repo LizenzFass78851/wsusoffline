@@ -15,9 +15,10 @@ windows10.0-kb4565911
 windows10.0-kb4576750
 windows10.0-kb4565553
 windows10.0-kb4580398
-windows10.0-kb4587735
-windows10.0-kb4586863
-windows10.0-kb4593175
+windows10.0-kb4598480
+windows10.0-kb4520390
+windows10.0-kb4598479
+windows10.0-kb4598481
 windows10.0-kb4495610
 windows10.0-kb4495611
 windows10.0-kb4495613

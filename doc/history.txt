@@ -1786,9 +1786,15 @@ Community Edition 12.4 -- 06.12.2020
 --------------------------------------------------------------------------------
 Community Edition 12.5 -- ??.??.????
 - NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
-- Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
+- NOTE: Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
 - Support added for .NET 5 (Thanks to "aker" and "boco")
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
 - update .\xslt\extract-update-cab-exe-ids-and-locations.xsl to include more updates (Thanks to "hbuhrmester")
 - improve determination of superseded updates to prevent exclusion of files used in multiple updates (Thanks to "aker" and "hbuhrmester")
+- December 2020 to January 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
+- December 2020 to January 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
+- Replaced superseded November 2020 Servicing stack update (KB4587735) by January 2021 Servicing stack update (KB4598480) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
+- Replaced superseded November 2020 Servicing stack update (KB4586863) by January 2021 Servicing stack update (KB4598479) for Windows 10 Version 1909 (Thanks to "aker")
+- Replaced superseded November 2020 Servicing stack update (KB4586864) by January 2021 Servicing stack update (KB4598481) for Windows 10 Version 2004 and 20H2 (Thanks to "aker")
+- Added Update for the removal of Adobe Flash Player (KB4577586)
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")

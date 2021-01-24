@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/db06337271690ebac860c0e8690c279d/ndp48-x86-x64-allos-heb.exe

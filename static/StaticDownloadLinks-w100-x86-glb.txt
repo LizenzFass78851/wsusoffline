@@ -5,5 +5,11 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589208-x86_bcecb619f05a87cd2c4abc13ee168ae840ed3756.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589211-x86_cd50eb9cd3e08f98a7e66eb3a4b438acab0c3e9e.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589212-x86_218f1273f7ae15b86dfe1a7b64aee1b67ca0babf.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_cc1837e27113e5444e025cf2dc2e2ed556ba77f9.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_97a4f342e91e40b921727a8b944a29f7155f3ca1.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_b737ffa841d2aab5cbf5e00560b93577a6d0b4d2.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_947f151a8bb5a0b0797702e53431c52d56c02c32.msu
+http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_002b1ffa7fb31836aeaed74007a6949d31a96460.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_238da6b730a3f6a709f31980b87e2d8ecb0a8973.msu
 http://b1.download.windowsupdate.com/d/upgr/2019/11/windows10.0-kb4517245-x86_8463271782b79ce8214772c62552b8961feb7ccb.cab
 http://b1.download.windowsupdate.com/c/upgr/2020/12/windows10.0-kb4562830-x86_f351f1af1971616730644a722c64b1ba3ea53f5a.msu

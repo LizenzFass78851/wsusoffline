@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b21)
+set WSUSOFFLINE_VERSION=12.5 (b23)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -553,11 +553,13 @@ if exist ..\client\cpp\x86-glb\nul (
 
 rem *** .NET restructuring stuff ***
 if exist ..\exclude\ExcludeList-dotnet.txt del ..\exclude\ExcludeList-dotnet.txt
+if exist ..\exclude\ExcludeList-dotnet-x86.txt del ..\exclude\ExcludeList-dotnet-x86.txt
+if exist ..\exclude\ExcludeList-dotnet-x64.txt del ..\exclude\ExcludeList-dotnet-x64.txt
 if exist ..\client\win\glb\ndp*.* (
   if not exist ..\client\dotnet\x86-glb\nul md ..\client\dotnet\x86-glb
   move /Y ..\client\win\glb\ndp*.* ..\client\dotnet\x86-glb >nul
 )
-if exist ..\static\StaticDownloadLink-dotnet.txt del ..\static\StaticDownloadLink-dotnet.txt
+del /Q ..\static\StaticDownloadLinks-dotnet-x*-*.txt >nul 2>&1
 if exist ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-dotnet-x64-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-x64-glb.xsl
 if exist ..\xslt\ExtractDownloadLinks-dotnet-x86-glb.xsl del ..\xslt\ExtractDownloadLinks-dotnet-x86-glb.xsl

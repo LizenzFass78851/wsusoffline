@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/86e30d0c9a2c7ea7a0de8912a9a06407/ndp48-x86-x64-allos-sve.exe

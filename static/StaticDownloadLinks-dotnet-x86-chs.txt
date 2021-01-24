@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/00751a26db33223ca3f9a8b20a7be95c/ndp48-x86-x64-allos-chs.exe

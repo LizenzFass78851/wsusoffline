@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/7629a0c2eb175ef8fa014016cdadfa93/ndp48-x86-x64-allos-jpn.exe

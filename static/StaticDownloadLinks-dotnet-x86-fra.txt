@@ -1,1 +1,0 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/4806c4e6dc10643278ac0b8a7d7d6b28/ndp48-x86-x64-allos-fra.exe
