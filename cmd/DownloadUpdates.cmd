@@ -291,6 +291,7 @@ if exist ..\static\sdd\dummy.txt del ..\static\sdd\dummy.txt
 if exist ..\client\exclude\custom\dummy.txt del ..\client\exclude\custom\dummy.txt
 if exist ..\client\static\custom\dummy.txt del ..\client\static\custom\dummy.txt
 if exist ..\client\software\msi\dummy.txt del ..\client\software\msi\dummy.txt
+if exist ..\client\UpdateTable\dummy.txt del ..\client\UpdateTable\dummy.txt
 if exist .\custom\InitializationHook.cmd (
   if exist .\custom\InitializationHook.cmdt del .\custom\InitializationHook.cmdt
 )
