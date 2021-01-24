@@ -420,13 +420,7 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
   End If
   ServicingStack_OSVer_Major = CInt(Split(objQueryItem.Version, ".")(0))
   ServicingStack_OSVer_Minor = CInt(Split(objQueryItem.Version, ".")(1))
-  If Split(objQueryItem.Version, ".")(2) = "18363" Then
-    ServicingStack_OSVer_Build = 18362
-  ElseIf Split(objQueryItem.Version, ".")(2) = "19042" Then
-    ServicingStack_OSVer_Build = 19041
-  Else
-    ServicingStack_OSVer_Build = CInt(Split(objQueryItem.Version, ".")(2))
-  End If
+  ServicingStack_OSVer_Build = CInt(Split(objQueryItem.Version, ".")(2))
   objCmdFile.WriteLine("set OS_SP_VER_MAJOR=" & objQueryItem.ServicePackMajorVersion)
   objCmdFile.WriteLine("set OS_SP_VER_MINOR=" & objQueryItem.ServicePackMinorVersion)
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))

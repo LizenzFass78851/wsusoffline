@@ -3,4 +3,3 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589210-x86_2e8e4c0d183479a161c2e3310cff1965f52e5d42.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589206-x86_a315355a459d853c71a0412d675e2d0170822d2f.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589208-x86_bcecb619f05a87cd2c4abc13ee168ae840ed3756.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589211-x86_cd50eb9cd3e08f98a7e66eb3a4b438acab0c3e9e.msu
