@@ -269,3 +269,11 @@ kb4592498,December 2020 Security Monthly Quality Rollup for Windows Server 2008
 kb4592471,December 2020 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4592468,December 2020 Security Monthly Quality Rollup for Windows Server 2012
 kb4592484,December 2020 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb4598288,January 2021 Security Monthly Quality Rollup for Windows Server 2008
+kb4598279,January 2021 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb4598278,January 2021 Security Monthly Quality Rollup for Windows Server 2012
+kb4598285,January 2021 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb4598503,January 2021 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008
+kb4598500,January 2021 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 and Windows Server 2008 R2
+kb4598501,January 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb4598502,January 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
