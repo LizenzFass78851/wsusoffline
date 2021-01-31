@@ -663,12 +663,6 @@ cpp2019_x64_new = False
 Set objInstaller = CreateObject("WindowsInstaller.Installer")
 For Each strProduct In objInstaller.Products
   Select Case UCase(strProduct)
-    Case "{6EECB283-E65F-40EF-86D3-D51BF02A8D43}"
-      objCmdFile.WriteLine("set OFC_CONV_PACK=1")
-    Case "{90120000-0020-0407-0000-0000000FF1CE}"
-      objCmdFile.WriteLine("set OFC_COMP_PACK=1")
-    Case "{90140000-2005-0000-0000-0000000FF1CE}"
-      objCmdFile.WriteLine("set OFC_FILE_VALID=1")
     ' Documentation: http://blogs.msdn.com/b/astebner/archive/2007/01/16/mailbag-how-to-detect-the-presence-of-the-vc-8-0-runtime-redistributable-package.aspx
     Case "{A49F249F-0C91-497F-86DF-B2585E8E76B7}", "{7299052B-02A4-4627-81F2-1818DA5D550D}", "{837B34E3-7C30-493C-8F6A-2B0F04E2912C}"
       cpp2005_x86_old = True

@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.8)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.8 (b23) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.8 (b26) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -93,7 +93,6 @@ Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet46      = "\dotnet\NDP46*.exe"
 Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
-Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
 Dim Const $path_rel_msse_x86          = "\msse\x86-glb\MSEInstall-x86-*.exe"
 Dim Const $path_rel_msse_x64          = "\msse\x64-glb\MSEInstall-x64-*.exe"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
@@ -348,10 +347,6 @@ Func DotNet4InstPresent($basepath)
   Else
     Return FileExists($basepath & $path_rel_instdotnet48)
   EndIf
-EndFunc
-
-Func OfcGlbPresent($basepath)
-  Return FileExists($basepath & $path_rel_ofc_glb)
 EndFunc
 
 Func MSSEPresent($basepath)
