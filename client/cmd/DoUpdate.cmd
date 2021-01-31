@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b24)
+set WSUSOFFLINE_VERSION=12.5 (b25)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -935,7 +935,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5DesktopRuntimex64Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
@@ -979,7 +979,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5Runtimex64Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
@@ -1022,7 +1022,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5AspNetx64Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
@@ -1066,7 +1066,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5DesktopRuntimex86Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
@@ -1110,7 +1110,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5Runtimex86Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
@@ -1153,7 +1153,7 @@ if not exist "..\md\hashes-dotnet.txt" (
   goto SkipDotNet5AspNetx86Verify
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
 %HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
