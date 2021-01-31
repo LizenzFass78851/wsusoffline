@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b25)
+set WSUSOFFLINE_VERSION=12.5 (b26)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -293,29 +293,11 @@ if not "%O2K13_VER_MAJOR%"=="" (
   )
 )
 if not "%O2K16_VER_MAJOR%"=="" (
-  if exist ..\o2k16\%O2K16_LANG%\nul (
-    echo Medium supports Microsoft Office ^(o2k16 %O2K16_LANG%^).
-    call :Log "Info: Medium supports Microsoft Office (o2k13 %O2K16_LANG%)"
-    set OFFICE_SUPPORTED=1
-  ) else if exist ..\o2k16\glb\nul (
+  if exist ..\o2k16\glb\nul (
     echo Medium supports Microsoft Office ^(o2k16 glb^).
     call :Log "Info: Medium supports Microsoft Office (o2k16 glb)"
     set OFFICE_SUPPORTED=1
   )
-)
-if not "%OFC_LANG%"=="" (
-  for %%l in (%OFC_LANG%) do (
-    if exist ..\ofc\%%l\nul (
-      echo Medium supports Microsoft Office ^(ofc %%l^).
-      call :Log "Info: Medium supports Microsoft Office (ofc %%l)"
-      set OFFICE_SUPPORTED=1
-    )
-  )
-)
-if exist ..\ofc\glb\nul (
-  echo Medium supports Microsoft Office ^(ofc glb^).
-  call :Log "Info: Medium supports Microsoft Office (ofc glb)"
-  set OFFICE_SUPPORTED=1
 )
 if "%OFFICE_SUPPORTED%"=="1" goto ProperMedium
 

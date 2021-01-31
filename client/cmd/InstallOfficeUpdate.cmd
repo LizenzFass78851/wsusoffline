@@ -82,56 +82,11 @@ goto UnsupType
 
 :InstExe
 rem *** Check proper Office version ***
-for %%i in (ofc o2k13 o2k16) do (
+for %%i in (o2k13 o2k16) do (
   echo %1 | %SystemRoot%\System32\find.exe /I "\%%i\" >nul 2>&1
   if not errorlevel 1 goto %%i
 )
 goto UnsupVersion
-
-:ofc
-if "%SELECT_OPTIONS%"=="1" (
-  for /F %%i in (..\opt\OptionList-qn.txt) do (
-    echo %1 | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
-    if not errorlevel 1 goto o2k13
-  )
-)
-set ERR_LEVEL=0
-for /F "tokens=3 delims=\." %%i in ("%1") do (
-  echo Installing %1...
-  call SafeRmDir.cmd "%TEMP%\%%i"
-  %1 /T:"%TEMP%\%%i" /C /Q
-  if exist "%TEMP%\%%i\ohotfix.exe" (
-    for /F "usebackq eol=; tokens=1,2 delims==" %%j in ("%TEMP%\%%i\ohotfix.ini") do (
-      if /i "%%j"=="ShowSuccessDialog" echo %%j=0 >"%TEMP%\%%i\ohotfix.1"
-      if /i "%%j"=="UpgradeMsi" echo %%j=0 >"%TEMP%\%%i\ohotfix.1"
-      if /i "%%j"=="OHotfixUILevel" echo %%j=q >"%TEMP%\%%i\ohotfix.1"
-      if /i "%%j"=="MsiUILevel" echo %%j=n >"%TEMP%\%%i\ohotfix.1"
-      if exist "%TEMP%\%%i\ohotfix.1" (
-        for /F "usebackq" %%l in ("%TEMP%\%%i\ohotfix.1") do (
-          echo %%l >>"%TEMP%\%%i\ohotfix.new"
-        )
-        del "%TEMP%\%%i\ohotfix.1"
-      ) else (
-        echo %%j=%%k >>"%TEMP%\%%i\ohotfix.new"
-      )
-    )
-    del "%TEMP%\%%i\ohotfix.ini"
-    ren "%TEMP%\%%i\ohotfix.new" ohotfix.ini
-    "%TEMP%\%%i\ohotfix.exe"
-  ) else (
-    if exist "%TEMP%\%%i\setup.exe" (
-      "%TEMP%\%%i\setup.exe" /QB
-    ) else (
-      call SafeRmDir.cmd "%TEMP%\%%i"
-      goto UnsupType
-    )
-  )
-  set ERR_LEVEL=%errorlevel%
-  call SafeRmDir.cmd "%TEMP%\%%i"
-)
-if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
-goto InstFailure
 
 :o2k13
 :o2k16

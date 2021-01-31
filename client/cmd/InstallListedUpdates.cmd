@@ -1,5 +1,6 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
+rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions enabledelayedexpansion
@@ -27,7 +28,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
 for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TEMP%\UpdatesToInstall.txt"') do (
   if %%i GTR %STOP_UPDATES% goto BreakLoop
   if %%i GTR %SKIP_UPDATES% (
-    for %%k in (ofc o2k13 o2k16) do (
+    for %%k in (o2k13 o2k16) do (
       echo %%j | %SystemRoot%\System32\find.exe /I "\%%k\" >nul 2>&1
       if not errorlevel 1 (
         echo !TIME! - Installing update %%i of %LINES_COUNT% ^(stage size: %UPDATES_PER_STAGE%^)...

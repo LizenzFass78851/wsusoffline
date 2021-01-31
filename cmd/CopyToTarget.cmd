@@ -44,15 +44,15 @@ if errorlevel 1 goto NoTempDir
 popd
 
 for %%i in (all all-x86 all-x64 enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve trk ell ara heb dan nor fin) do (if /i "%~1"=="%%i" goto V1EvalParams)
-for %%i in (w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64) do (
+for %%i in (o2k13) do (
   if /i "%~1"=="%%i" (
-    if /i "%~2"=="glb" shift /2
+    for %%j in (glb enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve trk ell ara heb dan nor fin) do (if /i "%~2"=="%%j" goto V2EvalParams)
     goto V1EvalParams
   )
 )
-for %%i in (ofc) do (
+for %%i in (w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 o2k16) do (
   if /i "%~1"=="%%i" (
-    for %%j in (glb enu fra esn jpn kor rus ptg ptb deu nld ita chs cht plk hun csy sve trk ell ara heb dan nor fin) do (if /i "%~2"=="%%j" goto V2EvalParams)
+    if /i "%~2"=="glb" shift /2
     goto V1EvalParams
   )
 )
@@ -125,7 +125,7 @@ goto :eof
 rem *** Create USB filter ***
 echo Creating USB filter for %1...
 set USB_FILTER="%TEMP%\ExcludeListUSB-%1.txt"
-for %%i in (all all-x86 all-x64 w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 ofc) do (if /i "%1"=="%%i" goto V1CopyFilter)
+for %%i in (all all-x86 all-x64 w60 w60-x64 w61 w61-x64 w62-x64 w63 w63-x64 w100 w100-x64 o2k13 o2k16) do (if /i "%1"=="%%i" goto V1CopyFilter)
 copy /Y ..\exclude\ExcludeListUSB-all-x86.txt %USB_FILTER% >nul
 if exist ..\exclude\custom\ExcludeListUSB-all-x86.txt (
   type ..\exclude\custom\ExcludeListUSB-all-x86.txt >>%USB_FILTER%
@@ -206,8 +206,8 @@ goto Error
 echo.
 echo ERROR: Invalid parameter: %*
 echo Usage1: %~n0 {all ^| all-x86 ^| all-x64 ^| enu ^| fra ^| esn ^| jpn ^| kor ^| rus ^| ptg ^| ptb ^| deu ^| nld ^| ita ^| chs ^| cht ^| plk ^| hun ^| csy ^| sve ^| trk ^| ell ^| ara ^| heb ^| dan ^| nor ^| fin} ^<OutputPath^> [/excludesw] [/includedotnet] [/includewddefs] [/cleanup]
-echo Usage2: %~n0 {w60 ^| w60-x64 ^| w61 ^| w61-x64 ^| w62-x64 ^| w63 ^| w63-x64 ^| w100 ^| w100-x64} [glb] ^<OutputPath^> [/excludesw] [/includedotnet] [/includewddefs] [/cleanup]
-echo Usage3: %~n0 {ofc} {glb ^| enu ^| fra ^| esn ^| jpn ^| kor ^| rus ^| ptg ^| ptb ^| deu ^| nld ^| ita ^| chs ^| cht ^| plk ^| hun ^| csy ^| sve ^| trk ^| ell ^| ara ^| heb ^| dan ^| nor ^| fin} ^<OutputPath^> [/excludesw] [/includedotnet] [/includewddefs] [/cleanup]
+echo Usage2: %~n0 {o2k13} {glb ^| enu ^| fra ^| esn ^| jpn ^| kor ^| rus ^| ptg ^| ptb ^| deu ^| nld ^| ita ^| chs ^| cht ^| plk ^| hun ^| csy ^| sve ^| trk ^| ell ^| ara ^| heb ^| dan ^| nor ^| fin} ^<OutputPath^> [/excludesw] [/includedotnet] [/includewddefs] [/cleanup]
+echo Usage3: %~n0 {w60 ^| w60-x64 ^| w61 ^| w61-x64 ^| w62-x64 ^| w63 ^| w63-x64 ^| w100 ^| w100-x64 ^| o2k16} [glb] ^<OutputPath^> [/excludesw] [/includedotnet] [/includewddefs] [/cleanup]
 echo %DATE% %TIME% - Error: Invalid parameter: %*>>%DOWNLOAD_LOGFILE%
 echo.
 goto Error
