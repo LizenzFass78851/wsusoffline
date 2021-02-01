@@ -1647,7 +1647,7 @@ if "%SECONLY%"=="1" (
     )
   )
 )
-rem andere Architekturen ausschließen
+rem exclude other architectures
 if exist ..\exclude\ExcludeList-%3.txt type ..\exclude\ExcludeList-%3.txt >> "%TEMP%\ExcludeList-%1.txt"
 :SkipDetermineWindowsSpecificExclude
 
