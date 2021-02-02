@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <!--
      Author: H. Buhrmester, 2020
+             aker, 2020
      Filename: extract-revision-and-update-ids-o2k16.xsl
 
      This file selects updates by their Product Ids:
@@ -15,11 +16,13 @@
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:Categories/__:Category[@Type='Product']">
       <xsl:if test="contains(@Id, '25aed893-7c2d-4a31-ae22-28ff8ac150ed')">
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="../../@RevisionId"/>
-        <xsl:text>#,</xsl:text>
-        <xsl:value-of select="../../@UpdateId"/>
-        <xsl:text>&#10;</xsl:text>
+        <xsl:if test="../../@RevisionId != '' and ../../@UpdateId != ''">
+          <xsl:text>#</xsl:text>
+          <xsl:value-of select="../../@RevisionId"/>
+          <xsl:text>#,</xsl:text>
+          <xsl:value-of select="../../@UpdateId"/>
+          <xsl:text>&#10;</xsl:text>
+        </xsl:if>
       </xsl:if>
     </xsl:for-each>
   </xsl:template>

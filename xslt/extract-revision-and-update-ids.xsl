@@ -12,11 +12,13 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text"/>
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:Categories/__:Category[@Type='Product']">
-      <xsl:text>#</xsl:text>
-      <xsl:value-of select="../../@RevisionId"/>
-      <xsl:text>#,</xsl:text>
-      <xsl:value-of select="../../@UpdateId"/>
-      <xsl:text>&#10;</xsl:text>
+      <xsl:if test="../../@RevisionId != '' and ../../@UpdateId != ''">
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="../../@RevisionId"/>
+        <xsl:text>#,</xsl:text>
+        <xsl:value-of select="../../@UpdateId"/>
+        <xsl:text>&#10;</xsl:text>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>

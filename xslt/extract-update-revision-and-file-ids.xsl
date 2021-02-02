@@ -9,13 +9,15 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text" />
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:BundledBy/__:Revision">
-      <xsl:text>#</xsl:text>
-      <xsl:value-of select="@Id" />
-      <xsl:text>#,#</xsl:text>
-      <xsl:value-of select="../../@RevisionId" />
-      <xsl:text>#,</xsl:text>
-      <xsl:value-of select="../../__:PayloadFiles/__:File/@Id" />
-      <xsl:text>&#10;</xsl:text>
+      <xsl:if test="@Id != '' and ../../@RevisionId != '' and ../../__:PayloadFiles/__:File/@Id != ''">
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="@Id" />
+        <xsl:text>#,#</xsl:text>
+        <xsl:value-of select="../../@RevisionId" />
+        <xsl:text>#,</xsl:text>
+        <xsl:value-of select="../../__:PayloadFiles/__:File/@Id" />
+        <xsl:text>&#10;</xsl:text>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>

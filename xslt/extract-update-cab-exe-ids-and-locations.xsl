@@ -10,10 +10,12 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text" />
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:FileLocations/__:FileLocation">
-      <xsl:value-of select="@Id" />
-      <xsl:text>,</xsl:text>
-      <xsl:value-of select="@Url" />
-      <xsl:text>&#10;</xsl:text>
+      <xsl:if test="@Id != '' and @Url != ''">
+        <xsl:value-of select="@Id" />
+        <xsl:text>,</xsl:text>
+        <xsl:value-of select="@Url" />
+        <xsl:text>&#10;</xsl:text>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>

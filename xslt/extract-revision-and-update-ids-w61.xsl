@@ -18,11 +18,13 @@
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update/__:Categories/__:Category[@Type='Product']">
       <xsl:if test="contains(@Id, 'bfe5b177-a086-47a0-b102-097e4fa1f807')
                  or contains(@Id, 'fdfe8200-9d98-44ba-a12a-772282bf60ef')">
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="../../@RevisionId"/>
-        <xsl:text>#,</xsl:text>
-        <xsl:value-of select="../../@UpdateId"/>
-        <xsl:text>&#10;</xsl:text>
+        <xsl:if test="../../@RevisionId != '' and ../../@UpdateId != ''">
+          <xsl:text>#</xsl:text>
+          <xsl:value-of select="../../@RevisionId"/>
+          <xsl:text>#,</xsl:text>
+          <xsl:value-of select="../../@UpdateId"/>
+          <xsl:text>&#10;</xsl:text>
+        </xsl:if>
       </xsl:if>
     </xsl:for-each>
   </xsl:template>
