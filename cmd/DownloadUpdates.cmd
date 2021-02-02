@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b26)
+set WSUSOFFLINE_VERSION=12.5 (b27)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -316,8 +316,6 @@ if exist ActivateFiveLanguageServicePacks.cmd del ActivateFiveLanguageServicePac
 if exist RemoveEnglishLanguageSupport.cmd del RemoveEnglishLanguageSupport.cmd
 if exist ..\doc\faq.txt del ..\doc\faq.txt
 if exist ..\exclude\ExcludeList-SPs.txt del ..\exclude\ExcludeList-SPs.txt
-if exist ..\exclude\ExcludeList-dotnet-x86.txt del ..\exclude\ExcludeList-dotnet-x86.txt
-if exist ..\exclude\ExcludeList-dotnet-x64.txt del ..\exclude\ExcludeList-dotnet-x64.txt
 if exist ..\client\cmd\Reboot.vbs del ..\client\cmd\Reboot.vbs
 if exist ..\client\cmd\Shutdown.vbs del ..\client\cmd\Shutdown.vbs
 if exist ..\client\msi\nul rd /S /Q ..\client\msi

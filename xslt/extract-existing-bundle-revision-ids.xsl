@@ -8,10 +8,12 @@
   <xsl:output omit-xml-declaration="yes" indent="no" method="text" />
   <xsl:template match="/">
     <xsl:for-each select="__:OfflineSyncPackage/__:Updates/__:Update[@IsBundle='true']">
-      <xsl:text>#</xsl:text>
-      <xsl:value-of select="@RevisionId" />
-      <xsl:text>#</xsl:text>
-      <xsl:text>&#10;</xsl:text>
+      <xsl:if test="@RevisionId != ''">
+        <xsl:text>#</xsl:text>
+        <xsl:value-of select="@RevisionId" />
+        <xsl:text>#</xsl:text>
+        <xsl:text>&#10;</xsl:text>
+      </xsl:if>
     </xsl:for-each>
   </xsl:template>
 </xsl:stylesheet>

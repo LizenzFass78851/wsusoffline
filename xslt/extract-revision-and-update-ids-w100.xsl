@@ -27,11 +27,13 @@
                  or contains(@Id, '569e8e8f-c6cd-42c8-92a3-efbb20a0f6f5')
                  or contains(@Id, 'f702a48c-919b-45d6-9aef-ca4248d50397')
                  or contains(@Id, '21210d67-50bc-4254-a695-281765e10665')">
-        <xsl:text>#</xsl:text>
-        <xsl:value-of select="../../@RevisionId"/>
-        <xsl:text>#,</xsl:text>
-        <xsl:value-of select="../../@UpdateId"/>
-        <xsl:text>&#10;</xsl:text>
+        <xsl:if test="../../@RevisionId != '' and ../../@UpdateId != ''">
+          <xsl:text>#</xsl:text>
+          <xsl:value-of select="../../@RevisionId"/>
+          <xsl:text>#,</xsl:text>
+          <xsl:value-of select="../../@UpdateId"/>
+          <xsl:text>&#10;</xsl:text>
+        </xsl:if>
       </xsl:if>
     </xsl:for-each>
   </xsl:template>
