@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b27)
+set WSUSOFFLINE_VERSION=11.9.8 (b28)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -328,6 +328,7 @@ if exist ..\client\msi\nul rd /S /Q ..\client\msi
 if exist ..\client\static\StaticUpdateIds-ie9-w61.txt del ..\client\static\StaticUpdateIds-ie9-w61.txt
 if exist ..\client\static\StaticUpdateIds-w100-x86.txt del ..\client\static\StaticUpdateIds-w100-x86.txt
 if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\StaticUpdateIds-w100-x64.txt
+if exist ..\opt\nul rd /S /Q ..\opt
 del /Q ..\static\StaticDownloadLinks-ie8-w60-*.txt >nul 2>&1
 del /Q ..\static\StaticDownloadLinks-ie9-w61-*.txt >nul 2>&1
 if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLinks-wua-x86.xsl
@@ -1555,7 +1556,7 @@ goto DetermineShared
 rem Separate the updates into global and localized versions
 if "%2"=="glb" (
   rem Remove all localized files to get the global/multilingual updates
-  %SystemRoot%\System32\findstr.exe /L /I /V /G:"..\opt\locales.txt" "%TEMP%\update-ids-and-locations.txt" > "%TEMP%\update-ids-and-locations-%2.txt"
+  %SystemRoot%\System32\findstr.exe /L /I /V /G:"..\exclude\ExcludeList-locales.txt" "%TEMP%\update-ids-and-locations.txt" > "%TEMP%\update-ids-and-locations-%2.txt"
 ) else (
   rem Extract localized files using search strings like "-en-us_"
   %SystemRoot%\System32\findstr.exe /L /I /C:"-%LOCALE_LONG%_" "%TEMP%\update-ids-and-locations.txt" > "%TEMP%\update-ids-and-locations-%2.txt"
