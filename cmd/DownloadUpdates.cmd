@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b28)
+set WSUSOFFLINE_VERSION=11.9.8 (b29)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -579,6 +579,16 @@ if exist ..\client\md\hashes-wle.txt del ..\client\md\hashes-wle.txt
 rem *** old self update stuff ***
 if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-this.txt
 
+rem *** delete old-style hashes ***
+if exist ..\client\md\nul (
+  for /f "delims=" %%f in ('dir /b ..\client\md\hashes-*.txt') do (
+    %SystemRoot%\System32\findstr.exe /L /C:"-c md5,sha1,sha256 -b" /C:"-c sha1 -b" "..\client\md\%%f" >nul 2>&1
+    if errorlevel 1 (
+      del /Q "..\client\md\%%f" >nul 2>&1
+    )
+  )
+)
+
 rem *** Update static download definitions ***
 if "%SKIP_SDD%"=="1" goto SkipSDD
 echo Preserving custom language and architecture additions and removals...
@@ -756,13 +766,10 @@ if not exist ..\client\wsus\nul goto DownloadWSUS
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-wsus.txt (
   echo Verifying integrity of Windows Update catalog file...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-wsus.txt -r ..\wsus
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wsus.txt -r ..\wsus
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of Windows Update catalog file"
 ) else (
   echo Warning: Integrity database ..\client\md\hashes-wsus.txt not found.
@@ -797,14 +804,11 @@ call :Log "Info: Verified digital file signature of Windows Update catalog file"
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Windows Update catalog file...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l -r ..\wsus >hashes-wsus.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wsus >hashes-wsus.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-wsus.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-wsus.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for Windows Update catalog file"
 )
 for %%i in (..\client\md\hashes-wsus.txt) do if %%~zi==0 del %%i
@@ -818,13 +822,10 @@ if not exist ..\client\dotnet\nul goto DownloadDotNet
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-dotnet.txt (
   echo Verifying integrity of .NET Frameworks' installation files...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-dotnet.txt ..\dotnet\*.exe
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-dotnet.txt ..\client\dotnet\*.exe
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of .NET Frameworks' installation files"
   if exist ..\client\md\hashes-dotnet-%TARGET_ARCH%-glb.txt (
     for %%i in (..\client\md\hashes-dotnet-%TARGET_ARCH%-glb.txt) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
@@ -892,14 +893,11 @@ call :Log "Info: Verified digital file signatures for .NET Frameworks' installat
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for .NET Frameworks' installation files...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l ..\dotnet\*.exe >hashes-dotnet.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b ..\client\dotnet\*.exe >..\client\md\hashes-dotnet.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-dotnet.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-dotnet.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for .NET Frameworks' installation files"
 )
 for %%i in (..\client\md\hashes-dotnet.txt) do if %%~zi==0 del %%i
@@ -913,13 +911,10 @@ if not exist ..\client\cpp\nul goto DownloadCPP
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-cpp.txt (
   echo Verifying integrity of C++ Runtime Libraries' installation files...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-cpp.txt -r ..\cpp
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-cpp.txt -r ..\client\cpp
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of C++ Runtime Libraries' installation files"
   for %%i in (..\client\md\hashes-cpp.txt) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
   if not errorlevel 1 (
@@ -987,14 +982,11 @@ call :Log "Info: Verified digital file signatures for C++ Runtime Libraries' ins
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for C++ Runtime Libraries' installation files...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l -r ..\cpp >hashes-cpp.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\cpp >..\client\md\hashes-cpp.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-cpp.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-cpp.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for C++ Runtime Libraries' installation files"
 )
 for %%i in (..\client\md\hashes-cpp.txt) do if %%~zi==0 del %%i
@@ -1008,13 +1000,10 @@ if not exist ..\client\msse\nul goto DownloadMSSE
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-msse.txt (
   echo Verifying integrity of Microsoft Security Essentials files...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-msse.txt -r ..\msse
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-msse.txt -r ..\client\msse
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of Microsoft Security Essentials files"
   if exist ..\client\msse\%TARGET_ARCH%-glb\mpam*.exe (
     for %%i in (..\client\msse\%TARGET_ARCH%-glb\mpam*.exe) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
@@ -1089,14 +1078,11 @@ call :Log "Info: Verified digital file signatures for Microsoft Security Essenti
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Microsoft Security Essentials files...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l -r ..\msse >hashes-msse.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\msse >..\client\md\hashes-msse.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-msse.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-msse.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for Microsoft Security Essentials files"
 )
 for %%i in (..\client\md\hashes-msse.txt) do if %%~zi==0 del %%i
@@ -1110,13 +1096,10 @@ if not exist ..\client\wddefs\nul goto DownloadWDDefs
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-wddefs.txt (
   echo Verifying integrity of Windows Defender definition files...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-wddefs.txt -r ..\wddefs
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wddefs.txt -r ..\client\wddefs
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of Windows Defender definition files"
   if exist ..\client\wddefs\%TARGET_ARCH%-glb\mpas*.exe (
     for %%i in (..\client\wddefs\%TARGET_ARCH%-glb\mpas*.exe) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
@@ -1153,14 +1136,11 @@ call :Log "Info: Verified digital file signatures for Windows Defender definitio
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Windows Defender definition files...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l -r ..\wddefs >hashes-wddefs.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wddefs >..\client\md\hashes-wddefs.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-wddefs.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-wddefs.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for Windows Defender definition files"
 )
 for %%i in (..\client\md\hashes-wddefs.txt) do if %%~zi==0 del %%i
@@ -1377,13 +1357,10 @@ if not exist ..\client\%1\%2\nul goto SkipAudit
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-%1-%2.txt (
   echo Verifying integrity of existing updates for %1 %2...
-  pushd ..\client\md
-  ..\bin\%HASHDEEP_EXE% -a -l -vv -k hashes-%1-%2.txt -r ..\%1\%2
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-%1-%2.txt -r ..\client\%1\%2
   if errorlevel 1 (
-    popd
     goto IntegrityError
   )
-  popd
   call :Log "Info: Verified integrity of existing updates for %1 %2"
   for %%i in (..\client\md\hashes-%1-%2.txt) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
   if not errorlevel 1 (
@@ -1892,14 +1869,11 @@ rem *** Create integrity database for %1 %2 ***
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for %1 %2...
 if not exist ..\client\md\nul md ..\client\md
-pushd ..\client\md
-..\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -l -r ..\%1\%2 >hashes-%1-%2.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\%1\%2 >..\client\md\hashes-%1-%2.txt
 if errorlevel 1 (
-  popd
   echo Warning: Error creating integrity database ..\client\md\hashes-%1-%2.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-%1-%2.txt"
 ) else (
-  popd
   call :Log "Info: Created integrity database for %1 %2"
 )
 for %%i in (..\client\md\hashes-%1-%2.txt) do if %%~zi==0 del %%i
@@ -1911,12 +1885,10 @@ for /F "usebackq tokens=3,5 delims=," %%i in ("%TEMP%\sha1-%1-%2.txt") do (
       if /i "%%~xj" NEQ ".crt" (
         if /i "%%~xj" NEQ ".crl" (
           if /i "%%l" NEQ "%%i" (
-            pushd ..\client\md
-            del %%j
-            ren hashes-%1-%2.txt hashes-%1-%2.bak
-            %SystemRoot%\System32\findstr.exe /L /I /V "%%j" hashes-%1-%2.bak >hashes-%1-%2.txt
-            del hashes-%1-%2.bak
-            popd
+            del ..\client\md\%%j
+            ren ..\client\md\hashes-%1-%2.txt hashes-%1-%2.bak
+            %SystemRoot%\System32\findstr.exe /L /I /V "%%j" ..\client\md\hashes-%1-%2.bak >..\client\md\hashes-%1-%2.txt
+            del ..\client\md\hashes-%1-%2.bak
             echo Warning: Deleted file %%j due to mismatching SHA-1 message digest ^(%%i^).
             call :Log "Warning: Deleted file %%j due to mismatching SHA-1 message digest (%%i)"
           )
