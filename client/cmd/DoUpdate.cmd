@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b28)
+set WSUSOFFLINE_VERSION=12.5 (b29)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -918,7 +918,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -962,7 +962,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -1005,7 +1005,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -1049,7 +1049,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -1093,7 +1093,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -1136,7 +1136,7 @@ if not exist "..\md\hashes-dotnet.txt" (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_REAL%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "%DOTNET5_FILENAME_REAL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
   echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_REAL%^).
@@ -1453,7 +1453,7 @@ if not exist ..\md\hashes-wsus.txt (
 )
 echo Verifying integrity of Windows Update catalog file...
 %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:..\wsus\wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
-%HASHDEEP_PATH% -a -l -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
 if errorlevel 1 (
   if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
   goto CatalogIntegrityError
