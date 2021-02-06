@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b29)
+set WSUSOFFLINE_VERSION=12.5 (b29.1)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1876,7 +1876,7 @@ for /F "usebackq tokens=3,5 delims=," %%i in ("%TEMP%\sha1-%1-%2.txt") do (
       if /i "%%~xj" NEQ ".crt" (
         if /i "%%~xj" NEQ ".crl" (
           if /i "%%l" NEQ "%%i" (
-            del ..\client\md\%%j
+            del ..\client\%1\%2\%%j
             ren ..\client\md\hashes-%1-%2.txt hashes-%1-%2.bak
             %SystemRoot%\System32\findstr.exe /L /I /V "%%j" ..\client\md\hashes-%1-%2.bak >..\client\md\hashes-%1-%2.txt
             del ..\client\md\hashes-%1-%2.bak
