@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b29.1)
+set WSUSOFFLINE_VERSION=11.9.8 (b29.2)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -766,7 +766,7 @@ if not exist ..\client\wsus\nul goto DownloadWSUS
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-wsus.txt (
   echo Verifying integrity of Windows Update catalog file...
-  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wsus.txt -r ..\wsus
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wsus.txt -r ..\client\wsus
   if errorlevel 1 (
     goto IntegrityError
   )
@@ -804,7 +804,7 @@ call :Log "Info: Verified digital file signature of Windows Update catalog file"
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Windows Update catalog file...
 if not exist ..\client\md\nul md ..\client\md
-..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wsus >hashes-wsus.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wsus >..\client\md\hashes-wsus.txt
 if errorlevel 1 (
   echo Warning: Error creating integrity database ..\client\md\hashes-wsus.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-wsus.txt"
@@ -822,16 +822,16 @@ if not exist ..\client\dotnet\nul goto DownloadDotNet
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 if exist ..\client\md\hashes-dotnet.txt (
   echo Verifying integrity of .NET Frameworks' installation files...
-  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-dotnet.txt ..\client\dotnet\*.exe
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-dotnet.txt -r ..\client\dotnet
   if errorlevel 1 (
     goto IntegrityError
   )
   call :Log "Info: Verified integrity of .NET Frameworks' installation files"
-  if exist ..\client\md\hashes-dotnet-%TARGET_ARCH%-glb.txt (
-    for %%i in (..\client\md\hashes-dotnet-%TARGET_ARCH%-glb.txt) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
+  if exist ..\client\md\hashes-dotnet.txt (
+    for %%i in (..\client\md\hashes-dotnet.txt) do echo _%%~ti | %SystemRoot%\System32\find.exe "_%DATE:~-10%" >nul 2>&1
     if not errorlevel 1 (
-      echo Skipping download/validation of .NET Frameworks' files ^(%TARGET_ARCH%^) due to 'same day' rule.
-      call :Log "Info: Skipped download/validation of .NET Frameworks' files (%TARGET_ARCH%) due to 'same day' rule"
+      echo Skipping download/validation of .NET Frameworks' files due to 'same day' rule.
+      call :Log "Info: Skipped download/validation of .NET Frameworks' files due to 'same day' rule"
       goto SkipDotNet
     )
   )
@@ -893,7 +893,7 @@ call :Log "Info: Verified digital file signatures for .NET Frameworks' installat
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for .NET Frameworks' installation files...
 if not exist ..\client\md\nul md ..\client\md
-..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b ..\client\dotnet\*.exe >..\client\md\hashes-dotnet.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\dotnet >..\client\md\hashes-dotnet.txt
 if errorlevel 1 (
   echo Warning: Error creating integrity database ..\client\md\hashes-dotnet.txt.
   call :Log "Warning: Error creating integrity database ..\client\md\hashes-dotnet.txt"
