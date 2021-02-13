@@ -57,9 +57,9 @@ if not exist %HASHDEEP_PATH% (
   goto SkipVerification
 )
 echo Verifying integrity of %1...
-for /F "tokens=2,3 delims=\" %%i in ("%1") do (
+for /F "tokens=2,3,4 delims=\" %%i in ("%1") do (
   if exist ..\md\hashes-%%i-%%j.txt (
-    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%1 ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%%k ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
     %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" %1
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"

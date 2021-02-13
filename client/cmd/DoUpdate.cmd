@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b29.2)
+set WSUSOFFLINE_VERSION=11.9.8 (b31)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -624,17 +624,17 @@ if errorlevel 1 (
   goto SkipIEInst
 )
 for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
-  if not "%%i"=="" set IE_LANG_FILENAME_REAL=%%i
+  if not "%%i"=="" set IE_LANG_FILENAME_SHORT=%%i
 )
-if "%IE_LANG_FILENAME_REAL%"=="" (
+if "%IE_LANG_FILENAME_SHORT%"=="" (
   echo Warning: File %IE_LANG_FILENAME% not found.
   call :Log "Warning: File %IE_LANG_FILENAME% not found"
   goto SkipIEInst
 )
 if /i "%OS_ARCH%"=="x64" (
-  set IE_LANG_FILENAME_REAL=..\%OS_NAME%-%OS_ARCH%\glb\%IE_LANG_FILENAME_REAL%
+  set IE_LANG_FILENAME_FULL=..\%OS_NAME%-%OS_ARCH%\glb\%IE_LANG_FILENAME_SHORT%
 ) else (
-  set IE_LANG_FILENAME_REAL=..\%OS_NAME%\glb\%IE_LANG_FILENAME_REAL%
+  set IE_LANG_FILENAME_FULL=..\%OS_NAME%\glb\%IE_LANG_FILENAME_SHORT%
 )
 :SkipIEw60LPSearch
 if exist %SystemRoot%\Temp\wou_iepre_tried.txt goto SkipIEw60Pre
@@ -681,19 +681,19 @@ if not exist "%HASH_FILE_NAME%" (
   goto SkipIEw60LPVerify
 )
 if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%IE_LANG_FILENAME_REAL%" %HASH_FILE_NAME% >"%TEMP%\hash-ieLangPack.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-ieLangPack.txt" "%IE_LANG_FILENAME_REAL%"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%IE_LANG_FILENAME_SHORT%" %HASH_FILE_NAME% >"%TEMP%\hash-ieLangPack.txt"
+%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-ieLangPack.txt" "%IE_LANG_FILENAME_FULL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
-  echo ERROR: File hash does not match stored value ^(%IE_LANG_FILENAME_REAL%^).
-  call :Log "Error: File hash does not match stored value (%IE_LANG_FILENAME_REAL%)"
+  echo ERROR: File hash does not match stored value ^(%IE_LANG_FILENAME_FULL%^).
+  call :Log "Error: File hash does not match stored value (%IE_LANG_FILENAME_FULL%)"
   goto SkipIEw60LPInst
 )
 if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
 :SkipIEw60LPVerify
 if exist "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%" rmdir /s /q "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
 mkdir "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
-start /wait %IE_LANG_FILENAME_REAL% /T:"%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%" /C
+start /wait %IE_LANG_FILENAME_FULL% /T:"%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%" /C
 call InstallOSUpdate.cmd "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%\ieLangPack-%OS_LANG%.cab" /ignoreerrors
 rmdir /s /q "%TEMP%\ie9-langpack-windowsvista-%OS_ARCH%-%OS_LANG%"
 :SkipIEw60LPInst
@@ -1551,7 +1551,7 @@ if not exist ..\md\hashes-wsus.txt (
   goto SkipVerifyCatalog
 )
 echo Verifying integrity of Windows Update catalog file...
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:..\wsus\wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
 %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
 if errorlevel 1 (
   if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
