@@ -1452,7 +1452,7 @@ if not exist ..\md\hashes-wsus.txt (
   goto SkipVerifyCatalog
 )
 echo Verifying integrity of Windows Update catalog file...
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:..\wsus\wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
 %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
 if errorlevel 1 (
   if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
