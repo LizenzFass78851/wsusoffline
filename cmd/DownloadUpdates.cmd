@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b32)
+set WSUSOFFLINE_VERSION=12.5 (b33)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -628,7 +628,7 @@ if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-
 
 rem *** delete old-style hashes ***
 if exist ..\client\md\nul (
-  for /f "delims=" %%f in ('dir /b ..\client\md\hashes-*.txt') do (
+  for /f "delims=" %%f in ('dir /b ..\client\md\hashes-*.txt 2>nul') do (
     %SystemRoot%\System32\findstr.exe /L /C:"-c md5,sha1,sha256 -b" /C:"-c sha1 -b" "..\client\md\%%f" >nul 2>&1
     if errorlevel 1 (
       del /Q "..\client\md\%%f" >nul 2>&1
