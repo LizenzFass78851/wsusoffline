@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b31)
+set WSUSOFFLINE_VERSION=12.5 (b32)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1548,6 +1548,7 @@ if exist %SystemRoot%\Temp\wou_iepre_tried.txt del %SystemRoot%\Temp\wou_iepre_t
 if exist %SystemRoot%\Temp\wou_ie_tried.txt del %SystemRoot%\Temp\wou_ie_tried.txt
 if exist %SystemRoot%\Temp\wou_net35_tried.txt del %SystemRoot%\Temp\wou_net35_tried.txt
 if exist %SystemRoot%\Temp\wou_net4_tried.txt del %SystemRoot%\Temp\wou_net4_tried.txt
+if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt del %SystemRoot%\Temp\wou_dotnet5_tried.txt
 if exist %SystemRoot%\Temp\wou_wmf_tried.txt del %SystemRoot%\Temp\wou_wmf_tried.txt
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt del %SystemRoot%\Temp\wou_wupre_tried.txt
 if exist "%TEMP%\UpdateInstaller.ini" del "%TEMP%\UpdateInstaller.ini"
