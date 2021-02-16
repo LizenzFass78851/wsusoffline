@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b35)
+set WSUSOFFLINE_VERSION=11.9.8 (b36)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -558,6 +558,10 @@ if exist ..\client\mssedefs\x86\nul (
 )
 if exist ..\client\mssedefs\nul move /Y ..\client\mssedefs msse >nul
 if exist ..\client\md\hashes-mssedefs.txt del ..\client\md\hashes-mssedefs.txt
+if exist ..\client\md\hashes-msse.txt del ..\client\md\hashes-msse.txt
+
+rem *** Old Windows Defender stuff ***
+if exist ..\client\md\hashes-wddefs.txt del ..\client\md\hashes-wddefs.txt
 
 rem *** Windows Update Agent stuff ***
 if exist ..\client\wsus\WindowsUpdateAgent30-x64.exe (
@@ -998,9 +1002,9 @@ if "%SKIP_DL%"=="1" goto SkipMSSE
 if "%VERIFY_DL%" NEQ "1" goto DownloadMSSE
 if not exist ..\client\msse\nul goto DownloadMSSE
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
-if exist ..\client\md\hashes-msse.txt (
+if exist ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt (
   echo Verifying integrity of Microsoft Security Essentials files...
-  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-msse.txt -r ..\client\msse
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt -r ..\client\msse\%TARGET_ARCH%-glb
   if errorlevel 1 (
     goto IntegrityError
   )
@@ -1014,11 +1018,11 @@ if exist ..\client\md\hashes-msse.txt (
     )
   )
 ) else (
-  echo Warning: Integrity database ..\client\md\hashes-msse.txt not found.
-  call :Log "Warning: Integrity database ..\client\md\hashes-msse.txt not found"
+  echo Warning: Integrity database ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt not found.
+  call :Log "Warning: Integrity database ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt not found"
 )
 :DownloadMSSE
-if exist ..\client\md\hashes-msse.txt del ..\client\md\hashes-msse.txt
+if exist ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Microsoft Security Essentials files...
 copy /Y ..\static\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt "%TEMP%\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt" >nul
 if exist ..\static\custom\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt (
@@ -1078,14 +1082,14 @@ call :Log "Info: Verified digital file signatures for Microsoft Security Essenti
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Microsoft Security Essentials files...
 if not exist ..\client\md\nul md ..\client\md
-..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\msse >..\client\md\hashes-msse.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\msse\%TARGET_ARCH%-glb >..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt
 if errorlevel 1 (
-  echo Warning: Error creating integrity database ..\client\md\hashes-msse.txt.
-  call :Log "Warning: Error creating integrity database ..\client\md\hashes-msse.txt"
+  echo Warning: Error creating integrity database ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt.
+  call :Log "Warning: Error creating integrity database ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt"
 ) else (
   call :Log "Info: Created integrity database for Microsoft Security Essentials files"
 )
-for %%i in (..\client\md\hashes-msse.txt) do if %%~zi==0 del %%i
+for %%i in (..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt) do if %%~zi==0 del %%i
 :SkipMSSE
 
 rem *** Download Windows Defender definition files ***
@@ -1094,9 +1098,9 @@ if "%SKIP_DL%"=="1" goto SkipWDDefs
 if "%VERIFY_DL%" NEQ "1" goto DownloadWDDefs
 if not exist ..\client\wddefs\nul goto DownloadWDDefs
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
-if exist ..\client\md\hashes-wddefs.txt (
+if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt (
   echo Verifying integrity of Windows Defender definition files...
-  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wddefs.txt -r ..\client\wddefs
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt -r ..\client\wddefs\%TARGET_ARCH%-glb
   if errorlevel 1 (
     goto IntegrityError
   )
@@ -1110,11 +1114,11 @@ if exist ..\client\md\hashes-wddefs.txt (
     )
   )
 ) else (
-  echo Warning: Integrity database ..\client\md\hashes-wddefs.txt not found.
-  call :Log "Warning: Integrity database ..\client\md\hashes-wddefs.txt not found"
+  echo Warning: Integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt not found.
+  call :Log "Warning: Integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt not found"
 )
 :DownloadWDDefs
-if exist ..\client\md\hashes-wddefs.txt del ..\client\md\hashes-wddefs.txt
+if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Windows Defender definition files...
 %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% ..\client\wddefs\%TARGET_ARCH%-glb
 if errorlevel 1 (
@@ -1136,14 +1140,14 @@ call :Log "Info: Verified digital file signatures for Windows Defender definitio
 if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
 echo Creating integrity database for Windows Defender definition files...
 if not exist ..\client\md\nul md ..\client\md
-..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wddefs >..\client\md\hashes-wddefs.txt
+..\client\bin\%HASHDEEP_EXE% -c md5,sha1,sha256 -b -r ..\client\wddefs\%TARGET_ARCH%-glb >..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 if errorlevel 1 (
-  echo Warning: Error creating integrity database ..\client\md\hashes-wddefs.txt.
-  call :Log "Warning: Error creating integrity database ..\client\md\hashes-wddefs.txt"
+  echo Warning: Error creating integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt.
+  call :Log "Warning: Error creating integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt"
 ) else (
   call :Log "Info: Created integrity database for Windows Defender definition files"
 )
-for %%i in (..\client\md\hashes-wddefs.txt) do if %%~zi==0 del %%i
+for %%i in (..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt) do if %%~zi==0 del %%i
 :SkipWDDefs
 
 rem *** Download the platform specific patches ***
