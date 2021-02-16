@@ -1,8 +1,9 @@
 http://download.visualstudio.microsoft.com/download/pr/014120d7-d689-4305-befd-3cb711108212/0fd66638cde16859462a6243a4629a50/ndp48-x86-x64-allos-enu.exe
 http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/65592cace88fcfb3e14a5c4a54833794/ndp48-x86-x64-allos-deu.exe
-https://download.visualstudio.microsoft.com/download/pr/8526b5e6-e6e7-4d0b-902b-1f4ad5dd1462/7de15b8c6ab0387402d5958e99a62ed9/dotnet-runtime-5.0.2-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/46f8a025-ea67-4288-8e6a-709cfebc9b4b/69045dd85bcbfdd50441a87dedc13bd0/dotnet-runtime-5.0.2-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/deffc9d5-ef77-4697-ac6e-33a58ccdc409/8386e478b5823a765dc1361155360877/windowsdesktop-runtime-5.0.2-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/adeb8933-7480-4015-abf6-ca31137ad7cd/1123096ebfa5ee3f36d77500b622e4d8/windowsdesktop-runtime-5.0.2-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/33c6f212-fcd3-428f-8ce5-9e4c0792fb58/06ffa38c3a903f8621e3ee2b78db40b7/aspnetcore-runtime-5.0.2-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/b2fd1b9b-1b96-457a-83fe-25089fd052c4/30b503f5ecbf04586aeff2e8658d5fb6/aspnetcore-runtime-5.0.2-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/58ebd1e5-efc7-4b89-b214-3dffb67f3148/1f7942a026bbd4d8a235a597ab83df9f/dotnet-runtime-5.0.3-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/f05c10fe-fed3-43b6-b676-ff75021c2d9f/15cab750af61a29d70ef33c265354cf2/dotnet-runtime-5.0.3-win-x64.exe
+https://download.visualstudio.microsoft.com/download/pr/a8dcbda1-8720-453c-9ec6-5a9d90935643/28754321a8b966f1ce837e6f59035b48/windowsdesktop-runtime-5.0.3-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/c6541c87-42f2-4c5d-b6db-2df0dade5e00/13e89a5fec3ddb224cd93dd18b0761ff/windowsdesktop-runtime-5.0.3-win-x64.exe
+https://download.visualstudio.microsoft.com/download/pr/0cd54ac9-9526-4892-a127-cab2c13c6a4b/50faf5c2cbd5f9f42c7c19b4f78bf2df/aspnetcore-runtime-5.0.3-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/414172c8-580b-45f4-b203-7c8cd4aed3c4/aae889e11dc2c76dc47ababde8649731/aspnetcore-runtime-5.0.3-win-x64.exe
+
