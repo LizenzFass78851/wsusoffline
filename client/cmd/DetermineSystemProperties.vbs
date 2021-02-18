@@ -421,6 +421,8 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
     ServicingStack_OSVer_Build = 18362
   ElseIf Split(objQueryItem.Version, ".")(2) = "19042" Then
     ServicingStack_OSVer_Build = 19041
+  ElseIf Split(objQueryItem.Version, ".")(2) = "19043" Then
+    ServicingStack_OSVer_Build = 19041
   Else
     ServicingStack_OSVer_Build = CInt(Split(objQueryItem.Version, ".")(2))
   End If
