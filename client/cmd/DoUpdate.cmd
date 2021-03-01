@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b37)
+set WSUSOFFLINE_VERSION=11.9.8 (b39)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -858,13 +858,13 @@ if "%CPP_2013_x64%"=="1" (
     call :Log "Warning: File ..\cpp\vcredist2013_x64.exe not found"
   )
 )
-if "%CPP_2019_x64%"=="1" (
-  if exist ..\cpp\vcredist2019_x64.exe (
-    echo Installing most recent C++ 2019 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2019_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+if "%CPP_2015_x64%"=="1" (
+  if exist ..\cpp\vcredist2015_x64.exe (
+    echo Installing most recent C++ 2015-2019 x64 Runtime Library...
+    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
   ) else (
-    echo Warning: File ..\cpp\vcredist2019_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2019_x64.exe not found"
+    echo Warning: File ..\cpp\vcredist2015_x64.exe not found.
+    call :Log "Warning: File ..\cpp\vcredist2015_x64.exe not found"
   )
 )
 :CPPInstx86
@@ -913,13 +913,13 @@ if "%CPP_2013_x86%"=="1" (
     call :Log "Warning: File ..\cpp\vcredist2013_x86.exe not found"
   )
 )
-if "%CPP_2019_x86%"=="1" (
-  if exist ..\cpp\vcredist2019_x86.exe (
-    echo Installing most recent C++ 2019 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2019_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+if "%CPP_2015_x86%"=="1" (
+  if exist ..\cpp\vcredist2015_x86.exe (
+    echo Installing most recent C++ 2015-2019 x86 Runtime Library...
+    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
   ) else (
-    echo Warning: File ..\cpp\vcredist2019_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2019_x86.exe not found"
+    echo Warning: File ..\cpp\vcredist2015_x86.exe not found.
+    call :Log "Warning: File ..\cpp\vcredist2015_x86.exe not found"
   )
 )
 :SkipCPPInst
