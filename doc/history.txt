@@ -1794,12 +1794,12 @@ Community Edition 12.5 -- ??.??.????
 - use hashdeep's "bare mode" for improved compatibility (Thanks to "hbuhrmester")
 - Allow C++ definitions to be updated via static definition download
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.28.29910.0 (Thanks to "aker")
-- December 2020 to February 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
-- December 2020 to February 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
+- December 2020 to March 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
+- December 2020 to March 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
 - Replaced superseded July 2020 Servicing stack update (KB4565911) by February 2021 Servicing stack update (KB5001079) for Windows 10 Version 1507 (Thanks to "aker")
 - Replaced superseded September 2020 Servicing stack update (KB4576750) by February 2021 Servicing stack update (KB5001078) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
-- Replaced superseded November 2020 Servicing stack update (KB4587735) by February 2021 Servicing stack update (KB4601393) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
-- Replaced superseded November 2020 Servicing stack update (KB4586863) by February 2021 Servicing stack update (KB4601395) for Windows 10 Version 1909 (Thanks to "aker")
+- Replaced superseded November 2020 Servicing stack update (KB4587735) by March 2021 Servicing stack update (KB5000859) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
+- Replaced superseded November 2020 Servicing stack update (KB4586863) by March 2021 Servicing stack update (KB5000908) for Windows 10 Version 1909 (Thanks to "aker")
 - Replaced superseded November 2020 Servicing stack update (KB4586864) by January 2021 Servicing stack update (KB4598481) for Windows 10 Version 2004 and 20H2 (Thanks to "aker")
 - Added Update for the removal of Adobe Flash Player (KB4577586)
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")

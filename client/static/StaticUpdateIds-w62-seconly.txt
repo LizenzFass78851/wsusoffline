@@ -50,3 +50,4 @@ kb4586808,November 2020 Security Only Quality Update for Windows Server 2012
 kb4592497,December 2020 Security Only Quality Update for Windows Server 2012
 kb4598297,January 2021 Security Only Quality Update for Windows Server 2012
 kb4601357,February 2021 Security Only Quality Update for Windows Server 2012
+kb5000840,March 2021 Security Only Quality Update for Windows Server 2012
