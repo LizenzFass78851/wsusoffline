@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b45)
+set WSUSOFFLINE_VERSION=12.5 (b45r2)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -729,7 +729,6 @@ if "%SDDCoreReturnValue%"=="0" (
 copy /Y ..\client\exclude\ExcludeList.txt ..\client\exclude\ExcludeList.ori >nul
 call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList.txt ..\client\exclude
 if "%SDDCoreReturnValue%"=="0" (
-  echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\ExcludeList.txt ..\client\exclude\ExcludeList.ori /A /L /C >nul 2>&1
   del ..\client\exclude\ExcludeList.ori
 ) else (
   call :Log "Warning: Failed to update .\client\exclude\ExcludeList.txt"
