@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b44)
+set WSUSOFFLINE_VERSION=11.9.8 (b45r2)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -674,6 +674,53 @@ if exist ..\static\sdd\StaticUpdateFiles-modified.txt (
     )
   )
 )
+
+copy /Y ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude.txt ..\exclude
+if "%SDDCoreReturnValue%"=="0" (
+  echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
+  if errorlevel 1 (
+    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  )
+  del ..\exclude\ExcludeList-superseded-exclude.ori
+) else (
+  call :Log "Warning: Failed to update .\exclude\ExcludeList-superseded-exclude.txt"
+  move /Y ..\exclude\ExcludeList-superseded-exclude.ori ..\exclude\ExcludeList-superseded-exclude.txt >nul
+)
+copy /Y ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude-seconly.txt ..\exclude
+if "%SDDCoreReturnValue%"=="0" (
+  echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
+  if errorlevel 1 (
+    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  )
+  del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
+) else (
+  call :Log "Warning: Failed to update .\exclude\ExcludeList-superseded-exclude-seconly.txt"
+  move /Y ..\exclude\ExcludeList-superseded-exclude-seconly.ori ..\exclude\ExcludeList-superseded-exclude-seconly.txt >nul
+)
+copy /Y ..\client\exclude\ExcludeList.txt ..\client\exclude\ExcludeList.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList.txt ..\client\exclude
+if "%SDDCoreReturnValue%"=="0" (
+  del ..\client\exclude\ExcludeList.ori
+) else (
+  call :Log "Warning: Failed to update .\client\exclude\ExcludeList.txt"
+  move /Y ..\client\exclude\ExcludeList.ori ..\client\exclude\ExcludeList.txt >nul
+)
+copy /Y ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/HideList-seconly.txt ..\client\exclude
+if "%SDDCoreReturnValue%"=="0" (
+  echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
+  if errorlevel 1 (
+    if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
+  )
+  del ..\client\exclude\HideList-seconly.ori
+) else (
+  call :Log "Warning: Failed to update .\client\exclude\HideList-seconly.txt"
+  move /Y ..\client\exclude\HideList-seconly.ori ..\client\exclude\HideList-seconly.txt >nul
+)
+
+
 call :Log "Info: Updated static and exclude definitions for download and update"
 :SkipSDDDownload
 
@@ -1208,44 +1255,6 @@ if exist ..\exclude\ExcludeList-superseded.txt (
 for %%i in (..\client\wsus\wsusscn2.cab) do echo %%~ai | %SystemRoot%\System32\find.exe /I "a" >nul 2>&1
 if not errorlevel 1 (
   if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
-)
-if "%SKIP_SDD%" NEQ "1" (
-  copy /Y ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori >nul
-  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude.txt ..\exclude
-  if "%SDDCoreReturnValue%"=="0" (
-    echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude.txt ..\exclude\ExcludeList-superseded-exclude.ori /A /L /C >nul 2>&1
-    if errorlevel 1 (
-      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
-    )
-    del ..\exclude\ExcludeList-superseded-exclude.ori
-  ) else (
-    call :Log "Warning: Failed to update ExcludeList-superseded-exclude.txt"
-    move /Y ..\exclude\ExcludeList-superseded-exclude.ori ..\exclude\ExcludeList-superseded-exclude.txt >nul
-  )
-  copy /Y ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori >nul
-  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude-seconly.txt ..\exclude
-  if "%SDDCoreReturnValue%"=="0" (
-    echo n | %SystemRoot%\System32\comp.exe ..\exclude\ExcludeList-superseded-exclude-seconly.txt ..\exclude\ExcludeList-superseded-exclude-seconly.ori /A /L /C >nul 2>&1
-    if errorlevel 1 (
-      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
-    )
-    del ..\exclude\ExcludeList-superseded-exclude-seconly.ori
-  ) else (
-    call :Log "Warning: Failed to update ExcludeList-superseded-exclude-seconly.txt"
-    move /Y ..\exclude\ExcludeList-superseded-exclude-seconly.ori ..\exclude\ExcludeList-superseded-exclude-seconly.txt >nul
-  )
-  copy /Y ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori >nul
-  call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/HideList-seconly.txt ..\client\exclude
-  if "%SDDCoreReturnValue%"=="0" (
-    echo n | %SystemRoot%\System32\comp.exe ..\client\exclude\HideList-seconly.txt ..\client\exclude\HideList-seconly.ori /A /L /C >nul 2>&1
-    if errorlevel 1 (
-      if exist ..\exclude\ExcludeList-superseded.txt del ..\exclude\ExcludeList-superseded.txt
-    )
-    del ..\client\exclude\HideList-seconly.ori
-  ) else (
-    call :Log "Warning: Failed to update HideList-seconly.txt"
-    move /Y ..\client\exclude\HideList-seconly.ori ..\client\exclude\HideList-seconly.txt >nul
-  )
 )
 if exist ..\exclude\ExcludeList-superseded.txt (
   echo Found valid list of superseded updates.
