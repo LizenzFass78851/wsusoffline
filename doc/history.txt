@@ -1790,4 +1790,5 @@ Community Edition 11.9.8 -- ??.??.????
 - Replaced superseded September 2020 Servicing stack update (KB4576750) by February 2021 Servicing stack update (KB5001078) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Replaced superseded November 2020 Servicing stack update (KB4587735) by March 2021 Servicing stack update (KB5000859) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
 - Added Update for the removal of Adobe Flash Player (KB4577586)
+- Wget download utility updated to version 1.21.1 (Thanks to "boco")
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
