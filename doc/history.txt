@@ -1794,7 +1794,7 @@ Community Edition 12.5 -- ??.??.????
 - use hashdeep's "bare mode" for improved compatibility (Thanks to "hbuhrmester")
 - Allow C++ definitions to be updated via static definition download (Thanks to "aker")
 - Added .\client\exclude\ExcludeList.txt to the static definition update routine (Thanks to "aker")
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.28.29910.0 (Thanks to "aker")
+- C++ 2019 Redistributable Runtime Libraries updated to v. 14.28.29913.0 (Thanks to "aker" and "harry")
 - December 2020 to March 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - December 2020 to March 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
 - Replaced superseded July 2020 Servicing stack update (KB4565911) by February 2021 Servicing stack update (KB5001079) for Windows 10 Version 1507 (Thanks to "aker")
