@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b47)
+set WSUSOFFLINE_VERSION=12.5 (b48)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1189,11 +1189,11 @@ if exist ..\exclude\ExcludeList-superseded.txt (
 echo %TIME% - Determining superseded updates (please be patient, this will take a while)...
 rem *** First step ***
 echo Extracting existing-bundle-revision-ids.txt...
-%CSCRIPT_PATH% //Nologo //B //E:vbs ..\cmd\XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-existing-bundle-revision-ids.xsl "%TEMP%\existing-bundle-revision-ids-unsorted.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-existing-bundle-revision-ids.xsl "%TEMP%\existing-bundle-revision-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\existing-bundle-revision-ids-unsorted.txt" >"%TEMP%\existing-bundle-revision-ids.txt"
 del "%TEMP%\existing-bundle-revision-ids-unsorted.txt"
 echo Extracting superseding-and-superseded-revision-ids.txt...
-%CSCRIPT_PATH% //Nologo //B //E:vbs ..\cmd\XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-superseding-and-superseded-revision-ids.xsl "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-superseding-and-superseded-revision-ids.xsl "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt" >"%TEMP%\superseding-and-superseded-revision-ids.txt"
 del "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
 echo Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids.txt to ValidSupersededRevisionIds.txt...
@@ -1204,7 +1204,7 @@ del "%TEMP%\ValidSupersededRevisionIds-unsorted.txt"
 
 rem *** Second step ***
 echo Extracting BundledUpdateRevisionAndFileIds.txt...
-%CSCRIPT_PATH% //Nologo //B //E:vbs ..\cmd\XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt" >"%TEMP%\BundledUpdateRevisionAndFileIds.txt"
 del "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 echo Joining ValidSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt...
@@ -1234,7 +1234,7 @@ del "%TEMP%\OnlySupersededFileIds-unsorted.txt"
 
 rem *** Third step ***
 echo Extracting UpdateCabExeIdsAndLocations.txt...
-%CSCRIPT_PATH% //Nologo //B //E:vbs ..\cmd\XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-cab-exe-ids-and-locations.xsl "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-cab-exe-ids-and-locations.xsl "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt" >"%TEMP%\UpdateCabExeIdsAndLocations.txt"
 del "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
 echo Joining OnlySupersededFileIds.txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all.txt...
@@ -1930,7 +1930,7 @@ if "%2"=="" (
 
 rem ** get file name from the URL ***
 set SDDCoreFileName=
-for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ..\cmd\ExtractFileNameFromURL.vbs %1') do (
+for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs %1') do (
   if not "%%f"=="" (
     set SDDCoreFileName=%%f
   )

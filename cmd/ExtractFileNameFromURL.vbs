@@ -13,7 +13,7 @@ If strURL = "" Then
 End If
 On Error Resume Next
 arrURL = Split(strURL, "/")
-strFileName = arrURL(UBound(arrURL))
+strFileName = Split(arrURL(UBound(arrURL)), "?")(0)
 On Error GoTo 0
 WScript.Echo(strFileName)
 WScript.Quit(0)
