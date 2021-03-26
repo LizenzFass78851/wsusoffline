@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b48)
+set WSUSOFFLINE_VERSION=12.5 (b49)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -848,6 +848,7 @@ if exist ..\client\md\hashes-wsus.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-wsus.txt not found"
 )
 :DownloadWSUS
+if not exist ..\client\wsus\nul md ..\client\wsus
 if exist ..\client\md\hashes-wsus.txt del ..\client\md\hashes-wsus.txt
 echo Downloading/validating most recent Windows Update catalog file...
 if exist ..\client\wsus\wsusscn2.cab (
@@ -912,6 +913,7 @@ if exist ..\client\md\hashes-dotnet.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-dotnet.txt not found"
 )
 :DownloadDotNet
+if not exist ..\client\dotnet\nul md ..\client\dotnet
 if exist ..\client\md\hashes-dotnet.txt del ..\client\md\hashes-dotnet.txt
 echo Downloading/validating installation files for .NET Frameworks 3.5 SP1 and 4.x...
 copy /Y ..\static\StaticDownloadLinks-dotnet.txt "%TEMP%\StaticDownloadLinks-dotnet.txt" >nul
@@ -999,6 +1001,7 @@ if exist ..\client\md\hashes-cpp.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-cpp.txt not found"
 )
 :DownloadCPP
+if not exist ..\client\cpp\nul md ..\client\cpp
 if exist ..\client\md\hashes-cpp.txt del ..\client\md\hashes-cpp.txt
 echo Downloading/validating C++ Runtime Libraries' installation files...
 for %%i in (x64 x86) do (
@@ -1064,6 +1067,124 @@ if errorlevel 1 (
 for %%i in (..\client\md\hashes-cpp.txt) do if %%~zi==0 del %%i
 :SkipCPP
 
+rem *** Download Microsoft Edge (Chromium) installation files ***
+if "%SKIP_DL%"=="1" goto SkipMSEdge
+set SKIP_MSEDGE=1
+for %%i in (w62-x64 w63 w63-x64 w100 w100-x64) do (
+  if /i "%1"=="%%i" (
+    set SKIP_MSEDGE=0
+  )
+)
+if "%SKIP_MSEDGE%"=="1" goto SkipMSEdge
+if "%VERIFY_DL%" NEQ "1" goto PrepareMSEdge
+if not exist ..\client\msedge\nul goto PrepareMSEdge
+if not exist ..\client\bin\%HASHDEEP_EXE% goto NoHashDeep
+if exist ..\client\md\hashes-msedge.txt (
+  echo Verifying integrity of Microsoft Edge (Chromium) installation files...
+  ..\client\bin\%HASHDEEP_EXE% -a -b -vv -k ..\client\md\hashes-msedge.txt -r ..\client\msedge
+  if errorlevel 1 (
+    goto IntegrityError
+  )
+  call :Log "Info: Verified integrity of Microsoft Edge ^(Chromium^) installation files"
+) else (
+  echo Warning: Integrity database ..\client\md\hashes-msedge.txt not found.
+  call :Log "Warning: Integrity database ..\client\md\hashes-msedge.txt not found"
+)
+:PrepareMSEdge
+echo Downloading/validating Microsoft Edge (Chromium) installation files...
+
+if exist ..\client\md\hashes-msedge.txt del ..\client\md\hashes-msedge.txt
+
+if exist "%TEMP%\DynamicDownloadLinks-msedge.txt" del "%TEMP%\DynamicDownloadLinks-msedge.txt"
+if exist "%TEMP%\hashes-msedge.txt" del "%TEMP%\hashes-msedge.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs RequestEdgeChromiumLinks.vbs "%TEMP%\DynamicDownloadLinks-msedge.txt" "%TEMP%\hashes-msedge.txt"
+
+if not exist ..\client\msedge\nul goto DownloadMSEdge
+
+for /F "usebackq tokens=2 delims=," %%j in ("%TEMP%\DynamicDownloadLinks-msedge.txt") do (
+  if exist "..\client\msedge\%%j" (
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%%j" "%TEMP%\hashes-msedge.txt" >"%TEMP%\hash-msedge.txt"
+    if exist "%TEMP%\hash-msedge.txt" (
+      ..\client\bin\%HASHDEEP_EXE% -a -b -k "%TEMP%\hash-msedge.txt" "..\client\msedge\%%j" >nul 2>&1
+      if errorlevel 1 (
+        del "..\client\msedge\%%j"
+      )
+      del "%TEMP%\hash-msedge.txt"
+    )
+  )
+)
+
+for /F "usebackq tokens=2 delims=," %%j in ("%TEMP%\DynamicDownloadLinks-msedge.txt") do (
+  if not exist "..\client\msedge\%%j" goto DownloadMSEdge
+)
+
+rem Alles unverändert
+
+del "%TEMP%\DynamicDownloadLinks-msedge.txt"
+del "%TEMP%\hashes-msedge.txt"
+goto SkipMSEdge
+
+:DownloadMSEdge
+if not exist ..\client\msedge\nul md ..\client\msedge
+
+for /F "usebackq tokens=1,2 delims=," %%j in ("%TEMP%\DynamicDownloadLinks-msedge.txt") do (
+  if "%%k" NEQ "" (
+    if not exist "..\client\msedge\%%k" (
+      set MSEdgeFileNamePartial=
+      set MSEdgeFileNameFull=
+      for /F "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%%j"') do (
+        if "%%f" NEQ "" (set MSEdgeFileNamePartial=%%f)
+      )
+
+      if exist "%TEMP%\DynamicDownloadLink-msedge.txt" del "%TEMP%\DynamicDownloadLink-msedge.txt"
+      rem Workaround: wget akzeptiert nicht alle Sonderzeichen als Parameter
+      echo %%j>"%TEMP%\DynamicDownloadLink-msedge.txt"
+      if exist "%TEMP%\DynamicDownloadLink-msedge.txt" (
+        if "!MSEdgeFileNamePartial!" NEQ "" del "..\client\msedge\!MSEdgeFileNamePartial!*" >nul 2>&1
+        %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% "%TEMP%\DynamicDownloadLink-msedge.txt" %DLDR_POPT% ..\client\msedge
+        if errorlevel 1 (
+          if "!MSEdgeFileNamePartial!" NEQ "" del "..\client\msedge\!MSEdgeFileNamePartial!*" >nul 2>&1
+          echo Warning: Download of "%%k" failed.
+          call :Log "Warning: Download of %%k failed"
+        )
+        del "%TEMP%\DynamicDownloadLink-msedge.txt"
+      )
+
+      for /F %%f in ('dir /B ..\client\msedge\!MSEdgeFileNamePartial!* 2^>nul') do (
+        if "%%f" NEQ "" set MSEdgeFileNameFull=%%f
+      )
+
+      if "!MSEdgeFileNameFull!" NEQ "" (
+        if exist "..\client\msedge\!MSEdgeFileNameFull!" (
+          echo Renaming file "..\client\msedge\!MSEdgeFileNameFull!" to "%%k"...
+          ren "..\client\msedge\!MSEdgeFileNameFull!" "%%k"
+        )
+      )
+    ) else (
+      echo Info: Skipping download of ..\client\msedge\%%k
+      call :Log "Warning: Skipping download of ..\client\msedge\%%k"
+    )
+  )
+)
+
+for /F %%i in ('dir ..\client\msedge /A:-D /B') do (
+  %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\DynamicDownloadLinks-msedge.txt" >nul 2>&1
+  if errorlevel 1 (
+    del "..\client\msedge\%%i"
+    call :Log "Info: Deleted ..\client\msedge\%%i"
+  )
+)
+del "%TEMP%\DynamicDownloadLinks-msedge.txt"
+if "%VERIFY_DL%"=="1" (
+  echo Saving integrity database for Microsoft Edge ^(Chromium^) installation files...
+  copy /y "%TEMP%\hashes-msedge.txt" ..\client\md
+  call :Log "Info: Saved database for Microsoft Edge ^(Chromium^) installation files"
+)
+for %%i in (..\client\md\hashes-msedge.txt) do if %%~zi==0 del %%i
+del "%TEMP%\hashes-msedge.txt"
+call :Log "Info: Downloaded/validated Microsoft Edge ^(Chromium^) installation files"
+:SkipMSEdge
+
 rem *** Download Windows Defender definition files ***
 if "%INC_WDDEFS%" NEQ "1" goto SkipWDDefs
 if "%SKIP_DL%"=="1" goto SkipWDDefs
@@ -1090,6 +1211,7 @@ if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt not found"
 )
 :DownloadWDDefs
+if not exist ..\client\wddefs\nul md ..\client\wddefs
 if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Windows Defender definition files...
 %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% ..\client\wddefs\%TARGET_ARCH%-glb
@@ -1661,6 +1783,7 @@ if "%4"=="/skipdownload" (
   call :Log "Info: Skipped download/validation of updates for %1 %2 on demand"
   goto EndDownload
 )
+if not exist ..\client\%1\%2\nul md ..\client\%1\%2
 if not exist "%TEMP%\ValidStaticLinks-%1-%2.txt" goto DownloadDynamicUpdates
 echo Downloading/validating statically defined updates for %1 %2...
 set LINES_COUNT=0
@@ -1930,7 +2053,7 @@ if "%2"=="" (
 
 rem ** get file name from the URL ***
 set SDDCoreFileName=
-for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs %1') do (
+for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%1"') do (
   if not "%%f"=="" (
     set SDDCoreFileName=%%f
   )

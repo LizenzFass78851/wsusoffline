@@ -1,4 +1,4 @@
-' *** Author: aker@wsusoffline ***
+' ***     Author: aker      ***
 
 Option Explicit
 
