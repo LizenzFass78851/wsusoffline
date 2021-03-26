@@ -60,7 +60,7 @@ set FILENAME_ZIP=
 set FILENAME_HASH=
 set bufFILENAME=
 for /f "delims=" %%u in (..\static\StaticDownloadLink-recent.txt) do (
-  for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs %%u') do (
+  for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%%u"') do (
     set bufFILENAME=%%f
     if "!bufFILENAME:~-4!"==".zip" (
       set FILENAME_ZIP=%%f

@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b48)
+set WSUSOFFLINE_VERSION=11.9.8 (b49)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -827,6 +827,7 @@ if exist ..\client\md\hashes-wsus.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-wsus.txt not found"
 )
 :DownloadWSUS
+if not exist ..\client\wsus\nul md ..\client\wsus
 if exist ..\client\md\hashes-wsus.txt del ..\client\md\hashes-wsus.txt
 echo Downloading/validating most recent Windows Update catalog file...
 if exist ..\client\wsus\wsusscn2.cab (
@@ -891,6 +892,7 @@ if exist ..\client\md\hashes-dotnet.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-dotnet.txt not found"
 )
 :DownloadDotNet
+if not exist ..\client\dotnet\nul md ..\client\dotnet
 if exist ..\client\md\hashes-dotnet.txt del ..\client\md\hashes-dotnet.txt
 echo Downloading/validating installation files for .NET Frameworks 3.5 SP1 and 4.x...
 copy /Y ..\static\StaticDownloadLinks-dotnet.txt "%TEMP%\StaticDownloadLinks-dotnet.txt" >nul
@@ -978,6 +980,7 @@ if exist ..\client\md\hashes-cpp.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-cpp.txt not found"
 )
 :DownloadCPP
+if not exist ..\client\cpp\nul md ..\client\cpp
 if exist ..\client\md\hashes-cpp.txt del ..\client\md\hashes-cpp.txt
 echo Downloading/validating C++ Runtime Libraries' installation files...
 for %%i in (x64 x86) do (
@@ -1069,6 +1072,7 @@ if exist ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt not found"
 )
 :DownloadMSSE
+if not exist ..\client\msse\nul md ..\client\msse
 if exist ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-msse-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Microsoft Security Essentials files...
 copy /Y ..\static\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt "%TEMP%\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt" >nul
@@ -1165,6 +1169,7 @@ if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt (
   call :Log "Warning: Integrity database ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt not found"
 )
 :DownloadWDDefs
+if not exist ..\client\wddefs\nul md ..\client\wddefs
 if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Windows Defender definition files...
 %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% ..\client\wddefs\%TARGET_ARCH%-glb
@@ -1682,6 +1687,7 @@ if "%4"=="/skipdownload" (
   call :Log "Info: Skipped download/validation of updates for %1 %2 on demand"
   goto EndDownload
 )
+if not exist ..\client\%1\%2\nul md ..\client\%1\%2
 if not exist "%TEMP%\ValidStaticLinks-%1-%2.txt" goto DownloadDynamicUpdates
 echo Downloading/validating statically defined updates for %1 %2...
 set LINES_COUNT=0
@@ -1951,7 +1957,7 @@ if "%2"=="" (
 
 rem ** get file name from the URL ***
 set SDDCoreFileName=
-for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs %1') do (
+for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%1"') do (
   if not "%%f"=="" (
     set SDDCoreFileName=%%f
   )
