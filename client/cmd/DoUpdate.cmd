@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b51)
+set WSUSOFFLINE_VERSION=12.5 (b52)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -191,6 +191,7 @@ rem echo Found Windows Update Agent version: %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WU
 rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%
 rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
 rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%
+rem echo Found Edge (Chromium) version: %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%
 rem echo Found Microsoft .NET Framework 3.5 version: %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%
 rem echo Found Windows PowerShell version: %PSH_VER_MAJOR%.%PSH_VER_MINOR%
 rem echo Found Microsoft .NET Framework 4 version: %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)
@@ -214,6 +215,7 @@ call :Log "Info: Found Windows Update Agent version %WUA_VER_MAJOR%.%WUA_VER_MIN
 call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%"
 call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
 call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%"
+call :Log "Info: Found Edge (Chromium) version %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%"
 call :Log "Info: Found Microsoft .NET Framework 3.5 version %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%"
 call :Log "Info: Found Windows PowerShell version %PSH_VER_MAJOR%.%PSH_VER_MINOR%"
 call :Log "Info: Found Microsoft .NET Framework 4 version %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)"
@@ -551,14 +553,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 :SkipIEw62Pre
 echo Installing Internet Explorer 11...
 for /F %%i in ('dir /B %IE_FILENAME%') do (
-  call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+  call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
   if not errorlevel 1 (
     set RECALL_REQUIRED=1
     dir /B %IE_LANG_FILENAME% >nul 2>&1
     if not errorlevel 1 (
       echo Installing Internet Explorer 11 language pack...
       for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
-        call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+        call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
       )
     )
   )
@@ -573,6 +575,48 @@ goto IEInstalled
 set IE_FILENAME=
 if "%RECALL_REQUIRED%"=="1" goto Installed
 :SkipIEInst
+
+rem *** Update Edge (Chromium) ***
+echo Determining Edge (Chromium) version...
+
+set MSEDGE_FILENAME_SHORT=..\msedge\MicrosoftEdge_%OS_ARCH%_*.exe
+dir /B %MSEDGE_FILENAME_SHORT% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %MSEDGE_FILENAME_SHORT% not found.
+  call :Log "Warning: File %MSEDGE_FILENAME_SHORT% not found"
+  goto SkipMSEdgeInst
+)
+set MSEDGE_FILENAME=
+for /F %%i in ('dir /B %MSEDGE_FILENAME_SHORT%') do (
+  if "%%i" NEQ "" set MSEDGE_FILENAME=%%i
+)
+if "%MSEDGE_FILENAME%"=="" (
+  echo Warning: File %MSEDGE_FILENAME_SHORT% not found.
+  call :Log "Warning: File %MSEDGE_FILENAME_SHORT% not found"
+  goto SkipMSEdgeInst
+)
+
+%CSCRIPT_PATH% //Nologo //B //E:vbs DetermineFileVersion.vbs "..\msedge\%MSEDGE_FILENAME%" MSEDGE_VER_TARGET
+if not exist "%TEMP%\SetFileVersion.cmd" goto SkipMSEdgeInst
+call "%TEMP%\SetFileVersion.cmd"
+del "%TEMP%\SetFileVersion.cmd"
+if %MSEDGE_VER_MAJOR% LSS %MSEDGE_VER_TARGET_MAJOR% goto InstallMSEdge
+if %MSEDGE_VER_MAJOR% GTR %MSEDGE_VER_TARGET_MAJOR% goto SkipMSEdgeInst
+if %MSEDGE_VER_MINOR% LSS %MSEDGE_VER_TARGET_MINOR% goto InstallMSEdge
+if %MSEDGE_VER_MINOR% GTR %MSEDGE_VER_TARGET_MINOR% goto SkipMSEdgeInst
+if %MSEDGE_VER_BUILD% LSS %MSEDGE_VER_TARGET_BUILD% goto InstallMSEdge
+if %MSEDGE_VER_BUILD% GTR %MSEDGE_VER_TARGET_BUILD% goto SkipMSEdgeInst
+if %MSEDGE_VER_REVIS% GEQ %MSEDGE_VER_TARGET_REVIS% goto SkipMSEdgeInst
+
+:InstallMSEdge
+echo Installing most recent Edge (Chromium)...
+call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /errorsaswarnings --verbose-logging --do-not-launch-msedge --system-level
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+echo. >%SystemRoot%\Temp\wou_msedge_tried.txt
+
+set MSEDGE_FILENAME_SHORT=
+set MSEDGE_FILENAME=
+:SkipMSEdgeInst
 
 rem *** Install C++ Runtime Libraries ***
 if "%UPDATE_CPP%" NEQ "/updatecpp" goto SkipCPPInst
@@ -787,11 +831,11 @@ if not exist %DOTNET4_FILENAME% (
   goto SkipDotNet4Inst
 )
 echo Installing .NET Framework 4...
-call InstallOSUpdate.cmd %DOTNET4_FILENAME% %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS% /lcid 1033
+call InstallOSUpdate.cmd "%DOTNET4_FILENAME%" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS% /lcid 1033
 if "%OS_LANG%" NEQ "enu" (
   if exist %DOTNET4LP_FILENAME% (
     echo Installing .NET Framework 4 Language Pack...
-    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%%i %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
+    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do call InstallOSUpdate.cmd "..\dotnet\%%i" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
   ) else (
     echo Warning: .NET Framework 4 Language Pack installation file ^(%DOTNET4LP_FILENAME%^) not found.
     call :Log "Warning: .NET Framework 4 Language Pack installation file (%DOTNET4LP_FILENAME%) not found"
@@ -926,7 +970,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5DesktopRuntimex64Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -969,7 +1013,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5Runtimex64Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -1011,7 +1055,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5AspNetx64Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -1054,7 +1098,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5DesktopRuntimex86Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -1097,7 +1141,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5Runtimex86Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -1139,7 +1183,7 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5AspNetx86Verify
-call InstallOSUpdate.cmd ..\dotnet\%DOTNET5_FILENAME_SHORT% %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
+call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
@@ -1176,7 +1220,7 @@ if %WDDEFS_VER_BUILD% GTR %WDDEFS_VER_TARGET_BUILD% goto SkipWDInst
 if %WDDEFS_VER_REVIS% GEQ %WDDEFS_VER_TARGET_REVIS% goto SkipWDInst
 :InstallWDDefs
 echo Installing Windows Defender definition file...
-call InstallOSUpdate.cmd %WDDEFS_FILENAME% %VERIFY_MODE% /ignoreerrors -q
+call InstallOSUpdate.cmd "%WDDEFS_FILENAME%" %VERIFY_MODE% /ignoreerrors -q
 set WDDEFS_FILENAME=
 :SkipWDInst
 set WDDEFS_VER_TARGET_MAJOR=
@@ -1546,6 +1590,7 @@ if exist %SystemRoot%\Temp\wou_w63upd1_tried.txt del %SystemRoot%\Temp\wou_w63up
 if exist %SystemRoot%\Temp\wou_w63upd2_tried.txt del %SystemRoot%\Temp\wou_w63upd2_tried.txt
 if exist %SystemRoot%\Temp\wou_iepre_tried.txt del %SystemRoot%\Temp\wou_iepre_tried.txt
 if exist %SystemRoot%\Temp\wou_ie_tried.txt del %SystemRoot%\Temp\wou_ie_tried.txt
+if exist %SystemRoot%\Temp\wou_msedge_tried.txt del %SystemRoot%\Temp\wou_msedge_tried.txt
 if exist %SystemRoot%\Temp\wou_net35_tried.txt del %SystemRoot%\Temp\wou_net35_tried.txt
 if exist %SystemRoot%\Temp\wou_net4_tried.txt del %SystemRoot%\Temp\wou_net4_tried.txt
 if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt del %SystemRoot%\Temp\wou_dotnet5_tried.txt

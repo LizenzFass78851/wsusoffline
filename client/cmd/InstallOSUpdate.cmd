@@ -3,7 +3,7 @@ rem *** Author: T. Wittrock, Kiel ***
 rem ***   - Community Edition -   ***
 
 verify other 2>nul
-setlocal enableextensions
+setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
@@ -20,7 +20,31 @@ if "%HASHDEEP_PATH%"=="" (
 )
 
 if '%1'=='' goto NoParam
-if not exist %1 goto InvalidParam
+
+set FILE_NAME=%1
+set "FILE_NAME=!FILE_NAME:"=!"
+
+set SpaceCounter=0
+:RemoveSpaces
+if "%FILE_NAME:~-1%"==" " (
+  set FILE_NAME=%FILE_NAME:~0,-1%
+  set /a SpaceCounter+=1
+  goto RemoveSpaces
+)
+
+set SpaceHelper=
+for /l %%i in (1,1,%SpaceCounter%) do (
+  set SpaceHelper=%SpaceHelper% 
+)
+
+rem DO NOT CHANGE THE ORDER OF THE CHECKS
+if '"%FILE_NAME%"'=='%1' goto FileNameParsed
+if '"%FILE_NAME%%SpaceHelper%"'=='%1' goto FileNameParsed
+if '%FILE_NAME%'=='%1' goto FileNameParsed
+if '%FILE_NAME%%SpaceHelper%'=='%1' goto FileNameParsed
+goto InvalidParam
+:FileNameParsed
+if not exist "%FILE_NAME%" goto ParamFileNotFound
 
 if "%TEMP%"=="" goto NoTemp
 pushd "%TEMP%"
@@ -62,11 +86,11 @@ if not exist %HASHDEEP_PATH% (
   echo %DATE% %TIME% - Warning: Hash computing/auditing utility %HASHDEEP_PATH% not found>>%UPDATE_LOGFILE%
   goto SkipVerification
 )
-echo Verifying integrity of %1...
-for /F "tokens=2,3,4 delims=\" %%i in ("%1") do (
+echo Verifying integrity of %FILE_NAME%...
+for /F "tokens=2,3,4 delims=\" %%i in ("%FILE_NAME%") do (
   if exist ..\md\hashes-%%i-%%j.txt (
     %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%%k ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
-    %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" %1
+    %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" "%FILE_NAME%"
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
       goto IntegrityError
@@ -76,7 +100,7 @@ for /F "tokens=2,3,4 delims=\" %%i in ("%1") do (
   )
   if exist ..\md\hashes-%%i.txt (
     %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%%j ..\md\hashes-%%i.txt >"%TEMP%\hash-%%i.txt"
-    %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i.txt" %1
+    %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i.txt" "%FILE_NAME%"
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
       goto IntegrityError
@@ -88,40 +112,35 @@ for /F "tokens=2,3,4 delims=\" %%i in ("%1") do (
   echo %DATE% %TIME% - Warning: Hash files ..\md\hashes-%%i-%%j.txt and ..\md\hashes-%%i.txt not found>>%UPDATE_LOGFILE%
 )
 :SkipVerification
-echo %1 | %SystemRoot%\System32\find.exe /I ".exe" >nul 2>&1
-if not errorlevel 1 goto InstExe
-echo %1 | %SystemRoot%\System32\find.exe /I ".msi" >nul 2>&1
-if not errorlevel 1 goto InstMsi
-echo %1 | %SystemRoot%\System32\find.exe /I ".msu" >nul 2>&1
-if not errorlevel 1 goto InstMsu
-echo %1 | %SystemRoot%\System32\find.exe /I ".zip" >nul 2>&1
-if not errorlevel 1 goto InstZip
-echo %1 | %SystemRoot%\System32\find.exe /I ".cab" >nul 2>&1
-if not errorlevel 1 goto InstCab
+if "%FILE_NAME:~-4%"==".exe" goto InstExe
+if "%FILE_NAME:~-4%"==".msi" goto InstMsi
+if "%FILE_NAME:~-4%"==".msu" goto InstMsu
+if "%FILE_NAME:~-4%"==".zip" goto InstZip
+if "%FILE_NAME:~-4%"==".cab" goto InstCab
 goto UnsupType
 
 :InstExe
 if "%SELECT_OPTIONS%" NEQ "1" set INSTALL_SWITCHES=%2 %3 %4 %5 %6 %7 %8 %9
 if "%INSTALL_SWITCHES%"=="" (
   for /F %%i in (..\opt\OptionList-qn.txt) do (
-    echo %1 | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
+    echo %FILE_NAME% | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
     if not errorlevel 1 set INSTALL_SWITCHES=/q /norestart
   )
 )
 if "%INSTALL_SWITCHES%"=="" (
   set INSTALL_SWITCHES=/q /z
 )
-echo Installing %1...
-%1 %INSTALL_SWITCHES%
+echo Installing %FILE_NAME%...
+"%FILE_NAME%" %INSTALL_SWITCHES%
 set ERR_LEVEL=%errorlevel%
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
 for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstMsi
-echo Installing %1...
+echo Installing %FILE_NAME%...
 pushd %~dp1
-%SystemRoot%\System32\msiexec.exe /i %~nx1 /qn /norestart
+%SystemRoot%\System32\msiexec.exe /i "%FILE_NAME%" /qn /norestart
 set ERR_LEVEL=%errorlevel%
 popd
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
@@ -129,8 +148,8 @@ for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstMsu
-echo Installing %1...
-%SystemRoot%\System32\wusa.exe %1 /quiet /norestart
+echo Installing %FILE_NAME%...
+%SystemRoot%\System32\wusa.exe "%FILE_NAME%" /quiet /norestart
 set ERR_LEVEL=%errorlevel%
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
 for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
@@ -138,17 +157,28 @@ goto InstFailure
 
 :InstZip
 if not exist ..\bin\unzip.exe goto NoUnZip
-echo Unpacking %1 to "%TEMP%\%~n1.msu"...
-..\bin\unzip.exe -o -d "%TEMP%" %1 %~n1.msu
-if not exist "%TEMP%\%~n1.msu" (
-  echo ERROR: Installation file "%TEMP%\%~n1.msu" not found.
-  echo %DATE% %TIME% - Error: Installation file "%TEMP%\%~n1.msu" not found>>%UPDATE_LOGFILE%
+set FILE_NAME_ONLY=
+for /f "tokens=4 delims=\" %%i in ('echo %FILE_NAME%') do (
+  if not "%%i"=="" (
+    set FILE_NAME_ONLY=%%~ni
+  )
+)
+if "%FILE_NAME_ONLY%"=="" (
+  echo ERROR: Extraction of %FILE_NAME% failed
+  echo %DATE% %TIME% - Error: Extraction of %FILE_NAME% failed>>%UPDATE_LOGFILE%
   goto InstFailure
 )
-echo Installing "%TEMP%\%~n1.msu"...
-%SystemRoot%\System32\wusa.exe "%TEMP%\%~n1.msu" /quiet /norestart
+echo Unpacking %FILE_NAME% to "%TEMP%\%FILE_NAME_ONLY%.msu"...
+..\bin\unzip.exe -o -d "%TEMP%" "%FILE_NAME%" "%FILE_NAME_ONLY%.msu"
+if not exist "%TEMP%\%FILE_NAME_ONLY%.msu" (
+  echo ERROR: Installation file "%TEMP%\%FILE_NAME_ONLY%.msu" not found.
+  echo %DATE% %TIME% - Error: Installation file "%TEMP%\%FILE_NAME_ONLY%.msu" not found>>%UPDATE_LOGFILE%
+  goto InstFailure
+)
+echo Installing "%TEMP%\%FILE_NAME_ONLY%.msu"...
+%SystemRoot%\System32\wusa.exe "%TEMP%\%FILE_NAME_ONLY%.msu" /quiet /norestart
 set ERR_LEVEL=%errorlevel%
-del "%TEMP%\%~n1.msu"
+del "%TEMP%\%FILE_NAME_ONLY%.msu"
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
 for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
@@ -156,13 +186,13 @@ goto InstFailure
 :InstCab
 if exist %SystemRoot%\Sysnative\Dism.exe goto InstDism
 if exist %SystemRoot%\System32\Dism.exe goto InstDism
-echo Installing %1...
+echo Installing %FILE_NAME%...
 set ERR_LEVEL=0
 if "%OS_ARCH%"=="x64" (set TOKEN_KB=3) else (set TOKEN_KB=2)
-for /F "tokens=%TOKEN_KB% delims=-" %%i in ("%1") do (
+for /F "tokens=%TOKEN_KB% delims=-" %%i in ("%FILE_NAME%") do (
   call SafeRmDir.cmd "%TEMP%\%%i"
   md "%TEMP%\%%i"
-  %SystemRoot%\System32\expand.exe %1 -F:* "%TEMP%\%%i" >nul
+  %SystemRoot%\System32\expand.exe "%FILE_NAME%" -F:* "%TEMP%\%%i" >nul
   %SystemRoot%\System32\PkgMgr.exe /ip /m:"%TEMP%\%%i" /quiet /norestart
   set ERR_LEVEL=%errorlevel%
   call SafeRmDir.cmd "%TEMP%\%%i"
@@ -175,20 +205,20 @@ goto InstFailure
 if "%DISM_PROGRESS%" NEQ "1" set DISM_QPARAM=/Quiet
 if "%OS_NAME%"=="w100" (
   if exist %SystemRoot%\Sysnative\Dism.exe (
-    for /F "tokens=3" %%i in ('%SystemRoot%\Sysnative\Dism.exe /Online /Get-PackageInfo /PackagePath:%1 /English ^| %SystemRoot%\System32\find.exe /I "Applicable"') do (
+    for /F "tokens=3" %%i in ('%SystemRoot%\Sysnative\Dism.exe /Online /Get-PackageInfo /PackagePath:"%FILE_NAME%" /English ^| %SystemRoot%\System32\find.exe /I "Applicable"') do (
       if /i "%%i"=="No" goto InstSkipped
     )
   ) else (
-    for /F "tokens=3" %%i in ('%SystemRoot%\System32\Dism.exe /Online /Get-PackageInfo /PackagePath:%1 /English ^| %SystemRoot%\System32\find.exe /I "Applicable"') do (
+    for /F "tokens=3" %%i in ('%SystemRoot%\System32\Dism.exe /Online /Get-PackageInfo /PackagePath:"%FILE_NAME%" /English ^| %SystemRoot%\System32\find.exe /I "Applicable"') do (
       if /i "%%i"=="No" goto InstSkipped
     )
   )
 )
-echo Installing %1...
+echo Installing %FILE_NAME%...
 if exist %SystemRoot%\Sysnative\Dism.exe (
-  %SystemRoot%\Sysnative\Dism.exe /Online %DISM_QPARAM% /NoRestart /Add-Package /PackagePath:%1 /IgnoreCheck
+  %SystemRoot%\Sysnative\Dism.exe /Online %DISM_QPARAM% /NoRestart /Add-Package /PackagePath:"%FILE_NAME%" /IgnoreCheck
 ) else (
-  %SystemRoot%\System32\Dism.exe /Online %DISM_QPARAM% /NoRestart /Add-Package /PackagePath:%1 /IgnoreCheck
+  %SystemRoot%\System32\Dism.exe /Online %DISM_QPARAM% /NoRestart /Add-Package /PackagePath:"%FILE_NAME%" /IgnoreCheck
 )
 set ERR_LEVEL=%errorlevel%
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
@@ -205,8 +235,13 @@ echo %DATE% %TIME% - Error: Invalid parameter. Usage: %~n0 ^<filename^> [/select
 goto Error
 
 :InvalidParam
-echo ERROR: File %1 not found.
-echo %DATE% %TIME% - Error: File %1 not found>>%UPDATE_LOGFILE%
+echo ERROR: Invalid file %FILE_NAME%
+echo %DATE% %TIME% - Error: Invalid file %FILE_NAME%>>%UPDATE_LOGFILE%
+goto Error
+
+:ParamFileNotFound
+echo ERROR: File %FILE_NAME% not found.
+echo %DATE% %TIME% - Error: File %FILE_NAME% not found>>%UPDATE_LOGFILE%
 goto Error
 
 :NoTemp
@@ -220,8 +255,8 @@ echo %DATE% %TIME% - Error: Directory "%TEMP%" not found>>%UPDATE_LOGFILE%
 goto Error
 
 :UnsupType
-echo ERROR: Unsupported file type (%1).
-echo %DATE% %TIME% - Error: Unsupported file type (%1)>>%UPDATE_LOGFILE%
+echo ERROR: Unsupported file type (%FILE_NAME%).
+echo %DATE% %TIME% - Error: Unsupported file type (%FILE_NAME%)>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :NoUnZip
@@ -230,17 +265,17 @@ echo %DATE% %TIME% - Error: Utility ..\bin\unzip.exe not found>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :IntegrityError
-echo ERROR: File hash does not match stored value (%1).
-echo %DATE% %TIME% - Error: File hash does not match stored value (%1)>>%UPDATE_LOGFILE%
+echo ERROR: File hash does not match stored value (%FILE_NAME%).
+echo %DATE% %TIME% - Error: File hash does not match stored value (%FILE_NAME%)>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :InstSkipped
-echo Skipped inapplicable %1.
-echo %DATE% %TIME% - Info: Skipped inapplicable %1>>%UPDATE_LOGFILE%
+echo Skipped inapplicable %FILE_NAME%.
+echo %DATE% %TIME% - Info: Skipped inapplicable %FILE_NAME%>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstSuccess
-echo %DATE% %TIME% - Info: Installed %1>>%UPDATE_LOGFILE%
+echo %DATE% %TIME% - Info: Installed %FILE_NAME%>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstFailure
@@ -248,13 +283,13 @@ if "%IGNORE_ERRORS%"=="1" goto EoF
 if "%ERRORS_AS_WARNINGS%"=="1" (goto InstWarning) else (goto InstError)
 
 :InstWarning
-echo Warning: Installation of %1 failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Warning: Installation of %1 %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo Warning: Installation of %FILE_NAME% failed (errorlevel: %ERR_LEVEL%).
+echo %DATE% %TIME% - Warning: Installation of %FILE_NAME% %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstError
-echo ERROR: Installation of %1 failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Error: Installation of %1 %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo ERROR: Installation of %FILE_NAME% failed (errorlevel: %ERR_LEVEL%).
+echo %DATE% %TIME% - Error: Installation of %FILE_NAME% %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto Error
 
 :Error

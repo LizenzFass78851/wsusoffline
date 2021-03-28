@@ -41,6 +41,7 @@ if errorlevel 1 (
   if exist "%TEMP%\Update.tmp" del "%TEMP%\Update.tmp"
 ) else (
   for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i >>"%TEMP%\UpdatesToInstall.txt"
+  rem for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i>>"%TEMP%\UpdatesToInstall.txt"
   if "%APPEND_UPDATES%"=="1" (
     type "%TEMP%\Update.tmp">>"%TEMP%\Update.txt"
     del "%TEMP%\Update.tmp"

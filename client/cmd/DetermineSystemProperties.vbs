@@ -18,6 +18,8 @@ Private Const strRegKeyWDDefs                 = "HKLM\Software\Microsoft\Windows
 Private Const strRegKeyQualityCompat          = "HKLM\Software\Microsoft\Windows\CurrentVersion\QualityCompat\cadca5fe-87d3-4b96-b7fb-a231484277cc"
 Private Const strRegKeyPowerCfg               = "HKCU\Control Panel\PowerCfg\"
 
+Private Const strFilePathRelMSEdge            = "\Microsoft\Edge\Application\msedge.exe"
+
 Private Const strRegValVersion                = "Version"
 Private Const strRegValRelease                = "Release"
 Private Const strRegValDisplayVersion         = "DisplayVersion"
@@ -50,7 +52,7 @@ Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
 
-Dim wshShell, objFileSystem, objStaticFile, objCmdFile, objWMIService, objQueryItem, objFolder, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
+Dim wshShell, objFileSystem, objStaticFile, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
 Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strProduct, strPatch, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, ServicingStack_OSVer_Major, ServicingStack_OSVer_Minor, ServicingStack_OSVer_Build
@@ -552,6 +554,26 @@ End If
 
 ' Determine Internet Explorer version
 WriteVersionToFile objCmdFile, "IE_VER", RegRead(wshShell, strRegKeyIE & strRegValVersion)
+
+' Determine Edge (Chromium) version
+Select Case strOSArchitecture
+  Case "x86"
+    strFilePathMSEdge = wshShell.ExpandEnvironmentStrings("%ProgramFiles%") & strFilePathRelMSEdge
+    If objFileSystem.FileExists(strFilePathMSEdge) Then
+      WriteVersionToFile objCmdFile, "MSEDGE_VER", GetFileVersion(objFileSystem, strFilePathMSEdge)
+    Else
+      WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
+    End If
+  Case "x64"
+    strFilePathMSEdge = wshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%") & strFilePathRelMSEdge
+    If objFileSystem.FileExists(strFilePathMSEdge) Then
+      WriteVersionToFile objCmdFile, "MSEDGE_VER", GetFileVersion(objFileSystem, strFilePathMSEdge)
+    Else
+      WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
+    End If
+  Case Else
+    WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
+End Select
 
 ' Determine Microsoft Silverlight version
 If RegExists(wshShell, strRegKeyMSSL_x64) Then

@@ -1788,7 +1788,7 @@ Community Edition 12.5 -- ??.??.????
 - NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
 - Support added for .NET 5 (Thanks to "aker" and "boco")
-- [PARTIAL] Support added for updating Microsoft Edge (Chromium) (Thanks to "aker")
+- Support added for updating Microsoft Edge (Chromium) (Thanks to "aker")
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
 - update .\xslt\extract-update-cab-exe-ids-and-locations.xsl to include more updates (Thanks to "hbuhrmester")
 - improve determination of superseded updates to prevent exclusion of files used in multiple updates (Thanks to "aker" and "hbuhrmester")
@@ -1805,4 +1805,5 @@ Community Edition 12.5 -- ??.??.????
 - Replaced superseded November 2020 Servicing stack update (KB4586864) by January 2021 Servicing stack update (KB4598481) for Windows 10 Version 2004 and 20H2 (Thanks to "aker")
 - Added Update for the removal of Adobe Flash Player (KB4577586)
 - Wget download utility updated to version 1.21.1 [2021-03-25] (Thanks to "boco" and "harry")
+- misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
