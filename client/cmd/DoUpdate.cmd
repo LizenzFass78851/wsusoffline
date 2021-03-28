@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b50)
+set WSUSOFFLINE_VERSION=11.9.8 (b52)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -660,7 +660,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 )
 :SkipIEw60Pre
 echo Installing Internet Explorer 9...
-call InstallOSUpdate.cmd %IE_FILENAME_REAL% %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
+call InstallOSUpdate.cmd "%IE_FILENAME_REAL%" %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
 if errorlevel 1 (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_ie_tried.txt
@@ -739,9 +739,9 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 echo Installing Internet Explorer 11...
 for /F %%i in ('dir /B %IE_FILENAME%') do (
   if /i "%OS_ARCH%"=="x64" (
-    call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
+    call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
   ) else (
-    call InstallOSUpdate.cmd ..\%OS_NAME%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
+    call InstallOSUpdate.cmd "..\%OS_NAME%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /update-no /closeprograms /no-default /norestart
   )
   if not errorlevel 1 set RECALL_REQUIRED=1
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
@@ -784,14 +784,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 :SkipIEw62Pre
 echo Installing Internet Explorer 11...
 for /F %%i in ('dir /B %IE_FILENAME%') do (
-  call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+  call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
   if not errorlevel 1 (
     set RECALL_REQUIRED=1
     dir /B %IE_LANG_FILENAME% >nul 2>&1
     if not errorlevel 1 (
       echo Installing Internet Explorer 11 language pack...
       for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
-        call InstallOSUpdate.cmd ..\%OS_NAME%-%OS_ARCH%\glb\%%i %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+        call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
       )
     )
   )
@@ -957,7 +957,7 @@ if %MSSL_VER_BUILD% GTR %MSSL_VER_TARGET_BUILD% goto SkipMSSLInst
 if %MSSL_VER_REVIS% GEQ %MSSL_VER_TARGET_REVIS% goto SkipMSSLInst
 :InstallMSSL
 echo Installing Microsoft Silverlight...
-call InstallOSUpdate.cmd %MSSL_FILENAME% %VERIFY_MODE% /errorsaswarnings /q
+call InstallOSUpdate.cmd "%MSSL_FILENAME%" %VERIFY_MODE% /errorsaswarnings /q
 set MSSL_FILENAME=
 set REBOOT_REQUIRED=1
 :SkipMSSLInst
@@ -992,7 +992,7 @@ if not exist %DOTNET35_FILENAME% (
   goto SkipDotNet35Inst
 )
 echo Installing .NET Framework 3.5 SP1...
-call InstallOSUpdate.cmd %DOTNET35_FILENAME% %VERIFY_MODE% /ignoreerrors /passive /norestart /lang:enu
+call InstallOSUpdate.cmd "%DOTNET35_FILENAME%" %VERIFY_MODE% /ignoreerrors /passive /norestart /lang:enu
 if "%OS_LANG%" NEQ "enu" (
   dir /B %DOTNET35LP_FILENAME% >nul 2>&1
   if errorlevel 1 (
@@ -1000,7 +1000,7 @@ if "%OS_LANG%" NEQ "enu" (
     call :Log "Warning: .NET Framework 3.5 SP1 Language Pack installation file (%DOTNET35LP_FILENAME%) not found"
   ) else (
     echo Installing .NET Framework 3.5 SP1 Language Pack...
-    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%%i %VERIFY_MODE% /ignoreerrors /passive /norestart /nopatch /lang:%OS_LANG%
+    for /F %%i in ('dir /B %DOTNET35LP_FILENAME%') do call InstallOSUpdate.cmd "..\dotnet\%%i" %VERIFY_MODE% /ignoreerrors /passive /norestart /nopatch /lang:%OS_LANG%
   )
 )
 copy /Y ..\static\StaticUpdateIds-dotnet35.txt "%TEMP%\MissingUpdateIds.txt" >nul
@@ -1105,11 +1105,11 @@ if not exist %DOTNET4_FILENAME% (
   goto SkipDotNet4Inst
 )
 echo Installing .NET Framework 4...
-call InstallOSUpdate.cmd %DOTNET4_FILENAME% %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS% /lcid 1033
+call InstallOSUpdate.cmd "%DOTNET4_FILENAME%" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS% /lcid 1033
 if "%OS_LANG%" NEQ "enu" (
   if exist %DOTNET4LP_FILENAME% (
     echo Installing .NET Framework 4 Language Pack...
-    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do call InstallOSUpdate.cmd ..\dotnet\%%i %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
+    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do call InstallOSUpdate.cmd "..\dotnet\%%i" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
   ) else (
     echo Warning: .NET Framework 4 Language Pack installation file ^(%DOTNET4LP_FILENAME%^) not found.
     call :Log "Warning: .NET Framework 4 Language Pack installation file (%DOTNET4LP_FILENAME%) not found"
@@ -1282,7 +1282,7 @@ if %WDDEFS_VER_BUILD% GTR %WDDEFS_VER_TARGET_BUILD% goto SkipWDInst
 if %WDDEFS_VER_REVIS% GEQ %WDDEFS_VER_TARGET_REVIS% goto SkipWDInst
 :InstallWDDefs
 echo Installing Windows Defender definition file...
-call InstallOSUpdate.cmd %WDDEFS_FILENAME% %VERIFY_MODE% /ignoreerrors -q
+call InstallOSUpdate.cmd "%WDDEFS_FILENAME%" %VERIFY_MODE% /ignoreerrors -q
 set WDDEFS_FILENAME=
 :SkipWDInst
 set WDDEFS_VER_TARGET_MAJOR=
@@ -1631,7 +1631,7 @@ if %MSSE_VER_BUILD% GTR %MSSE_VER_TARGET_BUILD% goto CheckMSSEDefs
 if %MSSE_VER_REVIS% GEQ %MSSE_VER_TARGET_REVIS% goto CheckMSSEDefs
 :InstallMSSE
 echo Installing Microsoft Security Essentials...
-call InstallOSUpdate.cmd %MSSE_FILENAME% %VERIFY_MODE% /ignoreerrors /s /runwgacheck /o
+call InstallOSUpdate.cmd "%MSSE_FILENAME%" %VERIFY_MODE% /ignoreerrors /s /runwgacheck /o
 set MSSE_FILENAME=
 set REBOOT_REQUIRED=1
 :CheckMSSEDefs
@@ -1661,7 +1661,7 @@ if %MSSEDEFS_VER_BUILD% GTR %MSSEDEFS_VER_TARGET_BUILD% goto CheckNISDefs
 if %MSSEDEFS_VER_REVIS% GEQ %MSSEDEFS_VER_TARGET_REVIS% goto CheckNISDefs
 :InstallMSSEDefs
 echo Installing Microsoft Security Essentials definition file...
-call InstallOSUpdate.cmd %MSSEDEFS_FILENAME% %VERIFY_MODE% /ignoreerrors -q
+call InstallOSUpdate.cmd "%MSSEDEFS_FILENAME%" %VERIFY_MODE% /ignoreerrors -q
 set MSSEDEFS_FILENAME=
 :CheckNISDefs
 set MSSEDEFS_VER_TARGET_MAJOR=
@@ -1689,7 +1689,7 @@ if %NISDEFS_VER_BUILD% GTR %NISDEFS_VER_TARGET_BUILD% goto SkipMSSEInst
 if %NISDEFS_VER_REVIS% GEQ %NISDEFS_VER_TARGET_REVIS% goto SkipMSSEInst
 :InstallNISDefs
 echo Installing Network Inspection System definition file...
-call InstallOSUpdate.cmd %NISDEFS_FILENAME% %VERIFY_MODE% /ignoreerrors
+call InstallOSUpdate.cmd "%NISDEFS_FILENAME%" %VERIFY_MODE% /ignoreerrors
 set NISDEFS_FILENAME=
 :SkipMSSEInst
 set NISDEFS_VER_TARGET_MAJOR=

@@ -32,7 +32,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
       echo %%j | %SystemRoot%\System32\find.exe /I "\%%k\" >nul 2>&1
       if not errorlevel 1 (
         echo !TIME! - Installing update %%i of %LINES_COUNT% ^(stage size: %UPDATES_PER_STAGE%^)...
-        call InstallOfficeUpdate.cmd %%j %*
+        call InstallOfficeUpdate.cmd "%%j" %*
         if errorlevel 1 goto InstError
       )
     )
@@ -40,7 +40,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
       echo %%j | %SystemRoot%\System32\find.exe /I "\%%k\" >nul 2>&1
       if not errorlevel 1 (
         echo !TIME! - Installing update %%i of %LINES_COUNT% ^(stage size: %UPDATES_PER_STAGE%^)...
-        call InstallOSUpdate.cmd %%j %*
+        call InstallOSUpdate.cmd "%%j" %*
         if errorlevel 1 goto InstError
       )
     )
