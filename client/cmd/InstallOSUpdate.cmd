@@ -24,24 +24,19 @@ if '%1'=='' goto NoParam
 set FILE_NAME=%1
 set "FILE_NAME=!FILE_NAME:"=!"
 
-set SpaceCounter=0
+set SpaceHelper=
 :RemoveSpaces
 if "%FILE_NAME:~-1%"==" " (
   set FILE_NAME=%FILE_NAME:~0,-1%
-  set /a SpaceCounter+=1
-  goto RemoveSpaces
-)
-
-set SpaceHelper=
-for /l %%i in (1,1,%SpaceCounter%) do (
   set SpaceHelper=%SpaceHelper% 
+  goto RemoveSpaces
 )
 
 rem DO NOT CHANGE THE ORDER OF THE CHECKS
 if '"%FILE_NAME%"'=='%1' goto FileNameParsed
-if '"%FILE_NAME%%SpaceHelper%"'=='%1' goto FileNameParsed
+if not "%SpaceHelper%"=="" if '"%FILE_NAME%%SpaceHelper%"'=='%1' goto FileNameParsed
 if '%FILE_NAME%'=='%1' goto FileNameParsed
-if '%FILE_NAME%%SpaceHelper%'=='%1' goto FileNameParsed
+if not "%SpaceHelper%"=="" if '%FILE_NAME%%SpaceHelper%'=='%1' goto FileNameParsed
 goto InvalidParam
 :FileNameParsed
 if not exist "%FILE_NAME%" goto ParamFileNotFound
