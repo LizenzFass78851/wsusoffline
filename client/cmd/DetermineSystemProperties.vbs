@@ -560,18 +560,23 @@ Select Case strOSArchitecture
   Case "x86"
     strFilePathMSEdge = wshShell.ExpandEnvironmentStrings("%ProgramFiles%") & strFilePathRelMSEdge
     If objFileSystem.FileExists(strFilePathMSEdge) Then
+      objCmdFile.WriteLine("set MSEDGE_INSTALLED=1")
       WriteVersionToFile objCmdFile, "MSEDGE_VER", GetFileVersion(objFileSystem, strFilePathMSEdge)
     Else
+      objCmdFile.WriteLine("set MSEDGE_INSTALLED=0")
       WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
     End If
   Case "x64"
     strFilePathMSEdge = wshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%") & strFilePathRelMSEdge
     If objFileSystem.FileExists(strFilePathMSEdge) Then
+      objCmdFile.WriteLine("set MSEDGE_INSTALLED=1")
       WriteVersionToFile objCmdFile, "MSEDGE_VER", GetFileVersion(objFileSystem, strFilePathMSEdge)
     Else
+      objCmdFile.WriteLine("set MSEDGE_INSTALLED=0")
       WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
     End If
   Case Else
+    objCmdFile.WriteLine("set MSEDGE_INSTALLED=0")
     WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
 End Select
 
