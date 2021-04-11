@@ -23,3 +23,4 @@
 {8220EEFE-38CD-377E-8595-13398D740ACE};Microsoft Visual C++ 2008 Redistributable - x64 9.0.30729.17 [en-us]
 {4B6C7001-C7D6-3710-913E-5BC23FCE91E6};Microsoft Visual C++ 2008 Redistributable - x64 9.0.30729.4148
 {5FCE6D76-F5DC-37AB-B2B8-22AB8CEDB1D4};Microsoft Visual C++ 2008 Redistributable - x64 9.0.30729.6161
+{1079CC62-177D-3C2B-A4BB-469930364B4C};Microsoft Visual C++ 2008 Redistributable - x64 9.0.30729.7523
