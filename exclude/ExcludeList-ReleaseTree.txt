@@ -1,6 +1,18 @@
 .git\
 Aut2Exe.exe
 upx.exe
+StaticUpdateIds-cpp2005_x64_documented.txt
+StaticUpdateIds-cpp2005_x86_documented.txt
+StaticUpdateIds-cpp2008_x64_documented.txt
+StaticUpdateIds-cpp2008_x86_documented.txt
+StaticUpdateIds-cpp2010_x64_documented.txt
+StaticUpdateIds-cpp2010_x86_documented.txt
+StaticUpdateIds-cpp2012_x64_documented.txt
+StaticUpdateIds-cpp2012_x86_documented.txt
+StaticUpdateIds-cpp2013_x64_documented.txt
+StaticUpdateIds-cpp2013_x86_documented.txt
+StaticUpdateIds-cpp2015_x64_documented.txt
+StaticUpdateIds-cpp2015_x86_documented.txt
 ProductIds-final.txt
 ProductIds-final-inverted.txt
 ExcludeList-ProductionTree.txt
@@ -14,3 +26,4 @@ ExtractDownloadLinks-all.cmd
 ExtractSupersededUpdates.cmd
 PrepareReleaseTree.cmd
 MakeRelease.cmd
+

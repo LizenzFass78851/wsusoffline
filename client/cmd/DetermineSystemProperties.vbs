@@ -997,12 +997,16 @@ For Each strProduct In objInstaller.Products
   ' C++ 2010 nach altem Mechanismus
   ' Documentation: http://blogs.msdn.com/b/astebner/archive/2010/05/05/10008146.aspx
   Select Case UCase(strProduct)
-    Case "{196BB40D-1578-3D01-B289-BEFC77A11A1E}", "{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}"
+    Case "{196BB40D-1578-3D01-B289-BEFC77A11A1E}"
+      cpp2010_x86_old = True
+    Case "{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}"
       cpp2010_x86_old = True
       For Each strPatch In objInstaller.Patches(strProduct)
         If UCase(strPatch) = "{F11DB03E-9EFF-3E33-8D0D-827AB22DAB1B}" Then cpp2010_x86_new = True
       Next
-    Case "{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}", "{1D8E6291-B0D5-35EC-8441-6616F567A0F7}"
+    Case "{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}"
+      cpp2010_x64_old = True
+    Case "{1D8E6291-B0D5-35EC-8441-6616F567A0F7}"
       cpp2010_x64_old = True
       For Each strPatch In objInstaller.Patches(strProduct)
         If UCase(strPatch) = "{45C1B2E6-FE51-3FDA-81C6-5C8602F9B025}" Then cpp2010_x64_new = True
