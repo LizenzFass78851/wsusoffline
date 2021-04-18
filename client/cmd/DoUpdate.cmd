@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b56)
+set WSUSOFFLINE_VERSION=12.5 (b57)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -192,6 +192,7 @@ rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_V
 rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
 rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%
 rem if "%MSEDGE_INSTALLED%"=="1" echo Found Edge (Chromium) version: %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%
+rem if "%MSEDGEUPDATE_INSTALLED%"=="1" echo Found Edge (Chromium) Updater version: %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%
 rem echo Found Microsoft .NET Framework 3.5 version: %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%
 rem echo Found Windows PowerShell version: %PSH_VER_MAJOR%.%PSH_VER_MINOR%
 rem echo Found Microsoft .NET Framework 4 version: %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)
@@ -216,6 +217,7 @@ call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%
 call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
 call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%"
 if "%MSEDGE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) version %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%"
+if "%MSEDGEUPDATE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) Updater version %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%"
 call :Log "Info: Found Microsoft .NET Framework 3.5 version %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%"
 call :Log "Info: Found Windows PowerShell version %PSH_VER_MAJOR%.%PSH_VER_MINOR%"
 call :Log "Info: Found Microsoft .NET Framework 4 version %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)"
@@ -610,14 +612,61 @@ if %MSEDGE_VER_BUILD% GTR %MSEDGE_VER_TARGET_BUILD% goto SkipMSEdgeInst
 if %MSEDGE_VER_REVIS% GEQ %MSEDGE_VER_TARGET_REVIS% goto SkipMSEdgeInst
 
 :InstallMSEdge
+if exist %SystemRoot%\Temp\wou_msedge_tried.txt goto SkipMSEdgeInst
 echo Installing most recent Edge (Chromium)...
-call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /errorsaswarnings --verbose-logging --do-not-launch-msedge --system-level
+call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /errorsaswarnings --msedge --verbose-logging --do-not-launch-msedge --system-level
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_msedge_tried.txt
 
 set MSEDGE_FILENAME_SHORT=
 set MSEDGE_FILENAME=
 :SkipMSEdgeInst
+
+rem *** Update Edge (Chromium) Updater ***
+echo Determining Edge (Chromium) Updater version...
+if "%MSEDGEUPDATE_INSTALLED%" NEQ "1" (
+  if "%MSEDGE_INSTALLED%" NEQ "1" (goto SkipMSEdgeUpdateInst) else (goto InstallMSEdgeUpdate)
+)
+
+set MSEDGEUPDATE_FILENAME_SHORT=..\msedge\MicrosoftEdgeUpdateSetup_X86_*.exe
+dir /B %MSEDGEUPDATE_FILENAME_SHORT% >nul 2>&1
+if errorlevel 1 (
+  echo Warning: File %MSEDGEUPDATE_FILENAME_SHORT% not found.
+  call :Log "Warning: File %MSEDGEUPDATE_FILENAME_SHORT% not found"
+  goto SkipMSEdgeUpdateInst
+)
+set MSEDGEUPDATE_FILENAME=
+for /F %%i in ('dir /B %MSEDGEUPDATE_FILENAME_SHORT%') do (
+  if "%%i" NEQ "" set MSEDGEUPDATE_FILENAME=%%i
+)
+if "%MSEDGEUPDATE_FILENAME%"=="" (
+  echo Warning: File %MSEDGEUPDATE_FILENAME_SHORT% not found.
+  call :Log "Warning: File %MSEDGEUPDATE_FILENAME_SHORT% not found"
+  goto SkipMSEdgeUpdateInst
+)
+
+%CSCRIPT_PATH% //Nologo //B //E:vbs DetermineFileVersion.vbs "..\msedge\%MSEDGEUPDATE_FILENAME%" MSEDGEUPDATE_VER_TARGET
+if not exist "%TEMP%\SetFileVersion.cmd" goto SkipMSEdgeUpdateInst
+call "%TEMP%\SetFileVersion.cmd"
+del "%TEMP%\SetFileVersion.cmd"
+if %MSEDGEUPDATE_VER_MAJOR% LSS %MSEDGEUPDATE_VER_TARGET_MAJOR% goto InstallMSEdgeUpdate
+if %MSEDGEUPDATE_VER_MAJOR% GTR %MSEDGEUPDATE_VER_TARGET_MAJOR% goto SkipMSEdgeUpdateInst
+if %MSEDGEUPDATE_VER_MINOR% LSS %MSEDGEUPDATE_VER_TARGET_MINOR% goto InstallMSEdgeUpdate
+if %MSEDGEUPDATE_VER_MINOR% GTR %MSEDGEUPDATE_VER_TARGET_MINOR% goto SkipMSEdgeUpdateInst
+if %MSEDGEUPDATE_VER_BUILD% LSS %MSEDGEUPDATE_VER_TARGET_BUILD% goto InstallMSEdgeUpdate
+if %MSEDGEUPDATE_VER_BUILD% GTR %MSEDGEUPDATE_VER_TARGET_BUILD% goto SkipMSEdgeUpdateInst
+if %MSEDGEUPDATE_VER_REVIS% GEQ %MSEDGEUPDATE_VER_TARGET_REVIS% goto SkipMSEdgeUpdateInst
+
+:InstallMSEdgeUpdate
+if exist %SystemRoot%\Temp\wou_msedgeupdate_tried.txt goto SkipMSEdgeUpdateInst
+echo Installing most recent Edge (Chromium) Updater...
+call InstallOSUpdate.cmd "..\msedge\%MSEDGEUPDATE_FILENAME%" %VERIFY_MODE% /errorsaswarnings /recover /machine
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+echo. >%SystemRoot%\Temp\wou_msedgeupdate_tried.txt
+
+set MSEDGEUPDATE_FILENAME_SHORT=
+set MSEDGEUPDATE_FILENAME=
+:SkipMSEdgeUpdateInst
 
 rem *** Install C++ Runtime Libraries ***
 if "%UPDATE_CPP%" NEQ "/updatecpp" goto SkipCPPInst

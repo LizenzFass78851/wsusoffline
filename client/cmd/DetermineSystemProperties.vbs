@@ -19,6 +19,7 @@ Private Const strRegKeyQualityCompat          = "HKLM\Software\Microsoft\Windows
 Private Const strRegKeyPowerCfg               = "HKCU\Control Panel\PowerCfg\"
 
 Private Const strFilePathRelMSEdge            = "\Microsoft\Edge\Application\msedge.exe"
+Private Const strFilePathRelMSEdgeUpdate      = "\Microsoft\EdgeUpdate\MicrosoftEdgeUpdate.exe"
 
 Private Const strRegValVersion                = "Version"
 Private Const strRegValRelease                = "Release"
@@ -52,7 +53,7 @@ Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
 
-Dim wshShell, objFileSystem, objStaticFile, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
+Dim wshShell, objFileSystem, objStaticFile, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
 Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strProduct, strPatch, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, ServicingStack_OSVer_Major, ServicingStack_OSVer_Minor, ServicingStack_OSVer_Build
@@ -578,6 +579,29 @@ Select Case strOSArchitecture
   Case Else
     objCmdFile.WriteLine("set MSEDGE_INSTALLED=0")
     WriteVersionToFile objCmdFile, "MSEDGE_VER", ""
+End Select
+Select Case strOSArchitecture
+  Case "x86"
+    strFilePathMSEdgeUpdate = wshShell.ExpandEnvironmentStrings("%ProgramFiles%") & strFilePathRelMSEdgeUpdate
+    If objFileSystem.FileExists(strFilePathMSEdgeUpdate) Then
+      objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=1")
+      WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", GetFileVersion(objFileSystem, strFilePathMSEdgeUpdate)
+    Else
+      objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=0")
+      WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", ""
+    End If
+  Case "x64"
+    strFilePathMSEdgeUpdate = wshShell.ExpandEnvironmentStrings("%ProgramFiles(x86)%") & strFilePathRelMSEdgeUpdate
+    If objFileSystem.FileExists(strFilePathMSEdgeUpdate) Then
+      objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=1")
+      WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", GetFileVersion(objFileSystem, strFilePathMSEdgeUpdate)
+    Else
+      objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=0")
+      WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", ""
+    End If
+  Case Else
+    objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=0")
+    WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", ""
 End Select
 
 ' Determine Microsoft Silverlight version

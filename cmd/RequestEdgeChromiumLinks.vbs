@@ -3,6 +3,7 @@
 Dim strFileName, strURL, strSizeInBytes, strHashesSha1Base64, strHashesSha256Base64
 Dim strFileNameX86, strURLX86, strSizeInBytesX86, strHashesSha1Base64X86, strHashesSha256Base64X86, strHashesSha1HexX86, strHashesSha256HexX86
 Dim strFileNameX64, strURLX64, strSizeInBytesX64, strHashesSha1Base64X64, strHashesSha256Base64X64, strHashesSha1HexX64, strHashesSha256HexX64
+Dim strFileNameUpdater, strURLUpdater, strSizeInBytesUpdater, strHashesSha1Base64Updater, strHashesSha256Base64Updater, strHashesSha1HexUpdater, strHashesSha256HexUpdater
 Dim fso, fDynamicDownloadLinks, fHashes
 Dim strPathDynamicDownloadLinks, strPathHashes
 
@@ -64,6 +65,29 @@ If strHashesSha256Base64X64 = "" Then
   WScript.Quit(1)
 End If
 
+GetLatestEdgeDL "Default", "msedgeupdate-stable-win-x86"
+strFileNameUpdater = strFileName
+strURLUpdater = strURL
+strSizeInBytesUpdater = strSizeInBytes
+strHashesSha1Base64Updater = strHashesSha1Base64
+strHashesSha256Base64Updater = strHashesSha256Base64
+
+If strFileNameUpdater = "" Then
+  WScript.Quit(1)
+End If
+If strURLUpdater = "" Then
+  WScript.Quit(1)
+End If
+If strSizeInBytesUpdater = "" Then
+  WScript.Quit(1)
+End If
+If strHashesSha1Base64Updater = "" Then
+  WScript.Quit(1)
+End If
+If strHashesSha256Base64Updater = "" Then
+  WScript.Quit(1)
+End If
+
 ' --- STEP B: parse/convert hashes ---
 
 If ValidateBase64(strHashesSha1Base64X86) = True Then
@@ -88,6 +112,17 @@ Else
   WScript.Quit(1)
 End If
 
+If ValidateBase64(strHashesSha1Base64Updater) = True Then
+  strHashesSha1HexUpdater = LCase(Base64ToHex(strHashesSha1Base64Updater))
+Else
+  WScript.Quit(1)
+End If
+If ValidateBase64(strHashesSha256Base64Updater) = True Then
+  strHashesSha256HexUpdater = LCase(Base64ToHex(strHashesSha256Base64Updater))
+Else
+  WScript.Quit(1)
+End If
+
 ' --- STEP C: create DynamicDownloadLinks-msedge.txt and hashes-msedge.txt ---
 
 Set fso = CreateObject("Scripting.FileSystemObject")
@@ -95,6 +130,7 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 Set fDynamicDownloadLinks = fso.CreateTextFile(strPathDynamicDownloadLinks, True)
 fDynamicDownloadLinks.WriteLine(strURLX86 & "," & strFileNameX86)
 fDynamicDownloadLinks.WriteLine(strURLX64 & "," & strFileNameX64)
+fDynamicDownloadLinks.WriteLine(strURLUpdater & "," & strFileNameUpdater)
 fDynamicDownloadLinks.Close
 
 Set fHashes = fso.CreateTextFile(strPathHashes, True)
@@ -102,6 +138,7 @@ fHashes.WriteLine("%%%% HASHDEEP-1.0")
 fHashes.WriteLine("%%%% size,sha1,sha256,filename")
 fHashes.WriteLine(strSizeInBytesX86 & "," & strHashesSha1HexX86 & "," & strHashesSha256HexX86 & "," & strFileNameX86)
 fHashes.WriteLine(strSizeInBytesX64 & "," & strHashesSha1HexX64 & "," & strHashesSha256HexX64 & "," & strFileNameX64)
+fHashes.WriteLine(strSizeInBytesUpdater & "," & strHashesSha1HexUpdater & "," & strHashesSha256HexUpdater & "," & strFileNameUpdater)
 fHashes.Close
 
 Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
@@ -112,6 +149,11 @@ Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
   ' --- STEP 0: prepare output ---
   
   strVersion = ""
+  strFileName = ""
+  strURL = ""
+  strSizeInBytes = ""
+  strHashesSha1Base64 = ""
+  strHashesSha256Base64 = ""
   
   ' --- STEP 1: NEVER TRUST USER DATA ---
   
@@ -127,6 +169,7 @@ Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
   strRequest = ""
   Set oJSON = New aspJSON
   oJSON.data.Add "targetingAttributes", oJSON.Collection
+  ' -- Windows 7 6.1.7601.24546 (2020-01 + KB4539602) x64 --
   'oJSON.data("targetingAttributes").Add "AppAp", ""
   'oJSON.data("targetingAttributes").Add "AppBrandCode", ""
   'oJSON.data("targetingAttributes").Add "AppCohort", ""
@@ -149,6 +192,38 @@ Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
   'oJSON.data("targetingAttributes").Add "Priority", "10"
   'oJSON.data("targetingAttributes").Add "Updater", "MicrosoftEdgeUpdate"
   'oJSON.data("targetingAttributes").Add "UpdaterVersion", "1.3.137.99"
+  ' -- Windows 10 10.0.19042.906 x64 ---
+  'oJSON.data("targetingAttributes").Add "AppAp", ""
+  'oJSON.data("targetingAttributes").Add "AppBrandCode", "INBX"
+  'oJSON.data("targetingAttributes").Add "AppCohort", ""
+  'oJSON.data("targetingAttributes").Add "AppCohortHint", ""
+  'oJSON.data("targetingAttributes").Add "AppCohortName", ""
+  'oJSON.data("targetingAttributes").Add "AppLang", ""
+  'oJSON.data("targetingAttributes").Add "AppVersionMajor", ""
+  'oJSON.data("targetingAttributes").Add "AppRollout", "0.62"
+  'oJSON.data("targetingAttributes").Add "AppTargetVersionPrefix", ""
+  'oJSON.data("targetingAttributes").Add "AppVersion", ""
+  'oJSON.data("targetingAttributes").Add "HW_AVX", "True"
+  'oJSON.data("targetingAttributes").Add "HW_DiskType", "1"
+  'oJSON.data("targetingAttributes").Add "HW_LogicalCpus", "2"
+  'oJSON.data("targetingAttributes").Add "HW_SSE", "True"
+  'oJSON.data("targetingAttributes").Add "HW_SSE2", "True"
+  'oJSON.data("targetingAttributes").Add "HW_SSE3", "True"
+  'oJSON.data("targetingAttributes").Add "HW_SSE41", "True"
+  'oJSON.data("targetingAttributes").Add "HW_SSE42", "True"
+  'oJSON.data("targetingAttributes").Add "HW_SSSE3", "True"
+  'oJSON.data("targetingAttributes").Add "IsInternalUser", "False"
+  'oJSON.data("targetingAttributes").Add "IsMachine", "True"
+  'oJSON.data("targetingAttributes").Add "IsOOBEComplete", "True"
+  'oJSON.data("targetingAttributes").Add "OemProductManufacturer", "innotek GmbH"
+  'oJSON.data("targetingAttributes").Add "OemProductName", "VirtualBox"
+  'oJSON.data("targetingAttributes").Add "OsArch", "x64"
+  'oJSON.data("targetingAttributes").Add "OsPlatform", "win"
+  'oJSON.data("targetingAttributes").Add "OsVersion", "10.0.19042.906"
+  'oJSON.data("targetingAttributes").Add "Priority", "10" ' FIXME: relevant for most recent version  (value is "10" for Edge, "0" for EdgeUpdate)
+  'oJSON.data("targetingAttributes").Add "Updater", "MicrosoftEdgeUpdate"
+  'oJSON.data("targetingAttributes").Add "UpdaterVersion", "1.3.141.63"
+  ' -- blank header --
   oJSON.data("targetingAttributes").Add "", ""
   strRequest = oJSON.JSONoutput
   
@@ -275,7 +350,7 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
   strHashesSha256Base64Buf = ""
   
   For Each i In oJSON.data
-    If ((oJSON.data(i).item("FileId") = "MicrosoftEdge_X86_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdge_X64_" & TargetVersion & ".exe")) Then
+    If ((oJSON.data(i).item("FileId") = "MicrosoftEdge_X86_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdge_X64_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdgeUpdateSetup_X86_" & TargetVersion & ".exe")) Then
       strFileNameBuf = oJSON.data(i).item("FileId")
       strURLBuf = oJSON.data(i).item("Url")
       strSizeInBytesBuf = oJSON.data(i).item("SizeInBytes")
