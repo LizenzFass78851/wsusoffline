@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b57)
+set WSUSOFFLINE_VERSION=12.5 (b58)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -623,6 +623,8 @@ set MSEDGE_FILENAME=
 :SkipMSEdgeInst
 
 rem *** Update Edge (Chromium) Updater ***
+goto SkipMSEdgeUpdateInst
+
 echo Determining Edge (Chromium) Updater version...
 if "%MSEDGEUPDATE_INSTALLED%" NEQ "1" (
   if "%MSEDGE_INSTALLED%" NEQ "1" (goto SkipMSEdgeUpdateInst) else (goto InstallMSEdgeUpdate)
