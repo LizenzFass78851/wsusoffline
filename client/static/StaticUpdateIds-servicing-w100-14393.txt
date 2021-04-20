@@ -1,2 +1,2 @@
 10.0.14393.2272,kb4132216,May 2018 Servicing stack update for Windows 10 Version 1607 and Windows Server 2016
-10.0.14393.4227,kb5001078,February 2021 Servicing stack update for Windows 10 Version 1607 and Windows Server 2016
+10.0.14393.4349,kb5001402,April 2021 Servicing stack update for Windows 10 Version 1607 and Windows Server 2016

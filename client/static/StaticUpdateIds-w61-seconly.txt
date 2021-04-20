@@ -56,3 +56,4 @@ kb4592503,December 2020 Security Only Quality Update for Windows 7 SP1 and Windo
 kb4598289,January 2021 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4601363,February 2021 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5000851,March 2021 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5001392,April 2021 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1

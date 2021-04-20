@@ -289,3 +289,7 @@ kb5000844,March 2021 Security Monthly Quality Rollup for Windows Server 2008
 kb5000841,March 2021 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5000847,March 2021 Security Monthly Quality Rollup for Windows Server 2012
 kb5000848,March 2021 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb5001389,April 2021 Security Monthly Quality Rollup for Windows Server 2008
+kb5001335,April 2021 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5001387,April 2021 Security Monthly Quality Rollup for Windows Server 2012
+kb5001382,April 2021 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
