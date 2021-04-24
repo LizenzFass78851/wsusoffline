@@ -1,4 +1,6 @@
 http://download.windowsupdate.com/c/msdownload/update/software/crup/2018/05/windows10.0-kb4132216-x64_9cbeb1024166bdeceff90cd564714e1dcd01296e.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/04/windows10.0-kb5001407-x64_6dfbd9b5e713826ad84194d4e72fef836db9e1e2.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/04/windows10.0-kb5003155-x64_5983ee36c49d937472c7d1d572bef2a67415a898.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589198-x64_17c945188b1405d23a40610ffaae51e0ba35c1d2.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589210-x64_59b90cbb6ebef01d477d607a9d8ffb233fb4a956.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589206-x64_551e42a928c71c571b5e698f7ded1b1e84641ef6.msu
