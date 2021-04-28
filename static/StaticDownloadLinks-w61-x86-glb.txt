@@ -12,6 +12,5 @@ http://download.windowsupdate.com/c/msdownload/update/software/updt/2013/06/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2013/11/windows6.1-kb2830477-x86_1319bd953bf956b82e30f7dee5994f3558ec7fdd.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2013/11/windows6.1-kb2857650-x86_89364d061ba54833a8af181e5739a25029b00a38.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2014/02/windows6.1-kb2923545-x86_fff0876feea186260e48879a68791bcdaacd74f7.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2016/09/windows6.1-kb3172605-x86_ae03ccbd299e434ea2239f1ad86f164e5f4deeda.msu
 http://download.windowsupdate.com/d/msdownload/update/software/secu/2019/05/pciclearstalecache_7f0c5cff499688bc34fdf52d5a6af3d97881d801.exe
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2013/10/windows6.1-kb2852386-x86_f94486e3eb81ec987c923c76553611ea356de6ce.msu

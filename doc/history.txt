@@ -1796,3 +1796,4 @@ Community Edition 11.9.8 -- ??.??.????
 - Wget download utility updated to version 1.21.1 [2021-03-25] (Thanks to "boco" and "harry")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
+- Fix: w60 and w61 Windows Update Agent (WUA) started to support SHA2-only signed wsusscn2.cab starting from 2020-01, WUA will be updated to at least this version before attempting to perform dynamic update search (Thanks to "DK3 and "aker")
