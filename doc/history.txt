@@ -1809,4 +1809,5 @@ Community Edition 12.5 -- ??.??.????
 - Added Update for the removal of Adobe Flash Player (KB4577586)
 - Wget download utility updated to version 1.21.1 [2021-03-25] (Thanks to "boco" and "harry")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
+- Power Plan and screensaver settings will always be restored, if autoreboot is disabled (Thanks to "Eduardo de Oliveira")
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
