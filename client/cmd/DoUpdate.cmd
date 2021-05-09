@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b63)
+set WSUSOFFLINE_VERSION=12.5 (b64)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -623,13 +623,6 @@ set MSEDGE_FILENAME=
 :SkipMSEdgeInst
 
 rem *** Update Edge (Chromium) Updater ***
-goto SkipMSEdgeUpdateInst
-
-echo Determining Edge (Chromium) Updater version...
-if "%MSEDGEUPDATE_INSTALLED%" NEQ "1" (
-  if "%MSEDGE_INSTALLED%" NEQ "1" (goto SkipMSEdgeUpdateInst) else (goto InstallMSEdgeUpdate)
-)
-
 set MSEDGEUPDATE_FILENAME_SHORT=..\msedge\MicrosoftEdgeUpdateSetup_X86_*.exe
 dir /B %MSEDGEUPDATE_FILENAME_SHORT% >nul 2>&1
 if errorlevel 1 (
@@ -651,6 +644,15 @@ if "%MSEDGEUPDATE_FILENAME%"=="" (
 if not exist "%TEMP%\SetFileVersion.cmd" goto SkipMSEdgeUpdateInst
 call "%TEMP%\SetFileVersion.cmd"
 del "%TEMP%\SetFileVersion.cmd"
+
+if "%MSEDGEUPDATE_INSTALLED%" NEQ "1" (
+  if "%MSEDGE_INSTALLED%" NEQ "1" (goto SkipMSEdgeUpdateInst) else (goto InstallMSEdgeUpdateSilent)
+)
+
+rem This feature is broken in some way...
+goto SkipMSEdgeUpdateInst
+
+echo Determining Edge (Chromium) Updater version...
 if %MSEDGEUPDATE_VER_MAJOR% LSS %MSEDGEUPDATE_VER_TARGET_MAJOR% goto InstallMSEdgeUpdate
 if %MSEDGEUPDATE_VER_MAJOR% GTR %MSEDGEUPDATE_VER_TARGET_MAJOR% goto SkipMSEdgeUpdateInst
 if %MSEDGEUPDATE_VER_MINOR% LSS %MSEDGEUPDATE_VER_TARGET_MINOR% goto InstallMSEdgeUpdate
@@ -660,8 +662,12 @@ if %MSEDGEUPDATE_VER_BUILD% GTR %MSEDGEUPDATE_VER_TARGET_BUILD% goto SkipMSEdgeU
 if %MSEDGEUPDATE_VER_REVIS% GEQ %MSEDGEUPDATE_VER_TARGET_REVIS% goto SkipMSEdgeUpdateInst
 
 :InstallMSEdgeUpdate
+rem This line is intentionally implemented twice
 if exist %SystemRoot%\Temp\wou_msedgeupdate_tried.txt goto SkipMSEdgeUpdateInst
 echo Installing most recent Edge (Chromium) Updater...
+:InstallMSEdgeUpdateSilent
+rem This line is intentionally implemented twice
+if exist %SystemRoot%\Temp\wou_msedgeupdate_tried.txt goto SkipMSEdgeUpdateInst
 call InstallOSUpdate.cmd "..\msedge\%MSEDGEUPDATE_FILENAME%" %VERIFY_MODE% /errorsaswarnings /recover /machine
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_msedgeupdate_tried.txt
