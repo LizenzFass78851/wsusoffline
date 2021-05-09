@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.8)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.8 (b61) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.8 (b62) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"

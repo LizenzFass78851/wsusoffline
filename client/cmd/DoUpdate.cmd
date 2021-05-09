@@ -32,7 +32,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b61)
+set WSUSOFFLINE_VERSION=11.9.8 (b62)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -566,6 +566,11 @@ goto CheckServicingStack
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
 rem *** Update Windows Update Agent ***
+if "%OS_SHA2_SUPPORT%" NEQ "1" (
+  echo Skipping installation of most recent Windows Update Agent due to missing SHA2 support...
+  call :Log "Info: Skipped installation of most recent Windows Update Agent due to missing SHA2 support"
+  goto SkipWUAInst
+)
 echo Checking Windows Update Agent version...
 if %WUA_VER_MAJOR% LSS %WUA_VER_TARGET_MAJOR% goto InstallWUA
 if %WUA_VER_MAJOR% GTR %WUA_VER_TARGET_MAJOR% goto SkipWUAInst
@@ -574,7 +579,7 @@ if %WUA_VER_MINOR% GTR %WUA_VER_TARGET_MINOR% goto SkipWUAInst
 if %WUA_VER_BUILD% LSS %WUA_VER_TARGET_BUILD% goto InstallWUA
 if %WUA_VER_BUILD% GTR %WUA_VER_TARGET_BUILD% goto SkipWUAInst
 if %WUA_VER_REVIS% LSS %WUA_VER_TARGET_REVIS% goto InstallWUA
-if %WUA_VER_REVIS% GEQ %WUA_VER_TARGET_MREVIS% goto SkipWUAInst
+if %WUA_VER_REVIS% GEQ %WUA_VER_TARGET_REVIS% goto SkipWUAInst
 :InstallWUA
 if exist %SystemRoot%\Temp\wou_wua_tried.txt goto SkipWUAInst
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
