@@ -1811,3 +1811,4 @@ Community Edition 12.5 -- ??.??.????
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Power Plan and screensaver settings will always be restored, if autoreboot is disabled (Thanks to "Eduardo de Oliveira")
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
+- Fix: Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup will be excluded from supersedance checks
