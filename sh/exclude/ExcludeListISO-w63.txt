@@ -32,7 +32,7 @@ w63-x64
 w100
 w100-x64
 
-# Exclude 64-bit subdirectories of dotnet, msse and wddefs
+# Exclude 64-bit subdirectories of msse and wddefs
 x64-glb
 
 # Exclude 64-bit installers for vcredist and Silverlight
@@ -47,15 +47,13 @@ ndp45-*
 NDP46-*
 
 # The integrated Defender of Windows 8 and higher needs the virus
-# definition files from the directory msse, but not the installers for
-# Microsoft Security Essentials.
-MSEInstall-*.exe
+# definition files from the directory wddefs, while the directory msse
+# is not used anymore.
+msse
 
 # Exclude unneeded files from the directory client/md
-hashes-o2k10-*.txt
 hashes-o2k13-*.txt
 hashes-o2k16-glb.txt
-hashes-ofc-*.txt
 hashes-w60-glb.txt
 hashes-w60-x64-glb.txt
 hashes-w61-glb.txt
@@ -64,11 +62,9 @@ hashes-w62-x64-glb.txt
 hashes-w63-x64-glb.txt
 hashes-w100-glb.txt
 hashes-w100-x64-glb.txt
-hashes-dotnet-x64-glb.txt
-hashes-wddefs.txt
-
-# Exclude unneeded files from the directory client/static
-StaticUpdateFiles-modified.txt
+hashes-msse-x86-glb.txt
+hashes-msse-x64-glb.txt
+hashes-wddefs-x64-glb.txt
 
 # Exclude source files
 UpdateInstaller.au3

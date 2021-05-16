@@ -2,7 +2,7 @@
 #
 # Filename: messages.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -237,6 +237,13 @@ function log_error_message ()
 {
     printf '%s\n' "${bold}${brightred}Error:${reset_all} $*" | fold -s -w "${COLUMNS}"
     printf '%s\n' "$(date "+%F %T") - Error: $*" >> "${logfile}"
+    return 0
+} 1>&2
+
+function log_file_integrity_verification_error ()
+{
+    printf '%s\n' "${bold}${brightred}File integrity verification error:${reset_all} $*" | fold -s -w "${COLUMNS}"
+    printf '%s\n' "$(date "+%F %T") - File integrity verification error: $*" >> "${logfile}"
     return 0
 } 1>&2
 

@@ -1,6 +1,7 @@
 Installationsanleitung für die Linux-Download-Skripte
 =====================================================
-Zuletzt aktualisiert für Version 2.0 Community Edition (2020-07-12)
+Zuletzt aktualisiert für die Linux-Download-Skripte, Version 2.3
+(2021-01-19)
 
 
 WSUS Offline Update enthält bereits die neuen Linux-Skripte. Sie
@@ -136,15 +137,22 @@ Laden Sie das wsusoffline-Archiv herunter und entpacken Sie es
 --------------------------------------------------------------
 Laden Sie das neueste wsusoffline-Archiv herunter und entpacken Sie es.
 
-* Überprüfen Sie die Downloadseite <https://download.wsusoffline.net/>
-  für das ursprüngliche WSUS Offline Update der Originalentwickler.
+* Die Downloadseite <https://download.wsusoffline.net/> führt die
+  ursprünglichen Versionen des Originalentwicklers auf. Diese Versionen
+  werden jedoch nicht länger gepflegt, und Sie sollten sie nicht mehr
+  verwenden.
 
-* Überprüfen Sie die Seite "Releases"
-  <https://gitlab.com/wsusoffline/wsusoffline/-/releases> für die
-  Community Edition.
+* Verwenden Sie statt dessen die Community Edition von
+  <https://gitlab.com/wsusoffline/wsusoffline/-/releases>.
 
-  Wählen sie das neueste Release aus dem "master" Zweig, also Version
-  12.2-CE oder höher.
+  Wählen Sie das neueste Release aus dem "master" Zweig, zum Beispiel
+  Community Edition 12.4 oder höher.
+
+  Die Unterschiede zwischen den Originalversionen und der Community
+  Edition werden in einem Forum-Artikel erklärt:
+
+  wsusoffline "Community Edition"
+  <https://forums.wsusoffline.net/viewtopic.php?f=7&t=10194>
 
 Beachten Sie, dass das Zip-Archiv von einer Hashes-Datei begleitet
 wird. Sie können das Archiv damit überprüfen:
@@ -175,7 +183,7 @@ Skript-Verzeichnis aufgerufen werden mit:
 
   ./update-generator.bash
   ./get-all-updates.bash
-  ./download-updates.bash w60 deu,enu -includesp
+  ./download-updates.bash all deu,enu -includesp
 
 
 Anmerkungen

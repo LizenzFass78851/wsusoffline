@@ -2,7 +2,7 @@
 #
 # Filename: 10-show-selection-dialogs-with-dialog.bash
 #
-# Copyright (C) 2018-2020 Hartmut Buhrmester
+# Copyright (C) 2018-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -69,8 +69,6 @@ declare -A all_values=(
     [w63-x64]="off"
     [w100]="off"
     [w100-x64]="off"
-    [o2k10]="off"
-    [o2k10-x64]="off"
     [o2k13]="off"
     [o2k13-x64]="off"
     [o2k16]="off"
@@ -107,28 +105,20 @@ declare -A all_values=(
     [esn]="off"
     [sve]="off"
     [trk]="off"
+    [sp]="on"
     [cpp]="off"
     [dotnet]="off"
     [wddefs]="off"
 )
 
 declare -A w100_values=(
-    [1507_x86]="on"
-    [1507_x64]="on"
-    [1607_x86]="on"
-    [1607_x64]="on"
-    [1709_x86]="off"
-    [1709_x64]="off"
-    [1803_x86]="off"
-    [1803_x64]="off"
-    [1809_x86]="on"
-    [1809_x64]="on"
-    [1903_x86]="on"
-    [1903_x64]="on"
-    [1909_x86]="on"
-    [1909_x64]="on"
-    [2004_x86]="on"
-    [2004_x64]="on"
+    [1507_x86]="on"   [1507_x64]="on"
+    [1607_x86]="on"   [1607_x64]="on"
+    [1803_x86]="off"  [1803_x64]="off"
+    [1809_x86]="on"   [1809_x64]="on"
+    [1909_x86]="on"   [1909_x64]="on"
+    [2004_x86]="on"   [2004_x64]="on"
+    [20H2_x86]="on"   [20H2_x64]="on"
 )
 
 
@@ -146,18 +136,22 @@ declare -A w100_values=(
 
 all_keys=(
     w62-x64 w63 w63-x64 w100 w100-x64
-    o2k10 o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64
+    o2k13 o2k13-x64 o2k16 o2k16-x64
     all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
     all-ofc-x86
     deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
     plk ptg ptb rus esn sve trk
-    cpp dotnet wddefs
+    sp cpp dotnet wddefs
 )
 
 w100_keys=(
-    1507_x86 1507_x64 1607_x86 1607_x64 1709_x86 1709_x64 1803_x86
-    1803_x64 1809_x86 1809_x64 1903_x86 1903_x64 1909_x86 1909_x64
+    1507_x86 1507_x64
+    1607_x86 1607_x64
+    1803_x86 1803_x64
+    1809_x86 1809_x64
+    1909_x86 1909_x64
     2004_x86 2004_x64
+    20H2_x86 20H2_x64
 )
 
 download_parameters=()
@@ -288,8 +282,6 @@ function show_selection_dialogs_with_dialog ()
         w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit"                "${all_values[w63-x64]}"
         w100          "Windows 10, 32-bit"                                  "${all_values[w100]}"
         w100-x64      "Windows 10 / Server 2016/2019, 64-bit"               "${all_values[w100-x64]}"
-        o2k10         "Office 2010, 32-bit"                                 "${all_values[o2k10]}"
-        o2k10-x64     "Office 2010, 32-bit and 64-bit"                      "${all_values[o2k10-x64]}"
         o2k13         "Office 2013, 32-bit"                                 "${all_values[o2k13]}"
         o2k13-x64     "Office 2013, 32-bit and 64-bit"                      "${all_values[o2k13-x64]}"
         o2k16         "Office 2016, 32-bit"                                 "${all_values[o2k16]}"
@@ -309,18 +301,16 @@ function show_selection_dialogs_with_dialog ()
         1507_x64   "Windows 10, 1507, 64-bit"                 "${w100_values[1507_x64]}"
         1607_x86   "Windows 10, 1607, 32-bit"                 "${w100_values[1607_x86]}"
         1607_x64   "Windows 10, 1607 / Server 2016, 64-bit"   "${w100_values[1607_x64]}"
-        1709_x86   "Windows 10, 1709, 32-bit"                 "${w100_values[1709_x86]}"
-        1709_x64   "Windows 10, 1709, 64-bit"                 "${w100_values[1709_x64]}"
         1803_x86   "Windows 10, 1803, 32-bit"                 "${w100_values[1803_x86]}"
         1803_x64   "Windows 10, 1803, 64-bit"                 "${w100_values[1803_x64]}"
         1809_x86   "Windows 10, 1809, 32-bit"                 "${w100_values[1809_x86]}"
         1809_x64   "Windows 10, 1809 / Server 2019, 64-bit"   "${w100_values[1809_x64]}"
-        1903_x86   "Windows 10, 1903, 32-bit"                 "${w100_values[1903_x86]}"
-        1903_x64   "Windows 10, 1903, 64-bit"                 "${w100_values[1903_x64]}"
         1909_x86   "Windows 10, 1909, 32-bit"                 "${w100_values[1909_x86]}"
         1909_x64   "Windows 10, 1909, 64-bit"                 "${w100_values[1909_x64]}"
         2004_x86   "Windows 10, 2004, 32-bit"                 "${w100_values[2004_x86]}"
         2004_x64   "Windows 10, 2004, 64-bit"                 "${w100_values[2004_x64]}"
+        20H2_x86   "Windows 10, 20H2, 32-bit"                 "${w100_values[20H2_x86]}"
+        20H2_x64   "Windows 10, 20H2, 64-bit"                 "${w100_values[20H2_x64]}"
     )
 
     local -a languages_dialog=(
@@ -351,6 +341,7 @@ function show_selection_dialogs_with_dialog ()
     )
 
     local -a options_dialog=(
+        sp       "Service Packs"                         "${all_values[sp]}"
         cpp      "Visual C++ Runtime Libraries"          "${all_values[cpp]}"
         dotnet   ".NET Frameworks"                       "${all_values[dotnet]}"
         wddefs   "Windows Defender definition updates"   "${all_values[wddefs]}"
@@ -435,8 +426,9 @@ function show_selection_dialogs_with_dialog ()
         fi
     done
 
-    # Optional downloads: The list of optional downloads may be empty,
-    # if none is selected.
+    # Optional downloads: Service packs are selected on the first run,
+    # but they can be unchecked. The list of optional downloads may be
+    # empty, if none is selected.
     if option_list="$(dialog \
         --title "Optional downloads" \
         --stdout \
@@ -540,7 +532,7 @@ function run_download_script ()
     if ./download-updates.bash "${download_parameters[@]}"
     then
         log_info_message "Download script returned with success"
-        # TODO: Add any postprocessing here, e.g. call the copy-to-target
+        # TODO: Add any post-processing here, e.g. call the copy-to-target
         # script or create ISO images of the client directory.
     else
         result_code="$?"

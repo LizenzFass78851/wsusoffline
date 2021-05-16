@@ -2,7 +2,7 @@
 #
 # Filename: 50-superseded-updates.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -27,70 +27,7 @@
 #     for both Windows and Linux is depicted in a forum article:
 #
 #     https://forums.wsusoffline.net/viewtopic.php?f=5&t=5676
-#
-#     One remaining problem with this implementation is, that superseded
-#     updates may be missing, if the superseding updates are excluded
-#     from download.
-#
-#     This is an old problem, which was first found with Windows XP:
-#     The desktop versions of Windows XP are not officially supported
-#     anymore, but the embedded Windows XP POSReady still is. Updates for
-#     the embedded Windows XP would replace (and supersede) older updates
-#     for the desktop versions. The newer updates cannot be installed,
-#     but the older updates are now missing. This can be solved by adding
-#     the missing updates to the file ExcludeList-superseded-exclude.txt,
-#     but this only works in retrospect.
-#
-#     A revised method for the calculation of superseded updates was
-#     first suggested in a forum article, to help with the problem,
-#     that full quality update rollups superseded security-only updates
-#     (but only for the first month). If quality update rollups were
-#     excluded from download, then security-only updates would still
-#     be treated as superseded. Without any workaround, they would be
-#     missing in the download.
-#
-#     https://forums.wsusoffline.net/viewtopic.php?f=5&t=6141
-#
-#     Version 1.0-beta-1 of the Linux download scripts (the initial
-#     release) already included an experimental implementation of this
-#     method in the subdirectory available-tasks.
-#
-#     But the problem was solved differently at the time, by introducing
-#     new configuration files in the exclude, client/static and
-#     client/exclude directories. The revised method also needed an
-#     "initial block list" of excluded updates to start with, and it
-#     was not quite clear, how to create this list.
-#
-#     But now we can use the file HideList-seconly.txt as input, to
-#     automatically correct the list of superseded updates for updates,
-#     which are superseded by the full quality update rollups, but not
-#     by the security-only updates.
-#
-#     In the meantime, Microsoft removed the dependencies between quality
-#     update rollups and security-only updates after just one month:
-#
-#     "UPDATED 12/5/2016: Starting in December 2016, monthly rollups
-#     will not supersede security only updates. The November 2016 monthly
-#     rollup will also be updated to not supersede security only updates."
-#     -- https://techcommunity.microsoft.com/t5/Windows-Blog-Archive/More-on-Windows-7-and-Windows-8-1-servicing-changes/ba-p/166783
-#
-#     So maybe the initial problem doesn't really exist anymore.
-#
-#     But in rare cases, there are still updates reported as missing. It
-#     seems, that the quality update rollups sometimes include (and
-#     supersede) older updates, while the security-only updates only
-#     include new updates for the current month. Then again, such updates
-#     would be missing, if security-only updates are selected.
-#
-#     In two cases, the revised method could automatically recover
-#     the missing updates. Therefore, it may still be useful to have a
-#     working implementation of this method around.
-#
-#     https://forums.wsusoffline.net/viewtopic.php?f=4&t=7085
-#     https://forums.wsusoffline.net/viewtopic.php?f=2&t=8697
-#
-#     To use this method, both options prefer_seconly and revised_method
-#     should be set to "enabled" in the preferences file.
+
 
 # ========== Functions ====================================================
 
@@ -219,14 +156,14 @@ function unpack_wsus_catalog_file ()
 
     if [[ -f "../cache/package-formatted.xml" ]]
     then
-        log_info_message "Extract the catalog CreationDate..."
+        log_info_message "Extracting the catalog CreationDate..."
 
         head -n 2 "../cache/package-formatted.xml"                  \
             | tail -n 1                                             \
             | tr ' ' '\n'                                           \
             | grep -F "CreationDate"                                \
             | sed 's/^CreationDate="\([[:print:]]\{20\}\)".*$/\1/'  \
-            | todos_line_endings                                    \
+            | unix_to_dos                                           \
             > "../client/catalog-creationdate.txt"                  \
             || true
 
@@ -239,10 +176,9 @@ function unpack_wsus_catalog_file ()
 }
 
 
-# The files ExcludeList-Linux-superseded.txt,
-# ExcludeList-Linux-superseded-seconly.txt, and
-# ExcludeList-Linux-superseded-seconly-revised.txt will be deleted, if
-# a new version of WSUS Offline Update or the Linux download scripts is
+# The files ExcludeList-Linux-superseded.txt and
+# ExcludeList-Linux-superseded-seconly.txt will be deleted, if a new
+# version of WSUS Offline Update or the Linux download scripts is
 # installed, or if any of the following configurations files has changed:
 #
 # ../exclude/ExcludeList-superseded-exclude.txt
@@ -257,12 +193,15 @@ function unpack_wsus_catalog_file ()
 # ExcludeList-superseded.txt and ExcludeList-superseded-seconly.txt were
 # renamed in version 1.5 of the Linux download scripts, these tests are
 # not needed anymore.
+#
+# For example, the ExcludeList-superseded.txt originally contained only
+# the filenames, not the complete URLs. To make sure, that the new format
+# was used, the script would search for "http://".
 
 function check_superseded_updates ()
 {
     if [[ -f "../exclude/ExcludeList-Linux-superseded.txt" \
-       && -f "../exclude/ExcludeList-Linux-superseded-seconly.txt" \
-       && -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt" ]]
+       && -f "../exclude/ExcludeList-Linux-superseded-seconly.txt" ]]
     then
         log_info_message "Found valid list of superseded updates"
     else
@@ -272,188 +211,122 @@ function check_superseded_updates ()
 }
 
 
-# The function rebuild_superseded_updates calculates three alternate lists
+# The function rebuild_superseded_updates calculates two alternate lists
 # of superseded updates:
 #
 # ../exclude/ExcludeList-Linux-superseded.txt
 # ../exclude/ExcludeList-Linux-superseded-seconly.txt
-# ../exclude/ExcludeList-Linux-superseded-seconly-revised.txt
 
 function rebuild_superseded_updates ()
 {
     local -a excludelist_overrides=()
     local -a excludelist_overrides_seconly=()
-    local current_dir=""
     local current_file=""
-
-    # Preconditions
-    require_file "${cache_dir}/package.xml" || fail "The required file package.xml is missing"
+    local line=""
 
     # Delete existing files, just to be sure
     rm -f "../exclude/ExcludeList-Linux-superseded.txt"
     rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
-    rm -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
 
     log_info_message "Determining superseded updates (please be patient, this will take a while)..."
 
-    # As depicted in a forum article, the calculation of superseded
-    # updates uses three steps. Each step joins two input files to a
-    # new output file. The input files are csv-formatted text files with
-    # the joined fields in the first column.
-    #
-    # https://forums.wsusoffline.net/viewtopic.php?f=5&t=5676
+    # *** First step ***
+    log_info_message "Extracting existing-bundle-revision-ids.txt..."
+    xml_transform "extract-existing-bundle-revision-ids.xsl" \
+                          "existing-bundle-revision-ids.txt"
 
-    # *** First step: Calculate superseded revision ids ***
-    #
-    # Superseded bundle records can be recognized by an element of type
-    # "SupersededBy" with one or more newer bundle RevisionIds. But
-    # some of these RevisionIds may not may not actually exist anymore,
-    # probably because the update records and the corresponding downloads
-    # have been deleted. For example, the bundle record for the Windows
-    # 7 update kb2604114 includes the element:
-    #
-    #  <SupersededBy>
-    #    <Revision Id="13941260"/>
-    #    <Revision Id="16506826"/>
-    #  </SupersededBy>
-    #
-    # but both RevisionIds don't seem to exist. Therefore, it is necessary
-    # to extract a list all existing bundle RevisionIds and use it to
-    # correct the list of superseding bundle RevisionIds. The result
-    # will be a list of valid superseded bundle RevisionIds.
+    log_info_message "Extracting superseding-and-superseded-revision-ids.txt..."
+    xml_transform "extract-superseding-and-superseded-revision-ids.xsl" \
+                          "superseding-and-superseded-revision-ids.txt"
 
-    log_info_message "Extracting file 1, all existing bundle RevisionIds..."
-    "${xmlstarlet}" transform \
-        ../xslt/extract-existing-bundle-revision-ids.xsl \
-        "${cache_dir}/package.xml" \
-        > "${temp_dir}/bundle-revision-ids-all.txt"
-    sort_in_place "${temp_dir}/bundle-revision-ids-all.txt"
-
-    log_info_message "Extracting file 2, superseding and superseded bundle RevisionIds..."
-    "${xmlstarlet}" transform \
-        ../xslt/extract-superseding-and-superseded-revision-ids.xsl \
-        "${cache_dir}/package.xml" \
-        > "${temp_dir}/superseding-and-superseded-revision-ids.txt"
-    sort_in_place "${temp_dir}/superseding-and-superseded-revision-ids.txt"
-
-    # Get valid superseded bundle RevisionIds by verifying, that the
-    # superseding bundle RevisionIds actually exist.
-    #
-    # Input files:
-    # File 1: bundle-revision-ids-all.txt
-    # - Field 1: all existing bundle RevisionIds
-    # File 2: superseding-and-superseded-revision-ids.txt
-    # - Field 1: superseding bundle RevisionIds
-    # - Field 2: superseded bundle RevisionIds (not verified)
-    #
-    # Output file: valid superseded bundle RevisionIds
-    log_info_message "Joining files 1 and 2 to file 3, valid superseded bundle RevisionIds..."
-    join -t ',' -o 2.2 \
-        "${temp_dir}/bundle-revision-ids-all.txt" \
-        "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
+    log_info_message "Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids.txt to ValidSupersededRevisionIds.txt..."
+    join -t "," -e "unavailable" -o "2.2"                           \
+          "${temp_dir}/existing-bundle-revision-ids.txt"            \
+          "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
         > "${temp_dir}/ValidSupersededRevisionIds.txt"
     sort_in_place "${temp_dir}/ValidSupersededRevisionIds.txt"
 
-    # *** Second step: Calculate superseded file ids ***
-    #
-    # Extract three connected fields from the same Update records:
-    # - the parent bundle RevisionId from the field "BundledBy"
-    # - the RevisionId of the update record itself
-    # - the File-Id of the Payload File
-    #
-    # Note: WSUS Offline Update before version 10.7 did not
-    # use GNU join and GNU sort (gsort.exe) to join the input
-    # files. Compared to version 10.6.3, the field order of the file
-    # BundledUpdateRevisionAndFileIds.txt was modified, so that the
-    # bundle RevisionId is now the first field. Previous versions of
-    # the Linux download scripts called this the "revised field order".
-    #
-    # TODO: There are some records with empty FileIds. Maybe the XSLT file
-    # should scan for file ids rather than for parent bundle RevisionIds.
-    log_info_message "Extracting file 4, bundle and update RevisionIds and FileIds..."
-    "${xmlstarlet}" transform \
-        ../xslt/extract-update-revision-and-file-ids.xsl \
-        "${cache_dir}/package.xml" \
-        > "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"
-    sort_in_place "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"
+    # *** Second step ***
+    log_info_message "Extracting BundledUpdateRevisionAndFileIds.txt..."
+    xml_transform "extract-update-revision-and-file-ids.xsl" \
+                  "BundledUpdateRevisionAndFileIds.txt"
 
-    # In the standard method of calculating superseded updates, the
-    # first fields of each table will be joined. For the revised method,
-    # the file BundledUpdateRevisionAndFileIds.txt needs to be sorted by
-    # the third field as well. The option --unique should not be used,
-    # if only one field is sorted.
-    sort -t ',' -k 3 "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
-        > "${temp_dir}/BundledUpdateRevisionAndFileIds3.txt"
-
-    # Get superseded FileIds of the PayloadFiles. Since the superseded
-    # bundle RevisionIds are verified, this join will also verify the
-    # FileIds. This means: if there are bundle RevisionIds in the second
-    # file, which don't really exist, they won't be matched by this join.
-
-    # Input files:
-    # File 1: ValidSupersededRevisionIds.txt
-    # - Field 1: superseded bundle RevisionId (verified)
-    # File 2: BundledUpdateRevisionAndFileIds.txt
-    # - Field 1: parent bundle RevisionId
-    # - Field 2: Update RevisionId (not really needed, but useful for
-    #            debugging)
-    # - Field 3: FileId
-    #
-    # Output file: superseded FileIds
-    log_info_message "Joining files 3 and 4 to file 5, superseded FileIds..."
-    join -t ',' -o 2.3 \
-        "${temp_dir}/ValidSupersededRevisionIds.txt" \
-        "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
+    log_info_message "Joining ValidSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt..."
+    join -t "," -e "unavailable" -o "2.3"                   \
+          "${temp_dir}/ValidSupersededRevisionIds.txt"      \
+          "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
         > "${temp_dir}/SupersededFileIds.txt"
     sort_in_place "${temp_dir}/SupersededFileIds.txt"
 
-    # *** Third step: Calculate superseded file locations (URLs) ***
-
-    log_info_message "Extracting file 6, FileIds and Locations (URLs)..."
-    "${xmlstarlet}" transform \
-        ../xslt/extract-update-cab-exe-ids-and-locations.xsl \
-        "${cache_dir}/package.xml" \
-        > "${temp_dir}/UpdateCabExeIdsAndLocations.txt"
-    sort_in_place "${temp_dir}/UpdateCabExeIdsAndLocations.txt"
-
-    # Input files:
-    # File 1: SupersededFileIds.txt
-    # - Field 1: superseded FileId
-    # File 2: UpdateCabExeIdsAndLocations.txt
-    # - Field 1: FileId
-    # - Field 2: File Location (URL)
+    log_info_message "Creating ValidNonSupersededRevisionIds.txt..."
+    # "grep -F -i -v -f" would be a direct translation of
+    # "findstr.exe /L /I /V /G:", but grep always causes troubles:
+    # - grep writes an empty output file, if the filter file contains
+    #   empty lines. This can be prevented by added the option -e
+    #   "unavailable" to join.
+    # - if grep doesn't find any results, then it returns an error code
+    # - grep can get rather slow for comparing large files
+    # - join works better for large files, because it reads alternately
+    #   through two sorted files
     #
-    # Output file: superseded File Locations (URLs)
-    log_info_message "Joining files 5 and 6 to file 7, superseded File Locations (URLs)..."
-    join -t ',' -o 2.2 \
-        "${temp_dir}/SupersededFileIds.txt" \
-        "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
+    # join -v1 does a "left join"; it will print only lines, which are
+    # unique on the left side (in the first file)
+    join -e "unavailable" -v1                            \
+          "${temp_dir}/existing-bundle-revision-ids.txt" \
+          "${temp_dir}/ValidSupersededRevisionIds.txt"   \
+        > "${temp_dir}/ValidNonSupersededRevisionIds.txt"
+    sort_in_place "${temp_dir}/ValidNonSupersededRevisionIds.txt"
+
+    log_info_message "Joining ValidNonSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to NonSupersededFileIds.txt..."
+    join -t "," -e "unavailable" -o "2.3"                   \
+          "${temp_dir}/ValidNonSupersededRevisionIds.txt"   \
+          "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
+        > "${temp_dir}/NonSupersededFileIds.txt"
+    sort_in_place "${temp_dir}/NonSupersededFileIds.txt"
+
+    log_info_message "Creating OnlySupersededFileIds.txt..."
+    join -e "unavailable" -v1                    \
+          "${temp_dir}/SupersededFileIds.txt"    \
+          "${temp_dir}/NonSupersededFileIds.txt" \
+        > "${temp_dir}/OnlySupersededFileIds.txt"
+    sort_in_place "${temp_dir}/OnlySupersededFileIds.txt"
+
+    # *** Third step ***
+    log_info_message "Extracting UpdateCabExeIdsAndLocations.txt..."
+    xml_transform "extract-update-cab-exe-ids-and-locations.xsl" \
+                  "UpdateCabExeIdsAndLocations.txt"
+
+    log_info_message "Joining OnlySupersededFileIds.txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all.txt..."
+    join -t "," -e "unavailable" -o "2.2"               \
+          "${temp_dir}/OnlySupersededFileIds.txt"       \
+          "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
         > "${temp_dir}/ExcludeList-superseded-all.txt"
     sort_in_place "${temp_dir}/ExcludeList-superseded-all.txt"
 
     # *** Apply ExcludeList-superseded-exclude.txt ***
-    #
-    # The file ExcludeList-superseded-exclude.txt contains kb numbers
-    # of updates, which are marked as superseded by Microsoft, but which
-    # should be downloaded and installed nonetheless. This file is used
-    # for both "quality" update rollups and security-only updates.
-    #
-    # The file ExcludeList-superseded-exclude-seconly.txt was introduced
-    # in WSUS Offline Update 10.9. It contains kb numbers of updates,
-    # which are superseded by the full "quality" update rollups, but
-    # not by the security-only updates.
-    #
-    # When the update rollups were introduced, full "quality"
-    # update rollups superseded the security-only updates. Therefore,
-    # security-only updates are also removed from the list of superseded
-    # updates, if security-only updates are selected.
-    excludelist_overrides=(
+    excludelist_overrides+=(
         ../exclude/ExcludeList-superseded-exclude.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
     )
 
+    # kb2975061 is defined in the file StaticUpdateIds-w63-upd1.txt. It
+    # seems to be superseded by the cumulative update rollups, but
+    # not by incremental security-only updates. Therefore, the files
+    # StaticUpdateIds-w63-upd1.txt and StaticUpdateIds-w63-upd2.txt are
+    # added to the calculation of seconly superseded updates.
+    #
+    # The kb numbers should be restricted to Windows 8.1.
+    cat_existing_files ../client/static/StaticUpdateIds-w63-upd1.txt \
+                       ../client/static/StaticUpdateIds-w63-upd2.txt \
+    | grep -i -e "^kb"                                               \
+    | while IFS=$'\r\n' read -r line
+      do
+          line="windows8.1-${line}"
+          echo "${line}"
+      done > "${temp_dir}/w63_excludes.txt"
+
     shopt -s nullglob
-    excludelist_overrides_seconly=(
+    excludelist_overrides_seconly+=(
         ../exclude/ExcludeList-superseded-exclude.txt
         ../exclude/ExcludeList-superseded-exclude-seconly.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
@@ -462,179 +335,42 @@ function rebuild_superseded_updates ()
         ../client/static/StaticUpdateIds-w63*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w62*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w63*-seconly.txt
+        "${temp_dir}/w63_excludes.txt"
     )
     shopt -u nullglob
 
     # The Linux download scripts, version 1.5 and later
     # create the files ExcludeList-Linux-superseded.txt and
-    # ExcludeList-Linux-superseded-seconly.txt, because the sort order
-    # of the intermediate files is not exactly the same as in Windows.
-    apply_exclude_lists \
-        "${temp_dir}/ExcludeList-superseded-all.txt" \
-        "../exclude/ExcludeList-Linux-superseded.txt" \
-        "${temp_dir}/ExcludeList-superseded-exclude.txt" \
+    # ExcludeList-Linux-superseded-seconly.txt, because the sort
+    # order is not exactly the same as in Windows: The Linux download
+    # scripts use a C-style sort by the byte order. The Windows script
+    # DownloadUpdates.cmd uses the default sort order of GNU sort,
+    # which usually implies a "natural" number sort. This is, of course,
+    # a bad idea, because it means, that all URLs are broken down into
+    # small pieces, and then the pieces are compared to each other.
+    apply_exclude_lists                                   \
+        "${temp_dir}/ExcludeList-superseded-all.txt"      \
+        "../exclude/ExcludeList-Linux-superseded.txt"     \
+        "${temp_dir}/ExcludeList-superseded-exclude.txt"  \
         "${excludelist_overrides[@]}"
     sort_in_place "../exclude/ExcludeList-Linux-superseded.txt"
 
-    apply_exclude_lists \
-        "${temp_dir}/ExcludeList-superseded-all.txt" \
-        "../exclude/ExcludeList-Linux-superseded-seconly.txt" \
-        "${temp_dir}/ExcludeList-superseded-exclude-seconly.txt" \
+    apply_exclude_lists                                           \
+        "${temp_dir}/ExcludeList-superseded-all.txt"              \
+        "../exclude/ExcludeList-Linux-superseded-seconly.txt"     \
+        "${temp_dir}/ExcludeList-superseded-exclude-seconly.txt"  \
         "${excludelist_overrides_seconly[@]}"
     sort_in_place "../exclude/ExcludeList-Linux-superseded-seconly.txt"
 
-    # ========== Revised method for security-only updates =================
-
-    log_info_message "Recalculate superseded updates for security-only updates, using a revised method..."
-
-    # The file HideList-seconly.txt is used to hide the full "quality"
-    # updates rollups from the Windows Update service during installation,
-    # if security-only updates are selected. The first column contains
-    # the kb numbers of the hidden updates.
-    log_info_message "Create a list of hidden kb numbers..."
-    for current_dir in ../client/exclude ../client/exclude/custom
-    do
-        if [[ -s "${current_dir}/HideList-seconly.txt" ]]
-        then
-            cat_dos "${current_dir}/HideList-seconly.txt" \
-                | cut -d ',' -f 1 \
-                >> "${temp_dir}/hidden-kb-numbers.txt"
-        fi
-    done
-
-    if [[ -s "${temp_dir}/hidden-kb-numbers.txt" ]]; then
-
-        # By searching the file UpdateCabExeIdsAndLocations.txt, the kb
-        # numbers in the file HideList-seconly.txt can be traced back
-        # to the File Locations (URLs) and the FileIds.
-        log_info_message "Create a list of hidden FileIds and Locations..."
-        grep -F -i -f "${temp_dir}/hidden-kb-numbers.txt" \
-            "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
-            > "${temp_dir}/hidden-file-ids-and-locations.txt" || true
-        sort_in_place "${temp_dir}/hidden-file-ids-and-locations.txt"
-
-        # Trace back from the hidden FileIds to the parent bundle
-        # RevisionIds
-        #
-        # Input files:
-        # File 1: hidden-file-ids-and-locations.txt
-        # - Field 1: hidden FileId (sorted and joined field)
-        # - Field 2: hidden File Location
-        # File 2: BundledUpdateRevisionAndFileIds3.txt
-        # - Field 1: bundle RevisionId (exported field)
-        # - Field 2: Update RevisionId
-        # - Field 3: FileId (sorted and joined field)
-        #
-        # Output file: hidden bundle RevisionIds
-        log_info_message "Create a list of hidden bundle RevisionIds..."
-        join -t ',' -1 '1' -2 '3' -o '2.1' \
-            "${temp_dir}/hidden-file-ids-and-locations.txt" \
-            "${temp_dir}/BundledUpdateRevisionAndFileIds3.txt" \
-            > "${temp_dir}/bundle-revision-ids-hidden.txt"
-        sort_in_place "${temp_dir}/bundle-revision-ids-hidden.txt"
-
-        # The hidden bundle RevisionIds are removed from the list of
-        # existing bundle RevisionIds. Thus, they will not be treated
-        # as superseding anymore, when the list of superseded updates
-        # is calculated.
-        #
-        # This "left join" is basically the calculation:
-        #
-        # all - hidden = valid bundle RevisionIds
-        log_info_message "Remove the hidden bundle RevisionIds from the list of existing bundle RevisionIds..."
-        join -t ',' -v1 \
-            "${temp_dir}/bundle-revision-ids-all.txt" \
-            "${temp_dir}/bundle-revision-ids-hidden.txt" \
-            > "${temp_dir}/bundle-revision-ids-valid.txt"
-        sort_in_place "${temp_dir}/bundle-revision-ids-valid.txt"
-
-        # The remaining calculations are done as in the standard method
-        # above. The XSLT transformations don't not need to be done
-        # again, because the needed tables already exist. Joining and
-        # sorting these tables is very fast. Therefore, the additional
-        # calculations don't really impact the performance.
-
-        # Step 1: Get valid superseded bundle RevisionIds by verifying,
-        # that the superseding bundle RevisionIds actually exist
-        #
-        # Input files:
-        # File 1: bundle-revision-ids-valid.txt
-        # - Field 1: valid bundle RevisionIds = all existing bundle
-        #            RevisionIds minus the hidden RevisionIds
-        # File 2: superseding-and-superseded-revision-ids.txt
-        # - Field 1: superseding bundle RevisionId
-        # - Field 2: superseded bundle RevisionId (not verified)
-        #
-        # Output file: valid superseded bundle RevisionIds (revised)
-        log_info_message "Build a list of valid superseded bundle RevisionIds (revised)..."
-        join -t ',' -o 2.2 \
-            "${temp_dir}/bundle-revision-ids-valid.txt" \
-            "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
-            > "${temp_dir}/ValidSupersededRevisionIds-Revised.txt"
-        sort_in_place "${temp_dir}/ValidSupersededRevisionIds-Revised.txt"
-
-        # Step 2: Get superseded FileIds of the PayloadFiles
-        #
-        # Input files:
-        # File 1: ValidSupersededRevisionIds-Revised.txt
-        # - Field 1: valid superseded bundle RevisionId
-        # File 2: BundledUpdateRevisionAndFileIds.txt
-        # - Field 1: parent bundle RevisionId
-        # - Field 2: update RevisionId (not really needed, but useful
-        #            for debugging)
-        # - Field 3: FileId
-        #
-        # Output file: superseded FileIds (revised)
-        log_info_message "Build a list of superseded FileIds (revised)..."
-        join -t ',' -o 2.3 \
-            "${temp_dir}/ValidSupersededRevisionIds-Revised.txt" \
-            "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
-            > "${temp_dir}/SupersededFileIds-Revised.txt"
-        sort_in_place "${temp_dir}/SupersededFileIds-Revised.txt"
-
-        # Step 3: Calculate superseded file locations (URLs)
-        #
-        # Input files:
-        # File 1: SupersededFileIds-Revised.txt
-        # - Field 1: FileId
-        # File 2: UpdateCabExeIdsAndLocations.txt
-        # - Field 1: FileId
-        # - Field 2: File Location (URL)
-        #
-        # Output file: superseded File Locations (revised)
-        log_info_message "Build a list of superseded File Locations (revised)..."
-        join -t ',' -o 2.2 \
-            "${temp_dir}/SupersededFileIds-Revised.txt" \
-            "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
-            > "${temp_dir}/ExcludeList-superseded-all-revised.txt"
-        sort_in_place "${temp_dir}/ExcludeList-superseded-all-revised.txt"
-
-        # Apply the exclude list overrides as defined above for the
-        # standard method
-        apply_exclude_lists \
-            "${temp_dir}/ExcludeList-superseded-all-revised.txt" \
-            "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt" \
-            "${temp_dir}/ExcludeList-superseded-exclude-seconly-revised.txt" \
-            "${excludelist_overrides_seconly[@]}"
-        sort_in_place "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
-
-    else
-        # If there are no files to hide, then the revised method should
-        # get the same results as the standard method.
-        cp "../exclude/ExcludeList-Linux-superseded-seconly.txt" \
-           "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
-    fi
-
-    # ========== Postprocessing ===========================================
+    # ========== Post-processing ==========================================
 
     # After recalculating superseded updates, all dynamic updates must
     # be recalculated as well.
     reevaluate_dynamic_updates
 
-    # Test, that all three files were created
+    # Check, that both files were created
     for current_file in "../exclude/ExcludeList-Linux-superseded.txt" \
-                        "../exclude/ExcludeList-Linux-superseded-seconly.txt" \
-                        "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
+                        "../exclude/ExcludeList-Linux-superseded-seconly.txt"
     do
         if ensure_non_empty_file "${current_file}"
         then
@@ -644,6 +380,7 @@ function rebuild_superseded_updates ()
         fi
     done
 
+    log_info_message "Determined superseded updates"
     return 0
 }
 

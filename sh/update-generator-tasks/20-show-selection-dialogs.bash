@@ -2,7 +2,7 @@
 #
 # Filename: 20-show-selection-dialogs.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -117,26 +117,18 @@ function select_language ()
 
 function select_options ()
 {
+    local valid_options=()
     local current_option=""
     local option_name=""
     local option_description=""
 
-    # The optional downloads Visual C++ runtime libraries, .NET Frameworks
-    # and Windows Defender definition updates are only available for
-    # Windows, because they depend on the architecture of the operating
-    # system.
-    #
-    # There are no options for Office, after Service Packs were removed
-    # in WSUS Offline Update 12.0
-
     case "${update_name}" in
         w62-x64 | w63 | w63-x64 | w100 | w100-x64 \
         | all | all-x86 | all-x64 | all-win | all-win-x86 | all-win-x64)
-            :
+            valid_options+=( "${options_menu_windows[@]}" )
         ;;
-        o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 \
-        | all-ofc | all-ofc-x86)
-            return 0
+        o2k13 | o2k13-x64 | o2k16 | o2k16-x64 | all-ofc | all-ofc-x86)
+            valid_options+=( "${options_menu_office[@]}" )
         ;;
         *)
             fail "Update ${update_name} was not found."
@@ -145,15 +137,18 @@ function select_options ()
 
     echo "Optional downloads"
     echo "------------------"
-    for current_option in "${options_menu[@]}"
-    do
-        read -r option_name option_description <<< "${current_option}"
+    if (( "${#valid_options[@]}" > 0 ))
+    then
+        for current_option in "${valid_options[@]}"
+        do
+            read -r option_name option_description <<< "${current_option}"
 
-        if ask_question "Include ${option_description}?"
-        then
-            download_command+=( "${option_name}" )
-        fi
-    done
+            if ask_question "Include ${option_description}?"
+            then
+                download_command+=( "${option_name}" )
+            fi
+        done
+    fi
     return 0
 }
 

@@ -1787,6 +1787,7 @@ Community Edition 12.4 -- 06.12.2020
 Community Edition 12.5 -- ??.??.????
 - NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
+- Included complete rewrite of the Linux scripts version CE-2.4 (beta 1) (Special thanks to H. Buhrmester)
 - Support added for .NET 5 (Thanks to "aker" and "boco")
 - Support added for updating Microsoft Edge (Chromium) (Thanks to "aker")
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")

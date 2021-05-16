@@ -2,7 +2,7 @@
 #
 # Filename: files-and-folders.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -30,8 +30,8 @@
 #
 #     The functions require_directory, require_file,
 #     require_non_empty_file and ensure_non_empty_file test the
-#     preconditions and postconditions of other functions. They could be
-#     replaced with simple tests, but they produce useful diagnostic
+#     pre-conditions and post-conditions of other functions. They could
+#     be replaced with simple tests, but they produce useful diagnostic
 #     output when needed, and they also recognize the placeholder
 #     "not-available", which is often used to initialize variables for
 #     files and directories.
@@ -215,12 +215,14 @@ function ensure_non_empty_file ()
 # grep --inverted-match must be used to remove lines with these numbers
 # from the input file.
 #
-# The exclude list for superseded updates is handled more efficiently
-# with the utility "join".
+# The exclude list for superseded updates is handled more efficiently with
+# the utility "join". This utility should also be used in other cases,
+# where the input file and the exclude list share the same format. Then a
+# "left join" will be more efficient than an inverted grep.
 #
-# Parameters:
+# Positional parameters
 #
-# 1. The input file, for example "all_dynamic_links"
+# 1. The input file, for example "current_dynamic_links"
 # 2. The output file, for example "valid_dynamic_links", after applying
 #    the exclude lists
 # 3. The name of the temporary file combining all exclude lists. This
@@ -231,23 +233,27 @@ function ensure_non_empty_file ()
 #    ../exclude/custom must both be specified. This is different from
 #    the version in beta-1.
 #
-# Additional requirements are:
+# Additional requirements
 #
-# - All configuration files use DOS line endings. The carriage return
-#   must be removed during read.
+# - All configuration files in WSUS Offline Update use DOS line
+#   endings. The carriage return must be removed during read.
 # - Some input files, like StaticUpdateIds-w61-seconly.txt and
 #   HideList-seconly.txt, combine the kb number and a description,
-#   separated by a comma. In these files, only the first field should
-#   be extracted. If there is no comma, the whole line should be copied.
+#   separated by a comma. Only the first field should be extracted
+#   from these files. If there is no comma, then the whole line should
+#   be copied.
+# - In Community Editions 11.9.8-ESR and 12.5, a semicolon may be used
+#   as an alternate or additional field delimiter.
 #
-# Both can be achieved by setting IFS to a comma, carriage return and
-# line feed. Then the file is read by the bash into two variables:
+# These conditions can be met by setting IFS (Internal Field Separator)
+# to a comma, semicolon, carriage return and line feed. Then the bash
+# reads each line into two variables:
 #
-# - The variable first_field gets the first field or the complete line,
-#   if there is no comma.
-# - The variable ship_rest gets the rest of the line, if there is a comma.
-#   This will be the optional description (which itself may contain
-#   more commas).
+# - The first variable gets the first field, if field delimiters are used,
+#   or the complete line, if no delimiters are found.
+# - The variable ship_rest gets the rest of the line, if field delimiters
+#   are used. This will be the optional description (which itself may
+#   contain more commas).
 # - Carriage returns are treated as field separators and will be removed
 #   from input.
 #
@@ -271,23 +277,34 @@ function apply_exclude_lists ()
     rm -f "${output_file}"
     rm -f "${combined_exclude_list}"
     require_non_empty_file "${input_file}" || return 0
-    log_debug_message "apply_exclude_lists: Found input file ${input_file}"
+    log_debug_message "apply_exclude_lists:"  \
+        " - input file     ${input_file}"     \
+        " - output file    ${output_file}"    \
+        " - combined list  ${combined_exclude_list}"
 
     shift 3
     if (( $# > 0 ))
     then
         # Scan the different exclude lists and add their contents to a
         # combined exclude list.
-        log_debug_message "Scanning $# exclude lists..."
+        log_debug_message "Searching $# exclude lists..."
         for current_file in "$@"
         do
+            # Report all files for better debugging, even if they
+            # are empty
+            if [[ -f "${current_file}" ]]
+            then
+                log_debug_message "Found      ${current_file}"
+            else
+                log_debug_message "Not found  ${current_file}"
+            fi
+            # Check for non-empty files
             if [[ -s "${current_file}" ]]
             then
-                log_debug_message "Appending ${current_file} to ${combined_exclude_list} ..."
                 # Tell shellcheck to ignore the "unused" variable
                 # skip_rest
                 # shellcheck disable=SC2034
-                while IFS=$',\r\n' read -r first_field skip_rest
+                while IFS=$',;\r\n' read -r first_field skip_rest
                 do
                     if [[ -n "${first_field}" ]]
                     then
@@ -296,30 +313,29 @@ function apply_exclude_lists ()
                 done < "${current_file}" >> "${combined_exclude_list}"
             fi
         done
-        log_debug_message "Done scanning exclude lists."
+        log_debug_message "Done searching exclude lists"
     fi
 
     if [[ -s "${combined_exclude_list}" ]]
     then
         # Remove the combined exclude list from the input file using a
         # grep --inverted-match (grep -v). The result code of grep is
-        # "1", if the output is empty. This must be masked to not cause
-        # an error, if the shell option errexit or a trap on ERR is used.
-        log_debug_message "Removing the combined exclude list ${combined_exclude_list} from input file ${input_file} ..."
+        # "1", if the output is empty. This must be masked, if the shell
+        # option errexit or a trap on ERR is used.
+        log_debug_message "Removing the combined exclude list from input file..."
         grep -F -i -v -f "${combined_exclude_list}" \
             "${input_file}" > "${output_file}" || true
     else
         # Rename the input file to the output file
-        log_debug_message "Renaming input file ${input_file} to output file ${output_file} ..."
+        log_debug_message "Renaming input file to output file..."
         mv "${input_file}" "${output_file}"
     fi
 
-    # In some cases, the output file may be empty. For example,
-    # static download links are typically used for service packs. If
-    # service packs are excluded from download, then the list of valid
-    # static links may be empty. This may happen with the localized
-    # directories for Office 2010 and 2013, e.g. client/o2k10/deu/
-    # or client/o2k10/enu/.
+    # In some cases, the output file may be empty. For example, static
+    # download links are typically used for service packs. If service
+    # packs are excluded from download, then the list of valid static
+    # links may be empty. This may happen with the download directories
+    # for Office 2013 and 2016.
     ensure_non_empty_file "${output_file}" || true
 
     return 0
@@ -454,6 +470,95 @@ function get_catalog_creationdate ()
         log_warning_message "The file catalog-creationdate.txt was not found."
     fi
 
+    return 0
+}
+
+
+# The function xml_transform was designed with simplicity in mind. It
+# uses three parameters:
+#
+# $1 is the filename of the XSLT transformation file
+# $2 is the filename of the output file
+# $3 is the target directory for the output file. This parameter is
+#    optional, and the default is the temporary directory of the script.
+#
+# The script then does some common steps, which are needed for most
+# XSLT transformations:
+#
+# - It searches the XSLT transformation file in ./xslt and ../xslt; this
+#   means, a private directory of the Linux scripts and the directory
+#   wsusoffline/xslt.
+# - It checks the file package.xml
+# - It creates the output file by applying the XSLT transformation file
+#   to package.xml
+# - It sorts the output file by the whole line, removing any duplicates
+
+function xml_transform ()
+{
+    local xslt_filename="$1"         # only the filename without path
+    local output_filename="$2"       # only the filename without path
+    local output_directory="${3:-}"  # optional, default is ${temp_dir}
+    local output_pathname=""
+    local current_dir=""
+    local xslt_directory=""
+    local xslt_pathname=""
+
+    # Check requirements
+    if ! require_file "${cache_dir}/package.xml"
+    then
+        log_error_message "The file package.xml was not found."
+        exit 1
+    fi
+
+    # If the output directory was not specified, set it to the temporary
+    # directory of the script
+    if [[ -z "${output_directory}" ]]
+    then
+        output_directory="${temp_dir}"
+    fi
+
+    mkdir -p "${output_directory}"
+    output_pathname="${output_directory}/${output_filename}"
+
+    # Search the private and the wsusoffline xslt directories for the
+    # xslt file
+    for current_dir in ./xslt ../xslt
+    do
+        if [[ -f "${current_dir}/${xslt_filename}" ]]
+        then
+            xslt_directory="${current_dir}"
+            break
+        fi
+    done
+
+    if [[ -z "${xslt_directory}" ]]
+    then
+        log_error_message "The file ${xslt_filename} was not found in either ./xslt or ../xslt"
+        exit 1
+    fi
+    xslt_pathname="${xslt_directory}/${xslt_filename}"
+
+    # The output file should only be extracted, if it does not already
+    # exist. Often, these files can be reused in another context.
+    if [[ -f "${output_pathname}" ]]
+    then
+        log_info_message "Skipped the extraction of ${output_filename}, because it already exists"
+    else
+        log_debug_message "Extracting ${output_filename} ..."
+
+        "${xmlstarlet}" transform       \
+            "${xslt_pathname}"          \
+            "${cache_dir}/package.xml"  \
+          > "${output_pathname}.unsorted"
+
+        log_debug_message "Sorting ${output_filename} ..."
+        sort -u "${output_pathname}.unsorted" > "${output_pathname}"
+
+        if ensure_non_empty_file "${output_pathname}"
+        then
+            log_info_message "Created file ${output_filename}"
+        fi
+    fi
     return 0
 }
 

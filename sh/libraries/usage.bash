@@ -2,7 +2,7 @@
 #
 # Filename: usage.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -46,8 +46,6 @@ UPDATE
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
     w100          Windows 10, 32-bit
     w100-x64      Windows 10 / Server 2016/2019, 64-bit
-    o2k10         Office 2010, 32-bit
-    o2k10-x64     Office 2010, 32-bit and 64-bit
     o2k13         Office 2013, 32-bit
     o2k13-x64     Office 2013, 32-bit and 64-bit
     o2k16         Office 2016, 32-bit
@@ -94,6 +92,9 @@ LANGUAGE
     "deu,enu".
 
 OPTIONS
+   -includesp
+        Include Service Packs
+
    -includecpp
         Include Visual C++ runtime libraries
 
@@ -102,7 +103,7 @@ OPTIONS
 
    -includewddefs
         Windows Defender definition updates for the built-in Defender
-        of  Windows 8, 8.1 and 10.
+        of Windows 8, 8.1 and 10
 EOF
 }
 

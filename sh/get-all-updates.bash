@@ -2,7 +2,7 @@
 #
 # Filename: get-all-updates.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -56,13 +56,19 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # Using the internal list "all" is a simple way to get all updates for
 # all supported Windows and Office versions:
 
-./download-updates.bash all deu,enu -includecpp -includedotnet \
-                                    -includewddefs
+./download-updates.bash all deu,enu -includesp -includecpp \
+                                    -includedotnet -includewddefs
 
 
 # The remaining examples demonstrate, which optional downloads are
 # available for each update. They are all commented out, so that they
 # won't be called twice.
+#
+# By default, the option -includesp only affects downloads for Windows
+# 8.1 / Server 2012 R2 (w63, w63-x64). You can, however, create a custom
+# file "../exclude/custom/ExcludeList-SPs.txt" to add service packs
+# for all Windows and Office versions. This is supported by the scripts
+# download-updates.bash, copy-to-target.bash and create-iso-image.bash.
 
 
 # Windows Server 2012
@@ -72,8 +78,8 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # should still be specified on the command-line, even if no optional
 # downloads are added:
 
-# ./download-updates.bash w62-x64 deu,enu -includecpp -includedotnet \
-#                                         -includewddefs
+# ./download-updates.bash w62-x64 deu,enu -includesp -includecpp \
+#                                         -includedotnet -includewddefs
 
 
 # Windows  8.1 / Server 2012 R2
@@ -90,17 +96,17 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # the other hand, if you like to include other "custom" languages,
 # they need to be listed here.
 
-# ./download-updates.bash w63,w63-x64,w100,w100-x64 deu,enu -includecpp \
-#                                         -includedotnet -includewddefs
+# ./download-updates.bash w63,w63-x64,w100,w100-x64 deu,enu -includesp \
+#                           -includecpp -includedotnet -includewddefs
 
 
-# Office 2010 - 2013
+# Office 2013
 #
-# o2k10-x64 and o2k13-x64 include both 32-bit and 64-bit downloads,
-# just like the Windows script DownloadUpdates.cmd, if 64-bit Office
-# support is enabled with the script AddOffice2010x64Support.cmd.
+# o2k13-x64 includes both 32-bit and 64-bit downloads, just like the
+# Windows script DownloadUpdates.cmd, if 64-bit Office support is enabled
+# with the script AddOffice2010x64Support.cmd.
 
-# ./download-updates.bash o2k10-x64,o2k13-x64 deu,enu
+# ./download-updates.bash o2k13-x64 deu,enu -includesp
 
 
 # Office 2016
@@ -108,6 +114,6 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # o2k16-x64 includes both 32-bit and 64-bit downloads. One language
 # (any one) is sufficient.
 
-# ./download-updates.bash o2k16-x64 deu
+# ./download-updates.bash o2k16-x64 deu -includesp
 
 exit 0

@@ -23,6 +23,7 @@
 /w62-x64
 /w63-x64
 /w100-x64
+/msse
 *dotnetfx35*
 *MSEInstall*
 *_x64*

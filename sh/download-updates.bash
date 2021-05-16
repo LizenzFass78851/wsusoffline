@@ -1,12 +1,16 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: 2.2 Community Edition (2.2-CE)
-# Release date: 2020-08-09
+# Version: Linux download scripts, version 2.4 (beta-1)
+# Release date: 2021-05-11
 # Development branch: master
-# Supported versions: WSUS Offline Update, Community Edition 12.2
+# Supported version: WSUS Offline Update, Community Edition 12.5 (b66)
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Note: The Linux download scripts, version 2.4 (beta-1) seem to be
+# mostly compatible with WSUS Offline Update, Community Edition 12.5
+# (b66). The download of Microsoft Edge (Chromium) is missing for now.
+#
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -52,8 +56,6 @@
 #         w63-x64       Windows 8.1 / Server 2012 R2, 64-bit
 #         w100          Windows 10, 32-bit
 #         w100-x64      Windows 10 / Server 2016/2019, 64-bit
-#         o2k10         Office 2010, 32-bit
-#         o2k10-x64     Office 2010, 32-bit and 64-bit
 #         o2k13         Office 2013, 32-bit
 #         o2k13-x64     Office 2013, 32-bit and 64-bit
 #         o2k16         Office 2016, 32-bit
@@ -100,6 +102,9 @@
 #         list like "deu,enu".
 #
 #     OPTIONS
+#        -includesp
+#             Include Service Packs
+#
 #        -includecpp
 #             Include Visual C++ runtime libraries
 #
@@ -109,7 +114,7 @@
 #
 #        -includewddefs
 #             Windows Defender definition updates for the built-in
-#             Defender of Windows 8, 8.1 and 10.
+#             Defender of Windows 8, 8.1 and 10
 
 # ========== Formatting ===================================================
 
@@ -166,8 +171,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.2-CE"
-readonly release_date="2020-08-09"
+readonly script_version="2.4 (beta-1)"
+readonly release_date="2021-05-11"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -227,7 +232,6 @@ fi
 # Boolean options are set to either "enabled" or "disabled":
 
 prefer_seconly="disabled"
-revised_method="disabled"
 check_for_self_updates="enabled"
 unattended_updates="disabled"
 use_file_signature_verification="disabled"

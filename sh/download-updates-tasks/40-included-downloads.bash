@@ -2,7 +2,7 @@
 #
 # Filename: 40-included-downloads.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -45,20 +45,8 @@ function get_included_downloads ()
         do
             case "${current_download}" in
                 # Architecture-independent downloads
-                wsus | cpp)
+                wsus | cpp | dotnet)
                     process_included_download "${current_download}" "all"
-                ;;
-                # At this point, only the .NET Framework installers are
-                # downloaded. These are architecture-independent, but the
-                # dynamic updates are not. This is tested here, to avoid
-                # downloading only the installers, without any updates.
-                dotnet)
-                    if (( "${#architectures_list[@]}" > 0 ))
-                    then
-                        process_included_download "${current_download}" "all"
-                    else
-                        log_warning_message "Skipped processing of .NET Framework installers, because there are no architectures defined for included downloads. These are derived from Windows updates only."
-                    fi
                 ;;
                 # Architecture dependent downloads; these downloads must
                 # be processed twice for both x86 and x64, if present
@@ -134,8 +122,8 @@ function process_included_download ()
         ;;
         wddefs)
             timestamp_pattern="wddefs-${arch}-glb"
-            hashes_file="../client/md/hashes-wddefs.txt"
-            hashed_dir="../client/wddefs"
+            hashes_file="../client/md/hashes-wddefs-${arch}-glb.txt"
+            hashed_dir="../client/wddefs/${arch}-glb"
             download_dir="../client/wddefs/${arch}-glb"
             interval_length="${interval_length_virus_definitions}"
             interval_description="${interval_description_virus_definitions}"
@@ -252,6 +240,14 @@ function calculate_static_downloads_cpp ()
     return 0
 }
 
+
+# Calculation of static download links for .NET Frameworks
+#
+# The English installers for .NET Frameworks are the only full
+# installers. They are always needed, and they are supplemented with
+# language packs for other languages. The filenames may be similar,
+# but the English installers are much larger.
+
 function calculate_static_downloads_dotnet ()
 {
     local arch="$1"  # unused for dotnet
@@ -262,41 +258,33 @@ function calculate_static_downloads_dotnet ()
     local current_dir=""
     local current_lang=""
 
+    # German language packs are first removed from the "global" download
+    # files.
     for current_dir in ../static ../static/custom
     do
-        # After removing the default language German, the file
-        # static/StaticDownloadLinks-dotnet.txt should only contain the
-        # English installers for the .NET Frameworks. These are the only
-        # full installers, and they are needed for all other languages
-        # as well.
         if [[ -s "${current_dir}/StaticDownloadLinks-dotnet.txt" ]]
         then
-            cat_dos "${current_dir}/StaticDownloadLinks-dotnet.txt" \
+            filter_default_languages "${current_dir}/StaticDownloadLinks-dotnet.txt" \
                 >> "${dotnet_installers}"
         fi
-        # Localized installers for language packs. The filenames of
-        # these installers are similar to the full installers, but the
-        # file size is much smaller.
-        #
-        # Since there are no English language packs, there are no static
-        # download files StaticDownloadLinks-dotnet-x86-enu.txt and
-        # StaticDownloadLinks-dotnet-x64-enu.txt.
-        #
-        # The search patterns are the same as in the Windows script
-        # AddCustomLanguageSupport.cmd. At this point, only the
-        # architecture-independent installers are needed. The script
-        # AddCustomLanguageSupport.cmd extracts these links to the file
-        # ..\static\custom\StaticDownloadLinks-dotnet.txt.
-        for current_lang in glb "${languages_list[@]}"
-        do
-            if [[ -s "${current_dir}/StaticDownloadLinks-dotnet-x86-${current_lang}.txt" ]]
-            then
-                grep_dos -F -i -e "ndp48-x86-x64-allos-" \
-                    "${current_dir}/StaticDownloadLinks-dotnet-x86-${current_lang}.txt" \
-                    >> "${dotnet_installers}" || true
-            fi
-        done
     done
+
+    # Language packs for all selected languages on the command-line are
+    # then added back from the localized download files.
+    #
+    # The search patterns are the same as in the Windows script
+    # AddCustomLanguageSupport.cmd.
+    for current_lang in "${languages_list[@]}"
+    do
+        if [[ -s "../static/StaticDownloadLinks-dotnet-${current_lang}.txt" ]]
+        then
+            grep_dos -F -i                 \
+                -e "ndp48-x86-x64-allos-"  \
+                "../static/StaticDownloadLinks-dotnet-${current_lang}.txt" \
+                >> "${dotnet_installers}" || true
+        fi
+    done
+
     # Apply ExcludeListForce-all.txt as in
     # https://trac.wsusoffline.net/trac.fcgi/changeset/1015/trunk/cmd/DownloadUpdates.cmd
     apply_exclude_lists \

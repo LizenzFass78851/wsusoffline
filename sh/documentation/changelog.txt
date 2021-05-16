@@ -1,3 +1,66 @@
+Linux download scripts, version 2.4 (beta-1)
+
+   Release date: 2021-05-11
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.5 (b66)
+
+   Bugfixes
+
+    * The Security-only Safety Guard did not work with GitLab
+
+   New features
+
+    * Added two scripts for development
+
+   Changed features
+
+    * New method for the calculation of dynamic updates
+    * New method for the calculation of superseded updates
+    * Static download files for .NET Frameworks are simplified
+    * Hashdeep files are calculated with the bare mode option
+    * Improved support for service packs
+    * Internal changes
+
+   Removed features
+
+    * Removed the "revised" method for calculating superseded updates,
+      if security-only updates are selected
+
+   TODO
+
+    * Download of Microsoft Edge (Chromium)
+
+---------------------------------------------------------------------------
+
+Linux download scripts, Community Edition 2.3
+
+   Release date: 2021-01-19
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.4
+
+   New Features
+
+    * Added support for Windows 10, version 20H2
+    * Optional "fast mode" for the calculation of the integrity database
+    * The option -includesp was added back
+
+   Changed Features
+
+    * Default languages are removed on the fly
+    * hashdeep messages are duplicated with tee
+    * Network timeouts are increased
+    * Sysinternals utilities are downloaded to the directory ../bin
+    * Five more obsolete configuration files are removed
+    * Renamed the functions filter_cr and todos_line_endings
+    * The download directories dotnet/x86-glb and dotnet/x64-glb are no
+      longer used
+
+   Removed features
+
+    * Removed support for Office 2010
+    * Removed support for Windows 10 version 1709
+
+
 Version 2.2 Community Edition (2.2-CE)
 
    Release date: 2020-08-09
@@ -22,6 +85,8 @@ Version 2.2 Community Edition (2.2-CE)
     * Support for .NET Framework 3.5 removed
 
     * Small changes to comments, labels and menus
+
+    * Bash 4.2 is now required
 
 
 Version 2.1 Community Edition (2.1-CE)

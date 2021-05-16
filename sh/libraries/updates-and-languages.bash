@@ -2,7 +2,7 @@
 #
 # Filename: updates-and-languages.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -54,16 +54,10 @@
 #     "here-string". The function name_to_description reads the table in
 #     a loop and returns the description, if the specified name was found.
 
-# ========== Version specific configuration ===============================
+# ========== Configuration ================================================
 
 # This is the configuration file for the current (master/trunk)
 # development branch of WSUS Offline Update.
-#
-# Supported releases are:
-# - WSUS Offline Update 12.0
-# - WSUS Offline Update 12.0 CE (Community Edition)
-# - WSUS Offline Update 12.1 CE
-# - WSUS Offline Update 12.2 CE
 
 # Supported updates
 updates_menu=(
@@ -72,8 +66,6 @@ updates_menu=(
     "w63-x64       Windows 8.1 / Server 2012 R2, 64-bit"
     "w100          Windows 10, 32-bit"
     "w100-x64      Windows 10 / Server 2016/2019, 64-bit"
-    "o2k10         Office 2010, 32-bit"
-    "o2k10-x64     Office 2010, 32-bit and 64-bit"
     "o2k13         Office 2013, 32-bit"
     "o2k13-x64     Office 2013, 32-bit and 64-bit"
     "o2k16         Office 2016, 32-bit"
@@ -89,16 +81,14 @@ updates_menu=(
 )
 
 # Internal Lists
-list_all=( "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_x86=( "w63" "w100" "o2k10" "o2k13" "o2k16" )
-list_all_x64=( "w62-x64" "w63-x64" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
+list_all=( "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k13-x64" "o2k16-x64" )
+list_all_x86=( "w63" "w100" "o2k13" "o2k16" )
+list_all_x64=( "w62-x64" "w63-x64" "w100-x64" "o2k13-x64" "o2k16-x64" )
 list_all_win=( "w62-x64" "w63" "w63-x64" "w100" "w100-x64" )
 list_all_win_x86=( "w63" "w100" )
 list_all_win_x64=( "w62-x64" "w63-x64" "w100-x64" )
-list_all_ofc=( "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_ofc_x86=( "o2k10" "o2k13" "o2k16" )
-
-# ========== Configuration of languages and optional downloads ============
+list_all_ofc=( "o2k13-x64" "o2k16-x64" )
+list_all_ofc_x86=( "o2k13" "o2k16" )
 
 # Supported Languages
 #
@@ -134,20 +124,29 @@ languages_menu=(
 )
 
 # Options for Windows 8, 8.1 and 10
-options_menu=(
+options_menu_windows=(
+    "-includesp       Service Packs"
     "-includecpp      Visual C++ Runtime Libraries"
     "-includedotnet   .NET Frameworks"
     "-includewddefs   Windows Defender definition updates"
 )
 
-# Note: After the removal of Service Packs in WSUS Offline Update 12.0,
-# there are no options for Office.
+# Note: The option -includesp was reintroduced in WSUS Offline
+# Update, Community Edition 12.4, but only for Windows 8.1. In the
+# Linux download scripts, version 2.4, users may create a custom file
+# ../exclude/custom/ExcludeList-SPs.txt to add service packs for all
+# Windows and Office Versions.
+#
+# Options for all Office versions
+options_menu_office=(
+    "-includesp       Service Packs"
+)
 
 # Tables (string variables with multiple lines) are created from the
 # indexed arrays above.
 updates_table="$(printf '%s\n' "${updates_menu[@]}")"
 languages_table="$(printf '%s\n' "${languages_menu[@]}")"
-options_table="$(printf '%s\n' "${options_menu[@]}")"
+options_table="$(printf '%s\n' "${options_menu_windows[@]}")"
 
 # ========== Functions ====================================================
 

@@ -2,7 +2,7 @@
 #
 # Filename: 70-update-configuration-files.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -36,6 +36,7 @@
 # URLs for the "master" development version
 excludelist_superseded_exclude_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude.txt"
 excludelist_superseded_exclude_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList-superseded-exclude-seconly.txt"
+excludelist_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeList.txt"
 hidelist_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/HideList-seconly.txt"
 static_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt"
 exclude_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt"
@@ -145,16 +146,62 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-x86.txt
         ../client/static/StaticUpdateIds-w100-x64.txt
     )
-    # Additions in WSUS Offline Update, version 12.0
+
+    # Removed in WSUS Offline Update 10.9
+    file_list+=( ../client/exclude/ExcludeUpdateFiles-modified.txt )
+
+    # Removed in WSUS Offline Update 12.0
     file_list+=(
         ../exclude/ExcludeList-SPs.txt
         ../client/opt/OptionList-Q.txt
     )
-    # Additions in WSUS Offline Update, Community Edition 12.2
+
+    # Removed in the Community Editions 11.9.2-ESR and 12.1
+    #
+    # The index files *-modified.txt for the update of static download
+    # definitions (sdd) were moved to ../static/sdd
+    file_list+=(
+        ../static/StaticDownloadFiles-modified.txt
+        ../exclude/ExcludeDownloadFiles-modified.txt
+        ../client/static/StaticUpdateFiles-modified.txt
+    )
+
+    # Removed in the Community Edition 12.2
     file_list+=(
         ../cmd/ActivateAllLanguageServicePacks.cmd
         ../cmd/ActivateFiveLanguageServicePacks.cmd
         ../cmd/RemoveEnglishLanguageSupport.cmd
+    )
+
+    # Removed in the Community Edition 12.3
+    file_list+=( ../client/static/StaticUpdateIds-dotnet35.txt )
+
+    # Removed in Community Editions 11.9.8-ESR and 12.5
+    file_list+=(
+        ../xslt/ExtractUpdateCategoriesAndFileIds.xsl
+        ../xslt/ExtractUpdateCabExeIdsAndLocations.xsl
+        ../xslt/ExtractSupersededUpdateRelations.xsl
+        ../xslt/ExtractSupersedingRevisionIds.xsl
+        ../xslt/ExtractUpdateFileIdsAndLocations.xsl
+        ../xslt/ExtractUpdateRevisionAndFileIds.xsl
+        ../xslt/ExtractUpdateRevisionIds.xsl
+        ../xslt/extract-office-revision-and-update-ids.xsl
+        ../xslt/ExtractDownloadLinks-w62-x64-glb.xsl
+        ../xslt/ExtractDownloadLinks-w63-x64-glb.xsl
+        ../xslt/ExtractDownloadLinks-w63-x86-glb.xsl
+        ../xslt/ExtractDownloadLinks-w100-x64-glb.xsl
+        ../xslt/ExtractDownloadLinks-w100-x86-glb.xsl
+    )
+    # Delete the directory ../opt with the file ../opt/locales.txt
+    if [[ -d ../opt ]]
+    then
+        rm -r ../opt
+    fi
+
+    # *** Obsolete external stuff ***
+    file_list+=(
+        ../static/StaticDownloadLinks-mkisofs.txt
+        ../static/StaticDownloadLink-mkisofs.txt
     )
 
     # *** Windows Server 2003 stuff ***
@@ -181,9 +228,7 @@ function remove_obsolete_files ()
     # 2003. The only remaining file StaticDownloadLinks-win-x86-glb.txt
     # was renamed to StaticDownloadLinks-win-glb.txt.
     shopt -s nullglob
-    file_list+=(
-        ../static/StaticDownloadLinks-win-x86-*.txt
-    )
+    file_list+=( ../static/StaticDownloadLinks-win-x86-*.txt )
     shopt -u nullglob
 
     # *** Windows Vista / Server 2008 stuff ***
@@ -218,6 +263,7 @@ function remove_obsolete_files ()
     shopt -s nullglob
     file_list+=(
         ../client/static/StaticUpdateIds-ie10-w61.txt
+        ../client/static/StaticUpdateIds-ie11-w61.txt
         ../client/static/StaticUpdateIds-rdc-w61.txt
         ../client/static/StaticUpdateIds-w61-x64.txt
         ../client/static/StaticUpdateIds-w61-x86.txt
@@ -262,7 +308,7 @@ function remove_obsolete_files ()
     # *** Windows 10 Version 1703 stuff ***
     #
     # Removed in WSUS Offline Update 12.0 and in the Community Edition
-    # esr-11.9.2
+    # 11.9.2-ESR
     file_list+=(
         ../client/static/StaticUpdateIds-w100-15063-dotnet.txt
         ../client/static/StaticUpdateIds-w100-15063-dotnet4-528049.txt
@@ -270,6 +316,29 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-15063-x86.txt
         ../client/static/StaticUpdateIds-wupre-w100-15063.txt
     )
+
+    # *** Windows 10 Version 1709 stuff ***
+    #
+    # Removed in the Community Editions 11.9.7-ESR and 12.4
+    file_list+=(
+        ../exclude/ExcludeList-w100-1709.txt
+        ../client/static/StaticUpdateIds-w100-16299.txt
+        ../client/static/StaticUpdateIds-w100-16299-x64.txt
+        ../client/static/StaticUpdateIds-w100-16299-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-16299.txt
+        ../client/static/StaticUpdateIds-servicing-w100-16299.txt
+        ../client/static/StaticUpdateIds-w100-16299-dotnet.txt
+        ../client/static/StaticUpdateIds-w100-16299-dotnet4-528049.txt
+    )
+
+    # *** Office stuff ***
+    #
+    # Removed in Community Edition 11.9.8-ESR and 12.5
+    shopt -s nullglob
+    file_list+=(
+        ../static/StaticDownloadLinks-ofc-*.txt
+    )
+    shopt -u nullglob
 
     # *** Office 2003 stuff ***
     shopt -s nullglob
@@ -286,6 +355,32 @@ function remove_obsolete_files ()
     file_list+=(
         ../client/static/StaticUpdateIds-o2k7.txt
         ../static/StaticDownloadLinks-o2k7-*.txt
+    )
+    shopt -u nullglob
+
+    # *** Office 2010 stuff ***
+    #
+    # Removed in the Community Editions 11.9.7-ESR and 12.4
+    shopt -s nullglob
+    file_list+=(
+        ../static/StaticDownloadLinks-o2k10-*.txt
+        ../client/static/StaticUpdateIds-o2k10.txt
+    )
+    shopt -u nullglob
+
+    # *** .NET restructuring stuff ***
+    #
+    # Removed in Community Editions 11.9.8-ESR and 12.3. The XSLT files
+    # are in the section "obsolete internal stuff" in the Windows script
+    # DownloadUpdates.cmd.
+    shopt -s nullglob
+    file_list+=(
+        ../exclude/ExcludeList-dotnet-x86.txt
+        ../exclude/ExcludeList-dotnet-x64.txt
+        ../static/StaticDownloadLinks-dotnet-x86-*.txt
+        ../static/StaticDownloadLinks-dotnet-x64-*.txt
+        ../xslt/ExtractDownloadLinks-dotnet-x86-glb.xsl
+        ../xslt/ExtractDownloadLinks-dotnet-x64-glb.xsl
     )
     shopt -u nullglob
 
@@ -311,22 +406,22 @@ function remove_obsolete_files ()
     shopt -u nullglob
     if [[ -d ../client/msse ]]
     then
-        rm -rf ../client/msse
+        rm -r ../client/msse
     fi
 
     # *** Old Windows Defender stuff ***
     #
     # These are virus definitions for the original, built-in Defender
     # of Windows Vista and 7
-    if [[ -f ../client/wddefs/x64-glb/mpas-fe.exe \
-       || -f ../client/wddefs/x86-glb/mpas-fe.exe ]]
-    then
-        file_list+=(
-            ../client/wddefs/x64-glb/mpas-fe.exe
-            ../client/wddefs/x86-glb/mpas-fe.exe
-            ../client/md/hashes-wddefs.txt
-        )
-    fi
+    #
+    # The file hashes-wddefs.txt was replaced with two separate files
+    # for the subdirectories x86-glb and x64-glb in Community Editions
+    # 11.9.8-ESR and 12.5
+    file_list+=(
+        ../client/wddefs/x64-glb/mpas-fe.exe
+        ../client/wddefs/x86-glb/mpas-fe.exe
+        ../client/md/hashes-wddefs.txt
+    )
 
     # *** Silverlight stuff ***
     if [[ -f ../client/win/glb/Silverlight.exe \
@@ -351,27 +446,12 @@ function remove_obsolete_files ()
     )
     shopt -u nullglob
 
-    # The file ../client/exclude/ExcludeUpdateFiles-modified.txt was
-    # removed in WSUS Offline Update 10.9
-    file_list+=(
-        ../client/exclude/ExcludeUpdateFiles-modified.txt
-    )
-
-    # Obsolete files in the Community Editions 11.9.1 and 12.0
+    # *** Old self update stuff ***
     #
     # The file StaticDownloadLink-this.txt was replaced with
-    # SelfUpdateVersion-this.txt
+    # SelfUpdateVersion-this.txt in the Community Editions 11.9.1-ESR
+    # and 12.0
     file_list+=( ../static/StaticDownloadLink-this.txt )
-
-    # Obsolete files in the Community Editions 11.9.2 and 12.1
-    #
-    # The index files *-modified.txt for the update of static download
-    # definitions (sdd) were moved to ../static/sdd
-    file_list+=(
-        ../static/StaticDownloadFiles-modified.txt
-        ../exclude/ExcludeDownloadFiles-modified.txt
-        ../client/static/StaticUpdateFiles-modified.txt
-    )
 
     # Print the resulting file list:
     #log_debug_message "Obsolete files:" "${file_list[@]}"
@@ -423,6 +503,24 @@ function remove_obsolete_files ()
     then
         log_warning_message "Office 2007 is no longer supported."
     fi
+    # Office 2010 was removed in Community Editions 11.9.7-ESR and 12.4
+    if [[ -d ../client/o2k10 ]]
+    then
+        log_warning_message "Office 2010 is no longer supported."
+    fi
+    # Community Editions 11.9.8-ESR and 12.5 removed the download
+    # directory ../client/ofc for dynamic Office updates. Dynamic updates
+    # are now downloaded to ../client/o2k13 and ../client/o2k16.
+    if [[ -d ../client/ofc ]]
+    then
+        log_warning_message "The download directory ../client/ofc for dynamic Office updates is no longer used in Community Editions 11.9.8-ESR and 12.5. You may delete it manually."
+    fi
+    # Community Editions 11.9.8-ESR and 12.3 removed the subdirectories
+    # for dynamic .NET Framework updates
+    if [[ -d ../client/dotnet/x86-glb || -d ../client/dotnet/x64-glb ]]
+    then
+        log_warning_message "The directories ../client/dotnet/x86-glb and ../client/dotnet/x64-glb for dynamic .NET Framework updates are no longer used in Community Editions 11.9.8-ESR and 12.3. You may delete them manually, but do NOT delete the parent directory ../client/dotnet, which is still needed for the static .NET Framework installation files."
+    fi
     if [[ -d ../client/wle ]]
     then
         log_warning_message "Windows Live Essentials are no longer supported."
@@ -451,6 +549,7 @@ function update_configuration_files ()
     # need to be recalculated, if these configuration files change.
     download_from_gitlab "../exclude" "${excludelist_superseded_exclude_url}"
     download_from_gitlab "../exclude" "${excludelist_superseded_exclude_seconly_url}"
+    download_from_gitlab "../client/exclude" "${excludelist_url}"
 
     # The file ../client/exclude/HideList-seconly.txt was introduced
     # in WSUS Offline Update version 10.9. It replaces the former file

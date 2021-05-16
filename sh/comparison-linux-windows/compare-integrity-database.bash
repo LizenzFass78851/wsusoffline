@@ -2,7 +2,7 @@
 #
 # Filename: compare-integrity-database.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -108,7 +108,9 @@ function create_diff_files ()
     do
         printf '%s\n' "Processing: ${filename}"
         # Skip the first five lines with hashdeep comments
-        tail -n +6 "${filename}" | tr -d '\r' | sort > "${temp_directory}/${filename}"
+        grep -v -e "^%%%% " -e "^## " "${filename}" \
+        | tr -d '\r'                                \
+        | sort > "${temp_directory}/${filename}"
         # Remove empty files
         if [[ ! -s "${temp_directory}/${filename}" ]]
         then
@@ -154,8 +156,12 @@ create_diff_files "${source_md_linux}" "${temp_md_linux}"
 
 echo "Comparing diff files..."
 diff --unified --color=auto --report-identical-files "${temp_md_windows}" "${temp_md_linux}"
+# The script will exit at this point, if there are any differences,
+# because the shell option errexit is set.
 
 echo "Cleaning up temporary directories..."
 rm -rf "${temp_md_windows}"
 rm -rf "${temp_md_linux}"
+
+echo "All done, normal exit..."
 exit 0
