@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.8 (b68)
+set WSUSOFFLINE_VERSION=11.9.8 (b69)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -249,14 +249,6 @@ if "%SKIP_TZ%"=="1" goto SkipTZ
 if not exist "%TEMP%\SetTZVariable.cmd" goto SkipTZ
 call "%TEMP%\SetTZVariable.cmd"
 del "%TEMP%\SetTZVariable.cmd"
-rem for /F "tokens=3" %%i in ('%SystemRoot%\System32\reg.exe QUERY HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v ActiveTimeBias ^| %SystemRoot%\System32\find.exe /I "ActiveTimeBias"') do set TZAB=%%i
-rem set TZAB=0000000!TZAB:~2!
-rem set TZAB=!TZAB:~-8!
-rem set /A TZ=(0x!TZAB:~0,4!^<^<16^|0x!TZAB:~-4!)/60, TZ_MIN=(0x!TZAB:~0,4!^<^<16^|0x!TZAB:~-4!)-(TZ*60)
-rem set TZ_MIN=0!TZ_MIN!
-rem set TZ=LOC!TZ!:!TZ_MIN:~-2!
-rem set TZ_MIN=
-rem set TZAB=
 call :Log "Info: Set time zone to !TZ!"
 :SkipTZ
 if exist custom\SetAria2EnvVars.cmd (
@@ -1336,6 +1328,11 @@ if exist ..\exclude\ExcludeList-superseded-exclude.txt copy /Y ..\exclude\Exclud
 if exist ..\exclude\custom\ExcludeList-superseded-exclude.txt (
   type ..\exclude\custom\ExcludeList-superseded-exclude.txt >>"%TEMP%\ExcludeList-superseded-exclude.txt"
 )
+for %%i in (upd1 upd2) do (
+  for /F %%j in ('type ..\client\static\StaticUpdateIds-w63-%%i.txt ^| find /i "kb"') do (
+    echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude.txt"
+  )
+)
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i
 if exist "%TEMP%\ExcludeList-superseded-exclude.txt" (
   %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeList-superseded-exclude.txt" "%TEMP%\ExcludeList-superseded-all.txt" >..\exclude\ExcludeList-superseded.txt
@@ -1358,11 +1355,6 @@ for %%i in (w61 w62 w63) do (
     for /F "tokens=1* delims=,;" %%k in (..\client\static\custom\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude.txt"
     )
-  )
-)
-for %%i in (upd1 upd2) do (
-  for /F %%j in ('type ..\client\static\StaticUpdateIds-w63-%%i.txt ^| find /i "kb"') do (
-    echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude.txt"
   )
 )
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i

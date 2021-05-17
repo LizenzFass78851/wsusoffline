@@ -37,10 +37,8 @@ Set objFileSystem = CreateObject("Scripting.FileSystemObject")
 Set objOutFile = objFileSystem.CreateTextFile(strTempFolder + "\SetTZVariable.cmd", True)
 
 If boolNegativeBias = True Then
-  'WScript.Echo "LOC-" + strTZHour + ":" + strTZMinute
   objOutFile.Write("set TZ=LOC-" + strTZHour + ":" + strTZMinute)
 Else
-  'WScript.Echo "LOC+" + strTZHour + ":" + strTZMinute
   objOutFile.Write("set TZ=LOC" + strTZHour + ":" + strTZMinute)
 End If
 

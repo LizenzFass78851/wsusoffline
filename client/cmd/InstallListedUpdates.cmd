@@ -15,6 +15,9 @@ popd
 
 if "%OS_NAME%"=="" goto NoOSName
 
+set RECALL_REQUIRED=0
+set REBOOT_REQUIRED=0
+
 set UPDATE_STAGE=0
 if exist %SystemRoot%\Temp\SetWOUpdateStage.cmd (
   call %SystemRoot%\Temp\SetWOUpdateStage.cmd
@@ -33,7 +36,15 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
       if not errorlevel 1 (
         echo !TIME! - Installing update %%i of %LINES_COUNT% ^(stage size: %UPDATES_PER_STAGE%^)...
         call InstallOfficeUpdate.cmd "%%j" %*
-        if errorlevel 1 goto InstError
+        set ERR_LEVEL=!errorlevel!
+        rem echo InstallListedUpdates: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          set RECALL_REQUIRED=1
+        ) else if "!ERR_LEVEL!" NEQ "0" (
+          goto InstError
+        )
       )
     )
     for %%k in (dotnet %OS_NAME%-%OS_ARCH% %OS_NAME% win) do (
@@ -41,7 +52,15 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
       if not errorlevel 1 (
         echo !TIME! - Installing update %%i of %LINES_COUNT% ^(stage size: %UPDATES_PER_STAGE%^)...
         call InstallOSUpdate.cmd "%%j" %*
-        if errorlevel 1 goto InstError
+        set ERR_LEVEL=!errorlevel!
+        rem echo InstallListedUpdates: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          set RECALL_REQUIRED=1
+        ) else if "!ERR_LEVEL!" NEQ "0" (
+          goto InstError
+        )
       )
     )
   )
@@ -88,6 +107,17 @@ if exist "%TEMP%\UpdatesToInstall.txt" del "%TEMP%\UpdatesToInstall.txt"
 goto Error
 
 :Error
+endlocal
 exit /b 1
 
 :EoF
+if "%RECALL_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3011
+) else if "%REBOOT_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3010
+) else (
+  endlocal
+  exit /b 0
+)
