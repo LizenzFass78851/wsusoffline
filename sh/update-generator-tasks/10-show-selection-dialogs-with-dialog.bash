@@ -2,7 +2,7 @@
 #
 # Filename: 10-show-selection-dialogs-with-dialog.bash
 #
-# Copyright (C) 2018-2020 Hartmut Buhrmester
+# Copyright (C) 2018-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -71,8 +71,6 @@ declare -A all_values=(
     [w63-x64]="off"
     [w100]="off"
     [w100-x64]="off"
-    [o2k10]="off"
-    [o2k10-x64]="off"
     [o2k13]="off"
     [o2k13-x64]="off"
     [o2k16]="off"
@@ -132,12 +130,13 @@ declare -A all_values=(
 all_keys=(
     w60 w60-x64 w61 w61-x64
     w62-x64 w63 w63-x64 w100 w100-x64
-    o2k10 o2k10-x64 o2k13 o2k13-x64 o2k16 o2k16-x64
+    o2k13 o2k13-x64 o2k16 o2k16-x64
     all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
     all-ofc-x86
     deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
     plk ptg ptb rus esn sve trk
-    sp cpp dotnet wddefs msse wddefs8
+    sp cpp dotnet wddefs
+    msse wddefs8
 )
 
 download_parameters=()
@@ -155,6 +154,7 @@ function read_previous_settings ()
 
     log_info_message "Reading last used settings..."
 
+    # General settings for updates, languages and included downloads
     for key in "${all_keys[@]}"
     do
         # Get the last used value from the settings file. If the file
@@ -185,6 +185,7 @@ function write_current_settings ()
 
     log_info_message "Writing current settings..."
 
+    # General settings for updates, languages and included downloads
     for key in "${all_keys[@]}"
     do
         value="${all_values[${key}]}"
@@ -250,8 +251,6 @@ function show_selection_dialogs_with_dialog ()
         w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit    (deprecated)"  "${all_values[w63-x64]}"
         w100          "Windows 10, 32-bit                      (deprecated)"  "${all_values[w100]}"
         w100-x64      "Windows 10 / Server 2016/2019, 64-bit   (deprecated)"  "${all_values[w100-x64]}"
-        o2k10         "Office 2010, 32-bit                     (deprecated)"  "${all_values[o2k10]}"
-        o2k10-x64     "Office 2010, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k10-x64]}"
         o2k13         "Office 2013, 32-bit                     (deprecated)"  "${all_values[o2k13]}"
         o2k13-x64     "Office 2013, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k13-x64]}"
         o2k16         "Office 2016, 32-bit                     (deprecated)"  "${all_values[o2k16]}"
@@ -346,7 +345,7 @@ function show_selection_dialogs_with_dialog ()
     done
 
     # Optional downloads: Service packs are selected on the first run,
-    # but it can be unchecked. The list of optional downloads may be
+    # but they can be unchecked. The list of optional downloads may be
     # empty, if none is selected.
     if option_list="$(dialog \
         --title "Optional downloads" \
@@ -433,7 +432,7 @@ function run_download_script ()
     if ./download-updates.bash "${download_parameters[@]}"
     then
         log_info_message "Download script returned with success"
-        # TODO: Add any postprocessing here, e.g. call the copy-to-target
+        # TODO: Add any post-processing here, e.g. call the copy-to-target
         # script or create ISO images of the client directory.
     else
         result_code="$?"

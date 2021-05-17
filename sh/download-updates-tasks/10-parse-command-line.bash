@@ -2,7 +2,7 @@
 #
 # Filename: 10-parse-command-line.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -31,7 +31,6 @@ architectures_list=()
 languages_list=()
 downloads_list=( "wsus" )
 
-need_localized_ofc="disabled"
 include_service_packs="disabled"
 
 # ========== Functions ====================================================
@@ -108,12 +107,12 @@ function parse_first_parameter_as_list ()
                 updates_list+=( "${list_all_ofc_x86[@]}" )
             ;;
             # Single updates
-            wxp | w2k3 | w2k3-x64 | w62 | o2k3 | o2k7)
+            wxp | w2k3 | w2k3-x64 | w62 | o2k3 | o2k7 | o2k10 | o2k10-x64)
                 log_warning_message "Update ${update_name} is not supported anymore."
             ;;
             w60 | w60-x64 | w61 | w61-x64 \
             | w62-x64 | w63 | w63-x64 | w100 | w100-x64 \
-            | o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+            | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
                 if update_description="$(name_to_description "${update_name}" "${updates_table}")"
                 then
                     log_info_message "Adding ${update_description} (${update_name}) to the list of updates..."
@@ -133,7 +132,7 @@ function parse_first_parameter_as_list ()
 
 
 # Parse the preliminary list of updates to add common updates for Windows
-# and Office (win and ofc), and to build a list of needed architectures.
+# (win), and to build a list of needed architectures.
 
 function parse_preliminary_update_list ()
 {
@@ -142,7 +141,6 @@ function parse_preliminary_update_list ()
     local need_x86="disabled"
     local need_x64="disabled"
     local need_win="disabled"
-    local need_ofc="disabled"
 
     # The list of updates could be empty, if only unsupported update
     # names are specified
@@ -167,17 +165,12 @@ function parse_preliminary_update_list ()
 
         # Determine the common updates to add:
         # - win for all Windows updates
-        # - ofc for all Office updates
         case "${update_name}" in
             w60 | w60-x64 | w61 | w61-x64 | w62-x64 | w63 | w63-x64 | w100 | w100-x64)
                 need_win="enabled"
             ;;
-            o2k10 | o2k10-x64 | o2k13 | o2k13-x64)
-                need_ofc="enabled"
-                need_localized_ofc="enabled"
-            ;;
-            o2k16 | o2k16-x64)
-                need_ofc="enabled"
+            o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+                :
             ;;
             *)
                 fail "Unknown update ${update_name}"
@@ -196,27 +189,22 @@ function parse_preliminary_update_list ()
                 # Optional downloads will be downloaded in 64-bit versions
                 need_x64="enabled"
             ;;
-            o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
+            o2k13 | o2k13-x64 | o2k16 | o2k16-x64)
                 :
             ;;
             *)
-                fail "Unknown update ${update_name}"
+                fail "Unknown or unsupported update ${update_name}"
             ;;
         esac
     done
     echo ""
 
     # Add common updates to the list of updates
-    log_info_message "Adding common updates for all Windows and Office versions..."
+    log_info_message "Adding common updates for all Windows versions..."
     if [[ "${need_win}" == "enabled" ]]
     then
         log_info_message "Adding \"win\" to the list of updates..."
         updates_list+=( "win" )
-    fi
-    if [[ "${need_ofc}" == "enabled" ]]
-    then
-        log_info_message "Adding \"ofc\" to the list of updates..."
-        updates_list+=( "ofc" )
     fi
     echo ""
 
@@ -279,17 +267,12 @@ function parse_remaining_parameters ()
                     log_info_message "Service Packs are included"
                     include_service_packs="enabled"
                 ;;
-                -includecpp | -includewddefs | -includemsse | -includewddefs8)
+                -includecpp | -includedotnet | -includewddefs | -includemsse | -includewddefs8)
                     # Delete the prefix -include and add the download
                     # name to the list of included downloads
                     option_name="${option_name/#-include/}"
                     log_info_message "Found included download: ${option_name}, ${option_description}"
                     downloads_list+=( "${option_name}" )
-                ;;
-                -includedotnet)
-                    log_info_message "Found included download: dotnet, .NET Frameworks"
-                    downloads_list+=( "dotnet" ) # statically defined installers
-                    updates_list+=( "dotnet" )   # dynamically calculated updates
                 ;;
                 *)
                     fail "Unknown option ${option_name}"
@@ -323,7 +306,7 @@ function print_command_line_summary ()
     # command line, and the list of included updates is initialized with
     # "wsus".
 
-    log_info_message "Final lists after processing command-line arguments. dotnet, if selected, appears twice to handle both installers and dynamic updates.
+    log_info_message "Final lists after processing command-line arguments
 - Updates:       ${updates_list[*]}
 - Architectures: ${architectures_list_serialized} (depends on Windows updates only)
 - Languages:     ${languages_list[*]}

@@ -28,13 +28,13 @@ w62-x64
 w63-x64
 w100-x64
 
-# Exclude 64-bit subdirectories of dotnet, msse and wddefs
+# Exclude 64-bit subdirectories of msse and wddefs
 x64-glb
 
 # Exclude 64-bit installers for vcredist and Silverlight
 *_x64.exe
 
-# The two "x64-cross-product" ISO image don't exclude any .NET
+# The two "x64-cross-product" ISO images don't exclude any .NET
 # Frameworks, because they are supposed to support all Windows
 # versions. Dynamic updates for obsolete versions are already excluded
 # in the files wsusoffline/exclude/ExcludeList-dotnet-x86.txt and
@@ -48,10 +48,8 @@ hashes-w61-x64-glb.txt
 hashes-w62-x64-glb.txt
 hashes-w63-x64-glb.txt
 hashes-w100-x64-glb.txt
-hashes-dotnet-x64-glb.txt
-
-# Exclude unneeded files from the directory client/static
-StaticUpdateFiles-modified.txt
+hashes-msse-x64-glb.txt
+hashes-wddefs-x64-glb.txt
 
 # Exclude source files
 UpdateInstaller.au3

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: Community Edition 1.19.3-ESR
-# Release date: 2020-08-12
+# Version: 1.20-ESR (beta-1)
+# Release date: 2021-03-05
 # Development branch: esr-11.9
-# Supported versions: WSUS Offline Update, Community Edition 11.9.4
+# Supported versions: WSUS Offline Update, Community Edition 11.9.8 (b39)
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -56,8 +56,6 @@
 #         w63-x64       Windows 8.1 / Server 2012 R2, 64-bit   (deprecated)
 #         w100          Windows 10, 32-bit                     (deprecated)
 #         w100-x64      Windows 10 / Server 2016/2019, 64-bit  (deprecated)
-#         o2k10         Office 2010, 32-bit                    (deprecated)
-#         o2k10-x64     Office 2010, 32-bit and 64-bit         (deprecated)
 #         o2k13         Office 2013, 32-bit                    (deprecated)
 #         o2k13-x64     Office 2013, 32-bit and 64-bit         (deprecated)
 #         o2k16         Office 2016, 32-bit                    (deprecated)
@@ -115,9 +113,8 @@
 #             and updates
 #
 #        -includewddefs
-#             Virus definition files for Windows Vista and 7. These virus
-#             definition files are only compatible with the original
-#             Windows Defender, which was included in Windows Vista and 7.
+#             Windows Defender definition updates for the built-in
+#             Defender of Windows Vista and 7
 #
 #        -includemsse
 #             Microsoft Security Essentials: localized installation files
@@ -125,8 +122,10 @@
 #             is an optional installation for Windows Vista and 7.
 #
 #        -includewddefs8
-#             Virus definition files for Windows 8 and higher. These
-#             are the same virus definition updates as for Microsoft
+#             Windows Defender definition updates for the built-in
+#             Defender of Windows 8, 8.1 and 10
+#
+#             These are the same virus definition updates as for Microsoft
 #             Security Essentials, and they are downloaded to the same
 #             directories, but without the localized installers.
 #
@@ -189,8 +188,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19.3-ESR"
-readonly release_date="2020-08-12"
+readonly script_version="1.20-ESR (beta-1)"
+readonly release_date="2021-03-05"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -250,7 +249,6 @@ fi
 # Boolean options are set to either "enabled" or "disabled":
 
 prefer_seconly="disabled"
-revised_method="disabled"
 check_for_self_updates="enabled"
 unattended_updates="disabled"
 use_file_signature_verification="disabled"
@@ -437,8 +435,8 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
-    # Also create a ../static directory for an initial installation of
-    # WSUS Offline Update by the Linux download scripts and for the
+    # Also create the directory ../static/sdd for an initial installation
+    # of WSUS Offline Update by the Linux download scripts and for the
     # update of static download definitions (and other configuration
     # files)
     mkdir -p "${wsusoffline_directory}/static/sdd"

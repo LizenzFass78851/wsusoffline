@@ -2,7 +2,7 @@
 #
 # Filename: 20-start-logging.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -36,8 +36,8 @@
 # and the variable wsusoffline_version will be updated to the new version.
 #
 # TODO: The global variable wsusoffline_version itself could be
-# reimplemented as a function, which returns the version string, so that
-# it can be used by other scripts as well.
+# re-implemented as a function, which returns the version string, so
+# that it can be used by other scripts as well.
 
 function extract_wsusoffline_version ()
 {
@@ -134,7 +134,6 @@ function print_info_block ()
         echo ""
         printf '%s\n' "Configuration variables from the preferences file"
         printf '%s\n' "prefer_seconly:    ${prefer_seconly}"
-        printf '%s\n' "revised_method:    ${revised_method}"
     } >> "${logfile}"
     return 0
 }

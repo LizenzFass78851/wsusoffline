@@ -4,6 +4,7 @@
 /o2k7
 /o2k7-x64
 /o2k10
+/o2k13
 /ofc
 /w2k
 /wxp

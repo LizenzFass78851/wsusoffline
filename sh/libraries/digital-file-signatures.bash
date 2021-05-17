@@ -2,7 +2,7 @@
 #
 # Filename: digital-file-signatures.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -139,14 +139,12 @@ function verify_digital_file_signatures ()
     #
     # In Windows, the "banner" is written to standard output and can be
     # easily suppressed, but this may not work with wine.
-    if [[ "${download_dir}" == "../client/dotnet" ]]
-    then
-        #local sigcheck_options=( "/accepteula" "-q" "-c" )             # for Sigcheck 2.0 - 2.4
-        local sigcheck_options=(  "/accepteula" "-q" "-c" "-nobanner" ) # for Sigcheck 2.5 and higher
-    else
-        #local sigcheck_options=( "/accepteula" "-q" "-c" "-s" )
-        local sigcheck_options=(  "/accepteula" "-q" "-c" "-s" "-nobanner" )
-    fi
+    #
+    # With the removal of dotnet subdirectories, the recursive option
+    # -s may be used everywhere.
+    #
+    #local sigcheck_options=( "/accepteula" "-q" "-c" "-s" )             # for Sigcheck 2.0 - 2.4
+    local sigcheck_options=(  "/accepteula" "-q" "-c" "-s" "-nobanner" ) # for Sigcheck 2.5 and higher
 
     # TODO: the error output of sigcheck should not be discarded, but
     # wine itself will also create lots of error messages. This should

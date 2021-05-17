@@ -2,7 +2,7 @@
 #
 # Filename: 20-show-selection-dialogs.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -130,8 +130,7 @@ function select_options ()
         w62-x64 | w63 | w63-x64 | w100 | w100-x64)
             valid_options=( "${options_menu_windows_8[@]}" )
         ;;
-        o2k10 | o2k10-x64 | o2k13 | o2k13-x64 | o2k16 | o2k16-x64 \
-        | all-ofc | all-ofc-x86)
+        o2k13 | o2k13-x64 | o2k16 | o2k16-x64 | all-ofc | all-ofc-x86)
             valid_options=( "${options_menu_office[@]}" )
         ;;
         *)

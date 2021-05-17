@@ -1,3 +1,61 @@
+Linux download scripts, version 1.20-ESR (beta-1)
+
+   Release date: 2021-03-05
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.8 (b39)
+
+   New features
+
+    * Added two scripts for development
+
+   Changed features
+
+    * New method for the calculation of dynamic updates
+    * New method for the calculation of superseded updates
+    * Static download files for .NET Frameworks are simplified
+    * Hashdeep files are calculated with the bare mode option
+    * Improved support for service packs
+
+   Removed features
+
+    * Removed the "revised" method for calculating superseded updates,
+      if security-only updates are selected
+
+  Other changes
+
+    * Simplified versioning of the Linux download scripts
+
+---------------------------------------------------------------------------
+
+Linux download scripts, version 1.19.4-ESR
+
+   Release date: 2021-01-26
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.7
+
+   Bugfixes
+
+    * The Security-only Safety Guard did not work with GitLab
+
+   New Features
+
+    * Optional "fast mode" for the calculation of the integrity database
+
+   Changed Features
+
+    * Default languages are removed on the fly
+    * hashdeep messages are duplicated with tee
+    * Network timeouts are increased
+    * Sysinternals utilities are downloaded to the directory ../bin
+    * Three more obsolete configuration files are removed
+    * Renamed the functions filter_cr and todos_line_endings
+
+   Removed features
+
+    * Removed support for Office 2010
+    * Removed support for Windows 10 version 1709
+
+
 Community Edition 1.19.3-ESR
 
    Release date: 2020-08-12
@@ -14,7 +72,7 @@ Community Edition 1.19.3-ESR
 
     * Two temporary files renamed
 
-    * Compatibility: bash 4.2, as in Debian 7 Wheezy, is now required
+    * Bash 4.2 is now required
 
 
 Community Edition 1.19.2-ESR  (CE-1.19.2-ESR)

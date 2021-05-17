@@ -2,7 +2,7 @@
 #
 # Filename: 20-get-sysinternals-helpers.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -117,10 +117,11 @@ function check_sysinternals_helpers ()
     local binary_path=""
 
     # Check locations of the extracted binaries
-    for binary_path in ../client/bin/Autologon.exe \
-                       ../bin/sigcheck.exe \
-                       ../bin/sigcheck64.exe \
-                       ../bin/streams.exe \
+    for binary_path in ../client/bin/Autologon.exe    \
+                       ../client/bin/Autologon64.exe  \
+                       ../bin/sigcheck.exe            \
+                       ../bin/sigcheck64.exe          \
+                       ../bin/streams.exe             \
                        ../bin/streams64.exe
     do
         if [[ -f "${binary_path}" ]]
@@ -161,20 +162,20 @@ function get_sysinternals_helpers ()
 
     # Create a copy of the file StaticDownloadLinks-sysinternals.txt,
     # to remove carriage returns
-    filter_cr < "../static/StaticDownloadLinks-sysinternals.txt" \
-              > "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
+    dos_to_unix < "../static/StaticDownloadLinks-sysinternals.txt" \
+                > "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
 
     # Remember the file modification dates of existing archives in seconds
-    [[ -f "${cache_dir}/AutoLogon.zip" ]] \
-        && previous_autologon="$(date -u -r "${cache_dir}/AutoLogon.zip" '+%s')"
-    [[ -f "${cache_dir}/Sigcheck.zip" ]] \
-        && previous_sigcheck="$(date -u -r "${cache_dir}/Sigcheck.zip" '+%s')"
-    [[ -f "${cache_dir}/Streams.zip" ]] \
-        && previous_streams="$(date -u -r "${cache_dir}/Streams.zip" '+%s')"
+    [[ -f "../bin/AutoLogon.zip" ]] \
+        && previous_autologon="$(date -u -r "../bin/AutoLogon.zip" '+%s')"
+    [[ -f "../bin/Sigcheck.zip" ]] \
+        && previous_sigcheck="$(date -u -r "../bin/Sigcheck.zip" '+%s')"
+    [[ -f "../bin/Streams.zip" ]] \
+        && previous_streams="$(date -u -r "../bin/Streams.zip" '+%s')"
 
     # Download Sysinternals archives to the cache directory
     log_info_message "Downloading/validating Sysinternals utilities..."
-    download_multiple_files "${cache_dir}" "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
+    download_multiple_files "../bin" "${temp_dir}/StaticDownloadLinks-sysinternals.txt"
     if same_error_count "${initial_errors}"
     then
         log_info_message "Download/validation of Sysinternals utilities succeeded."
@@ -184,22 +185,23 @@ function get_sysinternals_helpers ()
     fi
 
     # Get the file modification dates of the archives after download
-    [[ -f "${cache_dir}/AutoLogon.zip" ]] \
-        && current_autologon="$(date -u -r "${cache_dir}/AutoLogon.zip" '+%s')"
-    [[ -f "${cache_dir}/Sigcheck.zip" ]] \
-        && current_sigcheck="$(date -u -r "${cache_dir}/Sigcheck.zip" '+%s')"
-    [[ -f "${cache_dir}/Streams.zip" ]] \
-        && current_streams="$(date -u -r "${cache_dir}/Streams.zip" '+%s')"
+    [[ -f "../bin/AutoLogon.zip" ]] \
+        && current_autologon="$(date -u -r "../bin/AutoLogon.zip" '+%s')"
+    [[ -f "../bin/Sigcheck.zip" ]] \
+        && current_sigcheck="$(date -u -r "../bin/Sigcheck.zip" '+%s')"
+    [[ -f "../bin/Streams.zip" ]] \
+        && current_streams="$(date -u -r "../bin/Streams.zip" '+%s')"
 
     # Compare file modification dates after downloading/validating the
     # archives. Upgraded archives are unpacked. The archives are also
     # unpacked, if one of the *.exe files is missing.
     if (( current_autologon > previous_autologon )) \
-        || [[ ! -f "../client/bin/Autologon.exe" ]]
+        || [[ ! -f "../client/bin/Autologon.exe" ]] \
+        || [[ ! -f "../client/bin/Autologon64.exe" ]]
     then
         log_info_message "Unpacking archive AutoLogon.zip ..."
         # Note: the variable unzip_upgrade must not be quoted.
-        if ! ${unzip_upgrade} "${cache_dir}/AutoLogon.zip" -x "Eula.txt" -d "../client/bin"
+        if ! ${unzip_upgrade} "../bin/AutoLogon.zip" -x "Eula.txt" -d "../client/bin"
         then
             log_error_message "Unpacking of AutoLogon.zip failed."
             increment_error_count
@@ -207,11 +209,11 @@ function get_sysinternals_helpers ()
     fi
 
     if (( current_sigcheck > previous_sigcheck )) \
-        || [[ ! -f "../bin/sigcheck.exe" ]] \
+        || [[ ! -f "../bin/sigcheck.exe" ]]       \
         || [[ ! -f "../bin/sigcheck64.exe" ]]
     then
         log_info_message "Unpacking archive Sigcheck.zip ..."
-        if ! ${unzip_upgrade} "${cache_dir}/Sigcheck.zip" -x "Eula.txt" -d "../bin"
+        if ! ${unzip_upgrade} "../bin/Sigcheck.zip" -x "Eula.txt" -d "../bin"
         then
             log_error_message "Unpacking of Sigcheck.zip failed."
             increment_error_count
@@ -219,11 +221,11 @@ function get_sysinternals_helpers ()
     fi
 
     if (( current_streams > previous_streams )) \
-        || [[ ! -f "../bin/streams.exe" ]] \
+        || [[ ! -f "../bin/streams.exe" ]]      \
         || [[ ! -f "../bin/streams64.exe" ]]
     then
         log_info_message "Unpacking archive Streams.zip ..."
-        if ! ${unzip_upgrade} "${cache_dir}/Streams.zip" -x "Eula.txt" -d "../bin"
+        if ! ${unzip_upgrade} "../bin/Streams.zip" -x "Eula.txt" -d "../bin"
         then
             log_error_message "Unpacking of Streams.zip failed."
             increment_error_count

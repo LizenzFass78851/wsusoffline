@@ -2,7 +2,7 @@
 #
 # Filename: get-all-updates.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -83,7 +83,8 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 # downloads are added:
 
 # ./download-updates.bash w62-x64 deu,enu -includesp -includecpp \
-#                                 -includedotnet -includewddefs8
+#                                         -includedotnet -includewddefs8
+
 
 # Windows  8.1 / Server 2012 R2
 # Windows 10   / Server 2016/2019
@@ -103,13 +104,13 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 #                           -includecpp -includedotnet -includewddefs8
 
 
-# Office 2010 - 2013
+# Office 2013
 #
-# o2k10-x64 and o2k13-x64 include both 32-bit and 64-bit downloads,
-# just like the Windows script DownloadUpdates.cmd, if 64-bit Office
-# support is enabled with the script AddOffice2010x64Support.cmd.
+# o2k13-x64 includes both 32-bit and 64-bit downloads, just like the
+# Windows script DownloadUpdates.cmd, if 64-bit Office support is enabled
+# with the script AddOffice2010x64Support.cmd.
 
-# ./download-updates.bash o2k10-x64,o2k13-x64 deu,enu -includesp
+# ./download-updates.bash o2k13-x64 deu,enu -includesp
 
 
 # Office 2016

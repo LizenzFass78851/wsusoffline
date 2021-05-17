@@ -1,6 +1,7 @@
 Installationsanleitung für die Linux-Download-Skripte
 =====================================================
-Zuletzt aktualisiert für die Community Edition 1.19.3-ESR (2020-08-12)
+Zuletzt aktualisiert für die Linux-Download-Skripte, Version 1.19.4-ESR
+(2021-01-26)
 
 
 WSUS Offline Update enthält bereits die neuen Linux-Skripte. Sie
@@ -136,20 +137,28 @@ Laden Sie das wsusoffline-Archiv herunter und entpacken Sie es
 --------------------------------------------------------------
 Laden Sie das neueste wsusoffline-Archiv herunter und entpacken Sie es.
 
-* Überprüfen Sie die Downloadseite <https://download.wsusoffline.net/>
-  für das ursprüngliche WSUS Offline Update der Originalentwickler.
+* Die Downloadseite <https://download.wsusoffline.net/> führt die
+  ursprünglichen Versionen des Originalentwicklers auf. Diese Versionen
+  werden jedoch nicht länger gepflegt, und Sie sollten sie nicht mehr
+  verwenden.
 
-* Überprüfen Sie die Seite "Releases"
-  <https://gitlab.com/wsusoffline/wsusoffline/-/releases> für die
-  Community Edition.
+* Verwenden Sie statt dessen die Community Edition von
+  <https://gitlab.com/wsusoffline/wsusoffline/-/releases>.
 
-  Wählen sie das neueste Release aus dem "11.9-esr" Zweig, zum Beispiel
-  Version 11.9.4 oder höher.
+  Wählen Sie das neueste Release aus dem "11.9-esr" Zweig, zum Beispiel
+  Community Edition 11.9.7 oder höher.
+
+  Die Unterschiede zwischen den Originalversionen und der Community
+  Edition werden in einem Forum-Artikel erklärt:
+
+  wsusoffline "Community Edition"
+  <https://forums.wsusoffline.net/viewtopic.php?f=7&t=10194>
 
 Beachten Sie, dass das Zip-Archiv von einer Hashes-Datei begleitet
 wird. Sie können das Archiv damit überprüfen:
 
-  hashdeep -a -v -v -l -k wsusofflineCE120_hashes.txt wsusofflineCE120.zip
+  hashdeep -a -v -v -l -k wsusofflineCE1197_hashes.txt \
+                          wsusofflineCE1197.zip
 
 Die neuen Linux-Skripte sind im Verzeichnis "sh" enthalten. Da das
 wsusoffline-Archiv unter Windows erstellt wurde, sind die Skripte noch
@@ -175,7 +184,7 @@ Skript-Verzeichnis aufgerufen werden mit:
 
   ./update-generator.bash
   ./get-all-updates.bash
-  ./download-updates.bash w60 deu,enu -includesp
+  ./download-updates.bash all deu,enu -includesp
 
 
 Anmerkungen

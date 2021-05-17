@@ -2,7 +2,7 @@
 #
 # Filename: updates-and-languages.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -59,10 +59,8 @@
 # This is the configuration file for the development branch 11.9.x ESR
 # (extended support release) of WSUS Offline Update.
 #
-# Supported releases are:
-# - WSUS Offline Update 11.9.1 ESR
-# - WSUS Offline Update 11.9.1 CE (Community Edition)
-# - WSUS Offline Update 11.9.2 CE
+# After the removal of Office 2010, the only supported release is:
+# - WSUS Offline Update, Community Edition 11.9.7-ESR
 #
 # The development branch 11.9 ESR was created to support:
 # - Windows Server 2008
@@ -94,8 +92,6 @@ updates_menu=(
     "w63-x64       Windows 8.1 / Server 2012 R2, 64-bit     (deprecated)"
     "w100          Windows 10, 32-bit                       (deprecated)"
     "w100-x64      Windows 10 / Server 2016/2019, 64-bit    (deprecated)"
-    "o2k10         Office 2010, 32-bit                      (deprecated)"
-    "o2k10-x64     Office 2010, 32-bit and 64-bit           (deprecated)"
     "o2k13         Office 2013, 32-bit                      (deprecated)"
     "o2k13-x64     Office 2013, 32-bit and 64-bit           (deprecated)"
     "o2k16         Office 2016, 32-bit                      (deprecated)"
@@ -111,14 +107,14 @@ updates_menu=(
 )
 
 # Internal Lists
-list_all=( "w60" "w60-x64" "w61" "w61-x64" "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_x86=( "w60" "w61" "w63" "w100" "o2k10" "o2k13" "o2k16" )
-list_all_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" "o2k10-x64" "o2k13-x64" "o2k16-x64" )
+list_all=( "w60" "w60-x64" "w61" "w61-x64" "w62-x64" "w63" "w63-x64" "w100" "w100-x64" "o2k13-x64" "o2k16-x64" )
+list_all_x86=( "w60" "w61" "w63" "w100" "o2k13" "o2k16" )
+list_all_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" "o2k13-x64" "o2k16-x64" )
 list_all_win=( "w60" "w60-x64" "w61" "w61-x64" "w62-x64" "w63" "w63-x64" "w100" "w100-x64" )
 list_all_win_x86=( "w60" "w61" "w63" "w100" )
 list_all_win_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" )
-list_all_ofc=( "o2k10-x64" "o2k13-x64" "o2k16-x64" )
-list_all_ofc_x86=( "o2k10" "o2k13" "o2k16" )
+list_all_ofc=( "o2k13-x64" "o2k16-x64" )
+list_all_ofc_x86=( "o2k13" "o2k16" )
 
 # ========== Configuration of languages and optional downloads ============
 

@@ -2,7 +2,7 @@
 #
 # Filename: 40-configure-downloaders.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -113,18 +113,19 @@ wget_common_options=(
     "--verbose"
     "--timestamping"
     "--trust-server-names"
-    "--timeout=60"
     "--no-http-keep-alive"
 )
 
 wget_optimized_options=(
     "--tries=10"
-    "--waitretry=10"
+    "--timeout=120"
+    "--waitretry=20"
 )
 
 wget_failsafe_options=(
     "--server-response"
     "--tries=1"
+    "--timeout=300"
     "--no-cache"
 )
 # TODO: There may be some more options, which could be useful for the
@@ -142,14 +143,14 @@ wget_connection_test_a=(
     "--spider"
     "--verbose"
     "--tries=1"
-    "--timeout=10"
+    "--timeout=60"
 )
 
 wget_connection_test_b=(
     "--spider"
     "--debug"
     "--tries=1"
-    "--timeout=10"
+    "--timeout=60"
 )
 
 wget_spider_option="--spider"
@@ -164,19 +165,20 @@ aria2c_common_options=(
     "--remote-time=true"
     "--allow-overwrite=true"
     "--auto-file-renaming=false"
-    "--timeout=60"
     "--enable-http-keep-alive=false"
 )
 
 aria2c_optimized_options=(
     "--log-level=notice"
     "--max-tries=10"
-    "--retry-wait=10"
+    "--timeout=120"
+    "--retry-wait=20"
 )
 
 aria2c_failsafe_options=(
     "--log-level=info"
     "--max-tries=1"
+    "--timeout=300"
     "--always-resume=false"
     "--max-resume-failure-tries=0"
     "--remove-control-file=true"
@@ -187,7 +189,7 @@ aria2c_connection_test_a=(
     "--dry-run=true"
     "--log-level=notice"
     "--max-tries=1"
-    "--timeout=10"
+    "--timeout=60"
     "--force-sequential=true"
 )
 
@@ -195,7 +197,7 @@ aria2c_connection_test_b=(
     "--dry-run=true"
     "--log-level=info"
     "--max-tries=1"
-    "--timeout=10"
+    "--timeout=60"
     "--force-sequential=true"
 )
 
@@ -1027,8 +1029,8 @@ function copy_etag_database ()
     if [[ -s "../static/SelfUpdateVersion-static.txt" ]]
     then
         log_info_message "Copying ETag database..."
-        filter_cr < "../static/SelfUpdateVersion-static.txt" \
-                  > "${temp_dir}/SelfUpdateVersion-static.txt"
+        dos_to_unix < "../static/SelfUpdateVersion-static.txt" \
+                    > "${temp_dir}/SelfUpdateVersion-static.txt"
     fi
 
     return 0
@@ -1044,8 +1046,8 @@ function restore_etag_database ()
     if [[ -s "${temp_dir}/SelfUpdateVersion-static.txt" ]]
     then
         log_info_message "Restoring ETag database..."
-        todos_line_endings < "${temp_dir}/SelfUpdateVersion-static.txt" \
-                           > "../static/SelfUpdateVersion-static.txt"
+        unix_to_dos < "${temp_dir}/SelfUpdateVersion-static.txt" \
+                    > "../static/SelfUpdateVersion-static.txt"
     fi
 
     return 0

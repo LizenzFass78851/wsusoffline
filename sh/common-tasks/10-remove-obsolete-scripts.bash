@@ -2,7 +2,7 @@
 #
 # Filename: 10-remove-obsolete-scripts.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -31,16 +31,14 @@
 
 # ========== Functions ====================================================
 
-# WSUS Offline Update, Community Editions CE-11.9.1 and CE-12.0 are new
-# development branches.
+# WSUS Offline Update, Community Editions CE-11.9.1 and CE-12.0 are
+# new development branches. Both came with the Linux download scripts,
+# version 1.19.
 #
-# Both came with the Linux download scripts, version 1.19.
-#
-# Then we only need to remove obsolete files from previous versions,
-# if they are still found in version 1.19. This mainly refers to two
-# renamed files and folders: 71-make-shapshot.bash and licence. They were
-# renamed in version 1.16, but the changes never made it into svn/Trak
-# at wsusoffline.net.
+# Obsolete files from older versions are only considered, if they are
+# still found in version 1.19. This refers to two renamed files and
+# folders: 71-make-shapshot.bash and licence. They were renamed in version
+# 1.16, but the changes never made it into svn/Trak at wsusoffline.net.
 #
 # Version 1.19 of the Linux download scripts is the common predecessor
 # of versions 1.19.1-ESR and 1.20.
@@ -49,8 +47,9 @@ function remove_obsolete_scripts ()
 {
     local old_name=""
     #local new_name=""
-    #local -a file_list=()
-    #local current_file=""
+    local -a file_list=()
+    local pathname=""
+    local filename=""
 
     # Obsolete files in version 1.16
     #
@@ -113,6 +112,77 @@ function remove_obsolete_scripts ()
     if [[ -d ../timestamps ]]
     then
         rm -f ../timestamps/check-sh-version.txt
+    fi
+
+    # Obsolete files in Linux download scripts 1.19.4-ESR and 2.3
+    #
+    # The archives of the Sysinternals utilities are now downloaded to
+    # the directory ../bin, instead of ../cache
+    for filename in "AutoLogon.zip" "Sigcheck.zip" "Streams.zip"
+    do
+        if [[ -f "${cache_dir}/${filename}" ]]
+        then
+            if [[ -f "../bin/${filename}" ]]
+            then
+                rm "${cache_dir}/${filename}"
+            else
+                mkdir -p "../bin"
+                mv "${cache_dir}/${filename}" "../bin"
+            fi
+        fi
+    done
+
+    # The script 30-remove-default-languages.bash was replaced with the
+    # function filter_default_languages in the library dos-files.bash.
+    file_list+=(
+        "./download-updates-tasks/30-remove-default-languages.bash"
+    )
+
+    # Obsolete files in Linux download scripts 1.20-ESR and 2.4
+    #
+    # The private file ./libraries/locales.txt is not necessary
+    # anymore. The file ../exclude/ExcludeList-locales.txt is used
+    # instead.
+    file_list+=( "./libraries/locales.txt" )
+
+    # Delete all obsolete files, if existing
+    if (( "${#file_list[@]}" > 0 ))
+    then
+        for pathname in "${file_list[@]}"
+        do
+            if [[ -f "${pathname}" ]]
+            then
+                log_debug_message "Deleting ${pathname}"
+                rm "${pathname}"
+            fi
+        done
+    fi
+
+    # The format of the hashdeep files was changed in WSUS Offline Update,
+    # Community Editions 11.9.8-ESR and 12.5. The relative path mode
+    # option (-l) was replaced with the bare mode option (-b). Hashdeep
+    # files in the old format must be removed once, because they would
+    # cause every update to be reported as "moved".
+    #
+    # Reset the array file_list to list only the hashdeep files
+    shopt -s nullglob
+    file_list=( ../client/md/hashes-*.txt )
+    shopt -u nullglob
+
+    if (( "${#file_list[@]}" > 0 ))
+    then
+        for pathname in "${file_list[@]}"
+        do
+            if ! grep -F -q -e "-c md5,sha1,sha256 -b" \
+                            -e "-c sha1 -b"            \
+                            "${pathname}"
+            then
+                log_info_message "Deleting old style hashdeep file ${pathname}"
+                rm "${pathname}"
+            else
+                log_debug_message "Hashdeep file ${pathname} is already in new format"
+            fi
+        done
     fi
 
     return 0

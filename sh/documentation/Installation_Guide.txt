@@ -1,6 +1,7 @@
 Installation guide for the Linux download scripts
 =================================================
-Last updated for the Community Edition 1.19.3-ESR (2020-08-12)
+Last updated for the Linux download scripts, version 1.19.4-ESR
+(2021-01-26)
 
 
 WSUS Offline Update already includes the new Linux download scripts. You
@@ -131,19 +132,27 @@ Download and unpack the wsusoffline archive
 -------------------------------------------
 Download the newest wsusoffline archive and unpack it.
 
-* For the original WSUS Offline Update, check the download page
-  <https://download.wsusoffline.net/>.
+* The download page <https://download.wsusoffline.net/> lists the
+  wsusoffline versions of the original developer. These versions are
+  not maintained anymore, and you should no longer use them.
 
-* For the Community Edition, check the "Releases" page
+* Use the Community Edition instead from
   <https://gitlab.com/wsusoffline/wsusoffline/-/releases>.
 
   Select the latest release from the "11.9-esr" branch, for example
-  version 11.9.4 or later.
+  Community Edition 11.9.7 or later.
+
+  The differences between the original versions and the Community Editions
+  are explained in the forum post:
+
+  wsusoffline "Community Edition"
+  <https://forums.wsusoffline.net/viewtopic.php?f=7&t=10194>
 
 Note, that the zip archive comes with an accompanying hashes file. You
 can use it to verify the download with:
 
-  hashdeep -a -v -v -l -k wsusofflineCE120_hashes.txt wsusofflineCE120.zip
+  hashdeep -a -v -v -l -k wsusofflineCE1197_hashes.txt \
+                          wsusofflineCE1197.zip
 
 The new Linux scripts are included in the "sh" subdirectory. Due to
 the packaging on Windows, the scripts are not yet executable. Run the
@@ -167,7 +176,7 @@ directory with:
 
   ./update-generator.bash
   ./get-all-updates.bash
-  ./download-updates.bash w60 deu,enu -includesp
+  ./download-updates.bash all deu,enu -includesp
 
 
 Notes

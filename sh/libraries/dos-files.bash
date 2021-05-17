@@ -2,7 +2,7 @@
 #
 # Filename: dos-files.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -75,13 +75,88 @@ function tail_dos ()
     tail "$@" | tr -d '\r'
 }
 
-# Filter functions read from standard input and write to standard
-# output. They are typically used in pipes.
-#
-# The function todos_line_endings is used to convert the output of
-# hashdeep to DOS line endings on the fly.
 
-function todos_line_endings ()
+# cat_existing_files is similar to cat_dos, as is concatenates several
+# input files and writes them to standard output. This function verifies,
+# that each input file exists and the file size is larger than 0. Carriage
+# returns will be removed.
+function cat_existing_files ()
+{
+    local current_file=""
+
+    if (( "$#" > 0 ))
+    then
+        for current_file in "$@"
+        do
+            if [[ -s "${current_file}" ]]
+            then
+                tr -d '\r' < "${current_file}"
+            fi
+        done
+    fi
+    return 0
+}
+
+
+# The Linux download scripts handle default and custom languages
+# differently than the Windows scripts:
+#
+# The default languages German and English are removed from several global
+# download files in the ../static directory. Since version 1.19.4-ESR
+# and 2.3 of the Linux download scripts, this is done without changing
+# the input files at all.
+#
+# Languages, which are set on the command-line, are then added back from
+# the localized download files in the ../static directory.
+#
+# This way, only the needed languages are downloaded, without changing
+# existing files in the ../static directory or creating new files in
+# the ../static/custom directory.
+
+function filter_default_languages ()
+{
+    local pathname="$1"
+
+    if [[ -s "${pathname}" ]]
+    then
+        case "${pathname}" in
+            ( ../static/StaticDownloadLinks-msse-x86-glb.txt \
+            | ../static/StaticDownloadLinks-msse-x64-glb.txt \
+            | ../static/StaticDownloadLinks-w61-x86-glb.txt  \
+            | ../static/StaticDownloadLinks-w61-x64-glb.txt  )
+                # Remove German and English language support
+                tr -d '\r' < "${pathname}"                               \
+                | grep -F -i -v -e 'deu.' -e '-deu_' -e 'de.' -e 'de-de' \
+                                -e 'enu.' -e 'us.'                       \
+                || true
+            ;;
+            ( ../static/StaticDownloadLinks-dotnet.txt         \
+            | ../static/StaticDownloadLinks-w60-x86-glb.txt    \
+            | ../static/StaticDownloadLinks-w60-x64-glb.txt    \
+            | ../static/StaticDownloadLinks-w62-x64-glb.txt    )
+                # Remove German language support
+                tr -d '\r' < "${pathname}"                               \
+                | grep -F -i -v -e 'deu.' -e '-deu_' -e 'de.' -e 'de-de' \
+                || true
+            ;;
+            *)
+                # Only filter carriage returns
+                tr -d '\r' < "${pathname}"
+            ;;
+        esac
+    fi
+    return 0
+}
+
+
+# Filter functions read from standard input and write to standard
+# output. They are typically used in pipes, but with input and output
+# re-directions they can also work on files.
+#
+# The function unix_to_dos is used to convert the output of hashdeep to
+# DOS line endings on the fly.
+
+function unix_to_dos ()
 {
     local line=""
 
@@ -95,7 +170,7 @@ function todos_line_endings ()
     return 0
 }
 
-function filter_cr ()
+function dos_to_unix ()
 {
     tr -d '\r'
 }

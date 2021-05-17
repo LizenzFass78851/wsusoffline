@@ -2,7 +2,7 @@
 #
 # Filename: fix-file-permissions.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -60,15 +60,17 @@ function fix_file_permissions ()
 
     # Ensure, that Linux scripts are executable (excluding libraries,
     # tasks and the preferences file, since these files are sourced)
-    chmod +x \
-        ./copy-to-target.bash \
-        ./create-iso-image.bash \
-        ./download-updates.bash \
-        ./fix-file-permissions.bash \
-        ./get-all-updates.bash \
-        ./open-support-pages.bash \
-        ./rebuild-integrity-database.bash \
-        ./update-generator.bash \
+    chmod +x                                                       \
+        ./copy-to-target.bash                                      \
+        ./create-iso-image.bash                                    \
+        ./download-updates.bash                                    \
+        ./fix-file-permissions.bash                                \
+        ./get-all-updates.bash                                     \
+        ./open-support-pages.bash                                  \
+        ./rebuild-integrity-database.bash                          \
+        ./reset-wsusoffline.bash                                   \
+        ./syntax-check.bash                                        \
+        ./update-generator.bash                                    \
         ./comparison-linux-windows/compare-integrity-database.bash \
         ./comparison-linux-windows/compare-update-tables.bash
 

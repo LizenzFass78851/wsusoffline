@@ -32,7 +32,7 @@ w63-x64
 w100
 w100-x64
 
-# Exclude 32-bit subdirectories of dotnet, msse and wddefs
+# Exclude 32-bit subdirectories of msse and wddefs
 x86-glb
 
 # Exclude .NET Frameworks 3.5 and 4.5
@@ -50,10 +50,8 @@ wddefs
 MSEInstall-*.exe
 
 # Exclude unneeded files from the directory client/md
-hashes-o2k10-*.txt
 hashes-o2k13-*.txt
 hashes-o2k16-glb.txt
-hashes-ofc-*.txt
 hashes-w60-glb.txt
 hashes-w60-x64-glb.txt
 hashes-w61-glb.txt
@@ -62,11 +60,9 @@ hashes-w63-glb.txt
 hashes-w63-x64-glb.txt
 hashes-w100-glb.txt
 hashes-w100-x64-glb.txt
-hashes-dotnet-x86-glb.txt
-hashes-wddefs.txt
-
-# Exclude unneeded files from the directory client/static
-StaticUpdateFiles-modified.txt
+hashes-msse-x86-glb.txt
+hashes-wddefs-x86-glb.txt
+hashes-wddefs-x64-glb.txt
 
 # Exclude source files
 UpdateInstaller.au3

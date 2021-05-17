@@ -2,7 +2,7 @@
 #
 # Filename: timestamps.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -26,10 +26,8 @@
 #     Timestamps are used to prevent a repeated evaluation of the same
 #     tasks in adjacent runs of the download script. For example, the
 #     directory client/win contains common downloads for all Windows
-#     versions. Similarly, the directory client/ofc contains common files
-#     for all Office versions. If different Windows or Office versions
-#     are downloaded in turn, then the downloads for win and ofc should
-#     only be processed once.
+#     versions. If different Windows versions are downloaded in turn,
+#     then the downloads for win should only be processed once.
 #
 #     The function "same_day checks, if a task has already been done on
 #     the same day.
@@ -106,8 +104,8 @@ interval_description_configuration_files="one day"
 interval_description_dependent_files="two days"
 
 # TODO: Some definitions could be better done with associative arrays,
-# but this would require bash 4.x and definitely destroy compatibility
-# with Mac OS X.
+# but this requires bash 4.x and would have destroyed compatibility with
+# Mac OS X.
 
 # ========== Functions ====================================================
 
@@ -164,6 +162,13 @@ function same_day ()
 #   msse should also update the timestamp for wddefs8.
 # - Office 32-bit downloads are included in Office 64-bit downloads.
 
+# TODO: w60 and w62 (but not w61) could be treated like dotnet,
+# because the English installers for Internet Explorer will always be
+# installed. On the other hand, this looks like an old workaround for the
+# first versions of the download scripts, which could only download one
+# language per run. If all needed languages are set on the command-line,
+# as a comma-separated list, then these rules may not be needed anymore.
+
 function update_timestamp ()
 {
     local timestamp_file="$1"  # TODO: distinguish between pathnames and filenames
@@ -173,19 +178,13 @@ function update_timestamp ()
         timestamp-dotnet-all-*.txt)
             touch "${timestamp_dir}/timestamp-dotnet-all-enu.txt"
         ;;
-        timestamp-dotnet-x86-*.txt)
-            touch "${timestamp_dir}/timestamp-dotnet-x86-enu-${include_service_packs}-${prefer_seconly}.txt"
-        ;;
-        timestamp-dotnet-x64-*.txt)
-            touch "${timestamp_dir}/timestamp-dotnet-x64-enu-${include_service_packs}-${prefer_seconly}.txt"
-        ;;
         timestamp-msse-x86-*.txt)
             touch "${timestamp_dir}/timestamp-wddefs8-x86-glb.txt"
         ;;
         timestamp-msse-x64-*.txt)
             touch "${timestamp_dir}/timestamp-wddefs8-x64-glb.txt"
         ;;
-        timestamp-o2k10-x64-*.txt | timestamp-o2k13-x64-*.txt | timestamp-o2k16-x64-*.txt)
+        timestamp-o2k13-x64-*.txt | timestamp-o2k16-x64-*.txt)
             touch "${timestamp_file/x64/x86}"
         ;;
         *)
@@ -248,10 +247,6 @@ function compare_modification_dates ()
                     # Lists of superseded updates, Linux version
                     rm -f "../exclude/ExcludeList-Linux-superseded.txt"
                     rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
-                    rm -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
-                    # Cached list of Office updates (which depends on
-                    # the file wsusscn2.cab only)
-                    rm -f "${cache_dir}/office-update-ids-and-locations.txt"
                     reevaluate_dynamic_updates
                 ;;
                 *)
@@ -262,7 +257,6 @@ function compare_modification_dates ()
                     # Lists of superseded updates, Linux version
                     rm -f "../exclude/ExcludeList-Linux-superseded.txt"
                     rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
-                    rm -f "../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
                     reevaluate_all_updates
                 ;;
             esac
@@ -299,9 +293,8 @@ function reevaluate_dynamic_updates ()
             "${timestamp_dir}"/timestamp-w62-*.txt
             "${timestamp_dir}"/timestamp-w63-*.txt
             "${timestamp_dir}"/timestamp-w100-*.txt
-            "${timestamp_dir}"/timestamp-dotnet-x86-*.txt
-            "${timestamp_dir}"/timestamp-dotnet-x64-*.txt
-            "${timestamp_dir}"/timestamp-ofc-*.txt
+            "${timestamp_dir}"/timestamp-o2k13-*.txt
+            "${timestamp_dir}"/timestamp-o2k16-*.txt
         )
         shopt -u nullglob
 

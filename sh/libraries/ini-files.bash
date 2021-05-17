@@ -2,7 +2,7 @@
 #
 # Filename: ini-files.bash
 #
-# Copyright (C) 2019-2020 Hartmut Buhrmester
+# Copyright (C) 2019-2021 Hartmut Buhrmester
 #                    <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -191,6 +191,9 @@ function write_setting ()
             #
             # $ sed -i.bak "s/w63=off/w63=on/" update-generator.ini
             #
+            # TODO: This may be solved better by using the option -e,
+            # to explicitly set the sed script.
+            #
             # The search pattern for sed is anchored to the beginning of
             # the line with the character "^". The end-of-line character
             # "$" should not be used anymore: In files with Windows
@@ -206,8 +209,9 @@ function write_setting ()
             # quotation marks are handled well, but the slash causes
             # the command "s/regular expression/replacement/flags"
             # to break. Using "s#regular expression#replacement#flags"
-            # does work in this case.
-            sed -i.bak "s#^${key}=${old_value}#${key}=${new_value}#" "${settings_file}"
+            # does work in this case. Actually, this is the example from
+            # the FreeBSD sed manual page for handling path names.
+            sed -i.bak -e "s#^${key}=${old_value}#${key}=${new_value}#" "${settings_file}"
             rm -f "${settings_file}.bak"
         fi
     else

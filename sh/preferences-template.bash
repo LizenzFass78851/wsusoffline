@@ -2,7 +2,7 @@
 #
 # Filename: preferences-template.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -61,12 +61,6 @@ no_proxy_server=""
 # - Windows Server 2012
 # - Windows 8.1 / Server 2012 R2
 prefer_seconly="disabled"
-
-# Use a revised method for the calculation of superseded updates, if
-# security-only updates are selected. This method uses a correction for
-# updates, which are superseded by the full "quality" update rollups,
-# but not by the security-only updates.
-revised_method="disabled"
 
 # All online checks for self updates can be disabled to keep a certain
 # installation as is. This may be needed to support old Windows versions
@@ -134,6 +128,14 @@ use_file_signature_verification="disabled"
 # The creation and verification of an own integrity database with hashdeep
 # can be skipped to make the script run faster.
 use_integrity_database="enabled"
+
+# In the Windows script DownloadUpdates.cmd, hashdeep always uses
+# three hash functions to create the integrity database: MD5, SHA-1 and
+# SHA-256. This looks a bit over-engineered, and it makes the creation and
+# validation of the integrity database rather slow on old machines. The
+# Linux download scripts 1.19.4-ESR and 2.3 introduced a new optional
+# "fast mode", which only calculates the SHA-1 hash.
+fast_mode="disabled"
 
 # The cleanup of client directories can be skipped, if there are
 # unexpected problems.

@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: Community Edition 1.19.3-ESR
-# Release date: 2020-08-12
+# Version: 1.20-ESR (beta-1)
+# Release date: 2021-03-05
 # Development branch: esr-11.9
-# Supported versions: WSUS Offline Update, Community Edition 11.9.4
+# Supported versions: WSUS Offline Update, Community Edition 11.9.8 (b39)
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -95,8 +95,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="1.19.3-ESR"
-readonly release_date="2020-08-12"
+readonly script_version="1.20-ESR (beta-1)"
+readonly release_date="2021-03-05"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.
@@ -156,7 +156,6 @@ fi
 # Boolean options are set to either "enabled" or "disabled":
 
 prefer_seconly="disabled"
-revised_method="disabled"
 check_for_self_updates="enabled"
 unattended_updates="disabled"
 use_file_signature_verification="disabled"
@@ -343,8 +342,8 @@ function setup_working_directory ()
     mkdir -p "${cache_dir}"
     mkdir -p "${log_dir}"
     mkdir -p "${timestamp_dir}"
-    # Also create a ../static directory for an initial installation of
-    # WSUS Offline Update by the Linux download scripts and for the
+    # Also create the directory ../static/sdd for an initial installation
+    # of WSUS Offline Update by the Linux download scripts and for the
     # update of static download definitions (and other configuration
     # files)
     mkdir -p "${wsusoffline_directory}/static/sdd"

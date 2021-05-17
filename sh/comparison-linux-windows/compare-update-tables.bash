@@ -2,7 +2,7 @@
 #
 # Filename: compare-update-tables.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -24,23 +24,22 @@
 # Description
 #
 #     This script is used for development. It compares two directories
-#     with office update tables.
+#     with update tables.
 #
 #     For cross-platform compatibility, trailing carriage returns are
 #     deleted and the files are sorted in a generic order. Then they
 #     are compared with diff.
-#
-#     A typical result is shown in the file example-results-ofc.txt.
 #
 # Usage
 #
 #     ./compare-update-tables.bash <windows-path> <linux-path>
 #
 #     The paths are the complete pathnames of the directories
-#     wsusoffline/client/ofc on both Windows and Linux, for example:
+#     wsusoffline/client/UpdateTable on both Windows and Linux, for
+#     example:
 #
-#     /media/${USER}/Windows/wsusoffline/client/ofc
-#     /home/${USER}/wsusoffline/client/ofc
+#     /media/${USER}/Windows/wsusoffline/client/UpdateTable
+#     /home/${USER}/wsusoffline/client/UpdateTable
 #
 #     The Windows partition is usually mounted in one of the directories
 #     /mnt, /media or "/media/${USER}".
@@ -60,8 +59,8 @@ export LC_ALL=C
 # ========== Configuration ================================================
 
 # Paths to the temporary directories
-temp_ofc_windows="/tmp/ofc-windows"
-temp_ofc_linux="/tmp/ofc-linux"
+temp_UpdateTable_windows="/tmp/UpdateTable-windows"
+temp_UpdateTable_linux="/tmp/UpdateTable-linux"
 
 # ========== Functions ====================================================
 
@@ -114,26 +113,26 @@ then
     printf '%s\n' "Usage: ./compare-update-tables.bash <windows-path> <linux-path>
 
 <windows-path> and <linux-path> are the complete pathnames of the
-directories wsusoffline/client/ofc on Windows and Linux, for example:
+directories wsusoffline/client/UpdateTable on Windows and Linux, for example:
 
-/media/${USER}/Windows/wsusoffline/client/ofc
-/home/${USER}/wsusoffline/client/ofc"
+/media/${USER}/Windows/wsusoffline/client/UpdateTable
+/home/${USER}/wsusoffline/client/UpdateTable"
     exit 1
 fi
 
-# Set the pathnames of the directories wsusoffline/client/ofc on Windows
-# and Linux
-source_ofc_windows="$1"
-source_ofc_linux="$2"
+# Set the pathnames of the directories wsusoffline/client/UpdateTable
+# on Windows and Linux
+source_UpdateTable_windows="$1"
+source_UpdateTable_linux="$2"
 
 echo "Creating diff files..."
-create_diff_files "${source_ofc_windows}" "${temp_ofc_windows}"
-create_diff_files "${source_ofc_linux}" "${temp_ofc_linux}"
+create_diff_files "${source_UpdateTable_windows}" "${temp_UpdateTable_windows}"
+create_diff_files "${source_UpdateTable_linux}" "${temp_UpdateTable_linux}"
 
 echo "Comparing diff files..."
-diff --unified --color=auto --report-identical-files "${temp_ofc_windows}" "${temp_ofc_linux}"
+diff --unified --color=auto --report-identical-files "${temp_UpdateTable_windows}" "${temp_UpdateTable_linux}"
 
 echo "Cleaning up temporary directories..."
-rm -rf "${temp_ofc_windows}"
-rm -rf "${temp_ofc_linux}"
+rm -rf "${temp_UpdateTable_windows}"
+rm -rf "${temp_UpdateTable_linux}"
 exit 0

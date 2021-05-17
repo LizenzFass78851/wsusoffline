@@ -2,7 +2,7 @@
 #
 # Filename: cleanup-client-directories.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -133,7 +133,7 @@ function cleanup_client_directory ()
         # - Static download links are mostly service packs and other
         #   installers, which may be excluded from the download.
         # - Dynamic update links are not calculated for some download
-        #   targets, e.g. win, o2k10, o2k13 and o2k16.
+        #   targets, e.g. win, o2k13 and o2k16.
         log_debug_message "Cleanup both static and dynamic links"
         # Delete output file
         rm -f "${valid_links}"
@@ -221,9 +221,11 @@ function cleanup_client_directory ()
             # used after several redirections. Therefore, comparing the
             # filenames to the URLs does not work, and the files must
             # be preserved at this point.
-            case "${filename}" in
-                mpas-fe.exe | mpam-fe.exe)
-                    log_debug_message "Kept virus definition file ${pathname}"
+            case "${pathname}" in
+                ( "../client/wddefs/x86-glb/mpas-fe.exe" \
+                | "../client/wddefs/x64-glb/mpas-fe.exe" \
+                | "../client/msse/x86-glb/mpam-fe.exe"   \
+                | "../client/msse/x64-glb/mpam-fe.exe"   )
                     continue
                 ;;
             esac

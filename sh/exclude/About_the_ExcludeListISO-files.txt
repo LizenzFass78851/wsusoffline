@@ -17,8 +17,8 @@ General filter rules
      * just the file or directory name
      * a complete path, relative to the sh directory
 
-   For example, the following filters exclude three unneeded files and
-   all download directories except the wsus directory:
+   For example, the following filters exclude two unneeded source files
+   and all download directories except the wsus directory:
 
    o2k10
    o2k13
@@ -38,7 +38,6 @@ General filter rules
    dotnet
    msse
    wddefs
-   StaticUpdateFiles-modified.txt
    UpdateInstaller.au3
    IfAdmin.cpp
 
@@ -63,7 +62,6 @@ General filter rules
    ../client/dotnet
    ../client/msse
    ../client/wddefs
-   ../client/static/StaticUpdateFiles-modified.txt
    ../client/UpdateInstaller.au3
    ../client/bin/IfAdmin.cpp
 
@@ -106,6 +104,7 @@ Obsolete Office and Windows versions
    o2k3
    o2k7
    o2k7-x64
+   o2k10
    w2k
    wxp
    w2k3
@@ -113,15 +112,14 @@ Obsolete Office and Windows versions
    w62
 
    These directory names correspond to: Office 2000, Office XP (aka
-   Office 2002), Office 2003, Office 2007, Windows 2000, Windows XP,
-   Windows Server 2003 and Windows 8 (32-bit).
+   Office 2002), Office 2003, Office 2007, Office 2010, Windows 2000,
+   Windows XP, Windows Server 2003 and Windows 8 (32-bit).
 
 Supported Office versions
 
    All supported Office versions can be excluded with the directory
    names:
 
-   o2k10
    o2k13
    o2k16
    ofc
@@ -263,7 +261,11 @@ Unneeded files from the directory client/static
 
    The approach for Linux is to keep all basic files of a wsusoffline
    installation, and to exclude only new downloaded or created files.
-   Therefore, only the file StaticUpdateFiles-modified.txt is excluded.
+
+   In the first versions of the ExcludeListISO-*.txt files, the file
+   wsusoffline/client/static/StaticUpdateFiles-modified.txt was excluded,
+   but this file was moved to wsusoffline/static/sdd in the Community
+   Editions 11.9.2-ESR and 12.1.
 
 Source files
 

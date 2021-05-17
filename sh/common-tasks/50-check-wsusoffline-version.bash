@@ -2,7 +2,7 @@
 #
 # Filename: 50-check-wsusoffline-version.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -247,14 +247,36 @@ function compare_wsusoffline_versions ()
     #log_debug_message "Installed version: ${installed_version} = ${installed_version_int}"
     #log_debug_message "Available version: ${available_version} = ${available_version_int}"
 
+    # Disregard development (beta) versions
+    #
+    # Technically, it may be possible, to upgrade a development version
+    # to a release version of the same version number, but this is
+    # not recommended:
+    # - It will leave a messed up wsusoffline directory behind.
+    #   Development versions install more files and directories, which
+    #   are no longer used in the release versions, but these additional
+    #   files will not be removed.
+    # - Users, who use a beta version, may prefer to update to the next
+    #   beta version. Installing a release version will be a dead end in
+    #   this case, because release versions won't be upgraded to newer
+    #   beta versions.
+    if [[ "${installed_type}" == "beta" ]]
+    then
+        log_warning_message "Upgrading development (beta) versions is not supported by this script"
+        # The timestamp is updated here, to do the version check only
+        # once daily.
+        update_timestamp "${wsusoffline_timestamp}"
+        return 0
+    fi
+
     # Compare versions
     if (( installed_version_int == available_version_int ))
     then
+        # After excluding beta versions, release versions may be replaced
+        # with hotfix versions.
         if [[ "${installed_type}" == "${available_type}" ]]
         then
             log_info_message "No newer version of WSUS Offline Update found"
-            # The timestamp is updated here, to do the version check
-            # only once daily.
             update_timestamp "${wsusoffline_timestamp}"
         else
             confirm_wsusoffline_self_update
@@ -555,15 +577,17 @@ function check_custom_static_links ()
 function normalize_file_permissions ()
 {
     log_info_message "Normalize file permissions..."
-    chmod +x \
-        ./copy-to-target.bash \
-        ./create-iso-image.bash \
-        ./download-updates.bash \
-        ./fix-file-permissions.bash \
-        ./get-all-updates.bash \
-        ./open-support-pages.bash \
-        ./rebuild-integrity-database.bash \
-        ./update-generator.bash \
+    chmod +x                                                       \
+        ./copy-to-target.bash                                      \
+        ./create-iso-image.bash                                    \
+        ./download-updates.bash                                    \
+        ./fix-file-permissions.bash                                \
+        ./get-all-updates.bash                                     \
+        ./open-support-pages.bash                                  \
+        ./rebuild-integrity-database.bash                          \
+        ./reset-wsusoffline.bash                                   \
+        ./syntax-check.bash                                        \
+        ./update-generator.bash                                    \
         ./comparison-linux-windows/compare-integrity-database.bash \
         ./comparison-linux-windows/compare-update-tables.bash
 

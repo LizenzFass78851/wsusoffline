@@ -32,7 +32,7 @@ w63-x64
 w100
 w100-x64
 
-# Exclude 32-bit subdirectories of dotnet, msse and wddefs
+# Exclude 32-bit subdirectories of msse and wddefs
 x86-glb
 
 # Windows Server 2008, 64-bit, needs the 32-bit version of Silverlight
@@ -44,10 +44,8 @@ NDP48-*
 ndp48-*
 
 # Exclude unneeded files from the directory client/md
-hashes-o2k10-*.txt
 hashes-o2k13-*.txt
 hashes-o2k16-glb.txt
-hashes-ofc-*.txt
 hashes-w60-glb.txt
 hashes-w61-glb.txt
 hashes-w61-x64-glb.txt
@@ -56,10 +54,8 @@ hashes-w63-glb.txt
 hashes-w63-x64-glb.txt
 hashes-w100-glb.txt
 hashes-w100-x64-glb.txt
-hashes-dotnet-x86-glb.txt
-
-# Exclude unneeded files from the directory client/static
-StaticUpdateFiles-modified.txt
+hashes-msse-x86-glb.txt
+hashes-wddefs-x86-glb.txt
 
 # Exclude source files
 UpdateInstaller.au3

@@ -2,7 +2,7 @@
 #
 # Filename: usage.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -50,8 +50,6 @@ UPDATE
     w63-x64       Windows 8.1 / Server 2012 R2, 64-bit     (deprecated)
     w100          Windows 10, 32-bit                       (deprecated)
     w100-x64      Windows 10 / Server 2016/2019, 64-bit    (deprecated)
-    o2k10         Office 2010, 32-bit                      (deprecated)
-    o2k10-x64     Office 2010, 32-bit and 64-bit           (deprecated)
     o2k13         Office 2013, 32-bit                      (deprecated)
     o2k13-x64     Office 2013, 32-bit and 64-bit           (deprecated)
     o2k16         Office 2016, 32-bit                      (deprecated)
@@ -108,9 +106,8 @@ OPTIONS
         Include .NET Frameworks: localized installation files and updates
 
    -includewddefs
-        Virus definition files for Windows Vista and 7. These virus
-        definition files are only compatible with the original Windows
-        Defender, which was included in Windows Vista and 7.
+        Windows Defender definition updates for the built-in Defender
+        of Windows Vista and 7
 
    -includemsse
         Microsoft Security Essentials: localized installation files and
@@ -118,10 +115,12 @@ OPTIONS
         optional installation for Windows Vista and 7.
 
    -includewddefs8
-        Virus definition files for Windows 8 and higher. These are
-        the same virus definition updates as for Microsoft Security
-        Essentials, and they are downloaded to the same directories,
-        but without the localized installers.
+        Windows Defender definition updates for the built-in Defender
+        of Windows 8, 8.1 and 10
+
+        These are the same virus definition updates as for Microsoft
+        Security Essentials, and they are downloaded to the same
+        directories, but without the localized installers.
 
         Therefore, "wddefs8" is a subset of "msse", and you should use
         -includemsse instead for the internal lists "all" and "all-win".

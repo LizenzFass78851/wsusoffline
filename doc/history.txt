@@ -1778,6 +1778,7 @@ Community Edition 11.9.7 -- 06.12.2020
 Community Edition 11.9.8 -- ??.??.????
 - NOTE: The directories ".\client\dotnet\x86-glb", ".\client\dotnet\x64-glb" and ".\client\ofc" are not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 and 1909 since Microsoft discontinued support for version 1903 on December 12th, 2020; please use WSUS Offline Update version 12.x for updating Windows 10 version 1909
+- Included complete rewrite of the Linux scripts version CE-1.20 (beta 1) (Special thanks to H. Buhrmester)
 - use ProductId and UpdateId for download and installation (Thanks to "aker" and "hbuhrmester")
 - update .\xslt\extract-update-cab-exe-ids-and-locations.xsl to include more updates (Thanks to "hbuhrmester")
 - improve determination of superseded updates to prevent exclusion of files used in multiple updates (Thanks to "aker" and "hbuhrmester")

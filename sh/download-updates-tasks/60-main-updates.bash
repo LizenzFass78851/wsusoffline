@@ -2,7 +2,7 @@
 #
 # Filename: 60-main-updates.bash
 #
-# Copyright (C) 2016-2020 Hartmut Buhrmester
+# Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -23,23 +23,27 @@
 #
 # Description
 #
-#     The task downloads updates for Microsoft Windows and Office,
-#     and also dynamic updates for the .Net Frameworks.
+#     The task downloads updates for Microsoft Windows and Office.
 #
 #     Global variables from other files
 #     - The indexed arrays updates_list, architectures_list and
 #       languages_list are defined in the file 10-parse-command-line.bash
 
+# ========== Configuration ================================================
+
+# Exclude lists for service packs
+service_packs=(
+    "../exclude/ExcludeList-SPs.txt"
+    "../exclude/custom/ExcludeList-SPs.txt"
+    "../client/static/StaticUpdateIds-w63-upd1.txt"
+    "../client/static/StaticUpdateIds-w63-upd2.txt"
+)
+
 # ========== Global variables =============================================
 
 if [[ "${prefer_seconly}" == enabled ]]
 then
-    if [[ "${revised_method}" == enabled ]]
-    then
-        used_superseded_updates_list="../exclude/ExcludeList-Linux-superseded-seconly-revised.txt"
-    else
-        used_superseded_updates_list="../exclude/ExcludeList-Linux-superseded-seconly.txt"
-    fi
+    used_superseded_updates_list="../exclude/ExcludeList-Linux-superseded-seconly.txt"
 else
     used_superseded_updates_list="../exclude/ExcludeList-Linux-superseded.txt"
 fi
@@ -49,7 +53,6 @@ fi
 function get_main_updates ()
 {
     local current_update=""
-    local current_arch=""
     local current_lang=""
 
     if (( "${#updates_list[@]}" > 0 ))
@@ -61,66 +64,31 @@ function get_main_updates ()
                 win)
                     process_main_update "win" "x86" "glb"
                 ;;
-                # 32-bit Windows updates
-                w60 | w61 | w63 | w100)
+                # Global Windows and Office updates, 32-bit
+                w60 | w61 | w63 | w100 | o2k16)
                     process_main_update "${current_update}" "x86" "glb"
                 ;;
-                # 64-bit Windows updates
-                w60-x64 | w61-x64 | w62-x64 | w63-x64 | w100-x64)
+                # Global Windows updates, 64-bit,
+                # Office 2016, 32-bit and 64-bit
+                w60-x64 | w61-x64 | w62-x64 | w63-x64 | w100-x64 | o2k16-x64)
                     process_main_update "${current_update/-x64/}" "x64" "glb"
                 ;;
-                # Common Office updates, 32-bit
-                ofc)
-                    if [[ "${need_localized_ofc}" == "enabled" ]]
-                    then
-                        # This is needed for Office 2010 and 2013
-                        for current_lang in "glb" "${languages_list[@]}"
-                        do
-                            process_main_update "ofc" "x86" "${current_lang}"
-                        done
-                    else
-                        # This is sufficient, if only Office 2016
-                        # is selected
-                        process_main_update "ofc" "x86" "glb"
-                    fi
-                ;;
-                # Localized Office versions, 32-bit
-                o2k10 | o2k13)
+                # Localized Office updates, 32-bit
+                o2k13)
                     for current_lang in "glb" "${languages_list[@]}"
                     do
                         process_main_update "${current_update}" "x86" "${current_lang}"
                     done
                 ;;
-                # Localized Office versions, 32-bit and 64-bit
-                o2k10-x64 | o2k13-x64)
+                # Localized Office updates, 32-bit and 64-bit
+                o2k13-x64)
                     for current_lang in "glb" "${languages_list[@]}"
                     do
                         process_main_update "${current_update/-x64/}" "x64" "${current_lang}"
                     done
                 ;;
-                # Office 2016, 32-bit
-                o2k16)
-                    process_main_update "o2k16" "x86" "glb"
-                ;;
-                # Office 2016, 32-bit and 64-bit
-                o2k16-x64)
-                    process_main_update "o2k16" "x64" "glb"
-                ;;
-                # Installers and dynamic updates for .Net frameworks,
-                # which depend on the architecture
-                dotnet)
-                    if (( "${#architectures_list[@]}" > 0 ))
-                    then
-                        for current_arch in "${architectures_list[@]}"
-                        do
-                            process_main_update "dotnet" "${current_arch}" "glb"
-                        done
-                    else
-                        log_warning_message "Skipped processing of .NET Framework updates, because there are no architectures defined for included downloads. These are derived from Windows updates only."
-                    fi
-                ;;
                 *)
-                    fail "${FUNCNAME[0]} - Unknown update name: ${current_update}"
+                    fail "${FUNCNAME[0]} - Unknown or unsupported update: ${current_update}"
                 ;;
             esac
         done
@@ -148,10 +116,10 @@ function process_main_update ()
     #
     # ${name}-${arch}-${lang}
     #
-    # The timestamp pattern for Windows Vista, Windows 7 and .Net
-    # Frameworks uses the original language as set on the command-line
-    # of the download script, to keep track of localized downloads for
-    # Internet Explorer and .Net Framework language packs.
+    # The timestamp pattern for Windows Server 2008, Windows 7 / Server
+    # 2008 R2 and Windows Server 2012 use the original language list as
+    # set on the command-line of the download script, to keep track of
+    # localized downloads for Internet Explorer.
     #
     # 64-bit Office updates always include 32-bit updates, and they are
     # downloaded to the same directories. Therefore, if 64-bit updates
@@ -162,7 +130,8 @@ function process_main_update ()
     # The names for the hashes_file, hashed_dir and download_dir must
     # be synchronized with the Windows script DownloadUpdates.cmd. All
     # temporary files may vary.
-
+    #
+    # All paths are relative to the home directory of the download script.
     local timestamp_pattern="not-available"
     local hashes_file="not-available"
     local hashed_dir="not-available"
@@ -204,20 +173,11 @@ function process_main_update ()
                 download_dir="../client/${name}-${arch}/${lang}"
             fi
         ;;
-        ofc | o2k10 | o2k13 | o2k16)
+        o2k13 | o2k16)
             timestamp_pattern="${name}-${arch}-${lang}"
             hashes_file="../client/md/hashes-${name}-${lang}.txt"
             hashed_dir="../client/${name}/${lang}"
             download_dir="../client/${name}/${lang}"
-        ;;
-        dotnet)
-            # The timestamp pattern includes the language list, as passed
-            # on the command-line, because the downloads may include
-            # additional language packs for languages other than English.
-            timestamp_pattern="${name}-${arch}-${language_parameter}"
-            hashes_file="../client/md/hashes-${name}-${arch}-${lang}.txt"
-            hashed_dir="../client/${name}/${arch}-${lang}"
-            download_dir="../client/${name}/${arch}-${lang}"
         ;;
         *)
             fail "${FUNCNAME[0]} - Unknown update name: ${name}"
@@ -225,25 +185,30 @@ function process_main_update ()
     esac
 
     # The download results are influenced by the options to include
-    # Service Packs (only in the ESR version) and to prefer security-only
-    # updates. If these options change, then the affected downloads should
-    # be reevaluated. Including the values of these two options in the
-    # name of the timestamp file is a simple way to achieve that much.
+    # Service Packs and to prefer security-only updates. If these options
+    # change, then the affected downloads should be reevaluated. Including
+    # the values of these two options in the name of the timestamp file
+    # is a simple way to achieve that much.
     #
-    # Somehow, the results for w60 are also affected by the option
-    # prefer_seconly, although there is no special configuration for
-    # Windows Vista.
+    # Windows Server 2008 (w60, w60-x64) now uses the same distinction
+    # in security-only updates and update rollups as Windows 7, 8 and 8.1.
     case "${name}" in
-        w60 | w61 | w62 | w63 | dotnet)
+        w60 | w61 | w62 | w63)
             timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${include_service_packs}-${prefer_seconly}.txt"
         ;;
         *)
             timestamp_file="${timestamp_dir}/timestamp-${timestamp_pattern}-${include_service_packs}.txt"
         ;;
     esac
-    valid_static_links="${temp_dir}/ValidStaticLinks-${timestamp_pattern}.txt"
-    valid_dynamic_links="${temp_dir}/ValidDynamicLinks-${timestamp_pattern}.txt"
-    valid_links="${temp_dir}/ValidLinks-${timestamp_pattern}.txt"
+
+    # The names of the output files for static and dynamic links
+    # are defined here, because they are passed as parameters to
+    # the functions download_static_files, download_multiple_files
+    # and cleanup_client_directory. They use the generic pattern
+    # "${name}-${arch}-${lang}".
+    valid_static_links="${temp_dir}/ValidStaticLinks-${name}-${arch}-${lang}.txt"
+    valid_dynamic_links="${temp_dir}/ValidDynamicLinks-${name}-${arch}-${lang}.txt"
+    valid_links="${temp_dir}/ValidLinks-${name}-${arch}-${lang}.txt"
 
     if same_day "${timestamp_file}" "${interval_length}"
     then
@@ -285,21 +250,12 @@ function process_main_update ()
 # These files can be found in the ../static and ../static/custom
 # directories.
 #
-# In some cases, the files in the directory ../static may be empty:
+# In some cases, there are no statically defined downloads:
 #
-# - The provided files for ofc are all empty.
-# - The global static download files for dotnet may be empty after
-#   removing German language packs. (They are added back from the
-#   localized static download files.)
+# - The provided files for o2k16 are all empty.
 # - Static downloads are often large files like service packs. If service
 #   packs are excluded from download, then the resulting file with valid
 #   static download links will be empty.
-#
-# In such cases, users can still provide additional files in the
-# ../static/custom directory; so both directories must be tested. But this
-# makes a test for pre-requirements rather pointless: This test would
-# be just as long as the real implementation. Instead, the temporary
-# file should be tested after reading all possible locations.
 #
 # Note: The usage of the "win" static download files for common Windows
 # downloads changed in different versions of WSUS Offline update:
@@ -321,15 +277,29 @@ function calculate_static_updates ()
     local arch="$2"
     local lang="$3"
     local valid_static_links="$4"
+
     local current_dir=""
     local current_lang=""
     local -a exclude_lists_static=()
 
-    log_info_message "Determining static update links ..."
+    # Preconditions
+    case "${name}" in
+        # Accepted update names
+        win | w60 | w61 | w62 | w63 | w100 | o2k13 | o2k16)
+            :
+        ;;
+        *)
+            # ofc is not used anymore
+            log_debug_message "${FUNCNAME[0]}: Static updates are not available for ${name}"
+            return 0
+        ;;
+    esac
+
+    log_info_message "Determining static update links for ${name} ${arch} ${lang} ..."
 
     # Remove existing files
-    rm -f "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
     rm -f "${valid_static_links}"
+
     for current_dir in ../static ../static/custom
     do
         # Global "win" updates (since version 10.4), 32-bit Office updates
@@ -338,109 +308,67 @@ function calculate_static_updates ()
             cat_dos "${current_dir}/StaticDownloadLinks-${name}-${lang}.txt" \
                 >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
         fi
-        # Updates for Windows and .NET Frameworks, 64-bit Office updates
+        # Updates for Windows and 64-bit Office updates
+        #
+        # Localized installers for the default languages are removed
+        # from the "global" download files at this point.
+        #
+        # In the esr-11.9 development branch, this removes German and
+        # English installers (as applicable) for:
+        # - Internet Explorer 9 on Windows Vista
+        # - Internet Explorer 11 on Windows 7
+        # - Internet Explorer 11 on Windows Server 2012
         if [[ -s "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" ]]
         then
-            cat_dos "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
+            filter_default_languages \
+                "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
                 >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
         fi
-        # Localized downloads for Internet Explorer and .NET Frameworks
-        #
-        # .NET Frameworks and all Windows versions since Vista use
-        # global/multilingual updates. Therefore, the only download
-        # directories in recent versions of WSUS Offline Update are:
-        #
-        # - w60/glb
-        # - w60-x64/glb
-        # - w61/glb
-        # - w61-x64/glb
-        # - w62-x64/glb
-        # - w63/glb
-        # - w63-x64/glb
-        # - w100/glb
-        # - w100-x64/glb
-        # - dotnet/x86-glb
-        # - dotnet/x64-glb
-        #
-        # There are still some localized downloads, which need to
-        # be added:
-        #
-        # - Internet Explorer installation files for Windows Vista and 7,
-        #   and for Windows Server 2012
-        # - .NET Framework language packs for languages other than English
-        #
-        # These downloads are added similar to the Windows script
-        # AddCustomLanguageSupport.cmd, but without creating additional
-        # files in the static/custom directory.
-        case "${name}" in
-            w60)
-                # Localized installers for Internet Explorer 8 and 9
-                # on Windows Vista. Only IE 9 is supported in recent
-                # versions of WSUS Offline Update.
-                #
-                # There are no global installation files for Internet
-                # Explorer. This means, that glb does not need to be
-                # added to the language list at this point.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" ]]
-                    then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                    fi
-                done
-            ;;
-            w61)
-                # Localized installers for Internet Explorer 9, 10,
-                # and 11 on Windows 7. Only IE 11 is supported in recent
-                # versions of WSUS Offline Update.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" ]]
-                    then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                    fi
-                done
-            ;;
-            w62)
-                # Localized installers for Internet Explorer 11 on
-                # Windows Server 2012.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" ]]
-                    then
-                        cat_dos "${current_dir}/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                    fi
-                done
-            ;;
-            dotnet)
-                # This script only handles architecture-dependent
-                # downloads in the directories:
-                #
-                # - dotnet/x86-glb
-                # - dotnet/x64-glb
-                #
-                # Localized, but architecture-independent downloads are
-                # handled by the script 40-included-downloads.bash.
-                #
-                # Global static download links for "dotnet ${arch} glb"
-                # are already included in the patterns above. This means,
-                # that glb does not need to be added to the language
-                # list at this point.
-                for current_lang in "${languages_list[@]}"
-                do
-                    if [[ -s "${current_dir}/StaticDownloadLinks-dotnet-${arch}-${current_lang}.txt" ]]
-                    then
-                        grep_dos -F -i "dotnetfx35langpack_${arch}" \
-                            "${current_dir}/StaticDownloadLinks-dotnet-${arch}-${current_lang}.txt" \
-                            >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" || true
-                    fi
-                done
-            ;;
-        esac
     done
+
+    # Localized installers for all selected languages on the command-line
+    # are added back from the localized download files.
+    #
+    # The search patterns are the same as in the Windows script
+    # AddCustomLanguageSupport.cmd.
+    case "${name}" in
+        w60)
+            # Language packs for Internet Explorer 9 on Windows Server
+            # 2008
+            for current_lang in "${languages_list[@]}"
+            do
+                if [[ -s "../static/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" ]]
+                then
+                    cat_dos "../static/StaticDownloadLinks-ie9-w60-${arch}-${current_lang}.txt" \
+                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                fi
+            done
+        ;;
+        w61)
+            # Localized installers for Internet Explorer 11 on Windows
+            # 7 / Server 2008 R2
+            for current_lang in "${languages_list[@]}"
+            do
+                if [[ -s "../static/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" ]]
+                then
+                    cat_dos "../static/StaticDownloadLinks-ie11-w61-${arch}-${current_lang}.txt" \
+                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                fi
+            done
+        ;;
+        w62)
+            # Language packs for Internet Explorer 11 on Windows Server
+            # 2012
+            for current_lang in "${languages_list[@]}"
+            do
+                if [[ -s "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" ]]
+                then
+                    cat_dos "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" \
+                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                fi
+            done
+        ;;
+    esac
 
     # At this point, a non-empty file
     # ${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt should
@@ -453,23 +381,27 @@ function calculate_static_updates ()
         # and dynamic updates. The provided file in the ../exclude
         # directory is empty and does not need to be tested. Users must
         # create copies of the file in the ../exclude/custom directory.
-        exclude_lists_static=( "../exclude/custom/ExcludeListForce-all.txt" )
+        exclude_lists_static+=( "../exclude/custom/ExcludeListForce-all.txt" )
 
         # Service Packs are already included in the static download links
         # file created above. If the command line option -includesp is
-        # NOT used, then Service Packs must be removed again using the
-        # file ExcludeList-SPs.txt as an additional exclude list.
+        # NOT used, then Service Packs must be removed again.
         if [[ "${include_service_packs}" == "disabled" ]]
         then
-            exclude_lists_static+=( "../exclude/ExcludeList-SPs.txt" )
+            exclude_lists_static+=( "${service_packs[@]}" )
         fi
+
+        # Debug output: print all added ExcludeLists
+        #echo ""
+        #declare -p exclude_lists_static
+        #echo ""
 
         # The combined exclude list is the same for all static downloads;
         # therefore, the name is just "ExcludeListStatic.txt".
-        apply_exclude_lists \
+        apply_exclude_lists                                               \
             "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
-            "${valid_static_links}" \
-            "${temp_dir}/ExcludeListStatic.txt" \
+            "${valid_static_links}"                                       \
+            "${temp_dir}/ExcludeListStatic.txt"                           \
             "${exclude_lists_static[@]}"
     fi
 
@@ -477,22 +409,10 @@ function calculate_static_updates ()
     then
         log_info_message "Created file ${valid_static_links##*/}"
     else
-        case "${name}" in
-            ofc)
-                # The static download files for ofc in the directory
-                # ../static are all empty. So it is expected, that the
-                # final download list will be empty - unless the user
-                # creates additional files in the ../static/custom
-                # directory.
-                log_info_message "No static updates found for ${name} ${arch} ${lang}. This is normal for all ofc updates."
-            ;;
-            *)
-                # Static downloads are mostly installers and service
-                # packs. If these files are excluded from download, then
-                # the download list may be empty. This is not an error.
-                log_warning_message "No static updates found for ${name} ${arch} ${lang}. This is normal for some localized Office updates, if service packs are excluded."
-            ;;
-        esac
+        # Static downloads are mostly installers and service packs. If
+        # these files are excluded from download, then the download list
+        # may be empty. This is not an error.
+        log_warning_message "No static updates found for ${name} ${arch} ${lang}. This is normal for Office 2016 and some localized Office updates, if service packs are excluded."
     fi
     return 0
 }
@@ -505,89 +425,271 @@ function calculate_dynamic_updates ()
     local lang="$3"
     local valid_dynamic_links="$4"
 
+    local locale=""
+    local -a exclude_lists_dynamic=()
+    local update_id=""
+    local url=""
+    local skip_rest=""
+
+    # Preconditions
     case "${name}" in
-        w60 | w61 | w62 | w63 | w100 | dotnet)
-            calculate_dynamic_windows_updates "$@"
-        ;;
-        ofc)
-            calculate_dynamic_office_updates "$@"
+        # Accepted update names (TMP_PLATFORM in DownloadUpdates.cmd)
+        w60 | w61 | w62 | w63 | w100 | o2k13 | o2k16)
+            :
         ;;
         *)
+            # Dynamic updates are not calculated for "win", and ofc is
+            # not used anymore
             log_debug_message "${FUNCNAME[0]}: Dynamic updates are not available for ${name}"
+            return 0
         ;;
     esac
-    return 0
-}
 
+    log_info_message "Determining dynamic update urls for ${name} ${arch} ${lang}"
 
-function calculate_dynamic_windows_updates ()
-{
-    local name="$1"
-    local arch="$2"
-    local lang="$3"
-    local valid_dynamic_links="$4"
-    local -a exclude_lists_windows=()
-
-    require_non_empty_file "../xslt/ExtractDownloadLinks-${name}-${arch}-${lang}.xsl" || return 0
-    require_non_empty_file "${used_superseded_updates_list}" || fail "The required file ${used_superseded_updates_list} is missing"
-    require_non_empty_file "${cache_dir}/package.xml" || fail "The required file package.xml is missing"
-
-    log_info_message "Determining dynamic update links ..."
-
-    # Delete existing files
+    # Remove existing files
     rm -f "${valid_dynamic_links}"
 
-    # Extract dynamic download links
-    "${xmlstarlet}" tr "../xslt/ExtractDownloadLinks-${name}-${arch}-${lang}.xsl" \
-        "${cache_dir}/package.xml" \
-        > "${temp_dir}/DynamicDownloadLinks-${name}-${arch}-${lang}.txt"
-    sort_in_place "${temp_dir}/DynamicDownloadLinks-${name}-${arch}-${lang}.txt"
+    # Note: The output filename must include the update name, because
+    # the function xml_transform was designed to skip the calculation,
+    # if the output file already exists. This simply means, that different
+    # output files must have different names.
+    log_info_message "Extracting file 1, revision-and-update-ids-${name}.txt ..."
+    xml_transform "extract-revision-and-update-ids-${name}.xsl" \
+                          "revision-and-update-ids-${name}.txt"
 
-    # Removal of superseded and excluded download links
+    log_info_message "Extracting file 2, BundledUpdateRevisionAndFileIds.txt ..."
+    xml_transform "extract-update-revision-and-file-ids.xsl" \
+                  "BundledUpdateRevisionAndFileIds.txt"
+
+    log_info_message "Extracting file 3, UpdateCabExeIdsAndLocations.txt ..."
+    xml_transform "extract-update-cab-exe-ids-and-locations.xsl" \
+                  "UpdateCabExeIdsAndLocations.txt"
+
+    log_info_message "Creating file 4, file-and-update-ids-${name}.txt ..."
+    join -t "," -e "unavailable" -o "2.3,1.2"                \
+          "${temp_dir}/revision-and-update-ids-${name}.txt"  \
+          "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"  \
+        > "${temp_dir}/file-and-update-ids-${name}.txt"
+    sort_in_place "${temp_dir}/file-and-update-ids-${name}.txt"
+
+    log_info_message "Creating file 5, update-ids-and-locations-${name}.txt ..."
+    join -t "," -e "unavailable" -o "1.2,2.2"            \
+          "${temp_dir}/file-and-update-ids-${name}.txt"  \
+          "${temp_dir}/UpdateCabExeIdsAndLocations.txt"  \
+        > "${temp_dir}/update-ids-and-locations-${name}.txt"
+    sort_in_place "${temp_dir}/update-ids-and-locations-${name}.txt"
+
+    # Filtering by language differs between Windows and Office
+    log_info_message "Creating file 6, update-ids-and-locations-${name}-${lang}.txt ..."
+    case "${name}" in
+        # Windows updates (PLATFORM_WINDOWS in DownloadUpdates.cmd)
+        w60 | w61 | w62 | w63 | w100)
+            # Simply rename the file, because ${lang} will always be
+            # "glb" for Windows updates
+            mv "${temp_dir}/update-ids-and-locations-${name}.txt" \
+               "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt"
+        ;;
+        # Office updates (PLATFORM_OFFICE in DownloadUpdates.cmd)
+        o2k13 | o2k16)
+            # To filter Office updates, language codes like deu and enu
+            # are translated to locales.
+            #
+            # All global Office updates, which are extracted from the
+            # WSUS Offline scan file wsusscn2.cab, can be identified with
+            # a pseudo locale "x-none". This locale is not used, though.
+            #
+            # Locales with language and territory code are used as in the
+            # Windows script DetermineSystemProperties.vbs
+            #
+            # For details see the configuration files in
+            # /usr/share/i18n/locales (Debian 10 Buster)
+            #
+            # TODO: This should be an associative array (map in Python),
+            # but it ws implemented like that for compatibility with
+            # the ancient bash 3.x in Mac OS X.
+            case "${lang}" in
+                deu) locale="de-de";;
+                enu) locale="en-us";;
+                ara) locale="ar-sa";;
+                chs) locale="zh-cn";;
+                cht) locale="zh-tw";;
+                csy) locale="cs-cz";;
+                dan) locale="da-dk";;
+                nld) locale="nl-nl";;
+                fin) locale="fi-fi";;
+                fra) locale="fr-fr";;
+                ell) locale="el-gr";;
+                heb) locale="he-il";;
+                hun) locale="hu-hu";;
+                ita) locale="it-it";;
+                jpn) locale="ja-jp";;
+                kor) locale="ko-kr";;
+                nor) locale="nb-no";;
+                plk) locale="pl-pl";;
+                ptg) locale="pt-pt";;
+                ptb) locale="pt-br";;
+                rus) locale="ru-ru";;
+                esn) locale="es-es";;
+                sve) locale="sv-se";;
+                trk) locale="tr-tr";;
+                glb) locale="x-none";;
+                *) fail "Unsupported or unknown language ${lang}";;
+            esac
+            if [[ "${lang}" == "glb" ]]
+            then
+                # Remove all localized files using the
+                # ExcludeList-locales.txt, which contains all known
+                # locales.
+                apply_exclude_lists                                            \
+                    "${temp_dir}/update-ids-and-locations-${name}.txt"         \
+                    "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+                    "${temp_dir}/ExcludeList-locales.txt"                      \
+                    "../exclude/ExcludeList-locales.txt"                       \
+                    "../exclude/custom/ExcludeList-locales.txt"
+            else
+                # Extract localized files using search strings like
+                # "-de-de_" and "-en-us_"
+                grep -F -i -e "-${locale}_"                                    \
+                    "${temp_dir}/update-ids-and-locations-${name}.txt"         \
+                  > "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+                    || true
+            fi
+        ;;
+    esac
+
+    # Label :DetermineShared in DownloadUpdates.cmd
     #
-    # Rather than using one big exclude list file, the calculation of
-    # valid dynamic links is now done in two steps:
+    # Create the files ../client/UpdateTable/UpdateTable-*-*.csv,
+    # which are needed for the installation of the updates. They link
+    # the UpdateIds (in form of UUIDs) to the file names.
+    log_info_message "Creating file 7, UpdateTable-${name}-${lang}.csv ..."
+
+    mkdir -p "../client/UpdateTable"
+    while IFS=',' read -r update_id url skip_rest
+    do
+        printf '%s\r\n' "${update_id},${url##*/}"
+    done < "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+         > "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
+
+    # At this point, the UpdateIds are no longer needed. Only the
+    # locations (URLs) are needed to create the initial list of dynamic
+    # download links.
     #
-    # Step 1: Superseded updates are removed by matching two sorted files
-    # with complete URLs with "join". This is more efficient than using
-    # "grep", which can easily run out of memory at this step.
-    #
-    # join -v1 does a "left join" and writes lines, which are unique on
-    # the left side.
+    # Note: The Windows script creates slightly different names by using
+    # the original positional parameters %1 and %2 again, which may or
+    # may not include the architecture. The files themselves may still
+    # contain a mixture of all platforms supported by Windows (x86, x64,
+    # ia64, arm64).
+    log_info_message "Creating file 8, DynamicDownloadLinks-${name}-${lang}.txt ..."
+    cut -d ',' -f 2                                                  \
+          "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+        > "${temp_dir}/DynamicDownloadLinks-${name}-${lang}.txt"
+    sort_in_place "${temp_dir}/DynamicDownloadLinks-${name}-${lang}.txt"
+
+    # Remove the superseded updates to get a list of current dynamic
+    # download links
+    log_info_message "Creating file 9, CurrentDynamicLinks-${name}-${lang}.txt ..."
     if [[ -s "${used_superseded_updates_list}" ]]
     then
-        join -v1 "${temp_dir}/DynamicDownloadLinks-${name}-${arch}-${lang}.txt" \
-            "${used_superseded_updates_list}" \
-            > "${temp_dir}/CurrentDynamicLinks-${name}-${arch}-${lang}.txt"
+        join -v1 "${temp_dir}/DynamicDownloadLinks-${name}-${lang}.txt" \
+                 "${used_superseded_updates_list}"                      \
+               > "${temp_dir}/CurrentDynamicLinks-${name}-${lang}.txt"
     else
-        mv "${temp_dir}/DynamicDownloadLinks-${name}-${arch}-${lang}.txt" \
-           "${temp_dir}/CurrentDynamicLinks-${name}-${arch}-${lang}.txt"
+        mv "${temp_dir}/DynamicDownloadLinks-${name}-${lang}.txt" \
+           "${temp_dir}/CurrentDynamicLinks-${name}-${lang}.txt"
     fi
 
-    # Step 2: The remaining dynamic download links are compared to one
-    # or more exclude lists, which typically contain kb numbers only.
-    exclude_lists_windows=(
+    # Apply the remaining exclude lists, which typically contain kb
+    # numbers only, to get the final list of valid dynamic download links
+    log_info_message "Creating file 10, ValidDynamicLinks-${name}-${arch}-${lang}.txt ..."
+    exclude_lists_dynamic+=(
+        "../exclude/ExcludeList-${name}.txt"
         "../exclude/ExcludeList-${name}-${arch}.txt"
+        "../exclude/ExcludeList-${name}-${lang}.txt"
+        "../exclude/ExcludeList-${name}-${arch}-${lang}.txt"
+        "../exclude/custom/ExcludeList-${name}.txt"
         "../exclude/custom/ExcludeList-${name}-${arch}.txt"
-        "../exclude/custom/ExcludeListForce-all.txt"
+        "../exclude/custom/ExcludeList-${name}-${lang}.txt"
+        "../exclude/custom/ExcludeList-${name}-${arch}-${lang}.txt"
     )
-    if [[ "${prefer_seconly}" == enabled ]]
+
+    # The next filters refer to the single file ExcludeList-o2k13-lng.txt
+    # in Community Editions 11.9.8-ESR and 12.5
+    if [[ "${lang}" != "glb" ]]
     then
-        exclude_lists_windows+=(
-            "../client/exclude/HideList-seconly.txt"
-            "../client/exclude/custom/HideList-seconly.txt"
+        exclude_lists_dynamic+=(
+            "../exclude/ExcludeList-${name}-lng.txt"
+            "../exclude/ExcludeList-${name}-${arch}-lng.txt"
+            "../exclude/custom/ExcludeList-${name}-lng.txt"
+            "../exclude/custom/ExcludeList-${name}-${arch}-lng.txt"
         )
     fi
+
+    # The option "service packs" is applied to all Windows and Office
+    # versions.
     if [[ "${include_service_packs}" == disabled ]]
     then
-        exclude_lists_windows+=( "../exclude/ExcludeList-SPs.txt" )
+        exclude_lists_dynamic+=( "${service_packs[@]}" )
     fi
 
-    apply_exclude_lists \
-        "${temp_dir}/CurrentDynamicLinks-${name}-${arch}-${lang}.txt" \
-        "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeListDynamic-${name}-${arch}.txt" \
-        "${exclude_lists_windows[@]}"
+    # Another branch between Windows and Office updates
+    case "${name}" in
+        # All supported Windows versions
+        # Label :DetermineWindowsSpecificExclude in DownloadUpdates.cmd
+        w60 | w61 | w62 | w63 | w100)
+            # Prevent the download of cumulative monthly update rollups,
+            # if security-only updates are selected
+            if [[ "${prefer_seconly}" == "enabled" ]]
+            then
+                exclude_lists_dynamic+=(
+                    "../client/exclude/HideList-seconly.txt"
+                    "../client/exclude/custom/HideList-seconly.txt"
+                )
+            fi
+            # Exclude other architectures, for example x64, ia64 and
+            # arm64, if x86 is selected
+            exclude_lists_dynamic+=(
+                "../exclude/ExcludeList-${arch}.txt"
+            )
+        ;;
+        # All supported Office versions
+        # Label :DetermineOfficeSpecificExclude in DownloadUpdates.cmd
+        o2k13 | o2k16)
+            # These filters are similar to those above, but they are
+            # explicitly named ExcludeList-ofc-*.txt
+            exclude_lists_dynamic+=(
+                "../exclude/ExcludeList-ofc.txt"
+                "../exclude/ExcludeList-ofc-${lang}.txt"
+                "../exclude/custom/ExcludeList-ofc.txt"
+                "../exclude/custom/ExcludeList-ofc-${lang}.txt"
+            )
+            if [[ "${lang}" != "glb" ]]
+            then
+                exclude_lists_dynamic+=(
+                    "../exclude/ExcludeList-ofc-lng.txt"
+                    "../exclude/custom/ExcludeList-ofc-lng.txt"
+                )
+            fi
+        ;;
+    esac
+
+    # Finally, add the ExcludeListForce-all.txt, but only from the
+    # custom directory
+    exclude_lists_dynamic+=(
+        "../exclude/custom/ExcludeListForce-all.txt"
+    )
+
+    # Debug output: print all added ExcludeLists
+    #echo ""
+    #declare -p exclude_lists_dynamic
+    #echo ""
+
+    apply_exclude_lists                                              \
+        "${temp_dir}/CurrentDynamicLinks-${name}-${lang}.txt"        \
+        "${valid_dynamic_links}"                                     \
+        "${temp_dir}/ExcludeListDynamic-${name}-${arch}-${lang}.txt" \
+        "${exclude_lists_dynamic[@]}"
 
     # Dynamic updates should always be found, so an empty output file
     # is unexpected.
@@ -601,267 +703,14 @@ function calculate_dynamic_windows_updates ()
 }
 
 
-# New method for the calculation of dynamic Office updates, based on the
-# example script "extract-office-locations-v2.bash" in the forum article
-# https://forums.wsusoffline.net/viewtopic.php?f=3&t=9954&start=10#p30279
-
-function calculate_dynamic_office_updates ()
-{
-    local name="$1"
-    local arch="$2"
-    local lang="$3"
-    local valid_dynamic_links="$4"
-    local locale_long=""
-    local update_id=""
-    local url=""
-    local skip_rest=""
-    local -a exclude_lists_office=()
-
-    # Preconditions
-    [[ "${name}" == ofc ]] || return 0
-    require_non_empty_file "${used_superseded_updates_list}" || fail "The required file ${used_superseded_updates_list} is missing"
-    require_non_empty_file "${cache_dir}/package.xml" || fail "The required file package.xml is missing"
-
-    log_info_message "Determining dynamic update links..."
-
-    # Remove existing files
-    rm -f "${valid_dynamic_links}"
-
-    # Locales with language and territory code as used in the Windows
-    # script wsusoffline/client/cmd/DetermineSystemProperties.vbs
-    #
-    # For details see the configuration files in /usr/share/i18n/locales
-    # (Debian 10 Buster)
-    case "${lang}" in
-        deu) locale_long="de-de";;
-        enu) locale_long="en-us";;
-        ara) locale_long="ar-sa";;
-        chs) locale_long="zh-cn";;
-        cht) locale_long="zh-tw";;
-        csy) locale_long="cs-cz";;
-        dan) locale_long="da-dk";;
-        nld) locale_long="nl-nl";;
-        fin) locale_long="fi-fi";;
-        fra) locale_long="fr-fr";;
-        ell) locale_long="el-gr";;
-        heb) locale_long="he-il";;
-        hun) locale_long="hu-hu";;
-        ita) locale_long="it-it";;
-        jpn) locale_long="ja-jp";;
-        kor) locale_long="ko-kr";;
-        nor) locale_long="nb-no";;
-        plk) locale_long="pl-pl";;
-        ptg) locale_long="pt-pt";;
-        ptb) locale_long="pt-br";;
-        rus) locale_long="ru-ru";;
-        esn) locale_long="es-es";;
-        sve) locale_long="sv-se";;
-        trk) locale_long="tr-tr";;
-        glb) log_debug_message "The language parameter glb is silently ignored.";;
-        *) fail "Unsupported or unknown language ${lang}";;
-    esac
-
-    # The file office-update-ids-and-locations.txt lists all Office
-    # UpdateIds (in the form of UUIDs) and their locations, before
-    # splitting the file into global and localized updates or applying
-    # any exclude lists. This file only depends on the WSUS offline
-    # scan file wsusscn2.cab. Once created, it will be cached in the
-    # directory wsusoffline/cache and can be reused. Like the list of
-    # superseded updates, it will be automatically recalculated, if a
-    # new version of the file wsusscn2.cab becomes available.
-    if [[ -f "${cache_dir}/office-update-ids-and-locations.txt" ]]
-    then
-        log_info_message "Found cached file office-update-ids-and-locations.txt"
-    else
-        # Rebuild the file office-update-ids-and-locations.txt
-        #
-        # Extract file 1, featuring a new xslt file
-        log_info_message "Extracting file 1, office-revision-and-update-ids.txt ..."
-        "${xmlstarlet}" transform \
-            ../xslt/extract-revision-and-update-ids-ofc.xsl \
-            "${cache_dir}/package.xml" \
-            > "${temp_dir}/office-revision-and-update-ids.txt"
-        sort_in_place "${temp_dir}/office-revision-and-update-ids.txt"
-
-        # The next two files are also used for the calculation of
-        # superseded updates. If they already exist, they don't need to
-        # be recalculated.
-
-        if [[ ! -f "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" ]]
-        then
-            # Extract file 2, using an existing xslt file from the
-            # calculation of superseded updates
-            log_info_message "Extracting file 2, BundledUpdateRevisionAndFileIds.txt ..."
-            "${xmlstarlet}" transform \
-                ../xslt/extract-update-revision-and-file-ids.xsl \
-                "${cache_dir}/package.xml" \
-                > "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"
-            sort_in_place "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"
-        fi
-
-        if [[ ! -f "${temp_dir}/UpdateCabExeIdsAndLocations.txt" ]]
-        then
-            # Extract file 3, using an existing xslt file from the
-            # calculation of superseded updates
-            log_info_message "Extracting file 3, UpdateCabExeIdsAndLocations.txt ..."
-            "${xmlstarlet}" transform \
-                ../xslt/extract-update-cab-exe-ids-and-locations.xsl \
-                "${cache_dir}/package.xml" \
-                > "${temp_dir}/UpdateCabExeIdsAndLocations.txt"
-            sort_in_place "${temp_dir}/UpdateCabExeIdsAndLocations.txt"
-        fi
-
-        # Join the first two files to get the FileIds. The UpdateId of
-        # the bundle record is copied, because it is needed later for
-        # the files UpdateTable-ofc-*.csv.
-        #
-        # Input file 1: office-revision-and-update-ids.txt
-        # - Field 1: RevisionId of the bundle record
-        # - Field 2: UpdateId of the bundle record
-        # Input file 2: BundledUpdateRevisionAndFileIds.txt
-        # - Field 1: RevisionId of the parent bundle record
-        # - Field 2: RevisionId of the update record for the PayloadFile
-        # - Field 3: FileId of the PayloadFile
-        # Output
-        # - Field 1: FileId of the PayloadFile
-        # - Field 2: UpdateId of the bundle record
-        log_info_message "Creating file 4, office-file-and-update-ids.txt ..."
-        join -t ',' -o 2.3,1.2 \
-            "${temp_dir}/office-revision-and-update-ids.txt" \
-            "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
-            > "${temp_dir}/office-file-and-update-ids.txt"
-        sort_in_place "${temp_dir}/office-file-and-update-ids.txt"
-
-        # Join with third file to get the FileLocations (URLs)
-        #
-        # Input file 1: office-file-and-update-ids.txt
-        # - Field 1: FileId of the PayloadFile
-        # - Field 2: UpdateId of the bundle record
-        # Input file 2: UpdateCabExeIdsAndLocations.txt
-        # - Field 1: FileId of the PayloadFile
-        # - Field 2: Location (URL)
-        # Output
-        # - Field 1: UpdateId of the bundle record
-        # - Field 2: Location (URL)
-        log_info_message "Creating file 5, office-update-ids-and-locations.txt ..."
-        join -t ',' -o 1.2,2.2 \
-            "${temp_dir}/office-file-and-update-ids.txt" \
-            "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
-            > "${cache_dir}/office-update-ids-and-locations.txt"
-        sort_in_place "${cache_dir}/office-update-ids-and-locations.txt"
-    fi
-
-    # Separate the updates into global and localized versions
-    log_info_message "Creating file 6, office-update-ids-and-locations-${lang}.txt ..."
-    case "${lang}" in
-        glb)
-            # Remove all localized files to get the global/multilingual
-            # updates
-            grep -F -v -f libraries/locales.txt \
-                "${cache_dir}/office-update-ids-and-locations.txt" \
-                > "${temp_dir}/office-update-ids-and-locations-${lang}.txt"
-        ;;
-        *)
-            # Extract localized files using search strings like "-en-us_"
-            grep -F -e "-${locale_long}_" \
-                "${cache_dir}/office-update-ids-and-locations.txt" \
-                > "${temp_dir}/office-update-ids-and-locations-${lang}.txt" || true
-        ;;
-    esac
-
-    if ! require_non_empty_file "${temp_dir}/office-update-ids-and-locations-${lang}.txt"
-    then
-        log_warning_message "The file office-update-ids-and-locations-${lang}.txt is empty, because no localized updates were found. This may happen, if the experimental XSLT file extract-o2k16-revision-and-update-ids.xsl is used to extract Office updates. Then only Office 2016 should be selected in update-generator.bash."
-        return 0
-    fi
-
-    # Create the files ../client/ofc/UpdateTable-ofc-*.csv, which are
-    # needed during the installation of the updates. They link the
-    # UpdateIds (in form of UUIDs) to the file names.
-    log_info_message "Creating file 7, UpdateTable-ofc-${lang}.csv ..."
-    mkdir -p "../client/ofc"
-    while IFS=',' read -r update_id url skip_rest
-    do
-        printf '%s\r\n' "${update_id},${url##*/}"
-    done < "${temp_dir}/office-update-ids-and-locations-${lang}.txt" \
-         > "../client/ofc/UpdateTable-ofc-${lang}.csv"
-
-    # At this point, the UpdateIds are no longer needed. Only the
-    # locations (URLs) are needed to create a list of dynamic download
-    # links.
-    log_info_message "Creating file 8, DynamicDownloadLinks-ofc-${lang}.txt ..."
-    cut -d ',' -f 2 \
-        "${temp_dir}/office-update-ids-and-locations-${lang}.txt" \
-        > "${temp_dir}/DynamicDownloadLinks-ofc-${lang}.txt"
-    sort_in_place "${temp_dir}/DynamicDownloadLinks-ofc-${lang}.txt"
-
-    # Remove the superseded updates to get a list of current dynamic
-    # download links
-    #
-    # TODO: The two alternate lists ExcludeList-Linux-superseded.txt
-    # and ExcludeList-Linux-superseded-seconly.txt only make a
-    # difference for Windows 7, 8 and 8.1 and the corresponding
-    # Windows Server versions. For Office updates, the file
-    # ExcludeList-Linux-superseded.txt could be used as before.
-    log_info_message "Creating file 9, CurrentDynamicLinks-ofc-${lang}.txt ..."
-    if [[ -s "${used_superseded_updates_list}" ]]
-    then
-        join -v1 "${temp_dir}/DynamicDownloadLinks-ofc-${lang}.txt" \
-            "${used_superseded_updates_list}" \
-            > "${temp_dir}/CurrentDynamicLinks-ofc-${lang}.txt"
-    else
-        mv "${temp_dir}/DynamicDownloadLinks-ofc-${lang}.txt" \
-           "${temp_dir}/CurrentDynamicLinks-ofc-${lang}.txt"
-    fi
-
-    # Apply the remaining exclude lists, which typically contain kb
-    # numbers only
-    exclude_lists_office=(
-        "../exclude/ExcludeList-ofc.txt"
-        "../exclude/ExcludeList-ofc-${lang}.txt"
-        "../exclude/custom/ExcludeList-ofc.txt"
-        "../exclude/custom/ExcludeList-ofc-${lang}.txt"
-        "../exclude/custom/ExcludeListForce-all.txt"
-    )
-    # The file ExcludeList-ofc-lng.txt was added in Community Edition
-    # 11.9.4 ESR and 12.2
-    if [[ "${lang}" != "glb" ]]
-    then
-        exclude_lists_office+=(
-            "../exclude/ExcludeList-ofc-lng.txt"
-            "../exclude/custom/ExcludeList-ofc-lng.txt"
-        )
-    fi
-    if [[ "${include_service_packs}" == "disabled" ]]
-    then
-        exclude_lists_office+=( "../exclude/ExcludeList-SPs.txt" )
-    fi
-
-    log_info_message "Creating file 10, ${valid_dynamic_links##*/} ..."
-    apply_exclude_lists \
-        "${temp_dir}/CurrentDynamicLinks-ofc-${lang}.txt" \
-        "${valid_dynamic_links}" \
-        "${temp_dir}/ExcludeListDynamic-ofc-${lang}.txt" \
-        "${exclude_lists_office[@]}"
-
-    # Dynamic updates should always be found for "ofc".
-    if ensure_non_empty_file "${valid_dynamic_links}"
-    then
-        log_info_message "Created file ${valid_dynamic_links##*/}"
-    else
-        log_warning_message "No dynamic updates found for ${name} ${arch} ${lang}"
-    fi
-    return 0
-}
-
-
-# Safety guard for security-only updates for Windows 7, 8, 8.1 and the
-# corresponding server versions.
+# Safety guard for security-only updates for Windows Vista, 7, 8, 8.1
+# and the corresponding server versions
 #
 # The download and installation of security-only updates depends on the
 # correct configuration of the files:
 #
 # - wsusoffline/client/exclude/HideList-seconly.txt
+# - wsusoffline/client/static/StaticUpdateIds-w60-seconly.txt
 # - wsusoffline/client/static/StaticUpdateIds-w61-seconly.txt
 # - wsusoffline/client/static/StaticUpdateIds-w62-seconly.txt
 # - wsusoffline/client/static/StaticUpdateIds-w63-seconly.txt
@@ -891,8 +740,8 @@ function seconly_safety_guard ()
         return 0
     fi
     case "${update_name}" in
-        w61 | w62 | w63)
-            log_debug_message "Recognized Windows 7, 8, or 8.1"
+        w60 | w61 | w62 | w63)
+            log_debug_message "Recognized Windows Vista, 7, 8 or 8.1"
         ;;
         *)
             log_debug_message "Not an affected Windows version"
@@ -900,9 +749,14 @@ function seconly_safety_guard ()
         ;;
     esac
 
-    log_info_message "Running safety guard for security-only update rollups..."
+    log_info_message "Running Security-only Safety Guard..."
 
     # Get the official patch day of this month
+    #
+    # The ISO-8601 format can be turned into an integer number by just
+    # stripping the hyphens, e.g. 2017-08-08 -> 20170808. This should be
+    # sufficient to compare the dates. The previous approach to calculate
+    # the date in seconds was not really necessary.
 
     local this_month=""
     this_month="$(date -u '+%Y-%m')"          # for example 2017-08
@@ -910,7 +764,7 @@ function seconly_safety_guard ()
     local current_date=""                     # ISO-8601 format: 2017-08-08
     local -i day_of_week="0"                  # as integer 1..7, with Monday=1
     local patchday_this_month=""              # ISO-8601 format: 2017-08-08
-    local -i patchday_this_month_seconds="0"  # seconds since 1970-01-01
+    local -i patchday_this_month_integer="0"  # without hyphens: 20170808
     local input_format="%Y-%m-%d %H:%M:%S"    # used for FreeBSD date
 
     # GNU/Linux date has different options than FreeBSD date. In
@@ -921,24 +775,27 @@ function seconly_safety_guard ()
 
     case "${kernel_name}" in
         Linux | CYGWIN*)
-            # Note: The variable "${day_of_month}" should get the
-            # values as zero padded strings, to construct the full
-            # date in ISO format. Therefore, the C-style loop "for
-            # (start;end;increment)" cannot be used at this point.
-            for day_of_month in 08 09 10 11 12 13 14
+            # The variable "${day_of_month}" should get the values as zero
+            # padded strings, to construct the full date in ISO format.
+            #
+            # for day_of_month in {08..14}
+            #
+            # should work, but I don't exactly know, when padding with
+            # zeros was introduced.
+            for day_of_month in {08..14}
             do
                 current_date="${this_month}-${day_of_month}"
                 day_of_week="$(date -u -d "${current_date}" '+%u')"
                 if (( day_of_week == 2 ))
                 then
                     patchday_this_month="${current_date}"
-                    patchday_this_month_seconds="$(date -u -d "${current_date}" '+%s')"
+                    patchday_this_month_integer="${current_date//-/}"
                 fi
             done
         ;;
         # TODO: So far, only FreeBSD 12.1 was tested
         Darwin | FreeBSD | NetBSD | OpenBSD)
-            for day_of_month in 08 09 10 11 12 13 14
+            for day_of_month in {08..14}
             do
                 # The hours, minutes and seconds must be specified for
                 # FreeBSD date; otherwise the current time will be used.
@@ -947,7 +804,7 @@ function seconly_safety_guard ()
                 if (( day_of_week == 2 ))
                 then
                     patchday_this_month="${current_date}"
-                    patchday_this_month_seconds="$(date -j -u -f "${input_format}" "${current_date} 00:00:00" '+%s')"
+                    patchday_this_month_integer="${current_date//-/}"
                 fi
             done
         ;;
@@ -957,12 +814,13 @@ function seconly_safety_guard ()
         ;;
     esac
     log_info_message "Official patch day of this month: ${patchday_this_month}"
-    log_debug_message "Official patch day of this month in seconds: ${patchday_this_month_seconds}"
 
     # Get the official patch day of the last month
+    #
+    # The patch day of the last month is not used for numeric comparisons,
+    # and therefore does not need to be converted to an integer number.
     local last_month=""
     local patchday_last_month=""
-    local -i patchday_last_month_seconds="0"
 
     case "${kernel_name}" in
         Linux | CYGWIN*)
@@ -971,28 +829,26 @@ function seconly_safety_guard ()
             # get the last month, we use the 15th of this month and go
             # back to "last month":
             last_month="$(date -u -d "${this_month}-15 last month" '+%Y-%m')"
-            for day_of_month in 08 09 10 11 12 13 14
+            for day_of_month in {08..14}
             do
                 current_date="${last_month}-${day_of_month}"
                 day_of_week="$(date -u -d "${current_date}" '+%u')"
                 if (( day_of_week == 2 ))
                 then
                     patchday_last_month="${current_date}"
-                    patchday_last_month_seconds="$(date -u -d "${current_date}" '+%s')"
                 fi
             done
         ;;
         Darwin | FreeBSD | NetBSD | OpenBSD)
             # Go to the 15th of this month and then back for one month.
             last_month="$(date -u -v 15d -v 0H -v 0M -v 0S -v -1m '+%Y-%m')"
-            for day_of_month in 08 09 10 11 12 13 14
+            for day_of_month in {08..14}
             do
                 current_date="${last_month}-${day_of_month}"
                 day_of_week="$(date -j -u -f "${input_format}" "${current_date} 00:00:00" '+%u')"
                 if (( day_of_week == 2 ))
                 then
                     patchday_last_month="${current_date}"
-                    patchday_last_month_seconds="$(date -j -u -f "${input_format}" "${current_date} 00:00:00" '+%s')"
                 fi
             done
         ;;
@@ -1001,64 +857,92 @@ function seconly_safety_guard ()
             exit 1
         ;;
     esac
-    log_info_message "Official patchday of the last month: ${patchday_last_month}"
-    log_debug_message "Official patchday of the last month in seconds: ${patchday_last_month_seconds}"
+    log_info_message "Official patch day of last month: ${patchday_last_month}"
 
     # The last official patch day is the patch day of this month,
     # if today is on the patch day of this month or later. Otherwise,
     # the last patch day is the patch day of the last month.
-
-    local -i today_seconds="0"
-    today_seconds="$(date -u '+%s')"
+    local today=""
+    local -i today_integer="0"
+    today="$(date -u '+%F')"
+    today_integer="${today//-/}"
+    log_info_message "Today: ${today}"
 
     local last_patchday=""
-    local -i last_patchday_seconds="0"
-    if (( today_seconds >= patchday_this_month_seconds ))
+    if (( today_integer >= patchday_this_month_integer ))
     then
         last_patchday="${patchday_this_month}"
-        last_patchday_seconds="${patchday_this_month_seconds}"
     else
         last_patchday="${patchday_last_month}"
-        last_patchday_seconds="${patchday_last_month_seconds}"
     fi
     log_info_message "Last official patchday: ${last_patchday}"
 
     # Create a list of configuration files for the correct handling of
-    # security-only update rollups. This list only includes the default
-    # files of WSUS Offline Update, not user-created files in the custom
-    # subdirectories.
+    # security-only update rollups. Custom files are included, so that
+    # users can easily provide the needed information, if necessary.
     #
-    # Appending an asterisk will remove the files from the list, if they
-    # cannot be found anymore.
+    # Appending an asterisk removes all files from the list, which cannot
+    # be found.
 
     local -a configuration_files=()
     shopt -s nullglob
-    configuration_files=(
+    configuration_files+=(
         ../client/exclude/HideList-seconly.txt*
+        ../client/static/StaticUpdateIds-w60-seconly.txt*
         ../client/static/StaticUpdateIds-w61-seconly.txt*
         ../client/static/StaticUpdateIds-w62-seconly.txt*
         ../client/static/StaticUpdateIds-w63-seconly.txt*
+        ../client/exclude/custom/HideList-seconly.txt*
+        ../client/static/custom/StaticUpdateIds-w60-seconly.txt*
+        ../client/static/custom/StaticUpdateIds-w61-seconly.txt*
+        ../client/static/custom/StaticUpdateIds-w62-seconly.txt*
+        ../client/static/custom/StaticUpdateIds-w63-seconly.txt*
     )
     shopt -u nullglob
 
-    # Usually, these configuration files must be updated AFTER each patch
-    # day. The script prints a warning, if the modification date of one
-    # of the configuration files is BEFORE the last patch day.
+    # Comparing the modification date of the configuration files to the
+    # last patch day does not work anymore, because GitLab does not set
+    # the Last-Modified header for files, which are extracted from the
+    # version control system. The download scripts use the ETag instead,
+    # to query the server for modified files.
+    #
+    # The contents of the configuration files may be searched instead
+    # for the expected month, e.g. "January 2021".
+    #
+    # The environment variable LC_ALL=C should be set, to get English
+    # month names. This is done in the main script download-updates.bash.
 
-    local current_file=""
-    local modification_date=""              # ISO-8601 format (date only)
-    local -i modification_date_seconds="0"  # seconds since 1970-01-01
+    local expected_month=""
+    case "${kernel_name}" in
+        Linux | CYGWIN*)
+            expected_month="$(date -u -d "${last_patchday}" '+%B %Y')"
+        ;;
+        Darwin | FreeBSD | NetBSD | OpenBSD)
+            expected_month="$(date -j -u -f "${input_format}" "${last_patchday} 00:00:00" '+%B %Y')"
+        ;;
+        *)
+            log_error_message "Unknown operating system ${kernel_name}, ${OSTYPE}"
+            exit 1
+        ;;
+    esac
+
+    # The configurations files are not searched individually, because
+    # custom files, if present, may provide the needed information.
+
+    log_info_message "Searching for the month \"${expected_month}\" in the wsusoffline configuration files..."
     local -i misconfiguration="0"
-    for current_file in "${configuration_files[@]}"
-    do
-        modification_date="$(date -u -I -r "${current_file}")"
-        modification_date_seconds="$(date -u -r "${current_file}" '+%s')"
-        if (( modification_date_seconds < last_patchday_seconds ))
+    if (( "${#configuration_files[@]}" > 0 ))
+    then
+        if grep -F -q -e "${expected_month}" "${configuration_files[@]}"
         then
-            log_warning_message "The configuration file ${current_file} was modified on ${modification_date}, which was before the last official patch day on ${last_patchday}."
+            log_info_message "The expected month \"${expected_month}\" was found"
+        else
+            log_warning_message "The expected month \"${expected_month}\" was NOT found"
             misconfiguration="1"
         fi
-    done
+    else
+        log_warning_message "The list of configuration files is empty. This is probably an error."
+    fi
 
     if (( misconfiguration == 1 ))
     then
@@ -1067,6 +951,7 @@ The correct handling of security-only update rollups for both download
 and installation depends on the configuration files:
 
 - wsusoffline/client/exclude/HideList-seconly.txt
+- wsusoffline/client/static/StaticUpdateIds-w60-seconly.txt
 - wsusoffline/client/static/StaticUpdateIds-w61-seconly.txt
 - wsusoffline/client/static/StaticUpdateIds-w62-seconly.txt
 - wsusoffline/client/static/StaticUpdateIds-w63-seconly.txt
@@ -1091,13 +976,13 @@ preferences file, to let the script continue at this point.
 "
         if [[ "${exit_on_configuration_problems}" == "enabled" ]]
         then
-            log_error_message "The script will exit now, to prevent unwanted side effects with the download and installation of security-only updates for Windows 7, 8, and 8.1."
+            log_error_message "The script will exit now, to prevent unwanted side effects with the download and installation of security-only updates for Windows Vista, 7, 8, 8.1 and their Server versions."
             exit 1
         else
-            log_warning_message "There are configuration problems with the download of security-only updates for Windows 7, 8, and 8.1. Proceed with caution to prevent unwanted side effects."
+            log_warning_message "There are configuration problems with the download of security-only updates for Windows Vista, 7, 8, 8.1 and their Server versions. Proceed with caution to prevent unwanted side effects."
         fi
     else
-        log_info_message "No problems found."
+        log_info_message "Security-only Safety Guard: No problems found"
     fi
 
     return 0
