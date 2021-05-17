@@ -169,80 +169,20 @@ Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
   strRequest = ""
   Set oJSON = New aspJSON
   oJSON.data.Add "targetingAttributes", oJSON.Collection
-  ' -- Windows 7 6.1.7601.24546 (2020-01 + KB4539602) x64 --
-  'oJSON.data("targetingAttributes").Add "AppAp", ""
-  'oJSON.data("targetingAttributes").Add "AppBrandCode", ""
-  'oJSON.data("targetingAttributes").Add "AppCohort", ""
-  'oJSON.data("targetingAttributes").Add "AppCohortHint", ""
-  'oJSON.data("targetingAttributes").Add "AppCohortName", ""
-  'oJSON.data("targetingAttributes").Add "AppLang", "de"
-  'oJSON.data("targetingAttributes").Add "AppVersionMajor", ""
-  'oJSON.data("targetingAttributes").Add "AppRollout", "0.15999999642372131"
-  'oJSON.data("targetingAttributes").Add "AppTargetVersionPrefix", ""
-  'oJSON.data("targetingAttributes").Add "AppVersion", ""
-  'oJSON.data("targetingAttributes").Add "HardwareDiskType", "0"
-  'oJSON.data("targetingAttributes").Add "IsInternalUser", "False"
-  'oJSON.data("targetingAttributes").Add "IsMachine", "True"
-  'oJSON.data("targetingAttributes").Add "IsOOBEComplete", "True"
-  'oJSON.data("targetingAttributes").Add "OemProductManufacturer", "innotek GmbH"
-  'oJSON.data("targetingAttributes").Add "OemProductName", "VirtualBox"
-  'oJSON.data("targetingAttributes").Add "OsArch", "x64"
-  'oJSON.data("targetingAttributes").Add "OsPlatform", "win"
-  'oJSON.data("targetingAttributes").Add "OsVersion", "6.1.7601.0"
-  'oJSON.data("targetingAttributes").Add "Priority", "10"
-  'oJSON.data("targetingAttributes").Add "Updater", "MicrosoftEdgeUpdate"
-  'oJSON.data("targetingAttributes").Add "UpdaterVersion", "1.3.137.99"
-  ' -- Windows 10 10.0.19042.906 x64 ---
-  'oJSON.data("targetingAttributes").Add "AppAp", ""
-  'oJSON.data("targetingAttributes").Add "AppBrandCode", "INBX"
-  'oJSON.data("targetingAttributes").Add "AppCohort", ""
-  'oJSON.data("targetingAttributes").Add "AppCohortHint", ""
-  'oJSON.data("targetingAttributes").Add "AppCohortName", ""
-  'oJSON.data("targetingAttributes").Add "AppLang", ""
-  'oJSON.data("targetingAttributes").Add "AppVersionMajor", ""
-  'oJSON.data("targetingAttributes").Add "AppRollout", "0.62"
-  'oJSON.data("targetingAttributes").Add "AppTargetVersionPrefix", ""
-  'oJSON.data("targetingAttributes").Add "AppVersion", ""
-  'oJSON.data("targetingAttributes").Add "HW_AVX", "True"
-  'oJSON.data("targetingAttributes").Add "HW_DiskType", "1"
-  'oJSON.data("targetingAttributes").Add "HW_LogicalCpus", "2"
-  'oJSON.data("targetingAttributes").Add "HW_SSE", "True"
-  'oJSON.data("targetingAttributes").Add "HW_SSE2", "True"
-  'oJSON.data("targetingAttributes").Add "HW_SSE3", "True"
-  'oJSON.data("targetingAttributes").Add "HW_SSE41", "True"
-  'oJSON.data("targetingAttributes").Add "HW_SSE42", "True"
-  'oJSON.data("targetingAttributes").Add "HW_SSSE3", "True"
-  'oJSON.data("targetingAttributes").Add "IsInternalUser", "False"
-  'oJSON.data("targetingAttributes").Add "IsMachine", "True"
-  'oJSON.data("targetingAttributes").Add "IsOOBEComplete", "True"
-  'oJSON.data("targetingAttributes").Add "OemProductManufacturer", "innotek GmbH"
-  'oJSON.data("targetingAttributes").Add "OemProductName", "VirtualBox"
-  'oJSON.data("targetingAttributes").Add "OsArch", "x64"
-  'oJSON.data("targetingAttributes").Add "OsPlatform", "win"
-  'oJSON.data("targetingAttributes").Add "OsVersion", "10.0.19042.906"
-  'oJSON.data("targetingAttributes").Add "Priority", "10" ' FIXME: relevant for most recent version  (value is "10" for Edge, "0" for EdgeUpdate)
-  'oJSON.data("targetingAttributes").Add "Updater", "MicrosoftEdgeUpdate"
-  'oJSON.data("targetingAttributes").Add "UpdaterVersion", "1.3.141.63"
   ' -- blank header --
   oJSON.data("targetingAttributes").Add "", ""
+  ' -- relevant line from Windows 10 dump --
+  'oJSON.data("targetingAttributes").Add "Priority", "10" ' FIXME: relevant for most recent version  (value is "10" for Edge, "0" for EdgeUpdate)
   strRequest = oJSON.JSONoutput
-  
-  'WScript.Echo(strRequest)
-  'WScript.Echo("")
   
   ' Send first request
   strResponse = ""
   Set WebRequest = CreateObject("Msxml2.XMLHTTP")
   WebRequest.open "POST", "https://msedge.api.cdp.microsoft.com/api/v1.1/contents/Browser/namespaces/" & TargetNameSpace & "/names/" & TargetName & "/versions/latest?action=select", False
-  'WebRequest.setRequestHeader "User-Agent", "Microsoft Edge Update/1.3.137.99;winhttp"
   WebRequest.setRequestHeader "Content-Length", Len(strRequest)
   WebRequest.setRequestHeader "Content-Type", "application/json"
   WebRequest.send(strRequest)
   strResponse = WebRequest.responseText
-  
-  'WScript.Echo(WebRequest.statusText)
-  'WScript.Echo(WebRequest.responseText)
-  'WScript.Echo("")
   
   If strResponse = "" Then
     Exit Sub
@@ -256,17 +196,9 @@ Sub GetLatestEdgeDL(TargetNameSpace, TargetName)
   oJSON.loadJSON(strResponse)
   strResponse = ""
   
-  'WScript.Echo(oJSON.JSONoutput)
-  'WScript.Echo("")
-  
   strNamespaceBuf = oJSON.data("ContentId").item("Namespace")
   strNameBuf = oJSON.data("ContentId").item("Name")
   strVersionBuf = oJSON.data("ContentId").item("Version")
-  
-  'WScript.Echo("strNamespaceBuf=" & strNamespaceBuf)
-  'WScript.Echo("strNameBuf=" & strNameBuf)
-  'WScript.Echo("strVersionBuf=" & strVersionBuf)
-  'WScript.Echo("")
   
   If strNamespaceBuf = "" Then
     Exit Sub
@@ -315,21 +247,13 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
   Set oJSON = New aspJSON
   strRequest = oJSON.JSONoutput
   
-  'WScript.Echo(strRequest)
-  'WScript.Echo("")
-  
   ' Send first request
   Set WebRequest = CreateObject("MSXML2.XMLHTTP")
   WebRequest.open "POST", "https://msedge.api.cdp.microsoft.com/api/v1.1/internal/contents/Browser/namespaces/" & TargetNameSpace & "/names/" & TargetName & "/versions/" & TargetVersion & "/files?action=GenerateDownloadInfo&foregroundPriority=true", False
-  'WebRequest.setRequestHeader "User-Agent", "Microsoft Edge Update/1.3.137.99;winhttp"
   WebRequest.setRequestHeader "Content-Length", Len(strRequest)
   WebRequest.setRequestHeader "Content-Type", "application/json"
   WebRequest.send(strRequest)
   strResponse = WebRequest.responseText
-  
-  'WScript.Echo(WebRequest.statusText)
-  'WScript.Echo(WebRequest.responseText)
-  'WScript.Echo("")
   
   If strResponse = "" Then
     Exit Sub
@@ -339,9 +263,6 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
   Set oJSON = New aspJSON
   oJSON.loadJSON(strResponse)
   strResponse = ""
-  
-  'WScript.Echo(oJSON.JSONoutput)
-  'WScript.Echo("")
   
   strFileNameBuf = ""
   strURLBuf = ""
@@ -358,13 +279,6 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
       strHashesSha256Base64Buf = oJSON.data(i).item("Hashes").item("Sha256")
     End If
   Next
-  
-  'WScript.Echo "strFileNameBuf=" & strFileNameBuf
-  'WScript.Echo "strURLBuf=" & strURLBuf
-  'WScript.Echo "strSizeInBytesBuf=" & strSizeInBytesBuf
-  'WScript.Echo "strHashesSha1Base64Buf=" & strHashesSha1Base64Buf
-  'WScript.Echo "strHashesSha256Base64Buf=" & strHashesSha256Base64Buf
-  'WScript.Echo("")
   
   If strFileNameBuf = "" Then
     Exit Sub
@@ -389,13 +303,6 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
   strSizeInBytes = strSizeInBytesBuf
   strHashesSha1Base64 = strHashesSha1Base64Buf
   strHashesSha256Base64 = strHashesSha256Base64Buf
-  
-  'WScript.Echo "strFileName=" & strFileName
-  'WScript.Echo "strURL=" & strURL
-  'WScript.Echo "strSizeInBytes=" & strSizeInBytes
-  'WScript.Echo "strHashesSha1Base64=" & strHashesSha1Base64
-  'WScript.Echo "strHashesSha256Base64=" & strHashesSha256Base64
-  'WScript.Echo("")
 End Sub
 
 ' ----------------------------------------------------------------------------------------------------

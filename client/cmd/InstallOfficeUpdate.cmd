@@ -12,6 +12,9 @@ set VERIFY_FILES=
 set ERRORS_AS_WARNINGS=
 set IGNORE_ERRORS=
 
+set RECALL_REQUIRED=
+set REBOOT_REQUIRED=
+
 if "%DIRCMD%" NEQ "" set DIRCMD=
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 if "%HASHDEEP_PATH%"=="" (
@@ -110,8 +113,20 @@ echo Installing %FILE_NAME%...
 echo %FILE_NAME% | %SystemRoot%\System32\find.exe /I "sp" >nul 2>&1
 if errorlevel 1 ("%FILE_NAME%" /quiet /norestart) else ("%FILE_NAME%" /passive /norestart)
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOfficeUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstCab
@@ -125,8 +140,20 @@ for /F "tokens=3 delims=\." %%i in ("%FILE_NAME%") do (
   set ERR_LEVEL=%errorlevel%
   call SafeRmDir.cmd "%TEMP%\%%i"
 )
+rem echo InstallOfficeUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstMsp
@@ -134,8 +161,20 @@ echo Installing %FILE_NAME%...
 set ERR_LEVEL=0
 %SystemRoot%\System32\msiexec.exe /qn /norestart /update "%FILE_NAME%"
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOfficeUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :NoExtensions
@@ -204,5 +243,13 @@ endlocal
 exit /b 1
 
 :EoF
-endlocal
-exit /b 0
+if "%RECALL_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3011
+) else if "%REBOOT_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3010
+) else (
+  endlocal
+  exit /b 0
+)

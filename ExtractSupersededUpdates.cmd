@@ -3,8 +3,13 @@ rem *** Author: H. Buhrmester & aker ***
 
 setlocal enabledelayedexpansion
 
+if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=.\bin\wget64.exe) else (
+  if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set WGET_PATH=.\bin\wget64.exe) else (set WGET_PATH=.\bin\wget.exe)
+)
+if not exist %WGET_PATH% goto EoF
+
 if not exist "%TEMP%\wsusscn2.cab" (
-  .\bin\wget.exe -N -i .\static\StaticDownloadLinks-wsus.txt -P "%TEMP%"
+  %WGET_PATH% -N -i .\static\StaticDownloadLinks-wsus.txt -P "%TEMP%"
 )
 if exist "%TEMP%\package.cab" del "%TEMP%\package.cab"
 if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
@@ -78,6 +83,11 @@ if exist .\exclude\ExcludeList-superseded-exclude.txt copy /Y .\exclude\ExcludeL
 if exist .\exclude\custom\ExcludeList-superseded-exclude.txt (
   type .\exclude\custom\ExcludeList-superseded-exclude.txt >>"%TEMP%\ExcludeList-superseded-exclude.txt"
 )
+for %%i in (upd1 upd2) do (
+  for /F %%j in ('type .\client\static\StaticUpdateIds-w63-%%i.txt ^| find /i "kb"') do (
+    echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude.txt"
+  )
+)
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i
 if exist "%TEMP%\ExcludeList-superseded-exclude.txt" (
   %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeList-superseded-exclude.txt" "%TEMP%\ExcludeList-superseded-all.txt" >"%TEMP%\ExcludeList-superseded.txt"
@@ -100,11 +110,6 @@ for %%i in (w62 w63) do (
     for /F "tokens=1* delims=,;" %%k in (.\client\static\custom\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude.txt"
     )
-  )
-)
-for %%i in (upd1 upd2) do (
-  for /F %%j in ('type .\client\static\StaticUpdateIds-w63-%%i.txt ^| find /i "kb"') do (
-    echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude.txt"
   )
 )
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i

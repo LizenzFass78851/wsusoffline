@@ -13,6 +13,9 @@ set DISM_PROGRESS=
 set ERRORS_AS_WARNINGS=
 set IGNORE_ERRORS=
 
+set RECALL_REQUIRED=
+set REBOOT_REQUIRED=
+
 if "%DIRCMD%" NEQ "" set DIRCMD=
 if "%UPDATE_LOGFILE%"=="" set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
 if "%HASHDEEP_PATH%"=="" (
@@ -128,8 +131,20 @@ if "%INSTALL_SWITCHES%"=="" (
 echo Installing %FILE_NAME%...
 "%FILE_NAME%" %INSTALL_SWITCHES%
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstMsi
@@ -137,17 +152,47 @@ echo Installing %FILE_NAME%...
 pushd %~dp1
 %SystemRoot%\System32\msiexec.exe /i "%FILE_NAME%" /qn /norestart
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
 popd
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstMsu
 echo Installing %FILE_NAME%...
 %SystemRoot%\System32\wusa.exe "%FILE_NAME%" /quiet /norestart
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="2359301" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="2359302" (
+  rem "already installed"
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstZip
@@ -173,9 +218,21 @@ if not exist "%TEMP%\%FILE_NAME_ONLY%.msu" (
 echo Installing "%TEMP%\%FILE_NAME_ONLY%.msu"...
 %SystemRoot%\System32\wusa.exe "%TEMP%\%FILE_NAME_ONLY%.msu" /quiet /norestart
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
 del "%TEMP%\%FILE_NAME_ONLY%.msu"
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstCab
@@ -192,8 +249,20 @@ for /F "tokens=%TOKEN_KB% delims=-" %%i in ("%FILE_NAME%") do (
   set ERR_LEVEL=%errorlevel%
   call SafeRmDir.cmd "%TEMP%\%%i"
 )
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :InstDism
@@ -216,8 +285,20 @@ if exist %SystemRoot%\Sysnative\Dism.exe (
   %SystemRoot%\System32\Dism.exe /Online %DISM_QPARAM% /NoRestart /Add-Package /PackagePath:"%FILE_NAME%" /IgnoreCheck
 )
 set ERR_LEVEL=%errorlevel%
+rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="0" (
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="1641" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+  goto InstSuccess
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+  goto InstSuccess
+)
 if "%IGNORE_ERRORS%"=="1" goto InstSuccess
-for %%i in (0 1641 3010 3011) do if %ERR_LEVEL% EQU %%i goto InstSuccess
 goto InstFailure
 
 :NoExtensions
@@ -292,5 +373,13 @@ endlocal
 exit /b 1
 
 :EoF
-endlocal
-exit /b 0
+if "%RECALL_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3011
+) else if "%REBOOT_REQUIRED%"=="1" (
+  endlocal
+  exit /b 3010
+) else (
+  endlocal
+  exit /b 0
+)

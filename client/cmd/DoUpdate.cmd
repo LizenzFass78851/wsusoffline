@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b68)
+set WSUSOFFLINE_VERSION=12.5 (b69)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -356,6 +356,8 @@ if "%JUST_OFFICE%"=="1" goto JustOffice
 rem *** Install Windows Service Pack ***
 goto SP%OS_NAME%
 
+:SPw62
+goto SkipSPInst
 :SPw63
 echo Checking Windows 8.1 / Server 2012 R2 Update Rollup April 2014 installation state...
 if %OS_VER_REVIS% GEQ %OS_UPD1_TARGET_REVIS% goto Upd2w63
@@ -381,11 +383,25 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing Windows 8.1 / Server 2012 R2 Update Rollup April 2014...
   call :Log "Info: Installing Windows 8.1 / Server 2012 R2 Update Rollup April 2014"
   call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
-  if not errorlevel 1 (
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+  if "!ERR_LEVEL!"=="3010" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_w63upd1_tried.txt
+    set REBOOT_REQUIRED=1
+    goto Installed
+  ) else if "!ERR_LEVEL!"=="3011" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_w63upd1_tried.txt
     set RECALL_REQUIRED=1
     goto Installed
+  ) else if "!ERR_LEVEL!" GEQ "0" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_w63upd1_tried.txt
+    set RECALL_REQUIRED=1
+    goto Installed
+  ) else (
+    goto InstError
   )
 ) else (
   echo Warning: Windows 8.1 / Server 2012 R2 Update Rollup April 2014 installation files not found.
@@ -415,11 +431,25 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing Windows 8.1 / Server 2012 R2 Update Rollup Nov. 2014...
   call :Log "Info: Installing Windows 8.1 / Server 2012 R2 Update Rollup Nov. 2014"
   call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
-  if not errorlevel 1 (
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+  if "!ERR_LEVEL!"=="3010" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_w63upd2_tried.txt
+    set REBOOT_REQUIRED=1
+    goto Installed
+  ) else if "!ERR_LEVEL!"=="3011" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_w63upd2_tried.txt
     set RECALL_REQUIRED=1
     goto Installed
+  ) else if "!ERR_LEVEL!" GEQ "0" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_w63upd2_tried.txt
+    set RECALL_REQUIRED=1
+    goto Installed
+  ) else (
+    goto InstError
   )
 ) else (
   echo Warning: Windows 8.1 / Server 2012 R2 Update Rollup Nov. 2014 installation files not found.
@@ -427,7 +457,6 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_w63upd2_tried.txt
 )
-:SPw62
 :SPw100
 :SkipSPInst
 
@@ -490,11 +519,21 @@ if not exist "%TEMP%\UpdatesToInstall.txt" (
   goto SkipServicingStack
 )
 call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE%
-if errorlevel 1 goto SkipServicingStack
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto SkipServicingStack
+)
 call :Log "Info: Updated Servicing Stack to %SERVICING_VER_NEW%"
 set SERVICING_VER=%SERVICING_VER_NEW%
 goto CheckServicingStack
 :ServicingStackInstalled
+if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipServicingStack
 
 rem *** Install Internet Explorer ***
@@ -545,9 +584,22 @@ if errorlevel 1 goto ListError
 if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing Internet Explorer 11 prerequisites...
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
-  if not errorlevel 1 (
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+  if "!ERR_LEVEL%!=="3010" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
+    set REBOOT_REQUIRED=1
+    goto IEInstalled
+  ) else if "!ERR_LEVEL!"=="3011" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
+    set RECALL_REQUIRED=1
+    goto IEInstalled
+  ) else if "!ERR_LEVEL!" GEQ "0" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
+    rem FIXME (b69)
     set RECALL_REQUIRED=1
     goto IEInstalled
   )
@@ -556,16 +608,36 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 echo Installing Internet Explorer 11...
 for /F %%i in ('dir /B %IE_FILENAME%') do (
   call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
-  if not errorlevel 1 (
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+  if "!ERR_LEVEL!"=="3010" (
+    set REBOOT_REQUIRED=1
+  ) else if "!ERR_LEVEL!"=="3011" (
     set RECALL_REQUIRED=1
-    dir /B %IE_LANG_FILENAME% >nul 2>&1
-    if not errorlevel 1 (
-      echo Installing Internet Explorer 11 language pack...
-      for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
-        call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+  ) else if "!ERR_LEVEL! NEQ "0" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_ie_tried.txt
+    goto IEInstalled
+  )
+
+  rem FIXME (b69)
+  set RECALL_REQUIRED=1
+
+  dir /B %IE_LANG_FILENAME% >nul 2>&1
+  if not errorlevel 1 (
+    echo Installing Internet Explorer 11 language pack...
+    for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
+      call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+      set ERR_LEVEL=!errorlevel!
+      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+      if "!ERR_LEVEL!"=="3010" (
+        set REBOOT_REQUIRED=1
+      ) else if "!ERR_LEVEL!"=="3011" (
+        set RECALL_REQUIRED=1
       )
     )
   )
+
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_ie_tried.txt
 )
@@ -576,6 +648,7 @@ goto IEInstalled
 :IEInstalled
 set IE_FILENAME=
 if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipIEInst
 
 rem *** Update Edge (Chromium) ***
@@ -615,8 +688,17 @@ if %MSEDGE_VER_REVIS% GEQ %MSEDGE_VER_TARGET_REVIS% goto SkipMSEdgeInst
 if exist %SystemRoot%\Temp\wou_msedge_tried.txt goto SkipMSEdgeInst
 echo Installing most recent Edge (Chromium)...
 call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /errorsaswarnings --msedge --verbose-logging --do-not-launch-msedge --system-level
+set ERR_LEVEL=%errorlevel%
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_msedge_tried.txt
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto SkipMSEdgeUpdateInst
+)
 
 set MSEDGE_FILENAME_SHORT=
 set MSEDGE_FILENAME=
@@ -669,6 +751,13 @@ echo Installing most recent Edge (Chromium) Updater...
 rem This line is intentionally implemented twice
 if exist %SystemRoot%\Temp\wou_msedgeupdate_tried.txt goto SkipMSEdgeUpdateInst
 call InstallOSUpdate.cmd "..\msedge\%MSEDGEUPDATE_FILENAME%" %VERIFY_MODE% /errorsaswarnings /recover /machine
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+)
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_msedgeupdate_tried.txt
 
@@ -686,6 +775,13 @@ if "%CPP_2005_x64%"=="1" (
   if exist ..\cpp\vcredist2005_x64.exe (
     echo Installing most recent C++ 2005 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2005_x64.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2005_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2005_x64.exe not found"
@@ -695,6 +791,13 @@ if "%CPP_2008_x64%"=="1" (
   if exist ..\cpp\vcredist2008_x64.exe (
     echo Installing most recent C++ 2008 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2008_x64.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2008_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2008_x64.exe not found"
@@ -704,6 +807,13 @@ if "%CPP_2010_x64%"=="1" (
   if exist ..\cpp\vcredist2010_x64.exe (
     echo Installing most recent C++ 2010 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2010_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2010_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2010_x64.exe not found"
@@ -713,6 +823,13 @@ if "%CPP_2012_x64%"=="1" (
   if exist ..\cpp\vcredist2012_x64.exe (
     echo Installing most recent C++ 2012 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2012_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2012_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2012_x64.exe not found"
@@ -722,6 +839,13 @@ if "%CPP_2013_x64%"=="1" (
   if exist ..\cpp\vcredist2013_x64.exe (
     echo Installing most recent C++ 2013 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2013_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2013_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2013_x64.exe not found"
@@ -731,6 +855,13 @@ if "%CPP_2015_x64%"=="1" (
   if exist ..\cpp\vcredist2015_x64.exe (
     echo Installing most recent C++ 2015-2019 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2015_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2015_x64.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2015_x64.exe not found"
@@ -741,6 +872,13 @@ if "%CPP_2005_x86%"=="1" (
   if exist ..\cpp\vcredist2005_x86.exe (
     echo Installing most recent C++ 2005 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2005_x86.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2005_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2005_x86.exe not found"
@@ -750,6 +888,13 @@ if "%CPP_2008_x86%"=="1" (
   if exist ..\cpp\vcredist2008_x86.exe (
     echo Installing most recent C++ 2008 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2008_x86.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2008_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2008_x86.exe not found"
@@ -759,6 +904,13 @@ if "%CPP_2010_x86%"=="1" (
   if exist ..\cpp\vcredist2010_x86.exe (
     echo Installing most recent C++ 2010 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2010_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2010_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2010_x86.exe not found"
@@ -768,6 +920,13 @@ if "%CPP_2012_x86%"=="1" (
   if exist ..\cpp\vcredist2012_x86.exe (
     echo Installing most recent C++ 2012 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2012_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2012_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2012_x86.exe not found"
@@ -777,6 +936,13 @@ if "%CPP_2013_x86%"=="1" (
   if exist ..\cpp\vcredist2013_x86.exe (
     echo Installing most recent C++ 2013 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2013_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2013_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2013_x86.exe not found"
@@ -786,6 +952,13 @@ if "%CPP_2015_x86%"=="1" (
   if exist ..\cpp\vcredist2015_x86.exe (
     echo Installing most recent C++ 2015-2019 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2015_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+    if "!ERR_LEVEL!"=="3010" (
+      set REBOOT_REQUIRED=1
+    ) else if "!ERR_LEVEL!"=="3011" (
+      set RECALL_REQUIRED=1
+    )
   ) else (
     echo Warning: File ..\cpp\vcredist2015_x86.exe not found.
     call :Log "Warning: File ..\cpp\vcredist2015_x86.exe not found"
@@ -812,7 +985,15 @@ if /i "%OS_ARCH%"=="x64" (
     if exist %SystemRoot%\Sysnative\Dism.exe (
       echo Enabling .NET Framework 3.5 feature...
       %SystemRoot%\Sysnative\Dism.exe /Online /Quiet /NoRestart /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:..\%OS_NAME%-%OS_ARCH%\%OS_LANG%\sxs
-      if errorlevel 1 (
+      set ERR_LEVEL=!errorlevel!
+      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+      if "!ERR_LEVEL!"=="3010" (
+        call :Log "Info: Enabled .NET Framework 3.5 feature"
+        set REBOOT_REQUIRED=1
+      ) else if "!ERR_LEVEL!"=="3011" (
+        call :Log "Info: Enabled .NET Framework 3.5 feature"
+        set RECALL_REQUIRED=1
+      ) else if "!ERR_LEVEL!" NEQ "0" (
         call :Log "Warning: Failed to enable .NET Framework 3.5 feature"
       ) else (
         call :Log "Info: Enabled .NET Framework 3.5 feature"
@@ -821,7 +1002,15 @@ if /i "%OS_ARCH%"=="x64" (
       if exist %SystemRoot%\System32\Dism.exe (
         echo Enabling .NET Framework 3.5 feature...
         %SystemRoot%\System32\Dism.exe /Online /Quiet /NoRestart /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:..\%OS_NAME%-%OS_ARCH%\%OS_LANG%\sxs
-        if errorlevel 1 (
+        set ERR_LEVEL=!errorlevel!
+        rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          call :Log "Info: Enabled .NET Framework 3.5 feature"
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          call :Log "Info: Enabled .NET Framework 3.5 feature"
+          set RECALL_REQUIRED=1
+        ) else if "%!ERR_LEVEL!" NEQ "0" (
           call :Log "Warning: Failed to enable .NET Framework 3.5 feature"
         ) else (
           call :Log "Info: Enabled .NET Framework 3.5 feature"
@@ -842,7 +1031,15 @@ if /i "%OS_ARCH%"=="x64" (
     if exist %SystemRoot%\System32\Dism.exe (
       echo Enabling .NET Framework 3.5 feature...
       %SystemRoot%\System32\Dism.exe /Online /Quiet /NoRestart /Enable-Feature /FeatureName:NetFx3 /All /LimitAccess /Source:..\%OS_NAME%\%OS_LANG%\sxs
-      if errorlevel 1 (
+      set ERR_LEVEL=!errorlevel!
+      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+      if "!ERR_LEVEL!"=="3010" (
+        call :Log "Info: Enabled .NET Framework 3.5 feature"
+        set REBOOT_REQUIRED=1
+      ) else if "!ERR_LEVEL!"=="3011" (
+        call :Log "Info: Enabled .NET Framework 3.5 feature"
+        set RECALL_REQUIRED=1
+      ) else if "!ERR_LEVEL!" NEQ "0" (
         call :Log "Warning: Failed to enable .NET Framework 3.5 feature"
       ) else (
         call :Log "Info: Enabled .NET Framework 3.5 feature"
@@ -858,6 +1055,7 @@ if /i "%OS_ARCH%"=="x64" (
     goto SkipDotNet35Inst
   )
 )
+rem FIXME (b69)
 set REBOOT_REQUIRED=1
 :SkipDotNet35Inst
 
@@ -890,15 +1088,34 @@ if not exist %DOTNET4_FILENAME% (
 )
 echo Installing .NET Framework 4...
 call InstallOSUpdate.cmd "%DOTNET4_FILENAME%" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS% /lcid 1033
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto SkipDotNet4Inst
+)
 if "%OS_LANG%" NEQ "enu" (
   if exist %DOTNET4LP_FILENAME% (
     echo Installing .NET Framework 4 Language Pack...
-    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do call InstallOSUpdate.cmd "..\dotnet\%%i" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
+    for /F %%i in ('dir /B %DOTNET4LP_FILENAME%') do (
+      call InstallOSUpdate.cmd "..\dotnet\%%i" %VERIFY_MODE% /errorsaswarnings %DOTNET4_INSTOPTS%
+      set ERR_LEVEL=!errorlevel!
+      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+      if "!ERR_LEVEL!"=="3010" (
+        set REBOOT_REQUIRED=1
+      ) else if "!ERR_LEVEL!"=="3011" (
+        set RECALL_REQUIRED=1
+      )
+    )
   ) else (
     echo Warning: .NET Framework 4 Language Pack installation file ^(%DOTNET4LP_FILENAME%^) not found.
     call :Log "Warning: .NET Framework 4 Language Pack installation file (%DOTNET4LP_FILENAME%) not found"
   )
 )
+rem FIXME (b69)
 set RECALL_REQUIRED=1
 set DOTNET4_FILENAME=
 set DOTNET4LP_FILENAME=
@@ -924,6 +1141,15 @@ if errorlevel 1 goto ListError
 if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing .NET Framework 3.5 custom updates...
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+)
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
 )
 :SkipDotNet35CustomInst
 rem *** Install .NET Framework 4 - Custom ***
@@ -945,9 +1171,19 @@ if errorlevel 1 goto ListError
 if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing .NET Framework 4 custom updates...
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+)
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
 )
 :SkipDotNet4CustomInst
 if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 rem *** Install Windows Management Framework ***
 if "%INSTALL_WMF%" NEQ "/instwmf" goto SkipWMFInst
@@ -977,13 +1213,24 @@ if errorlevel 1 goto ListError
 if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing Windows Management Framework...
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
 ) else (
   echo Warning: Windows Management Framework installation file ^(kb%WMF_TARGET_ID%^) not found.
   call :Log "Warning: Windows Management Framework installation file (kb%WMF_TARGET_ID%) not found"
   goto SkipWMFInst
 )
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
+)
+rem FIXME (b69)
 set RECALL_REQUIRED=1
 :SkipWMFInst
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
 rem *** .NET 5 and newer ***
@@ -1029,7 +1276,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5DesktopRuntimex64Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5Runtimex64
@@ -1072,7 +1325,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5Runtimex64Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5Runtimex64
@@ -1114,7 +1373,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5AspNetx64Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5AspNetx64
@@ -1157,7 +1422,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5DesktopRuntimex86Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5Runtimex86
@@ -1200,7 +1471,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5Runtimex86Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5Runtimex86
@@ -1242,7 +1519,13 @@ if errorlevel 1 (
 if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
 :SkipDotNet5AspNetx86Verify
 call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-if errorlevel 1 (
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
   goto SkipDotNet5AspNetx86
@@ -1250,6 +1533,7 @@ if errorlevel 1 (
 :SkipDotNet5AspNetx86
 :DotNet5Installed
 if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipDotNet5Inst
 
 rem *** Update Windows Defender definitions ***
@@ -1279,6 +1563,13 @@ if %WDDEFS_VER_REVIS% GEQ %WDDEFS_VER_TARGET_REVIS% goto SkipWDInst
 :InstallWDDefs
 echo Installing Windows Defender definition file...
 call InstallOSUpdate.cmd "%WDDEFS_FILENAME%" %VERIFY_MODE% /ignoreerrors -q
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+)
 set WDDEFS_FILENAME=
 :SkipWDInst
 set WDDEFS_VER_TARGET_MAJOR=
@@ -1303,12 +1594,22 @@ if errorlevel 1 goto ListError
 if exist "%TEMP%\UpdatesToInstall.txt" (
   echo Installing most recent Office Service Pack^(s^)...
   call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
 ) else (
   echo Warning: Office Service Pack installation file^(s^) not found.
   call :Log "Warning: Office Service Pack installation file(s) not found"
   goto SkipSPOfc
 )
-set REBOOT_REQUIRED=1
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
+)
+rem FIXME (b69)
+set RECALL_REQUIRED=1
 :SkipSPOfc
 :SkipOffice
 
@@ -1316,6 +1617,7 @@ rem *** Install MSI packages and custom software ***
 if exist %SystemRoot%\Temp\wouselmsi.txt (
   echo Installing selected MSI packages...
   call TouchMSITree.cmd /instselected
+  rem FIXME (b69)
   call :Log "Info: Installed selected MSI packages"
   del %SystemRoot%\Temp\wouselmsi.txt
   set REBOOT_REQUIRED=1
@@ -1323,6 +1625,7 @@ if exist %SystemRoot%\Temp\wouselmsi.txt (
   if "%INSTALL_MSI%"=="/instmsi" (
     echo Installing all MSI packages...
     call TouchMSITree.cmd /install
+    rem FIXME (b69)
     call :Log "Info: Installed all MSI packages"
     set REBOOT_REQUIRED=1
   )
@@ -1491,14 +1794,26 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call :AdjustWUSvc
   echo Installing Windows Update scan prerequisites...
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
-  if not errorlevel 1 (
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+  if "!ERR_LEVEL!"=="3010" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_wupre_tried.txt
+    set REBOOT_REQUIRED=1
+  ) else if "!ERR_LEVEL!"=="3011" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_wupre_tried.txt
+    set RECALL_REQUIRED=1
+  ) else if "!ERR_LEVEL!" GEQ "0" (
+    if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+    echo. >%SystemRoot%\Temp\wou_wupre_tried.txt
+    rem FIXME (b69)
     set RECALL_REQUIRED=1
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 :SkipWuPre
 if "%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%"=="10.0.18362" goto DoBuildUpgrade
@@ -1522,11 +1837,22 @@ if exist ..\static\StaticUpdateIds-BuildUpgrades.txt (
       )
       call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
       call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+      set ERR_LEVEL=!errorlevel!
+      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+      if "!ERR_LEVEL!"=="3010" (
+        set REBOOT_REQUIRED=1
+      ) else if "!ERR_LEVEL!"=="3011" (
+        set RECALL_REQUIRED=1
+      ) else if "!ERR_LEVEL!" NEQ "0" (
+        goto InstError
+      )
+      rem FIXME (b69)
       set RECALL_REQUIRED=1
     )
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 :ListMissingIds
 rem *** Adjust service 'Windows Update' ***
@@ -1586,7 +1912,15 @@ call :StopWUSvc
 set WUSVC_STOPPED=1
 echo Installing updates...
 call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
-if errorlevel 1 goto InstError
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
+)
 if "%USERNAME%"=="WOUTempAdmin" (
   if "%FINISH_MODE%"=="/shutdown" (
     if not exist %SystemRoot%\Temp\WOUpdatesToInstall.txt echo.>nul 2>%SystemRoot%\Temp\WOUpdatesToInstall.txt
@@ -1596,8 +1930,9 @@ if exist %SystemRoot%\Temp\WOUpdatesToInstall.txt (set RECALL_REQUIRED=1) else (
 if "%RECALL_REQUIRED%"=="1" goto Installed
 :SkipUpdates
 
-if "%REBOOT_REQUIRED%" NEQ "1" goto NoUpdates
-goto Installed
+if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
+goto NoUpdates
 
 :FinalHooks
 rem *** Execute custom finalization hook ***
