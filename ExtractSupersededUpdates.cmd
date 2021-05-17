@@ -102,6 +102,11 @@ for %%i in (w62 w63) do (
     )
   )
 )
+for %%i in (upd1 upd2) do (
+  for /F %%j in ('type .\client\static\StaticUpdateIds-w63-%%i.txt ^| find /i "kb"') do (
+    echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude.txt"
+  )
+)
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i
 if exist "%TEMP%\ExcludeList-superseded-exclude.txt" (
   %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeList-superseded-exclude.txt" "%TEMP%\ExcludeList-superseded-all.txt" >"%TEMP%\ExcludeList-superseded-seconly.txt"
