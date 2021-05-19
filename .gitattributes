@@ -12,9 +12,9 @@
 *.sh text eol=lf
 *.bash text eol=lf
 
+*.doc binary
+*.docx binary
 *.exe binary
 *.ico binary
-
-*.doc auto
-*.odt auto
-*.pdf auto
+*.odt binary
+*.pdf binary
