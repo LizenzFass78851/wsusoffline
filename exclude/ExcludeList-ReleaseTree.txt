@@ -1,4 +1,5 @@
 .git\
+.gitattributes
 Aut2Exe.exe
 upx.exe
 StaticUpdateIds-dotnet5_documented.txt
