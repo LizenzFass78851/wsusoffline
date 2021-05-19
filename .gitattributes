@@ -1,0 +1,20 @@
+*.au3 text eol=crlf
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.cmdt text eol=crlf
+*.cpp text eol=crlf
+*.ini text eol=crlf
+*.reg text eol=crlf
+*.txt text eol=crlf
+*.vbs text eol=crlf
+*.xsl text eol=crlf
+
+*.sh text eol=lf
+*.bash text eol=lf
+
+*.exe binary
+*.ico binary
+
+*.doc auto
+*.odt auto
+*.pdf auto
