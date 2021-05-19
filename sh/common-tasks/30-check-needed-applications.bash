@@ -28,6 +28,9 @@
 #
 #     Needed applications: cabextract, hashdeep, unzip, wget, xmlstarlet
 #
+#     Needed applications for Microsoft Edge (Chromium) downloads: jq,
+#     base64, and one of hexdump, od or xxd
+#
 #     Recommended applications: dialog, rsync, gio trash, gvfs-trash
 #     or trash-put
 #
@@ -36,7 +39,9 @@
 # ========== Global variables =============================================
 
 xmlstarlet=""
+hexdump_utility=""
 linux_trash_handler=""
+msegde_downloads="enabled"
 
 # ========== Functions ====================================================
 
@@ -140,6 +145,65 @@ function check_needed_applications ()
     return 0
 }
 
+
+# Needed application for the download of Microsoft Edge (Chromium) files:
+# jq, base64, and one of hexdump, od and xxd
+
+function check_needed_applications_msedge ()
+{
+    local binary_name=""
+    local missing_binaries=0
+
+    log_info_message "Checking needed applications for Microsoft Edge (Chromium) downloads..."
+
+    # jq is used to parse JSON data.
+    if ! type -P jq > /dev/null
+    then
+        log_error_message "Please install the package jq"
+        missing_binaries="$(( missing_binaries + 1 ))"
+    fi
+
+    # base64 is part of the package coreutils (GNU core utilities),
+    # and there is a base64 in FreeBSD, too.
+    if ! type -P base64 > /dev/null
+    then
+        log_error_message "Please install the package coreutils (GNU core utilities)"
+        missing_binaries="$(( missing_binaries + 1 ))"
+    fi
+
+    # Find a hexdump utility: hexdump, od or xxd
+    for binary_name in hexdump od xxd
+    do
+        if type -P "${binary_name}" > /dev/null
+        then
+            hexdump_utility="${binary_name}"
+            break
+        fi
+    done
+
+    if [[ -n "${hexdump_utility}" ]]
+    then
+        log_info_message "Found hexdump utility: ${hexdump_utility}"
+    else
+        log_error_message "Please install one of the utilities hexdump, od or xxd"
+        missing_binaries="$(( missing_binaries + 1 ))"
+    fi
+
+    if (( missing_binaries == 1 ))
+    then
+        log_error_message "${missing_binaries} needed application is missing"
+        log_warning_message "Microsoft Edge (Chromium) downloads will be disabled"
+        msegde_downloads="disabled"
+    elif (( missing_binaries > 1 ))
+    then
+        log_error_message "${missing_binaries} needed applications are missing"
+        log_warning_message "Microsoft Edge (Chromium) downloads will be disabled"
+        msegde_downloads="disabled"
+    fi
+    return 0
+}
+
+
 # Recommended applications: dialog, rsync, gio, gvfs-trash or trash-put
 #
 # dialog is used by the script update-generator.bash to create dialogs,
@@ -229,6 +293,7 @@ function check_recommended_applications ()
 # ========== Commands =====================================================
 
 check_needed_applications
+check_needed_applications_msedge
 check_recommended_applications
 echo ""
 return 0

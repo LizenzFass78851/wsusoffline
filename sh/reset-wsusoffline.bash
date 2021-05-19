@@ -74,18 +74,22 @@ file_list+=(
 # Logfiles
 file_list+=( ../log/*.log )
 
-# Configuration files and ETag database
+# Configuration files
 #
 # This deletes "meta" files, which reference changed files in the static,
 # exclude and client/static directories.
-#
-# The file SelfUpdateVersion-static.txt is known as the ETag database.
 file_list+=(
     ../static/sdd/StaticDownloadFiles-modified.txt
     ../static/sdd/ExcludeDownloadFiles-modified.txt
     ../static/sdd/StaticUpdateFiles-modified.txt
-    ../static/SelfUpdateVersion-static.txt
 )
+
+# Reset the ETag database
+#
+# This file is included as an empty file in the wsusoffline archive,
+# and it is tracked by the git version control system. It should only
+# be reset to its original size.
+true > ../static/SelfUpdateVersion-static.txt
 
 # Timestamps
 file_list+=( ../timestamps/*.txt )

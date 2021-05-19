@@ -1,14 +1,14 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: Linux download scripts, version 2.4 (beta-1)
-# Release date: 2021-05-11
+# Version: Linux download scripts, version 2.4 (beta-2)
+# Release date: 2021-05-18
 # Development branch: master
-# Supported version: WSUS Offline Update, Community Edition 12.5 (b66)
+# Supported version: WSUS Offline Update, Community Edition 12.5 (b69)
 #
-# Note: The Linux download scripts, version 2.4 (beta-1) seem to be
-# mostly compatible with WSUS Offline Update, Community Edition 12.5
-# (b66). The download of Microsoft Edge (Chromium) is missing for now.
+# Note: This version introduces the download of Microsoft Edge
+# (Chromium). The new script produces a lot of debugging output, but
+# this will be removed after some more testing.
 #
 # Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -99,8 +99,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.4 (beta-1)"
-readonly release_date="2021-05-11"
+readonly script_version="2.4 (beta-2)"
+readonly release_date="2021-05-18"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.

@@ -48,6 +48,17 @@ function get_included_downloads ()
                 wsus | cpp | dotnet)
                     process_included_download "${current_download}" "all"
                 ;;
+                msedge)
+                    # Edge downloads are disabled, if needed tools
+                    # are missing
+                    if [[ "${msegde_downloads}" == "enabled" ]]
+                    then
+                        process_included_download "${current_download}" "all"
+                    else
+                        log_warning_message "Microsoft Edge (Chromium) downloads are disabled because of missing commands. Please install the package jq."
+                        echo ""
+                    fi
+                ;;
                 # Architecture dependent downloads; these downloads must
                 # be processed twice for both x86 and x64, if present
                 # in the architectures list.
@@ -128,6 +139,14 @@ function process_included_download ()
             interval_length="${interval_length_virus_definitions}"
             interval_description="${interval_description_virus_definitions}"
         ;;
+        msedge)
+            timestamp_pattern="msedge-all-glb"
+            hashes_file="../client/md/hashes-msedge.txt"
+            hashed_dir="../client/msedge"
+            download_dir="../client/msedge"
+            interval_length="${interval_length_dependent_files}"
+            interval_description="${interval_description_dependent_files}"
+        ;;
         *)
             fail "${FUNCNAME[0]} - Unknown download name: ${name}"
         ;;
@@ -144,12 +163,25 @@ function process_included_download ()
     else
         log_info_message "Start processing of \"${timestamp_pattern//-/ }\" ..."
 
-        verify_integrity_database "${hashed_dir}" "${hashes_file}"
-        calculate_static_downloads "${name}" "${arch}" "${static_download_links}"
-        download_static_files "${download_dir}" "${static_download_links}"
-        cleanup_client_directory "${download_dir}" "${static_download_links}" "${static_download_links}"
-        verify_digital_file_signatures "${download_dir}"
-        create_integrity_database "${hashed_dir}" "${hashes_file}"
+        case "${name}" in
+            wsus | cpp | dotnet | wddefs)
+                verify_integrity_database "${hashed_dir}" "${hashes_file}"
+                calculate_static_downloads "${name}" "${arch}" "${static_download_links}"
+                download_static_files "${download_dir}" "${static_download_links}"
+                cleanup_client_directory "${download_dir}" "${static_download_links}" "${static_download_links}"
+                verify_digital_file_signatures "${download_dir}"
+                create_integrity_database "${hashed_dir}" "${hashes_file}"
+            ;;
+            msedge)
+                verify_integrity_database "${hashed_dir}" "${hashes_file}"
+                request_edge_chromium_links "${static_download_links}" "${hashes_file}"
+                download_edge_chromium "${static_download_links}" "${hashes_file}" "${download_dir}"
+                cleanup_client_directory "${download_dir}" "${static_download_links}" "${static_download_links}"
+            ;;
+            *)
+                fail "${FUNCNAME[0]} - Unknown download name: ${name}"
+            ;;
+        esac
 
         if same_error_count "${initial_errors}"
         then

@@ -1,7 +1,7 @@
 Installationsanleitung für die Linux-Download-Skripte
 =====================================================
-Zuletzt aktualisiert für die Linux-Download-Skripte, Version 2.3
-(2021-01-19)
+Zuletzt aktualisiert für die Linux-Download-Skripte, Version 2.4-beta-2
+(2021-05-18)
 
 
 WSUS Offline Update enthält bereits die neuen Linux-Skripte. Sie
@@ -32,23 +32,23 @@ Sie das Paket hashdeep in allen aktuellen Distributionen.
 
   su -
   aptitude install cabextract md5deep unzip wget xmlstarlet \
-                              dialog genisoimage rsync trash-cli
+                              dialog genisoimage rsync trash-cli jq
 
 * Für Debian 8 Jessie-Backports und neuer:
 
   su -
   aptitude install cabextract hashdeep unzip wget xmlstarlet \
-                   dialog genisoimage rsync trash-cli
+                   dialog genisoimage rsync trash-cli jq
 
 * Für Ubuntu 14.04 LTS Trusty:
 
   sudo apt-get install cabextract md5deep unzip wget xmlstarlet \
-                       dialog genisoimage rsync trash-cli
+                       dialog genisoimage rsync trash-cli jq
 
 * Für Ubuntu 16.04 LTS Xenial und neuer:
 
   sudo apt-get install cabextract hashdeep unzip wget xmlstarlet \
-                       dialog genisoimage rsync trash-cli
+                       dialog genisoimage rsync trash-cli jq
 
 Andere Distributionen, die nicht auf Debian basieren, scheinen den
 Paketnamen md5deep beizubehalten.
@@ -56,13 +56,13 @@ Paketnamen md5deep beizubehalten.
 * Für Fedora 27 (nach "username"):
 
   sudo dnf install -y cabextract md5deep unzip wget xmlstarlet \
-                      dialog genisoimage rsync trash-cli
+                      dialog genisoimage rsync trash-cli jq
 
 * Für FreeBSD 12.1 (nach "TheFlipside"):
 
   su -
   pkg install bash cabextract md5deep wget xmlstarlet \
-              cdrkit-genisoimage rsync
+              cdrkit-genisoimage rsync jq
 
 
 Beachten Sie, dass beide Pakete md5deep und hashdeep eine Reihe von

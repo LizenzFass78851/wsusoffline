@@ -304,16 +304,16 @@ function rebuild_superseded_updates ()
     sort_in_place "${temp_dir}/ExcludeList-superseded-all.txt"
 
     # *** Apply ExcludeList-superseded-exclude.txt ***
-    excludelist_overrides+=(
-        ../exclude/ExcludeList-superseded-exclude.txt
-        ../exclude/custom/ExcludeList-superseded-exclude.txt
-    )
-
-    # kb2975061 is defined in the file StaticUpdateIds-w63-upd1.txt. It
-    # seems to be superseded by the cumulative update rollups, but
-    # not by incremental security-only updates. Therefore, the files
+    #
+    # The last step is the removal of some superseded updates, which
+    # are still needed for the installation. This is done by compiling
+    # several "override" files, which typically contain kb numbers only.
+    #
+    # kb2975061 is defined in the file StaticUpdateIds-w63-upd1.txt,
+    # but it seems to be superseded and may be missing
+    # during installation. Therefore, the contents of
     # StaticUpdateIds-w63-upd1.txt and StaticUpdateIds-w63-upd2.txt are
-    # added to the calculation of seconly superseded updates.
+    # removed from the lists of superseded updates.
     #
     # The kb numbers should be restricted to Windows 8.1.
     cat_existing_files ../client/static/StaticUpdateIds-w63-upd1.txt \
@@ -324,6 +324,12 @@ function rebuild_superseded_updates ()
           line="windows8.1-${line}"
           echo "${line}"
       done > "${temp_dir}/w63_excludes.txt"
+
+    excludelist_overrides+=(
+        ../exclude/ExcludeList-superseded-exclude.txt
+        ../exclude/custom/ExcludeList-superseded-exclude.txt
+        "${temp_dir}/w63_excludes.txt"
+    )
 
     shopt -s nullglob
     excludelist_overrides_seconly+=(

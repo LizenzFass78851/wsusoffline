@@ -1,3 +1,61 @@
+NEWS for the Linux download scripts, version 2.4 (beta-2)
+
+   Release date: 2021-05-18
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.5 (b69)
+
+   This is the second beta version of the Linux download scripts,
+   version 2.4, to keep up with the changes in WSUS Offline Update,
+   Community Edition 12.5 (b69).
+
+   New features
+
+    * Download of Microsoft Edge (Chromium)
+
+      The installation files for Microsoft Edge (Chromium) are now
+      downloaded.
+
+      This requires the additional tools jq, base64 and one of hexdump,
+      od or xxd.
+
+      - The command jq is used to parse JSON files. It is installed with
+        the package jq.
+
+      - base64 is part of the GNU core utilities (coreutils), which
+        should already be installed in common Linux distributions. The
+        FreeBSD base64 should work as well.
+
+      - hexdump is a BSD utility, which is widely available in Linux. In
+        Debian systems, it is installed with the packages bsdmainutils
+        or bsdextrautils. The bsdmainutils are automatically installed
+        in Debian 10 Buster.
+
+      - od is also part of the GNU core utilities and serves as a fallback
+        for Linux, if hexdump is not available. The BSD od is not fully
+        compatible, because it doesn't have the option -w to set the
+        output width. (Line feeds could also be removed with tr).
+
+      - xxd is installed with the package xxd on Debian, but it may not
+        be available elsewhere.
+
+      Usually, you only need to install jq.
+
+      If these tools are not found, then the download of Microsoft Edge
+      (Chromium) will be disabled, but other downloads should proceed
+      as before.
+
+      The new script currently produces a lot of debugging output. This
+      is a bit messy, but could be useful to find existing bugs. After
+      some more testing, the debugging output will be disabled.
+
+   Internal changes
+
+    * Windows 8.1 April and November 2014 Updates will now be excluded
+      correctly from the calculation of superseded updates
+
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 2.4 (beta-1)
 
    Release date: 2021-05-11

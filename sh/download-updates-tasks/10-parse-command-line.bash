@@ -207,6 +207,8 @@ function parse_preliminary_update_list ()
     then
         log_info_message "Adding \"win\" to the list of updates..."
         updates_list+=( "win" )
+        log_info_message "Adding \"msedge\" to the list of included downloads..."
+        downloads_list+=( "msedge" )
     fi
     echo ""
 

@@ -1,3 +1,20 @@
+Linux download scripts, version 2.4 (beta-2)
+
+   Release date: 2021-05-18
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.5 (b69)
+
+   New features
+
+    * Download of Microsoft Edge (Chromium)
+
+   Internal changes
+
+    * Windows 8.1 April and November 2014 Updates will now be excluded
+      correctly from the calculation of superseded updates
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.4 (beta-1)
 
    Release date: 2021-05-11

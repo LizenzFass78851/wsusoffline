@@ -193,14 +193,22 @@ function remove_obsolete_scripts ()
     then
         for pathname in "${file_list[@]}"
         do
-            if ! grep -F -q -e "-c md5,sha1,sha256 -b" \
-                            -e "-c sha1 -b"            \
-                            "${pathname}"
+            filename="${pathname##*/}"
+            if [[ "${filename}" == "hashes-msedge.txt" ]]
             then
-                log_info_message "Deleting old style hashdeep file ${pathname}"
-                rm "${pathname}"
+                # The file hashes-msedge.txt does not have all headers
+                # of hashdeep files, because it is created by the shell.
+                log_debug_message "Hashdeep file ${filename} is ignored"
             else
-                log_debug_message "Hashdeep file ${pathname} is already in new format"
+                if grep -F -q -e "-c md5,sha1,sha256 -b" \
+                              -e "-c sha1 -b"            \
+                                 "${pathname}"
+                then
+                    log_debug_message "Hashdeep file ${filename} is already in new format"
+                else
+                    log_info_message "Deleting old style hashdeep file ${filename}"
+                    rm "${pathname}"
+                fi
             fi
         done
     fi
