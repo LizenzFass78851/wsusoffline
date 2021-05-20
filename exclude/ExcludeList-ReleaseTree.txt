@@ -1,5 +1,4 @@
 .git\
-.gitattributes
 Aut2Exe.exe
 upx.exe
 StaticUpdateIds-cpp2005_x64_documented.txt
