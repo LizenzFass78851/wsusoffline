@@ -27,4 +27,3 @@ ExtractDownloadLinks-all.cmd
 ExtractSupersededUpdates.cmd
 PrepareReleaseTree.cmd
 MakeRelease.cmd
-
