@@ -114,9 +114,8 @@ declare -A all_values=(
 declare -A w100_values=(
     [1507_x86]="on"   [1507_x64]="on"
     [1607_x86]="on"   [1607_x64]="on"
-    [1803_x86]="off"  [1803_x64]="off"
     [1809_x86]="on"   [1809_x64]="on"
-    [1909_x86]="on"   [1909_x64]="on"
+    [1909_x86]="off"   [1909_x64]="off"
     [2004_x86]="on"   [2004_x64]="on"
     [20H2_x86]="on"   [20H2_x64]="on"
 )
@@ -147,7 +146,6 @@ all_keys=(
 w100_keys=(
     1507_x86 1507_x64
     1607_x86 1607_x64
-    1803_x86 1803_x64
     1809_x86 1809_x64
     1909_x86 1909_x64
     2004_x86 2004_x64
@@ -301,8 +299,6 @@ function show_selection_dialogs_with_dialog ()
         1507_x64   "Windows 10, 1507, 64-bit"                 "${w100_values[1507_x64]}"
         1607_x86   "Windows 10, 1607, 32-bit"                 "${w100_values[1607_x86]}"
         1607_x64   "Windows 10, 1607 / Server 2016, 64-bit"   "${w100_values[1607_x64]}"
-        1803_x86   "Windows 10, 1803, 32-bit"                 "${w100_values[1803_x86]}"
-        1803_x64   "Windows 10, 1803, 64-bit"                 "${w100_values[1803_x64]}"
         1809_x86   "Windows 10, 1809, 32-bit"                 "${w100_values[1809_x86]}"
         1809_x64   "Windows 10, 1809 / Server 2019, 64-bit"   "${w100_values[1809_x64]}"
         1909_x86   "Windows 10, 1909, 32-bit"                 "${w100_values[1909_x86]}"

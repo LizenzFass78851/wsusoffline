@@ -1,15 +1,11 @@
 http://download.windowsupdate.com/c/msdownload/update/software/crup/2018/05/windows10.0-kb4132216-x64_9cbeb1024166bdeceff90cd564714e1dcd01296e.msu
-http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/04/windows10.0-kb5001407-x64_6dfbd9b5e713826ad84194d4e72fef836db9e1e2.msu
-http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/04/windows10.0-kb5003155-x64_5983ee36c49d937472c7d1d572bef2a67415a898.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589198-x64_17c945188b1405d23a40610ffaae51e0ba35c1d2.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589210-x64_59b90cbb6ebef01d477d607a9d8ffb233fb4a956.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589206-x64_551e42a928c71c571b5e698f7ded1b1e84641ef6.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589208-x64_90b849e7a6e699c7ce2f775e7df1410e5fcb5f22.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589211-x64_f999d4b752a9728943458e45c7dc8deca4e11be2.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589212-x64_9db59d4b6afaee4f4997d59d2787ead2fe5aab46.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_a0ff1622de1e30a2400d56903161a3c0757c29d1.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_809b9640d04c5af4c7e78499052abaa936cb670a.msu
-http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_07eba1db5a2cfac83683bd43d727a3195a94b39b.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_d0f434327db9e3308b86591c248c825c03687632.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_ec16e118cd8b99df185402c7a0c65a31e031a6f0.msu
 http://download.windowsupdate.com/c/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x64_c9bb49df325c20ddc147137b3f769fa44d800dde.msu

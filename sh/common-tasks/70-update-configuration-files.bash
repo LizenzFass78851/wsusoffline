@@ -331,6 +331,20 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-16299-dotnet4-528049.txt
     )
 
+    # *** Windows 10 Version 1803 stuff ***
+    #
+    # Removed in the Community Editions 11.9.8-ESR and 12.5
+    file_list+=(
+        ../exclude/ExcludeList-w100-1803.txt
+        ../client/static/StaticUpdateIds-w100-17134.txt
+        ../client/static/StaticUpdateIds-w100-17134-x64.txt
+        ../client/static/StaticUpdateIds-w100-17134-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-17134.txt
+        ../client/static/StaticUpdateIds-servicing-w100-17134.txt
+        ../client/static/StaticUpdateIds-w100-17134-dotnet.txt
+        ../client/static/StaticUpdateIds-w100-17134-dotnet4-528049.txt
+    )
+
     # *** Office stuff ***
     #
     # Removed in Community Edition 11.9.8-ESR and 12.5

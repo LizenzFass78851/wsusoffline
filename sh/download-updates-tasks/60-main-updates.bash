@@ -31,7 +31,7 @@
 
 # ========== Configuration ================================================
 
-w100_versions=( 1507 1607 1803 1809 1909 2004 20H2 )
+w100_versions=( 1507 1607 1809 1909 2004 20H2 )
 w100_versions_file="w100-versions.ini"
 
 # Exclude lists for service packs
