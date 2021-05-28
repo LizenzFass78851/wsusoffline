@@ -1,0 +1,2 @@
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589198-x86_1e1e2f65d4ad6c1d8903a90fee853071561b0e6a.msu
+http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_cc1837e27113e5444e025cf2dc2e2ed556ba77f9.msu

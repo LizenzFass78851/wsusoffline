@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b75)
+set WSUSOFFLINE_VERSION=12.5 (b76)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -313,6 +313,17 @@ if exist ActivateFiveLanguageServicePacks.cmd del ActivateFiveLanguageServicePac
 if exist RemoveEnglishLanguageSupport.cmd del RemoveEnglishLanguageSupport.cmd
 if exist ..\doc\faq.txt del ..\doc\faq.txt
 if exist ..\exclude\ExcludeList-SPs.txt del ..\exclude\ExcludeList-SPs.txt
+if exist ..\exclude\ExcludeList-w100-1507.txt del ..\exclude\ExcludeList-w100-1507.txt
+if exist ..\exclude\ExcludeList-w100-1607.txt del ..\exclude\ExcludeList-w100-1607.txt
+if exist ..\exclude\ExcludeList-w100-1709.txt del ..\exclude\ExcludeList-w100-1709.txt
+if exist ..\exclude\ExcludeList-w100-1803.txt del ..\exclude\ExcludeList-w100-1803.txt
+if exist ..\exclude\ExcludeList-w100-1809.txt del ..\exclude\ExcludeList-w100-1809.txt
+if exist ..\exclude\ExcludeList-w100-1903.txt del ..\exclude\ExcludeList-w100-1903.txt
+if exist ..\exclude\ExcludeList-w100-1909.txt del ..\exclude\ExcludeList-w100-1909.txt
+if exist ..\exclude\ExcludeList-w100-1903_1909.txt del ..\exclude\ExcludeList-w100-1903_1909.txt
+if exist ..\exclude\ExcludeList-w100-2004.txt del ..\exclude\ExcludeList-w100-2004.txt
+if exist ..\exclude\ExcludeList-w100-20H2.txt del ..\exclude\ExcludeList-w100-20H2.txt
+if exist ..\exclude\ExcludeList-w100-2004_20H2.txt del ..\exclude\ExcludeList-w100-2004_20H2.txt
 if exist ..\client\cmd\Reboot.vbs del ..\client\cmd\Reboot.vbs
 if exist ..\client\cmd\Shutdown.vbs del ..\client\cmd\Shutdown.vbs
 if exist ..\client\msi\nul rd /S /Q ..\client\msi
@@ -473,7 +484,6 @@ if exist ..\client\static\StaticUpdateIds-w100-15063-x86.txt del ..\client\stati
 if exist ..\client\static\StaticUpdateIds-wupre-w100-15063.txt del ..\client\static\StaticUpdateIds-wupre-w100-15063.txt
 
 rem *** Windows 10 Version 1709 stuff ***
-if exist ..\exclude\ExcludeList-w100-1709.txt del ..\exclude\ExcludeList-w100-1709.txt
 if exist ..\client\static\StaticUpdateIds-w100-16299.txt del ..\client\static\StaticUpdateIds-w100-16299.txt
 if exist ..\client\static\StaticUpdateIds-w100-16299-x64.txt del ..\client\static\StaticUpdateIds-w100-16299-x64.txt
 if exist ..\client\static\StaticUpdateIds-w100-16299-x86.txt del ..\client\static\StaticUpdateIds-w100-16299-x86.txt
@@ -483,7 +493,6 @@ if exist ..\client\static\StaticUpdateIds-w100-16299-dotnet.txt del ..\client\st
 if exist ..\client\static\StaticUpdateIds-w100-16299-dotnet4-528049.txt del ..\client\static\StaticUpdateIds-w100-16299-dotnet4-528049.txt
 
 rem *** Windows 10 Version 1803 stuff ***
-if exist ..\exclude\ExcludeList-w100-1803.txt del ..\exclude\ExcludeList-w100-1803.txt
 if exist ..\client\static\StaticUpdateIds-w100-17134.txt del ..\client\static\StaticUpdateIds-w100-17134.txt
 if exist ..\client\static\StaticUpdateIds-w100-17134-x64.txt del ..\client\static\StaticUpdateIds-w100-17134-x64.txt
 if exist ..\client\static\StaticUpdateIds-w100-17134-x86.txt del ..\client\static\StaticUpdateIds-w100-17134-x86.txt
@@ -1293,6 +1302,10 @@ for %%i in (w62-x64 w63 w63-x64 w100 w100-x64 o2k16) do (
 goto RemindDate
 
 :DownloadCore
+rem %1 = platform (w62, w62-x64, w63, w63-x64, w100, w100-x64, win, o2k13, o2k16)
+rem %2 = language
+rem %3 = architecture (x86, x64)
+rem %4 = "/skipdownload" / "/skipdynamic"
 rem *** Determine update urls for %1 %2 ***
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo.
@@ -1469,11 +1482,29 @@ if exist ..\client\md\hashes-%1-%2.txt (
 :SkipAudit
 if exist ..\client\md\hashes-%1-%2.txt del ..\client\md\hashes-%1-%2.txt
 
+set TMP_PLATFORM=%1
+if "%TMP_PLATFORM:~-4%"=="-x64" (
+  set TMP_PLATFORM=%TMP_PLATFORM:~0,-4%
+)
+
 rem *** Determine static update urls for %1 %2 ***
 if "%EXC_STATICS%"=="1" goto SkipStatics
 echo Determining static update urls for %1 %2...
 if exist ..\static\StaticDownloadLinks-%1-%2.txt copy /Y ..\static\StaticDownloadLinks-%1-%2.txt "%TEMP%\StaticDownloadLinks-%1-%2.txt" >nul
 if exist ..\static\StaticDownloadLinks-%1-%3-%2.txt copy /Y ..\static\StaticDownloadLinks-%1-%3-%2.txt "%TEMP%\StaticDownloadLinks-%1-%2.txt" >nul
+rem *** Windows 10 version specific static links ***
+if "%TMP_PLATFORM%"=="w100" (
+  if exist ..\Windows10Versions.ini (
+    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
+      if "%%j"=="%3" (
+        if /i "%%k"=="Enabled" (
+          if exist ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
+          if exist ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
+        )
+      )
+    )
+  )
+)
 if exist ..\static\custom\StaticDownloadLinks-%1-%2.txt (
   type ..\static\custom\StaticDownloadLinks-%1-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
 )
@@ -1485,37 +1516,10 @@ if not exist "%TEMP%\StaticDownloadLinks-%1-%2.txt" goto SkipStatics
 :EvalStatics
 if exist "%TEMP%\ExcludeListStatic.txt" del "%TEMP%\ExcludeListStatic.txt"
 if exist ..\exclude\custom\ExcludeListForce-all.txt copy /Y ..\exclude\custom\ExcludeListForce-all.txt "%TEMP%\ExcludeListStatic.txt" >nul
-echo %1 | %SystemRoot%\System32\find.exe /I "w63" >nul 2>&1
-if not errorlevel 1 (
+if "%TMP_PLATFORM%"=="w63" (
   if "%EXC_SP%"=="1" (
     type "..\client\static\StaticUpdateIds-w63-upd1.txt" >>"%TEMP%\ExcludeListStatic.txt"
     type "..\client\static\StaticUpdateIds-w63-upd2.txt" >>"%TEMP%\ExcludeListStatic.txt"
-  )
-)
-rem *** Windows 10 version specific exclusion ***
-set DISABLED2004=
-set DISABLED20H2=
-echo %1 | %SystemRoot%\System32\find.exe /I "w100" >nul 2>&1
-if not errorlevel 1 (
-  if exist ..\Windows10Versions.ini (
-    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-      if "%%j"=="%3" (
-        if /i "%%k"=="Disabled" (
-          if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
-          if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeListStatic.txt"
-          if "%%i"=="2004" set DISABLED2004=1
-          if "%%i"=="20H2" set DISABLED20H2=1
-        )
-      )
-    )
-    if "!DISABLED2004!"=="1" (
-      if "!DISABLED20H2!"=="1" (
-        if exist ..\exclude\ExcludeList-w100-2004_20H2.txt type ..\exclude\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeListStatic.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-2004_20H2.txt type ..\exclude\custom\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeListStatic.txt"
-      )
-    )
-    set DISABLED2004=
-    set DISABLED20H2=
   )
 )
 if exist "%TEMP%\ExcludeListStatic.txt" (
@@ -1542,11 +1546,6 @@ set PLATFORM_OFFICE=o2k13 o2k16
 rem *** Determine dynamic update urls for %1 %2 ***
 echo %TIME% - Determining dynamic update urls for %1 %2...
 call :Log "Info: Determining dynamic update URLs for %1 %2 ..."
-
-set TMP_PLATFORM=%1
-if "%TMP_PLATFORM:~-4%"=="-x64" (
-  set TMP_PLATFORM=%TMP_PLATFORM:~0,-4%
-)
 
 if not exist ..\xslt\extract-revision-and-update-ids-%TMP_PLATFORM%.xsl (
   if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
@@ -1727,27 +1726,15 @@ if "%TMP_PLATFORM%"=="w63" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
-  set DISABLED2004=
-  set DISABLED20H2=
   if exist ..\Windows10Versions.ini (
     for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
       if "%%j"=="%3" (
         if /i "%%k"=="Disabled" (
           if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
           if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-          if "%%i"=="2004" set DISABLED2004=1
-          if "%%i"=="20H2" set DISABLED20H2=1
         )
       )
     )
-    if "!DISABLED2004!"=="1" (
-      if "!DISABLED20H2!"=="1" (
-        if exist ..\exclude\ExcludeList-w100-2004_20H2.txt type ..\exclude\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeList-%1.txt"
-        if exist ..\exclude\custom\ExcludeList-w100-2004_20H2.txt type ..\exclude\custom\ExcludeList-w100-2004_20H2.txt >>"%TEMP%\ExcludeList-%1.txt"
-      )
-    )
-    set DISABLED2004=
-    set DISABLED20H2=
   )
 )
 

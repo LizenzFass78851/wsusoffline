@@ -14,111 +14,114 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.5.0)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 12.5 (b75)"
-Dim Const $title                    = $caption & " - Generator"
-Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
-Dim Const $downloadLogFile          = "download.log"
-Dim Const $runAllFile               = "RunAll.cmd"
-Dim Const $win10_vmax               = 6
-Dim Const $win10_versions           = "1507,1607,1809,1909,2004,20H2"
-Dim Const $win10_defaults           = "Enabled,Enabled,Enabled,Disabled,Enabled,Enabled"
-Dim Const $win10_ver_inifilebody    = "Windows10Versions"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.5 (b76)"
+Dim Const $title                        = $caption & " - Generator"
+Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
+Dim Const $downloadLogFile              = "download.log"
+Dim Const $runAllFile                   = "RunAll.cmd"
+Dim Const $win10_vmax                   = 5
+Dim Const $win10_versions               = "10240,14393,17763,18362,19041"
+Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1"
+Dim Const $win10_displayversions_x86    = ",,,,"
+Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,"
+Dim Const $win10_defaults               = "Enabled,Enabled,Enabled,Disabled,Enabled"
+Dim Const $win10_ver_inifilebody        = "Windows10Versions"
 
 ; Registry constants
-Dim Const $reg_key_hkcu_desktop     = "HKEY_CURRENT_USER\Control Panel\Desktop"
-Dim Const $reg_key_hkcu_winmetrics  = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
-Dim Const $reg_val_logpixels        = "LogPixels"
-Dim Const $reg_val_applieddpi       = "AppliedDPI"
+Dim Const $reg_key_hkcu_desktop         = "HKEY_CURRENT_USER\Control Panel\Desktop"
+Dim Const $reg_key_hkcu_winmetrics      = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
+Dim Const $reg_val_logpixels            = "LogPixels"
+Dim Const $reg_val_applieddpi           = "AppliedDPI"
 
 ; Message box return codes
-Dim Const $msgbox_btn_ok            = 1
-Dim Const $msgbox_btn_cancel        = 2
-Dim Const $msgbox_btn_abort         = 3
-Dim Const $msgbox_btn_retry         = 4
-Dim Const $msgbox_btn_ignore        = 5
-Dim Const $msgbox_btn_yes           = 6
-Dim Const $msgbox_btn_no            = 7
-Dim Const $msgbox_btn_tryagain      = 10
-Dim Const $msgbox_btn_continue      = 11
+Dim Const $msgbox_btn_ok                = 1
+Dim Const $msgbox_btn_cancel            = 2
+Dim Const $msgbox_btn_abort             = 3
+Dim Const $msgbox_btn_retry             = 4
+Dim Const $msgbox_btn_ignore            = 5
+Dim Const $msgbox_btn_yes               = 6
+Dim Const $msgbox_btn_no                = 7
+Dim Const $msgbox_btn_tryagain          = 10
+Dim Const $msgbox_btn_continue          = 11
 
 ; Defaults
-Dim Const $default_logpixels        = 96
+Dim Const $default_logpixels            = 96
 
 ; INI file constants
-Dim Const $ini_section_w62_x64      = "Windows Server 2012"
-Dim Const $ini_section_w63          = "Windows 8.1"
-Dim Const $ini_section_w63_x64      = "Windows Server 2012 R2"
-Dim Const $ini_section_win10_ver    = "Platforms"
-Dim Const $ini_section_o2k13        = "Office 2013"
-Dim Const $ini_section_o2k16        = "Office 2016"
-Dim Const $ini_section_iso          = "ISO Images"
-Dim Const $ini_section_usb          = "USB Images"
-Dim Const $ini_section_opts         = "Options"
-Dim Const $ini_section_inst         = "Installation"
-Dim Const $ini_section_misc         = "Miscellaneous"
-Dim Const $enabled                  = "Enabled"
-Dim Const $disabled                 = "Disabled"
-Dim Const $lang_token_glb           = "glb"
-Dim Const $lang_token_enu           = "enu"
-Dim Const $lang_token_fra           = "fra"
-Dim Const $lang_token_esn           = "esn"
-Dim Const $lang_token_jpn           = "jpn"
-Dim Const $lang_token_kor           = "kor"
-Dim Const $lang_token_rus           = "rus"
-Dim Const $lang_token_ptg           = "ptg"
-Dim Const $lang_token_ptb           = "ptb"
-Dim Const $lang_token_deu           = "deu"
-Dim Const $lang_token_nld           = "nld"
-Dim Const $lang_token_ita           = "ita"
-Dim Const $lang_token_chs           = "chs"
-Dim Const $lang_token_cht           = "cht"
-Dim Const $lang_token_plk           = "plk"
-Dim Const $lang_token_hun           = "hun"
-Dim Const $lang_token_csy           = "csy"
-Dim Const $lang_token_sve           = "sve"
-Dim Const $lang_token_trk           = "trk"
-Dim Const $lang_token_ell           = "ell"
-Dim Const $lang_token_ara           = "ara"
-Dim Const $lang_token_heb           = "heb"
-Dim Const $lang_token_dan           = "dan"
-Dim Const $lang_token_nor           = "nor"
-Dim Const $lang_token_fin           = "fin"
-Dim Const $iso_token_cd             = "single"
-Dim Const $iso_token_dvd            = "cross-platform"
-Dim Const $iso_token_skiphashes     = "skiphashes"
-Dim Const $usb_token_copy           = "copy"
-Dim Const $usb_token_path           = "path"
-Dim Const $usb_token_cleanup        = "cleanup"
-Dim Const $opts_token_excludesp     = "excludesp"
-Dim Const $opts_token_includedotnet = "includedotnet"
-Dim Const $opts_token_allowdotnet   = "allowdotnet"
-Dim Const $opts_token_seconly       = "seconly"
-Dim Const $opts_token_wddefs        = "includewddefs"
-Dim Const $opts_token_includewinglb = "includewinglb"
-Dim Const $opts_token_cleanup       = "cleanupdownloads"
-Dim Const $opts_token_verify        = "verifydownloads"
-Dim Const $misc_token_proxy         = "proxy"
-Dim Const $misc_token_wsus          = "wsus"
-Dim Const $misc_token_wsus_only     = "wsusonly"
-Dim Const $misc_token_wsus_proxy    = "wsusbyproxy"
-Dim Const $misc_token_wsus_trans    = "transferwsus"
-Dim Const $misc_token_skipsdd       = "skipsdd"
-Dim Const $misc_token_skiptz        = "skiptz"
-Dim Const $misc_token_skipdownload  = "skipdownload"
-Dim Const $misc_token_skipdynamic   = "skipdynamic"
-Dim Const $misc_token_chkver        = "checkouversion"
-Dim Const $misc_token_minimize      = "minimizeondownload"
-Dim Const $misc_token_showshutdown  = "showshutdown"
-Dim Const $misc_token_clt_wustat    = "WUStatusServer"
+Dim Const $ini_section_w62_x64          = "Windows Server 2012"
+Dim Const $ini_section_w63              = "Windows 8.1"
+Dim Const $ini_section_w63_x64          = "Windows Server 2012 R2"
+Dim Const $ini_section_win10_ver        = "Platforms"
+Dim Const $ini_section_o2k13            = "Office 2013"
+Dim Const $ini_section_o2k16            = "Office 2016"
+Dim Const $ini_section_iso              = "ISO Images"
+Dim Const $ini_section_usb              = "USB Images"
+Dim Const $ini_section_opts             = "Options"
+Dim Const $ini_section_inst             = "Installation"
+Dim Const $ini_section_misc             = "Miscellaneous"
+Dim Const $enabled                      = "Enabled"
+Dim Const $disabled                     = "Disabled"
+Dim Const $lang_token_glb               = "glb"
+Dim Const $lang_token_enu               = "enu"
+Dim Const $lang_token_fra               = "fra"
+Dim Const $lang_token_esn               = "esn"
+Dim Const $lang_token_jpn               = "jpn"
+Dim Const $lang_token_kor               = "kor"
+Dim Const $lang_token_rus               = "rus"
+Dim Const $lang_token_ptg               = "ptg"
+Dim Const $lang_token_ptb               = "ptb"
+Dim Const $lang_token_deu               = "deu"
+Dim Const $lang_token_nld               = "nld"
+Dim Const $lang_token_ita               = "ita"
+Dim Const $lang_token_chs               = "chs"
+Dim Const $lang_token_cht               = "cht"
+Dim Const $lang_token_plk               = "plk"
+Dim Const $lang_token_hun               = "hun"
+Dim Const $lang_token_csy               = "csy"
+Dim Const $lang_token_sve               = "sve"
+Dim Const $lang_token_trk               = "trk"
+Dim Const $lang_token_ell               = "ell"
+Dim Const $lang_token_ara               = "ara"
+Dim Const $lang_token_heb               = "heb"
+Dim Const $lang_token_dan               = "dan"
+Dim Const $lang_token_nor               = "nor"
+Dim Const $lang_token_fin               = "fin"
+Dim Const $iso_token_cd                 = "single"
+Dim Const $iso_token_dvd                = "cross-platform"
+Dim Const $iso_token_skiphashes         = "skiphashes"
+Dim Const $usb_token_copy               = "copy"
+Dim Const $usb_token_path               = "path"
+Dim Const $usb_token_cleanup            = "cleanup"
+Dim Const $opts_token_excludesp         = "excludesp"
+Dim Const $opts_token_includedotnet     = "includedotnet"
+Dim Const $opts_token_allowdotnet       = "allowdotnet"
+Dim Const $opts_token_seconly           = "seconly"
+Dim Const $opts_token_wddefs            = "includewddefs"
+Dim Const $opts_token_includewinglb     = "includewinglb"
+Dim Const $opts_token_cleanup           = "cleanupdownloads"
+Dim Const $opts_token_verify            = "verifydownloads"
+Dim Const $misc_token_proxy             = "proxy"
+Dim Const $misc_token_wsus              = "wsus"
+Dim Const $misc_token_wsus_only         = "wsusonly"
+Dim Const $misc_token_wsus_proxy        = "wsusbyproxy"
+Dim Const $misc_token_wsus_trans        = "transferwsus"
+Dim Const $misc_token_skipsdd           = "skipsdd"
+Dim Const $misc_token_skiptz            = "skiptz"
+Dim Const $misc_token_skipdownload      = "skipdownload"
+Dim Const $misc_token_skipdynamic       = "skipdynamic"
+Dim Const $misc_token_chkver            = "checkouversion"
+Dim Const $misc_token_minimize          = "minimizeondownload"
+Dim Const $misc_token_showshutdown      = "showshutdown"
+Dim Const $misc_token_clt_wustat        = "WUStatusServer"
 
 ; Paths
-Dim Const $path_max_length          = 192
-Dim Const $path_invalid_chars       = "!%&()^+,;="
-Dim Const $paths_rel_structure      = "\bin\,\client\bin\,\client\cmd\,\client\exclude\,\client\opt\,\client\static\,\cmd\,\exclude\,\iso\,\log\,\static\,\xslt\"
-Dim Const $path_rel_builddate       = "\client\builddate.txt"
-Dim Const $path_rel_catalogdate     = "\client\catalogdate.txt"
-Dim Const $path_rel_clientini       = "\client\UpdateInstaller.ini"
-Dim Const $path_rel_win_glb         = "\client\win\glb"
+Dim Const $path_max_length              = 192
+Dim Const $path_invalid_chars           = "!%&()^+,;="
+Dim Const $paths_rel_structure          = "\bin\,\client\bin\,\client\cmd\,\client\exclude\,\client\opt\,\client\static\,\cmd\,\exclude\,\iso\,\log\,\static\,\xslt\"
+Dim Const $path_rel_builddate           = "\client\builddate.txt"
+Dim Const $path_rel_catalogdate         = "\client\catalogdate.txt"
+Dim Const $path_rel_clientini           = "\client\UpdateInstaller.ini"
+Dim Const $path_rel_win_glb             = "\client\win\glb"
 
 Dim $maindlg, $inifilename, $tabitemfocused, $dotnet, $seconly, $wddefs, $verifydownloads, $cdiso, $dvdiso, $buildlbl
 Dim $usbcopy, $usbpath, $usbfsf, $usbclean, $imageonly, $scripting, $shutdown, $btn_start, $btn_proxy, $btn_wsus, $btn_exit, $proxy, $proxypwd, $wsus, $gergui, $dummy, $i
@@ -151,6 +154,9 @@ Dim $w62_x64_glb                        ; Windows Server 2012 (global)
 Dim $w63_glb, $w63_x64_glb              ; Windows 8.1 / Server 2012 R2 (global)
 Dim $win10_ver_inifilename              ; Windows 10 ini file name
 Dim $win10_ver_arr[$win10_vmax + 1]     ; Windows 10 / Server 2016/2019
+Dim $win10_dsp_arr[$win10_vmax + 1]     ; Windows 10 / Server 2016/2019
+Dim $win10_dsp_x86_arr[$win10_vmax + 1] ; Windows 10 / Server 2016/2019
+Dim $win10_dsp_x64_arr[$win10_vmax + 1] ; Windows 10 / Server 2016/2019
 Dim $win10_def_arr[$win10_vmax + 1]     ; Windows 10 / Server 2016/2019
 Dim $win10_checkboxes_x86[$win10_vmax]  ; Windows 10 x86
 Dim $win10_checkboxes_x64[$win10_vmax]  ; Windows 10 x64 / Server 2016/2019
@@ -1039,6 +1045,9 @@ $tabitemfocused = GuiCtrlCreateTabItem("Windows")
 
 ;  Windows 10 / Server 2016/2019 group
 $win10_ver_arr = StringSplit($win10_versions, ",")
+$win10_dsp_arr = StringSplit($win10_displayversions, ",")
+$win10_dsp_x86_arr = StringSplit($win10_displayversions_x86, ",")
+$win10_dsp_x64_arr = StringSplit($win10_displayversions_x64, ",")
 $win10_def_arr = StringSplit($win10_defaults, ",")
 
 ;  Windows 10 x86
@@ -1048,7 +1057,11 @@ GUICtrlCreateGroup("Windows 10 x86 versions", $txtxpos, $txtypos, $groupwidth / 
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = 3 * $txtxoffset
 For $i = 0 To $win10_ver_arr[0] - 1
-  $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_ver_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $txtwidth, $txtheight)
+  If $win10_dsp_x86_arr[$i+1] = "" Then
+    $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+  Else
+    $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1] & "/" & $win10_dsp_x86_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+  EndIf
   If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", $win10_def_arr[$i+1]) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
@@ -1063,14 +1076,11 @@ GUICtrlCreateGroup("Windows 10 x64 versions", $txtxpos, $txtypos, $groupwidth / 
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = $groupwidth / 2 + 3 * $txtxoffset
 For $i = 0 To $win10_ver_arr[0] - 1
-  Switch $win10_ver_arr[$i+1]
-    Case "1607" 
-      $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_ver_arr[$i+1] & " (Server 2016)", $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-    Case "1809" 
-      $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_ver_arr[$i+1] & " (Server 2019)", $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-    Case Else
-      $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_ver_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-  EndSwitch
+  If $win10_dsp_x64_arr[$i+1] = "" Then
+    $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+  Else
+    $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1] & "/" & $win10_dsp_x64_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+  EndIf
   If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", $win10_def_arr[$i+1]) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
