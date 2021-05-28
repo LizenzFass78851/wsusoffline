@@ -54,22 +54,19 @@
 #     "here-string". The function name_to_description reads the table in
 #     a loop and returns the description, if the specified name was found.
 
-# ========== Version specific configuration ===============================
+# ========== Configuration ================================================
 
 # This is the configuration file for the development branch 11.9.x ESR
 # (extended support release) of WSUS Offline Update.
 #
-# After the removal of Office 2010, the only supported release is:
-# - WSUS Offline Update, Community Edition 11.9.7-ESR
-#
-# The development branch 11.9 ESR was created to support:
+# This branch was created to support:
 # - Windows Server 2008
 # - Windows 7 / Server 2008 R2
 #
-# The current version WSUS Offline Update 12.0 or later should be used
-# for all other updates. New features like the fine selection of Windows
-# 10 versions are only added to the current (master/trunk) versions of
-# WSUS Offline Update.
+# WSUS Offline Update 12.0 and later should be used for all other
+# updates. New features like the fine selection of Windows 10 versions
+# are only added to the current (master/trunk) versions of WSUS Offline
+# Update.
 
 # Supported updates
 #
@@ -115,8 +112,6 @@ list_all_win_x86=( "w60" "w61" "w63" "w100" )
 list_all_win_x64=( "w60-x64" "w61-x64" "w62-x64" "w63-x64" "w100-x64" )
 list_all_ofc=( "o2k13-x64" "o2k16-x64" )
 list_all_ofc_x86=( "o2k13" "o2k16" )
-
-# ========== Configuration of languages and optional downloads ============
 
 # Supported Languages
 #

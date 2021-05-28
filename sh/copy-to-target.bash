@@ -240,8 +240,7 @@ declare -A option_values=(
     [wddefs]="disabled"
 )
 
-# Exclude lists for service packs (the Windows script CopyToTarget.cmd
-# only uses the first file).
+# Exclude lists for service packs
 service_packs=(
     "../exclude/ExcludeList-SPs.txt"
     "../exclude/custom/ExcludeList-SPs.txt"

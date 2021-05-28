@@ -222,6 +222,7 @@ function rebuild_superseded_updates ()
     local -a excludelist_overrides=()
     local -a excludelist_overrides_seconly=()
     local current_file=""
+    local line=""
 
     # Delete existing files, just to be sure
     rm -f "../exclude/ExcludeList-Linux-superseded.txt"
@@ -303,9 +304,31 @@ function rebuild_superseded_updates ()
     sort_in_place "${temp_dir}/ExcludeList-superseded-all.txt"
 
     # *** Apply ExcludeList-superseded-exclude.txt ***
+    #
+    # The last step is the removal of some superseded updates, which
+    # are still needed for the installation. This is done by compiling
+    # several "override" files, which typically contain kb numbers only.
+    #
+    # kb2975061 is defined in the file StaticUpdateIds-w63-upd1.txt,
+    # but it seems to be superseded and may be missing
+    # during installation. Therefore, the contents of
+    # StaticUpdateIds-w63-upd1.txt and StaticUpdateIds-w63-upd2.txt are
+    # removed from the lists of superseded updates.
+    #
+    # The kb numbers should be restricted to Windows 8.1.
+    cat_existing_files ../client/static/StaticUpdateIds-w63-upd1.txt \
+                       ../client/static/StaticUpdateIds-w63-upd2.txt \
+    | grep -i -e "^kb"                                               \
+    | while IFS=$'\r\n' read -r line
+      do
+          line="windows8.1-${line}"
+          echo "${line}"
+      done > "${temp_dir}/w63_excludes.txt"
+
     excludelist_overrides+=(
         ../exclude/ExcludeList-superseded-exclude.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
+        "${temp_dir}/w63_excludes.txt"
     )
 
     # TODO: The files StaticUpdateIds-w60*-seconly.txt could also be
@@ -325,7 +348,7 @@ function rebuild_superseded_updates ()
     # -- https://techcommunity.microsoft.com/t5/windows-blog-archive/more-on-windows-7-and-windows-8-1-servicing-changes/ba-p/166783
     #
     shopt -s nullglob
-    excludelist_overrides_seconly=(
+    excludelist_overrides_seconly+=(
         ../exclude/ExcludeList-superseded-exclude.txt
         ../exclude/ExcludeList-superseded-exclude-seconly.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
@@ -336,6 +359,7 @@ function rebuild_superseded_updates ()
         ../client/static/custom/StaticUpdateIds-w61*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w62*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w63*-seconly.txt
+        "${temp_dir}/w63_excludes.txt"
     )
     shopt -u nullglob
 
@@ -348,21 +372,21 @@ function rebuild_superseded_updates ()
     # which usually implies a "natural" number sort. This is, of course,
     # a bad idea, because it means, that all URLs are broken down into
     # small pieces, and then the pieces are compared to each other.
-    apply_exclude_lists \
-        "${temp_dir}/ExcludeList-superseded-all.txt" \
-        "../exclude/ExcludeList-Linux-superseded.txt" \
-        "${temp_dir}/ExcludeList-superseded-exclude.txt" \
+    apply_exclude_lists                                   \
+        "${temp_dir}/ExcludeList-superseded-all.txt"      \
+        "../exclude/ExcludeList-Linux-superseded.txt"     \
+        "${temp_dir}/ExcludeList-superseded-exclude.txt"  \
         "${excludelist_overrides[@]}"
     sort_in_place "../exclude/ExcludeList-Linux-superseded.txt"
 
-    apply_exclude_lists \
-        "${temp_dir}/ExcludeList-superseded-all.txt" \
-        "../exclude/ExcludeList-Linux-superseded-seconly.txt" \
-        "${temp_dir}/ExcludeList-superseded-exclude-seconly.txt" \
+    apply_exclude_lists                                           \
+        "${temp_dir}/ExcludeList-superseded-all.txt"              \
+        "../exclude/ExcludeList-Linux-superseded-seconly.txt"     \
+        "${temp_dir}/ExcludeList-superseded-exclude-seconly.txt"  \
         "${excludelist_overrides_seconly[@]}"
     sort_in_place "../exclude/ExcludeList-Linux-superseded-seconly.txt"
 
-    # ========== Postprocessing ===========================================
+    # ========== Post-processing ==========================================
 
     # After recalculating superseded updates, all dynamic updates must
     # be recalculated as well.

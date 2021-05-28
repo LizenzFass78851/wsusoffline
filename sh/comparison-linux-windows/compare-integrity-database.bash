@@ -154,8 +154,12 @@ create_diff_files "${source_md_linux}" "${temp_md_linux}"
 
 echo "Comparing diff files..."
 diff --unified --color=auto --report-identical-files "${temp_md_windows}" "${temp_md_linux}"
+# The script will exit at this point, if there are any differences,
+# because the shell option errexit is set.
 
 echo "Cleaning up temporary directories..."
 rm -rf "${temp_md_windows}"
 rm -rf "${temp_md_linux}"
+
+echo "All done, normal exit..."
 exit 0

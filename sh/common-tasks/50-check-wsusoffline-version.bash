@@ -516,7 +516,7 @@ function wsusoffline_self_update ()
     then
         log_info_message "The most recent version of WSUS Offline Update was installed successfully"
 
-        # Postprocessing
+        # Post-processing
         check_custom_static_links
         normalize_file_permissions
         reschedule_updates_after_wou_update

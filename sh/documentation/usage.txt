@@ -146,7 +146,7 @@ EXAMPLES
     and Spanish, you could use:
 
     ./download-updates.bash w63 fra,esn -includesp -includecpp \
-                -includedotnet -includewddefs8
+                                        -includedotnet -includewddefs8
 
     To get the same results with the Windows script DownloadUpdates.cmd,
     you need to run four additional scripts first:

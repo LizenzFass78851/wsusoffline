@@ -51,7 +51,7 @@ function remove_obsolete_scripts ()
     local pathname=""
     local filename=""
 
-    # Obsolete files in version 1.16
+    # Obsolete files in Linux download scripts, version 1.16
     #
     # The file 71-make-shapshot.bash was spelled wrong, but this didn't
     # get noticed for a long time. But screen fonts have a large x-height
@@ -68,8 +68,8 @@ function remove_obsolete_scripts ()
     # ./available-tasks/71-make-shapshot.bash
     # ./available-tasks/71-make-snapshot.bash
     #
-    # This was finally solved in the Community Editions 11.9.1 and
-    # 12.0. The old file, if still present, can be deleted:
+    # This was finally solved in WSUS Offline Update, Community Editions
+    # 11.9.1 and 12.0. The old file, if still present, can be deleted:
 
     old_name="71-make-shapshot.bash"
     rm -f "./available-tasks/${old_name}"
@@ -87,7 +87,7 @@ function remove_obsolete_scripts ()
         rmdir "./${old_name}"
     fi
 
-    # Obsolete files in version 1.19.1-ESR
+    # Obsolete files in Linux download scripts, version 1.19.1-ESR
     #
     # Version 1.19.1-ESR of the Linux download scripts was meant for WSUS
     # Offline Update, version 11.9.1 ESR. It disabled all self-updates,
@@ -114,7 +114,7 @@ function remove_obsolete_scripts ()
         rm -f ../timestamps/check-sh-version.txt
     fi
 
-    # Obsolete files in Linux download scripts 1.19.4-ESR and 2.3
+    # Obsolete files in Linux download scripts, version 1.19.4-ESR and 2.3
     #
     # The archives of the Sysinternals utilities are now downloaded to
     # the directory ../bin, instead of ../cache
@@ -138,10 +138,10 @@ function remove_obsolete_scripts ()
         "./download-updates-tasks/30-remove-default-languages.bash"
     )
 
-    # Obsolete files in Linux download scripts 1.20-ESR and 2.4
+    # Obsolete files in Linux download scripts, version 1.20-ESR and 2.4
     #
-    # The private file ./libraries/locales.txt is not necessary
-    # anymore. The file ../exclude/ExcludeList-locales.txt is used
+    # The private file ./libraries/locales.txt is no longer needed,
+    # because the file ../exclude/ExcludeList-locales.txt can be used
     # instead.
     file_list+=( "./libraries/locales.txt" )
 
@@ -173,14 +173,15 @@ function remove_obsolete_scripts ()
     then
         for pathname in "${file_list[@]}"
         do
-            if ! grep -F -q -e "-c md5,sha1,sha256 -b" \
-                            -e "-c sha1 -b"            \
-                            "${pathname}"
+            filename="${pathname##*/}"
+            if grep -F -q -e "-c md5,sha1,sha256 -b" \
+                          -e "-c sha1 -b"            \
+                             "${pathname}"
             then
-                log_info_message "Deleting old style hashdeep file ${pathname}"
-                rm "${pathname}"
+                log_debug_message "Hashdeep file ${filename} is already in new format"
             else
-                log_debug_message "Hashdeep file ${pathname} is already in new format"
+                log_info_message "Deleting old style hashdeep file ${filename}"
+                rm "${pathname}"
             fi
         done
     fi

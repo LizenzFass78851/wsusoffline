@@ -1,3 +1,30 @@
+Linux download scripts, version 1.20-ESR (beta-2)
+
+   Release date: 2021-05-27
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.8 (b75)
+
+   Bugfixes
+
+    * The Security-only Safety Guard did not work with GitLab
+
+   Internal Changes
+
+    * Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup
+      will be excluded from supersedance checks
+
+    * The file ../client/exclude/ExcludeList.txt can be updated from
+      GitLab
+
+    * The script create-iso-image.bash can handle filter lists with DOS
+      line endings
+
+   Removed Features
+
+    * Support removed for Windows 10, version 1803
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 1.20-ESR (beta-1)
 
    Release date: 2021-03-05

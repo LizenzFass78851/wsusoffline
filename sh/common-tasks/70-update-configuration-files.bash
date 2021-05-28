@@ -36,6 +36,7 @@
 # URLs for the "esr-11.9" development branch
 excludelist_superseded_exclude_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude.txt"
 excludelist_superseded_exclude_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList-superseded-exclude-seconly.txt"
+excludelist_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeList.txt"
 hidelist_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/HideList-seconly.txt"
 static_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadFiles-modified.txt"
 exclude_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/ExcludeDownloadFiles-modified.txt"
@@ -254,7 +255,6 @@ function remove_obsolete_files ()
     #
     # Removed in the Community Editions 11.9.7-ESR and 12.4
     file_list+=(
-        ../exclude/ExcludeList-w100-1709.txt
         ../client/static/StaticUpdateIds-w100-16299.txt
         ../client/static/StaticUpdateIds-w100-16299-x64.txt
         ../client/static/StaticUpdateIds-w100-16299-x86.txt
@@ -268,7 +268,6 @@ function remove_obsolete_files ()
     #
     # Removed in the Community Editions 11.9.8-ESR and 12.5
     file_list+=(
-        ../exclude/ExcludeList-w100-1803.txt
         ../client/static/StaticUpdateIds-w100-17134.txt
         ../client/static/StaticUpdateIds-w100-17134-x64.txt
         ../client/static/StaticUpdateIds-w100-17134-x86.txt
@@ -455,6 +454,7 @@ function update_configuration_files ()
     # need to be recalculated, if these configuration files change.
     download_from_gitlab "../exclude" "${excludelist_superseded_exclude_url}"
     download_from_gitlab "../exclude" "${excludelist_superseded_exclude_seconly_url}"
+    download_from_gitlab "../client/exclude" "${excludelist_url}"
 
     # The file ../client/exclude/HideList-seconly.txt was introduced
     # in WSUS Offline Update version 10.9. It replaces the former file

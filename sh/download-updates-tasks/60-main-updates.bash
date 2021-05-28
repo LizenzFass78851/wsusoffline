@@ -184,11 +184,11 @@ function process_main_update ()
         ;;
     esac
 
-    # The download results are influenced by the options to include
-    # Service Packs and to prefer security-only updates. If these options
-    # change, then the affected downloads should be reevaluated. Including
-    # the values of these two options in the name of the timestamp file
-    # is a simple way to achieve that much.
+    # The download results are influenced by the options to
+    # include Service Packs and to prefer security-only updates. If
+    # these options change, then the affected downloads should be
+    # re-evaluated. Including the values of these two options in the
+    # name of the timestamp file is a simple way to achieve that much.
     #
     # Windows Server 2008 (w60, w60-x64) now uses the same distinction
     # in security-only updates and update rollups as Windows 7, 8 and 8.1.
@@ -626,8 +626,7 @@ function calculate_dynamic_updates ()
         )
     fi
 
-    # The option "service packs" is applied to all Windows and Office
-    # versions.
+    # The option -includesp is applied to all Windows and Office versions.
     if [[ "${include_service_packs}" == disabled ]]
     then
         exclude_lists_dynamic+=( "${service_packs[@]}" )

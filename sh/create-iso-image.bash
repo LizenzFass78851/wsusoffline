@@ -175,9 +175,7 @@ declare -A option_values=(
     [hashes]="disabled"
 )
 
-# Exclude lists for service packs (the Windows script CreateISOImage.cmd
-# in WSUS Offline Update, Community Edition 11.9.8-ESR, only uses the
-# first file).
+# Exclude lists for service packs
 service_packs=(
     "../exclude/ExcludeList-SPs.txt"
     "../exclude/custom/ExcludeList-SPs.txt"
@@ -527,8 +525,16 @@ function create_filter_file ()
 
     # Copy the selected file ExcludeListISO-*.txt
     log_info_message "Copying ${selected_excludelist} ..."
+    
     # Remove empty lines and comments
-    grep -v -e "^$" -e "^#" "${selected_excludelist}" >> "${filter_file}"
+    #
+    # Carriage return must be removed first, because git may change all
+    # text files to DOS line-endings with a hidden file .gitattributes,
+    # and lines are not recognized as empty, if they still contain
+    # carriage returns.
+    dos_to_unix < "${selected_excludelist}" \
+    | grep -v -e "^$" -e "^#"               \
+    >> "${filter_file}"
 
     # Remove service packs, if the option -includesp was not used
     if [[ "${option_values[sp]}" == "enabled" ]]

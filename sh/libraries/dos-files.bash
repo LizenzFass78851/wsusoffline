@@ -67,6 +67,11 @@ function grep_dos ()
 {
     # Note: To get the result code of grep, the shell option pipefail
     # must be set.
+    #
+    # This does not work to filter empty lines with DOS line-endings,
+    # because the lines will not be recognized as empty, if they still
+    # contain carriage returns. In this case, carriage returns must be
+    # removed first, before passing the results to grep.
     grep "$@" | tr -d '\r'
 }
 

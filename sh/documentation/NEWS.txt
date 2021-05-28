@@ -1,3 +1,64 @@
+NEWS for the Linux download scripts, version 1.20-ESR (beta-2)
+
+   Release date: 2021-05-27
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.8 (b75)
+
+   This is the second beta version of the Linux download scripts,
+   version 1.20-ESR, to keep up with the changes in WSUS Offline Update,
+   Community Edition 11.9.8 (b75).
+
+   Bugfixes
+
+    * The Security-only Safety Guard did not work with GitLab
+
+      If security-only downloads are selected, then the full update
+      rollups must be excluded from both download and installation. This
+      requires a manual configuration, because incremental security-only
+      updates and cumulative update rollups cannot be distinguished
+      automatically.
+
+      The function seconly_safety_guard tries to make sure, that
+      several configuration files in the directories client/static and
+      client/exclude have been updated after the last official patch day;
+      otherwise the download will be postponed.
+
+      Previously, the file modification date of these files would be
+      compared to the current date. This worked well with Trac/svn. It
+      does not work anymore with GitLab, because GitLab does not set the
+      Last-Modified header for files, which are extracted from the version
+      control system. Therefore, newly downloaded files will always have
+      the file modification date set to the current date and time.
+
+      The Security-only Safety Guard now searches literally for the
+      expected month name in the configuration files.
+
+   Internal Changes
+
+    * Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup
+      will be excluded from supersedance checks
+
+    * The file ../client/exclude/ExcludeList.txt can be updated from
+      GitLab
+
+    * The script create-iso-image.bash can handle filter lists with DOS
+      line endings
+
+      The version control system git may unexpectedly change all line
+      endings of plain text files from UNIX to DOS with a hidden file
+      .gitattributes.
+
+   Removed Features
+
+    * Support removed for Windows 10, version 1803
+
+      This removes seven files from the directory ../client/static/. These
+      files are not immediately deleted, though: In the Linux download
+      scripts, the removal of obsolete files and the retrieval of new
+      files are only run for release versions of WSUS Offline Update.
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 1.20-ESR (beta-1)
 
    Release date: 2021-03-05
