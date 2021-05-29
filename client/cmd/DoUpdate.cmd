@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5 (b76r2)
+set WSUSOFFLINE_VERSION=12.5 (b78)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1816,41 +1816,87 @@ if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 :SkipWuPre
-if "%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%"=="10.0.18362" goto DoBuildUpgrade
-if "%DO_UPGRADES%"=="/upgradebuilds" (goto DoBuildUpgrade) else (goto ListMissingIds)
 
-:DoBuildUpgrade
-if exist ..\static\StaticUpdateIds-BuildUpgrades.txt (
-  echo Checking for feature upgrades via enablement package...
-  for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
-    if "%OS_VER_BUILD%"=="%%a" (
-      if %OS_VER_REVIS% GEQ %%b (
-        rem ready to do the update
-        echo Performing feature upgrade from %%a to %%d...
-        call :Log "Info: Performing feature upgrade from %%a to %%d"
-        echo %%e>>"%TEMP%\MissingUpdateIds.txt"
-      ) else (
-        rem need to do updates before
-        echo Preparing feature upgrade from %%a to %%d...
-        call :Log "Info: Preparing feature upgrade from %%a to %%d"
-        echo %%c>>"%TEMP%\MissingUpdateIds.txt"
-      )
-      call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
-      call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
-      set ERR_LEVEL=!errorlevel!
-      rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-      if "!ERR_LEVEL!"=="3010" (
-        set REBOOT_REQUIRED=1
-      ) else if "!ERR_LEVEL!"=="3011" (
-        set RECALL_REQUIRED=1
-      ) else if "!ERR_LEVEL!" NEQ "0" (
-        goto InstError
-      )
-      rem FIXME (b69)
-      set RECALL_REQUIRED=1
-    )
+
+rem *** Feature upgrades via enablement package ***
+rem supported on Windows 10 only
+if "%OS_VER_MAJOR%.%OS_VER_MINOR%" NEQ "10.0" goto SkipBuildUpgrade
+rem Windows 10 Version 1903 is out of support, force upgrade to 1909
+if "%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%"=="10.0.18362" goto CheckBuildUpgrade
+
+if "%DO_UPGRADES%"=="/upgradebuilds" (goto CheckBuildUpgrade) else (goto SkipBuildUpgrade)
+
+:CheckBuildUpgrade
+if not exist ..\static\StaticUpdateIds-BuildUpgrades.txt goto SkipBuildUpgrade
+echo Checking for feature upgrades via enablement package...
+set WOU_BUILDUPGRADE_OLDBUILD=
+set WOU_BUILDUPGRADE_MINREVIS=
+set WOU_BUILDUPGRADE_PREUPD=
+set WOU_BUILDUPGRADE_NEWBUILD=
+set WOU_BUILDUPGRADE_EPKGID=
+for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
+  if "%OS_VER_BUILD%"=="%%a" (
+    set WOU_BUILDUPGRADE_OLDBUILD=%%a
+    set WOU_BUILDUPGRADE_MINREVIS=%%b
+    set WOU_BUILDUPGRADE_PREUPD=%%c
+    set WOU_BUILDUPGRADE_NEWBUILD=%%d
+    set WOU_BUILDUPGRADE_EPKGID=%%e
   )
 )
+if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipBuildUpgrade
+if "%WOU_BUILDUPGRADE_MINREVIS%"=="" goto SkipBuildUpgrade
+if "%WOU_BUILDUPGRADE_PREUPD%"=="" goto SkipBuildUpgrade
+if "%WOU_BUILDUPGRADE_NEWBUILD%"=="" goto SkipBuildUpgrade
+if "%WOU_BUILDUPGRADE_EPKGID%"=="" goto SkipBuildUpgrade
+
+if %OS_VER_REVIS% GEQ %WOU_BUILDUPGRADE_MINREVIS% goto PerformBuildUpgrade
+
+:PrepareBuildUpgrade
+if exist %SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt goto SkipBuildUpgrade
+echo. >%SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt
+echo Preparing feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD%...
+call :Log "Info: Preparing feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD%"
+echo %WOU_BUILDUPGRADE_PREUPD%>"%TEMP%\MissingUpdateIds.txt"
+call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
+)
+goto BuildUpgradeComplete
+
+:PerformBuildUpgrade
+if exist %SystemRoot%\Temp\wou_buildupgrade_tried.txt goto SkipBuildUpgrade
+echo. >%SystemRoot%\Temp\wou_buildupgrade_tried.txt
+echo Performing feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD%...
+call :Log "Info: Performing feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD%"
+echo %WOU_BUILDUPGRADE_EPKGID%>>"%TEMP%\MissingUpdateIds.txt"
+call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
+set ERR_LEVEL=%errorlevel%
+rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
+) else if "%ERR_LEVEL%" NEQ "0" (
+  goto InstError
+)
+goto BuildUpgradeComplete
+:BuildUpgradeComplete
+rem FIXME (b69)
+set RECALL_REQUIRED=1
+set WOU_BUILDUPGRADE_OLDBUILD=
+set WOU_BUILDUPGRADE_MINREVIS=
+set WOU_BUILDUPGRADE_PREUPD=
+set WOU_BUILDUPGRADE_NEWBUILD=
+set WOU_BUILDUPGRADE_EPKGID=
+:SkipBuildUpgrade
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 
@@ -2019,6 +2065,8 @@ if exist %SystemRoot%\Temp\wou_net4_tried.txt del %SystemRoot%\Temp\wou_net4_tri
 if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt del %SystemRoot%\Temp\wou_dotnet5_tried.txt
 if exist %SystemRoot%\Temp\wou_wmf_tried.txt del %SystemRoot%\Temp\wou_wmf_tried.txt
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt del %SystemRoot%\Temp\wou_wupre_tried.txt
+if exist %SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt del %SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt
+if exist %SystemRoot%\Temp\wou_buildupgrade_tried.txt del %SystemRoot%\Temp\wou_buildupgrade_tried.txt
 if exist "%TEMP%\UpdateInstaller.ini" del "%TEMP%\UpdateInstaller.ini"
 call :CleanupPwrCfg
 if "%USERNAME%"=="WOUTempAdmin" (
