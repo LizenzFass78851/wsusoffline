@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.5.0)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5 (b76) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5 (b76r2) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -88,7 +88,7 @@ Dim Const $path_rel_silverlight       = "\win\glb\Silverlight*.exe"
 Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
-Dim Const $path_rel_w100_19043_x86    = "\w100\glb\windows10.0-kb5000736-x86*."
+Dim Const $path_rel_w100_19043_x86    = "\w100\glb\windows10.0-kb5000736-x86*.*"
 Dim Const $path_rel_w100_19043_x64    = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
