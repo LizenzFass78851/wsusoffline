@@ -1775,7 +1775,7 @@ Community Edition 11.9.7 -- 06.12.2020
 - Replaced superseded October 2020 Servicing stack update (KB4577670) by November 2020 Servicing stack update (KB4586863) for Windows 10 Version 1903 and 1909 (Thanks to "aker")
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
-Community Edition 11.9.8 -- ??.??.????
+Community Edition 11.9.8 -- 30.05.2021
 - NOTE: The directories ".\client\dotnet\x86-glb", ".\client\dotnet\x64-glb" and ".\client\ofc" are not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 and 1909 since Microsoft discontinued support for version 1903 on December 12th, 2020; please use WSUS Offline Update version 12.x for updating Windows 10 version 1909
 - NOTE: Support removed for Windows 10 version 1803 since Microsoft discontinued support for it on May 11th, 2021
@@ -1802,3 +1802,4 @@ Community Edition 11.9.8 -- ??.??.????
 - Fix: w60 and w61 Windows Update Agent (WUA) started to support SHA2-only signed wsusscn2.cab starting from 2020-01, WUA will be updated to at least this version before attempting to perform dynamic update search (Thanks to "DK3 and "aker")
 - Fix: Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup will be excluded from supersedance checks
 - Fix: "ActiveTimeBias" is not set, if "RealTimeIsUniversal" is set (Thanks to "Gerby")
+--------------------------------------------------------------------------------
