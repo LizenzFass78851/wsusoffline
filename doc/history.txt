@@ -1784,7 +1784,7 @@ Community Edition 12.4 -- 06.12.2020
 - Replaced superseded September 2020 Servicing stack update (KB4577266) by November 2020 Servicing stack update (KB4586864) for Windows 10 Version 2004 (Thanks to "aker")
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
-Community Edition 12.5 -- ??.06.2021
+Community Edition 12.5 -- 30.05.2021
 - NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
 - NOTE: Support removed for Windows 10 version 1803 since Microsoft discontinued support for it on May 11th, 2021
@@ -1817,3 +1817,4 @@ Community Edition 12.5 -- ??.06.2021
 - Fix: ActivateAria2Downloads.cmd did not handle the "/reload" command properly (Thanks to "Dmytro Borys")
 - Fix: Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup will be excluded from supersedance checks
 - Fix: "ActiveTimeBias" is not set, if "RealTimeIsUniversal" is set (Thanks to "Gerby")
+--------------------------------------------------------------------------------
