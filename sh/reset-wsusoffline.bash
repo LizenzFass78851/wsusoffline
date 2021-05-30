@@ -50,9 +50,11 @@ cd "$(dirname "$(readlink -f "$0")")" || exit 1
 printf '%s\n' "Create a list of automatically created files..."
 
 # Setting files
+#
+# The Windows 10 versions file should not be deleted, because the download
+# script may need it.
 file_list+=(
     ./update-generator.ini
-    ./w100-versions.ini
 )
 
 # Cached files

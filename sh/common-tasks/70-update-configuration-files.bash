@@ -321,7 +321,6 @@ function remove_obsolete_files ()
     #
     # Removed in the Community Editions 11.9.7-ESR and 12.4
     file_list+=(
-        ../exclude/ExcludeList-w100-1709.txt
         ../client/static/StaticUpdateIds-w100-16299.txt
         ../client/static/StaticUpdateIds-w100-16299-x64.txt
         ../client/static/StaticUpdateIds-w100-16299-x86.txt
@@ -335,7 +334,6 @@ function remove_obsolete_files ()
     #
     # Removed in the Community Editions 11.9.8-ESR and 12.5
     file_list+=(
-        ../exclude/ExcludeList-w100-1803.txt
         ../client/static/StaticUpdateIds-w100-17134.txt
         ../client/static/StaticUpdateIds-w100-17134-x64.txt
         ../client/static/StaticUpdateIds-w100-17134-x86.txt
@@ -343,6 +341,24 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-servicing-w100-17134.txt
         ../client/static/StaticUpdateIds-w100-17134-dotnet.txt
         ../client/static/StaticUpdateIds-w100-17134-dotnet4-528049.txt
+    )
+
+    # *** Refactoring of Windows 10 downloads ***
+    #
+    # All Windows 10 version-specific exclude lists were removed in the
+    # Community Edition 12.5 (b76)
+    file_list+=(
+        ../exclude/ExcludeList-w100-1507.txt
+        ../exclude/ExcludeList-w100-1607.txt
+        ../exclude/ExcludeList-w100-1709.txt
+        ../exclude/ExcludeList-w100-1803.txt
+        ../exclude/ExcludeList-w100-1809.txt
+        ../exclude/ExcludeList-w100-1903.txt
+        ../exclude/ExcludeList-w100-1909.txt
+        ../exclude/ExcludeList-w100-1903_1909.txt
+        ../exclude/ExcludeList-w100-2004.txt
+        ../exclude/ExcludeList-w100-20H2.txt
+        ../exclude/ExcludeList-w100-2004_20H2.txt
     )
 
     # *** Office stuff ***

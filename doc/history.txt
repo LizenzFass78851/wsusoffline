@@ -1784,11 +1784,11 @@ Community Edition 12.4 -- 06.12.2020
 - Replaced superseded September 2020 Servicing stack update (KB4577266) by November 2020 Servicing stack update (KB4586864) for Windows 10 Version 2004 (Thanks to "aker")
 - Fix: The self-update did not report more recent versions in UpdateGenerator (Thanks to "negg")
 --------------------------------------------------------------------------------
-Community Edition 12.5 -- ??.??.????
+Community Edition 12.5 -- ??.06.2021
 - NOTE: The ".\client\ofc"-directory is not used anymore and can safely be deleted
 - NOTE: Support removed for Windows 10 version 1903 since Microsoft discontinued support for it on December 8th, 2020
 - NOTE: Support removed for Windows 10 version 1803 since Microsoft discontinued support for it on May 11th, 2021
-- Included complete rewrite of the Linux scripts version CE-2.4 (beta 2) (Special thanks to H. Buhrmester)
+- Included complete rewrite of the Linux scripts version CE-2.4 (beta 3) (Special thanks to H. Buhrmester)
 - Added static update definition files for Windows 10 Version 21H1 (build 19043)
 - Support added for .NET 5 (Thanks to "aker" and "boco")
 - Support added for updating Microsoft Edge (Chromium) (Thanks to "aker")

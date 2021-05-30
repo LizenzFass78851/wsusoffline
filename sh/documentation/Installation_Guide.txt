@@ -95,6 +95,11 @@ from the cdrkit.
 
   https://en.wikipedia.org/wiki/Cdrkit
 
+The download of Microsoft Edge (Chromium) needs jq for parsing JSON
+files. It also needs some tools for the conversion of base64 encoded
+data to hexadecimal numbers, but these tools are part of the respective
+core utilities in Linux and FreeBSD.
+
 
 Install optional packages
 -------------------------

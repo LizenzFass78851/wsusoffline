@@ -31,8 +31,7 @@
 
 # ========== Configuration ================================================
 
-w100_versions=( 1507 1607 1809 1909 2004 20H2 )
-w100_versions_file="w100-versions.ini"
+w100_versions_file="windows-10-versions.ini"
 
 # Exclude lists for service packs
 #
@@ -225,7 +224,6 @@ function process_main_update ()
 
         seconly_safety_guard "${name}"
         verify_integrity_database "${hashed_dir}" "${hashes_file}"
-        compile_w100_exclude_lists "${name}" "${arch}"
         calculate_static_updates "${name}" "${arch}" "${lang}" "${valid_static_links}"
         calculate_dynamic_updates "${name}" "${arch}" "${lang}" "${valid_dynamic_links}"
         download_static_files "${download_dir}" "${valid_static_links}"
@@ -245,86 +243,6 @@ function process_main_update ()
     fi
 
     echo ""
-    return 0
-}
-
-
-# The Windows 10 version-specific exclude lists are needed for both
-# static and dynamic updates. They should only be calculated once and
-# then reused within the same download run.
-function compile_w100_exclude_lists ()
-{
-    local name="$1"
-    local arch="$2"
-    local output_file="${temp_dir}/exclude-list-w100-versions-${arch}.txt"
-
-    # Preconditions
-    [[ "${name}" == w100 ]] || return 0
-    [[ -f "${output_file}" ]] && return 0
-
-    # Variables for the determination of Windows 10 exclude lists
-    local version=""
-    local key=""
-    local value=""
-    local -i result_code="0"
-    # Create an associative array for the Windows 10 selections (indexed
-    # arrays won't work for "20H2"). Two versions must be initialized,
-    # to prevent possible "unset" errors later, when these versions
-    # are queried.
-    #
-    # TODO: This could be done in a loop as below
-    local -A selections=( [2004]="" [20H2]="" )
-
-    log_info_message "Compiling Windows 10 version-specific exclude list for ${arch}"
-    for version in "${w100_versions[@]}"
-    do
-        key="${version}_${arch}"
-        # The shell option errexit and a trap on ERR require some
-        # workaround to check the result code
-        value="$(read_setting "${w100_versions_file}" "${key}")" \
-            && result_code="0" || result_code="$?"
-        case "${result_code}" in
-            0)
-                if [[ "${value}" == "off" ]]
-                then
-                    cat_existing_files                                      \
-                        "../exclude/ExcludeList-w100-${version}.txt"        \
-                        "../exclude/custom/ExcludeList-w100-${version}.txt" \
-                        >> "${output_file}"
-                fi
-                selections["${version}"]="${value}"
-            ;;
-            1)
-                log_warning_message "The settings file ${w100_versions_file} was not found. Please install the utility \"dialog\" and run the script update-generator.bash to select your Windows 10 versions."
-                # Break out of the enclosing for loop. There is no
-                # need to check all Windows 10 versions, if the
-                # settings file does not exist. This only causes
-                # the warning to be repeated several times.
-                break
-            ;;
-            2)
-                log_warning_message "The key ${key} was not found in the settings file ${w100_versions_file}. Please run the script update-generator.bash again to update your Windows 10 versions."
-            ;;
-            *)
-                log_error_message "Unknown error ${result_code} in function read_setting."
-            ;;
-        esac
-    done
-
-    if [[ "${selections[2004]}" == "off" && "${selections[20H2]}" == "off" ]]
-    then
-        cat_existing_files                                     \
-            "../exclude/ExcludeList-w100-2004_20H2.txt"        \
-            "../exclude/custom/ExcludeList-w100-2004_20H2.txt" \
-            >> "${output_file}"
-    fi
-
-    if ensure_non_empty_file "${output_file}"
-    then
-        log_info_message "Created file ${output_file##*/}"
-    else
-        log_info_message "The file ${output_file##*/} was not created, because no Windows 10 versions were selected"
-    fi
     return 0
 }
 
@@ -368,6 +286,10 @@ function calculate_static_updates ()
 
     local current_dir=""
     local current_lang=""
+    local w100_version=""
+    local w100_arch=""
+    local w100_state=""
+    local skip_rest=""
     local -a exclude_lists_static=()
 
     # Preconditions
@@ -432,6 +354,30 @@ function calculate_static_updates ()
         ;;
     esac
 
+    # *** Windows 10 version-specific static download links ***
+    if [[ "${name}" == "w100" ]]
+    then
+        if [[ -f "./${w100_versions_file}" ]]
+        then
+            while IFS=$'_= \r\n' read -r w100_version w100_arch w100_state skip_rest
+            do
+                if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "on" ]]
+                then
+                    debug=enabled log_debug_message "Adding ${w100_version} ${w100_arch} to static download list"
+                    cat_existing_files                                                                  \
+                        "../static/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt"        \
+                        "../static/custom/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt" \
+                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                else
+                    :
+                    #debug=enabled log_debug_message "Ignoring ${w100_version} ${w100_arch}"
+                fi
+            done < "./${w100_versions_file}"
+        else
+            log_warning_message "The file ${w100_versions_file} was not found. Please run the script update-generator.bash to select your Windows 10 versions."
+        fi
+    fi
+
     # At this point, a non-empty file
     # ${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt should
     # be found.
@@ -445,23 +391,15 @@ function calculate_static_updates ()
         # create copies of the file in the ../exclude/custom directory.
         exclude_lists_static+=( "../exclude/custom/ExcludeListForce-all.txt" )
 
-        # Service Packs are already included in the static download links
-        # file created above. If the command line option -includesp is
-        # NOT used, then Service Packs must be removed again.
+        # Service Packs are already included in the static download
+        # links file created above. If the command line option
+        # -includesp is NOT used, then Service Packs must be removed
+        # again. This includes the files StaticUpdateIds-w63-upd1.txt
+        # and StaticUpdateIds-w63-upd2.txt.
         if [[ "${include_service_packs}" == "disabled" ]]
         then
             exclude_lists_static+=( "${service_packs[@]}" )
         fi
-
-        # Since Community Edition 12.2, Windows 10 version-specific
-        # exclude lists are applied to both static and dynamic updates.
-        case "${name}" in
-            w100)
-                exclude_lists_static+=(
-                    "${temp_dir}/exclude-list-w100-versions-${arch}.txt"
-                )
-            ;;
-        esac
 
         # Debug output: print all added ExcludeLists
         #echo ""
@@ -500,10 +438,13 @@ function calculate_dynamic_updates ()
     local valid_dynamic_links="$4"
 
     local locale=""
-    local -a exclude_lists_dynamic=()
     local update_id=""
     local url=""
+    local w100_version=""
+    local w100_arch=""
+    local w100_state=""
     local skip_rest=""
+    local -a exclude_lists_dynamic=()
 
     # Preconditions
     case "${name}" in
@@ -701,20 +642,36 @@ function calculate_dynamic_updates ()
     fi
 
     # In the Linux downloads scripts, version 2.4, the option -includesp
-    # is applied to all Windows and Office versions.
+    # is applied to all Windows and Office versions. This includes the
+    # files StaticUpdateIds-w63-upd1.txt and StaticUpdateIds-w63-upd2.txt.
     if [[ "${include_service_packs}" == "disabled" ]]
     then
         exclude_lists_dynamic+=( "${service_packs[@]}" )
     fi
 
     # Add Windows 10 version-specific exclude lists
-    case "${name}" in
-        w100)
-            exclude_lists_dynamic+=(
-                "${temp_dir}/exclude-list-w100-versions-${arch}.txt"
-            )
-        ;;
-    esac
+    if [[ "${name}" == "w100" ]]
+    then
+        if [[ -f "./${w100_versions_file}" ]]
+        then
+            while IFS=$'_= \r\n' read -r w100_version w100_arch w100_state skip_rest
+            do
+                if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "off" ]]
+                then
+                    debug=enabled log_debug_message "Removing ${w100_version} ${w100_arch} from dynamic download list"
+                    exclude_lists_dynamic+=(
+                        "../exclude/ExcludeList-w100-${w100_version}.txt"
+                        "../exclude/custom/ExcludeList-w100-${w100_version}.txt"
+                    )
+                else
+                    :
+                    #debug=enabled log_debug_message "Ignoring ${w100_version} ${w100_arch}"
+                fi
+            done < "./${w100_versions_file}"
+        else
+            log_warning_message "The file ${w100_versions_file} was not found. Please run the script update-generator.bash to select your Windows 10 versions."
+        fi
+    fi
 
     # Another branch between Windows and Office updates
     case "${name}" in

@@ -1,3 +1,21 @@
+Linux download scripts, version 2.4 (beta-3)
+
+   Release date: 2021-05-29
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.5 (b78)
+
+   Internal changes
+
+    * Refactoring of Windows 10 downloads
+    * The script create-iso-image.bash can handle filter lists with DOS
+      line endings
+
+   Removed Features
+
+    * Support removed for Windows 10, version 1803
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.4 (beta-2)
 
    Release date: 2021-05-18
@@ -36,7 +54,14 @@ Linux download scripts, version 2.4 (beta-1)
     * Static download files for .NET Frameworks are simplified
     * Hashdeep files are calculated with the bare mode option
     * Improved support for service packs
-    * Internal changes
+
+   Internal changes
+
+    * The file ../client/exclude/ExcludeList.txt can be updated from
+      GitLab
+    * The files StaticUpdateIds-w63-upd1.txt and
+      StaticUpdateIds-w63-upd2.txt are used for the calculation of the
+      ExcludeList-Linux-superseded-seconly.txt
 
    Removed features
 

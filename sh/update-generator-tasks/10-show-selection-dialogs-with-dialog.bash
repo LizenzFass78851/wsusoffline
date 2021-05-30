@@ -52,11 +52,85 @@
 # ========== Configuration ================================================
 
 settings_file="update-generator.ini"
-w100_versions_file="w100-versions.ini"
+w100_versions_file="windows-10-versions.ini"
 show_w100_versions="disabled"
+
+
+# Define an indexed array of the keys only
+#
+# This list could also be extracted from the associative arrays below,
+# but then the keys would be listed in a seemingly random order. For
+# example, try:
+#
+#   declare -p all_values
+#   printf '%s\n' "${!all_values[@]}"
+#
+# To write the settings file in a recognizable order, the list of all
+# keys must be created manually.
+
+all_keys=(
+    w62-x64 w63 w63-x64 w100 w100-x64
+    o2k13 o2k13-x64 o2k16 o2k16-x64
+    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
+    all-ofc-x86
+    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
+    plk ptg ptb rus esn sve trk
+    sp cpp dotnet wddefs
+)
+
+
+declare -A all_labels=(
+    [w62-x64]="Windows Server 2012, 64-bit"
+    [w63]="Windows 8.1, 32-bit"
+    [w63-x64]="Windows 8.1 / Server 2012 R2, 64-bit"
+    [w100]="Windows 10, 32-bit"
+    [w100-x64]="Windows 10 / Server 2016/2019, 64-bit"
+    [o2k13]="Office 2013, 32-bit"
+    [o2k13-x64]="Office 2013, 32-bit and 64-bit"
+    [o2k16]="Office 2016, 32-bit"
+    [o2k16-x64]="Office 2016, 32-bit and 64-bit"
+    [all]="All Windows and Office updates, 32-bit and 64-bit"
+    [all-x86]="All Windows and Office updates, 32-bit"
+    [all-x64]="All Windows and Office updates, 64-bit"
+    [all-win]="All Windows updates, 32-bit and 64-bit"
+    [all-win-x86]="All Windows updates, 32-bit"
+    [all-win-x64]="All Windows updates, 64-bit"
+    [all-ofc]="All Office updates, 32-bit and 64-bit"
+    [all-ofc-x86]="All Office updates, 32-bit"
+    [deu]="German"
+    [enu]="English"
+    [ara]="Arabic"
+    [chs]="Chinese (Simplified)"
+    [cht]="Chinese (Traditional)"
+    [csy]="Czech"
+    [dan]="Danish"
+    [nld]="Dutch"
+    [fin]="Finnish"
+    [fra]="French"
+    [ell]="Greek"
+    [heb]="Hebrew"
+    [hun]="Hungarian"
+    [ita]="Italian"
+    [jpn]="Japanese"
+    [kor]="Korean"
+    [nor]="Norwegian"
+    [plk]="Polish"
+    [ptg]="Portuguese"
+    [ptb]="Portuguese (Brazil)"
+    [rus]="Russian"
+    [esn]="Spanish"
+    [sve]="Swedish"
+    [trk]="Turkish"
+    [sp]="Service Packs"
+    [cpp]="Visual C++ Runtime Libraries"
+    [dotnet]=".NET Frameworks"
+    [wddefs]="Windows Defender definition updates"
+)
+
 
 # The associative array "all_values" is used to hold all values throughout
 # the script. The meaning of the values changes three times:
+#
 # - The array is set to the DEFAULT values at this point.
 # - The LAST USED settings are read from an ini file, if existing.
 # - After displaying the selections dialogs with the utility "dialog",
@@ -111,46 +185,38 @@ declare -A all_values=(
     [wddefs]="off"
 )
 
-declare -A w100_values=(
-    [1507_x86]="on"   [1507_x64]="on"
-    [1607_x86]="on"   [1607_x64]="on"
-    [1809_x86]="on"   [1809_x64]="on"
-    [1909_x86]="off"   [1909_x64]="off"
-    [2004_x86]="on"   [2004_x64]="on"
-    [20H2_x86]="on"   [20H2_x64]="on"
-)
-
-
-# Define an indexed array of the keys only
-#
-# This list could also be extracted from the associative array above,
-# but then the keys would be listed in a seemingly random order. For
-# example, try:
-#
-# declare -p all_values
-# printf '%s\n' "${!all_values[@]}"
-#
-# So, to write the settings file in a recognizable order, the list of
-# all keys must be created manually.
-
-all_keys=(
-    w62-x64 w63 w63-x64 w100 w100-x64
-    o2k13 o2k13-x64 o2k16 o2k16-x64
-    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
-    all-ofc-x86
-    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
-    plk ptg ptb rus esn sve trk
-    sp cpp dotnet wddefs
-)
 
 w100_keys=(
-    1507_x86 1507_x64
-    1607_x86 1607_x64
-    1809_x86 1809_x64
-    1909_x86 1909_x64
-    2004_x86 2004_x64
-    20H2_x86 20H2_x64
+    "10240_x86"  "10240_x64"
+    "14393_x86"  "14393_x64"
+    "17763_x86"  "17763_x64"
+    "18362_x86"  "18362_x64"
+    "19041_x86"  "19041_x64"
 )
+
+
+declare -A w100_labels=(
+    [10240_x86]="Windows 10, 1507, 32-bit"
+    [10240_x64]="Windows 10, 1507, 64-bit"
+    [14393_x86]="Windows 10, 1607, 32-bit"
+    [14393_x64]="Windows 10, 1607 / Server 2016, 64-bit"
+    [17763_x86]="Windows 10, 1809, 32-bit"
+    [17763_x64]="Windows 10, 1809 / Server 2019, 64-bit"
+    [18362_x86]="Windows 10, 1903/1909, 32-bit"
+    [18362_x64]="Windows 10, 1903/1909, 64-bit"
+    [19041_x86]="Windows 10, 2004/20H2/21H1, 32-bit"
+    [19041_x64]="Windows 10, 2004/20H2/21H1, 64-bit"
+)
+
+
+declare -A w100_values=(
+    [10240_x86]="on"   [10240_x64]="on"
+    [14393_x86]="on"   [14393_x64]="on"
+    [17763_x86]="on"   [17763_x64]="on"
+    [18362_x86]="off"  [18362_x64]="off"
+    [19041_x86]="on"   [19041_x64]="on"
+)
+
 
 download_parameters=()
 
@@ -272,76 +338,75 @@ function show_selection_dialogs_with_dialog ()
     local next_option=""
     local confirmation=""
 
-    # The three selection dialogs must be defined locally to have the
-    # values evaluated at runtime.
+    # The selection dialogs must be defined locally to have the values
+    # evaluated at runtime.
     local -a updates_dialog=(
-        w62-x64       "Windows Server 2012, 64-bit"                         "${all_values[w62-x64]}"
-        w63           "Windows 8.1, 32-bit"                                 "${all_values[w63]}"
-        w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit"                "${all_values[w63-x64]}"
-        w100          "Windows 10, 32-bit"                                  "${all_values[w100]}"
-        w100-x64      "Windows 10 / Server 2016/2019, 64-bit"               "${all_values[w100-x64]}"
-        o2k13         "Office 2013, 32-bit"                                 "${all_values[o2k13]}"
-        o2k13-x64     "Office 2013, 32-bit and 64-bit"                      "${all_values[o2k13-x64]}"
-        o2k16         "Office 2016, 32-bit"                                 "${all_values[o2k16]}"
-        o2k16-x64     "Office 2016, 32-bit and 64-bit"                      "${all_values[o2k16-x64]}"
-        all           "All Windows and Office updates, 32-bit and 64-bit"   "${all_values[all]}"
-        all-x86       "All Windows and Office updates, 32-bit"              "${all_values[all-x86]}"
-        all-x64       "All Windows and Office updates, 64-bit"              "${all_values[all-x64]}"
-        all-win       "All Windows updates, 32-bit and 64-bit"              "${all_values[all-win]}"
-        all-win-x86   "All Windows updates, 32-bit"                         "${all_values[all-win-x86]}"
-        all-win-x64   "All Windows updates, 64-bit"                         "${all_values[all-win-x64]}"
-        all-ofc       "All Office updates, 32-bit and 64-bit"               "${all_values[all-ofc]}"
-        all-ofc-x86   "All Office updates, 32-bit"                          "${all_values[all-ofc-x86]}"
-    )
-
-    local -a w100_dialog=(
-        1507_x86   "Windows 10, 1507, 32-bit"                 "${w100_values[1507_x86]}"
-        1507_x64   "Windows 10, 1507, 64-bit"                 "${w100_values[1507_x64]}"
-        1607_x86   "Windows 10, 1607, 32-bit"                 "${w100_values[1607_x86]}"
-        1607_x64   "Windows 10, 1607 / Server 2016, 64-bit"   "${w100_values[1607_x64]}"
-        1809_x86   "Windows 10, 1809, 32-bit"                 "${w100_values[1809_x86]}"
-        1809_x64   "Windows 10, 1809 / Server 2019, 64-bit"   "${w100_values[1809_x64]}"
-        1909_x86   "Windows 10, 1909, 32-bit"                 "${w100_values[1909_x86]}"
-        1909_x64   "Windows 10, 1909, 64-bit"                 "${w100_values[1909_x64]}"
-        2004_x86   "Windows 10, 2004, 32-bit"                 "${w100_values[2004_x86]}"
-        2004_x64   "Windows 10, 2004, 64-bit"                 "${w100_values[2004_x64]}"
-        20H2_x86   "Windows 10, 20H2, 32-bit"                 "${w100_values[20H2_x86]}"
-        20H2_x64   "Windows 10, 20H2, 64-bit"                 "${w100_values[20H2_x64]}"
+        "w62-x64"      "${all_labels[w62-x64]}"      "${all_values[w62-x64]}"
+        "w63"          "${all_labels[w63]}"          "${all_values[w63]}"
+        "w63-x64"      "${all_labels[w63-x64]}"      "${all_values[w63-x64]}"
+        "w100"         "${all_labels[w100]}"         "${all_values[w100]}"
+        "w100-x64"     "${all_labels[w100-x64]}"     "${all_values[w100-x64]}"
+        "o2k13"        "${all_labels[o2k13]}"        "${all_values[o2k13]}"
+        "o2k13-x64"    "${all_labels[o2k13-x64]}"    "${all_values[o2k13-x64]}"
+        "o2k16"        "${all_labels[o2k16]}"        "${all_values[o2k16]}"
+        "o2k16-x64"    "${all_labels[o2k16-x64]}"    "${all_values[o2k16-x64]}"
+        "all"          "${all_labels[all]}"          "${all_values[all]}"
+        "all-x86"      "${all_labels[all-x86]}"      "${all_values[all-x86]}"
+        "all-x64"      "${all_labels[all-x64]}"      "${all_values[all-x64]}"
+        "all-win"      "${all_labels[all-win]}"      "${all_values[all-win]}"
+        "all-win-x86"  "${all_labels[all-win-x86]}"  "${all_values[all-win-x86]}"
+        "all-win-x64"  "${all_labels[all-win-x64]}"  "${all_values[all-win-x64]}"
+        "all-ofc"      "${all_labels[all-ofc]}"      "${all_values[all-ofc]}"
+        "all-ofc-x86"  "${all_labels[all-ofc-x86]}"  "${all_values[all-ofc-x86]}"
     )
 
     local -a languages_dialog=(
-        deu   "German"                  "${all_values[deu]}"
-        enu   "English"                 "${all_values[enu]}"
-        ara   "Arabic"                  "${all_values[ara]}"
-        chs   "Chinese (Simplified)"    "${all_values[chs]}"
-        cht   "Chinese (Traditional)"   "${all_values[cht]}"
-        csy   "Czech"                   "${all_values[csy]}"
-        dan   "Danish"                  "${all_values[dan]}"
-        nld   "Dutch"                   "${all_values[nld]}"
-        fin   "Finnish"                 "${all_values[fin]}"
-        fra   "French"                  "${all_values[fra]}"
-        ell   "Greek"                   "${all_values[ell]}"
-        heb   "Hebrew"                  "${all_values[heb]}"
-        hun   "Hungarian"               "${all_values[hun]}"
-        ita   "Italian"                 "${all_values[ita]}"
-        jpn   "Japanese"                "${all_values[jpn]}"
-        kor   "Korean"                  "${all_values[kor]}"
-        nor   "Norwegian"               "${all_values[nor]}"
-        plk   "Polish"                  "${all_values[plk]}"
-        ptg   "Portuguese"              "${all_values[ptg]}"
-        ptb   "Portuguese (Brazil)"     "${all_values[ptb]}"
-        rus   "Russian"                 "${all_values[rus]}"
-        esn   "Spanish"                 "${all_values[esn]}"
-        sve   "Swedish"                 "${all_values[sve]}"
-        trk   "Turkish"                 "${all_values[trk]}"
+        "deu"  "${all_labels[deu]}"  "${all_values[deu]}"
+        "enu"  "${all_labels[enu]}"  "${all_values[enu]}"
+        "ara"  "${all_labels[ara]}"  "${all_values[ara]}"
+        "chs"  "${all_labels[chs]}"  "${all_values[chs]}"
+        "cht"  "${all_labels[cht]}"  "${all_values[cht]}"
+        "csy"  "${all_labels[csy]}"  "${all_values[csy]}"
+        "dan"  "${all_labels[dan]}"  "${all_values[dan]}"
+        "nld"  "${all_labels[nld]}"  "${all_values[nld]}"
+        "fin"  "${all_labels[fin]}"  "${all_values[fin]}"
+        "fra"  "${all_labels[fra]}"  "${all_values[fra]}"
+        "ell"  "${all_labels[ell]}"  "${all_values[ell]}"
+        "heb"  "${all_labels[heb]}"  "${all_values[heb]}"
+        "hun"  "${all_labels[hun]}"  "${all_values[hun]}"
+        "ita"  "${all_labels[ita]}"  "${all_values[ita]}"
+        "jpn"  "${all_labels[jpn]}"  "${all_values[jpn]}"
+        "kor"  "${all_labels[kor]}"  "${all_values[kor]}"
+        "nor"  "${all_labels[nor]}"  "${all_values[nor]}"
+        "plk"  "${all_labels[plk]}"  "${all_values[plk]}"
+        "ptg"  "${all_labels[ptg]}"  "${all_values[ptg]}"
+        "ptb"  "${all_labels[ptb]}"  "${all_values[ptb]}"
+        "rus"  "${all_labels[rus]}"  "${all_values[rus]}"
+        "esn"  "${all_labels[esn]}"  "${all_values[esn]}"
+        "sve"  "${all_labels[sve]}"  "${all_values[sve]}"
+        "trk"  "${all_labels[trk]}"  "${all_values[trk]}"
     )
 
     local -a options_dialog=(
-        sp       "Service Packs"                         "${all_values[sp]}"
-        cpp      "Visual C++ Runtime Libraries"          "${all_values[cpp]}"
-        dotnet   ".NET Frameworks"                       "${all_values[dotnet]}"
-        wddefs   "Windows Defender definition updates"   "${all_values[wddefs]}"
+        "sp"      "${all_labels[sp]}"      "${all_values[sp]}"
+        "cpp"     "${all_labels[cpp]}"     "${all_values[cpp]}"
+        "dotnet"  "${all_labels[dotnet]}"  "${all_values[dotnet]}"
+        "wddefs"  "${all_labels[wddefs]}"  "${all_values[wddefs]}"
     )
+
+    local -a w100_dialog=(
+        "10240_x86"  "${w100_labels[10240_x86]}"  "${w100_values[10240_x86]}"
+        "10240_x64"  "${w100_labels[10240_x64]}"  "${w100_values[10240_x64]}"
+        "14393_x86"  "${w100_labels[14393_x86]}"  "${w100_values[14393_x86]}"
+        "14393_x64"  "${w100_labels[14393_x64]}"  "${w100_values[14393_x64]}"
+        "17763_x86"  "${w100_labels[17763_x86]}"  "${w100_values[17763_x86]}"
+        "17763_x64"  "${w100_labels[17763_x64]}"  "${w100_values[17763_x64]}"
+        "18362_x86"  "${w100_labels[18362_x86]}"  "${w100_values[18362_x86]}"
+        "18362_x64"  "${w100_labels[18362_x64]}"  "${w100_values[18362_x64]}"
+        "19041_x86"  "${w100_labels[19041_x86]}"  "${w100_values[19041_x86]}"
+        "19041_x64"  "${w100_labels[19041_x64]}"  "${w100_values[19041_x64]}"
+    )
+
 
     # Update selection: On the first run, there are no updates
     # preselected. The selection dialog must be repeated, until a
@@ -355,11 +420,12 @@ function show_selection_dialogs_with_dialog ()
         #
         # For some reason, the negation with "!" does not seem to work
         # in this case.
-        if update_list="$(dialog \
-            --title "Update selection" \
-            --stdout \
-            --checklist "Please select your updates:" 0 0 0 \
-                        "${updates_dialog[@]}" \
+        if update_list="$( dialog                      \
+            --title "Update selection"                 \
+            --stdout                                   \
+            --checklist "Please select your updates:"  \
+                         0 0 0                         \
+                        "${updates_dialog[@]}"         \
             )"
         then
             :
@@ -388,11 +454,13 @@ function show_selection_dialogs_with_dialog ()
     then
         while [[ -z "${w100_list}" ]]
         do
-            if w100_list="$(dialog \
-                --title "Windows 10 versions" \
-                --stdout \
-                --checklist "Please select your Windows 10 versions:" \
-                            0 0 0 "${w100_dialog[@]}" \
+            if w100_list="$( dialog                                    \
+                --title "Windows 10 versions"                          \
+                --no-tags                                              \
+                --stdout                                               \
+                --checklist "Please select your Windows 10 versions:"  \
+                             0 0 0                                     \
+                            "${w100_dialog[@]}"                        \
                 )"
             then
                 :
@@ -409,11 +477,12 @@ function show_selection_dialogs_with_dialog ()
     # but at least one language must be returned.
     while [[ -z "${language_list}" ]]
     do
-        if language_list="$(dialog \
-            --title "Language selection" \
-            --stdout \
-            --checklist "Please select your languages:" 0 0 0 \
-                        "${languages_dialog[@]}" \
+        if language_list="$( dialog                      \
+            --title "Language selection"                 \
+            --stdout                                     \
+            --checklist "Please select your languages:"  \
+                         0 0 0                           \
+                        "${languages_dialog[@]}"         \
             )"
         then
             :
@@ -425,11 +494,12 @@ function show_selection_dialogs_with_dialog ()
     # Optional downloads: Service packs are selected on the first run,
     # but they can be unchecked. The list of optional downloads may be
     # empty, if none is selected.
-    if option_list="$(dialog \
-        --title "Optional downloads" \
-        --stdout \
-        --checklist "Please select the downloads to include:" 0 0 0 \
-                    "${options_dialog[@]}" \
+    if option_list="$( dialog                                  \
+        --title "Optional downloads"                           \
+        --stdout                                               \
+        --checklist "Please select the downloads to include:"  \
+                     0 0 0                                     \
+                    "${options_dialog[@]}"                     \
         )"
     then
         :

@@ -1,3 +1,30 @@
+NEWS for the Linux download scripts, version 2.4 (beta-3)
+
+   Release date: 2021-05-29
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.5 (b78)
+
+   Internal changes
+
+    * Refactoring of Windows 10 downloads
+
+      Windows 10 selections now use the build number, rather than the
+      version number. For example, the file ExcludeList-w100-1507.txt
+      was replaced with ExcludeList-w100-10240.txt.
+
+    * The script create-iso-image.bash can handle filter lists with DOS
+      line endings
+
+      The version control system git may unexpectedly change all line
+      endings of plain text files from UNIX to DOS with a hidden file
+      .gitattributes.
+
+   Removed Features
+
+    * Support removed for Windows 10, version 1803
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 2.4 (beta-2)
 
    Release date: 2021-05-18
@@ -201,14 +228,15 @@ NEWS for the Linux download scripts, version 2.4 (beta-1)
       option was named -includesp rather than -excludesp for consistency
       with the other optional downloads.
 
-    * Internal changes
 
-      The file ../client/exclude/ExcludeList.txt can be updated from
-      GitLab.
+   Internal changes
 
-      The files StaticUpdateIds-w63-upd1.txt and
+    * The file ../client/exclude/ExcludeList.txt can be updated from
+      GitLab
+
+    * The files StaticUpdateIds-w63-upd1.txt and
       StaticUpdateIds-w63-upd2.txt are used for the calculation of the
-      ExcludeList-Linux-superseded-seconly.txt.
+      ExcludeList-Linux-superseded-seconly.txt
 
 
    Removed features
