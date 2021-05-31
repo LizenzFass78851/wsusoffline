@@ -1818,3 +1818,6 @@ Community Edition 12.5 -- 30.05.2021
 - Fix: Windows 8.1 / Server 2012 R2 April 2014 and November 2014 rollup will be excluded from supersedance checks
 - Fix: "ActiveTimeBias" is not set, if "RealTimeIsUniversal" is set (Thanks to "Gerby")
 --------------------------------------------------------------------------------
+Community Edition 12.5.1 -- 31.05.2021
+- Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
+--------------------------------------------------------------------------------

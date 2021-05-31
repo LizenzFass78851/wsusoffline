@@ -1,4 +1,4 @@
-; ***  WSUS Offline Update 12.5 - Installer  ***
+; *** WSUS Offline Update 12.5.1 - Installer ***
 ; ***       Author: T. Wittrock, Kiel        ***
 ; ***         - Community Edition -          ***
 ; ***   Dialog scaling added by Th. Baisch   ***
@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.5.0)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5 - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.5.1 - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"

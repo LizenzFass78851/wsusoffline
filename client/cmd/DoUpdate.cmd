@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.5
+set WSUSOFFLINE_VERSION=12.5.1
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -586,7 +586,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /ignoreerrors
   set ERR_LEVEL=!errorlevel!
   rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-  if "!ERR_LEVEL%!=="3010" (
+  if "!ERR_LEVEL!"=="3010" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
     set REBOOT_REQUIRED=1
@@ -1010,7 +1010,7 @@ if /i "%OS_ARCH%"=="x64" (
         ) else if "!ERR_LEVEL!"=="3011" (
           call :Log "Info: Enabled .NET Framework 3.5 feature"
           set RECALL_REQUIRED=1
-        ) else if "%!ERR_LEVEL!" NEQ "0" (
+        ) else if "!ERR_LEVEL!" NEQ "0" (
           call :Log "Warning: Failed to enable .NET Framework 3.5 feature"
         ) else (
           call :Log "Info: Enabled .NET Framework 3.5 feature"
