@@ -614,7 +614,7 @@ for /F %%i in ('dir /B %IE_FILENAME%') do (
     set REBOOT_REQUIRED=1
   ) else if "!ERR_LEVEL!"=="3011" (
     set RECALL_REQUIRED=1
-  ) else if "!ERR_LEVEL! NEQ "0" (
+  ) else if "!ERR_LEVEL!" NEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_ie_tried.txt
     goto IEInstalled
