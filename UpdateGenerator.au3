@@ -1,4 +1,4 @@
-; ***  WSUS Offline Update 11.9.8 - Generator  ***
+; ***  WSUS Offline Update 11.9.9 - Generator  ***
 ; ***        Author: T. Wittrock, Kiel         ***
 ; ***          - Community Edition -           ***
 ; ***      USB-Option added by Ch. Riedel      ***
@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.8)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.8"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.9"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
