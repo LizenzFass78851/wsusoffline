@@ -53,12 +53,7 @@ if "%QUIET_MODE%"=="1" (
   %WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/SelfUpdateVersion-recent.txt
 )
 if errorlevel 1 goto DownloadError
-if exist ..\static\SelfUpdateVersion-recent.txt (
-  echo n | %SystemRoot%\System32\comp.exe ..\static\SelfUpdateVersion-this.txt ..\static\SelfUpdateVersion-recent.txt /A /L /N=1 /C >nul 2>&1
-  if not errorlevel 1 goto Result_OK
-) else (
-  goto DownloadError
-)
+if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 
 rem Now compare the versions
 set CheckOUVersion_version_this=
