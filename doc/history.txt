@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.9
+WSUS Offline Update - Community Edition - 11.9.10
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1806,3 +1806,4 @@ Community Edition 11.9.8 -- 30.05.2021
 Community Edition 11.9.9 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
+Community Edition 11.9.10 -- ??.??.????
