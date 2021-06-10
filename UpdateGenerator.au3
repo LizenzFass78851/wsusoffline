@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b3)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b3r2)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
@@ -24,7 +24,7 @@ Dim Const $win10_versions               = "10240,14393,17763,18362,19041"
 Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1"
 Dim Const $win10_displayversions_x86    = ",,,,"
 Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,"
-Dim Const $win10_defaults               = "Enabled,Enabled,Enabled,Disabled,Enabled"
+Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Disabled,Enabled"
 Dim Const $win10_ver_inifilebody        = "Windows10Versions"
 
 ; Registry constants
