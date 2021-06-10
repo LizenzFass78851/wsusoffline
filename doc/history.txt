@@ -1787,7 +1787,7 @@ Community Edition 11.9.8 -- 30.05.2021
 - Allow C++ definitions to be updated via static definition download (Thanks to "aker")
 - Added .\client\exclude\ExcludeList.txt to the static definition update routine (Thanks to "aker")
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30037.0 (Thanks to "aker" and "harry")
-- December 2020 to March 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
+- December 2020 to May 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Replaced superseded July 2020 Servicing Stack Update (KB4566426) by April 2021 Servicing Stack Update (kb5001401) for Windows Server 2012 (Thanks to "aker")
 - Replaced superseded July 2020 Servicing Stack Update (KB4566425) by April 2021 Servicing Stack Update (kb5001403) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
 - Replaced superseded July 2020 Servicing stack update (KB4565911) by April 2021 Servicing stack update (kb5001399) for Windows 10 Version 1507 (Thanks to "aker")
@@ -1807,3 +1807,5 @@ Community Edition 11.9.9 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
 Community Edition 11.9.10 -- ??.??.????
+- June 2021 to June 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
+- Replaced superseded May 2021 Servicing stack update (kb5003243) by June 2021 Servicing stack update (kb5003711) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
