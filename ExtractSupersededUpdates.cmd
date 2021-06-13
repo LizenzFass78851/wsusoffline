@@ -11,13 +11,17 @@ if not exist %WGET_PATH% goto EoF
 if not exist "%TEMP%\package.xml" (
   set PREEXISTING_PACKAGE_XML=0
   if not exist "%TEMP%\wsusscn2.cab" (
+    set PREEXISTING_WSUSSCN2_CAB=0
     %WGET_PATH% -N -i .\static\StaticDownloadLinks-wsus.txt -P "%TEMP%"
+  ) else (
+    set PREEXISTING_WSUSSCN2_CAB=1
   )
   if exist "%TEMP%\package.cab" del "%TEMP%\package.cab"
   %SystemRoot%\System32\expand.exe "%TEMP%\wsusscn2.cab" -F:package.cab "%TEMP%"
   %SystemRoot%\System32\expand.exe "%TEMP%\package.cab" "%TEMP%\package.xml"
   del "%TEMP%\package.cab"
 ) else (
+  set PREEXISTING_WSUSSCN2_CAB=0
   set PREEXISTING_PACKAGE_XML=1
 )
 
@@ -52,6 +56,11 @@ rem del "%TEMP%\update-ids-and-locations-unsorted.txt"
 echo Creating UpdateTable-all.csv...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\ExtractIdsAndFileNames.vbs "%TEMP%\update-ids-and-locations.txt" "%TEMP%\UpdateTable-all.csv"
 rem del "%TEMP%\update-ids-and-locations.txt"
+
+
+
+
+
 
 rem *** First step ***
 echo Extracting existing-bundle-revision-ids.txt...
@@ -153,9 +162,9 @@ if exist "%TEMP%\ExcludeList-superseded-exclude.txt" (
   move /Y "%TEMP%\ExcludeList-superseded-all.txt" "%TEMP%\ExcludeList-superseded-seconly.txt" >nul
 )
 echo %TIME% - Done.
-if "%PREEXISTING_PACKAGE_XML%"=="0" del "%TEMP%\package.xml"
+if "%PREEXISTING_PACKAGE_XML%"=="0" if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
 goto EoF
 
-del "%TEMP%\wsusscn2.cab"
+if "%PREEXISTING_WSUSSCN2_CAB%"=="0" if exist "%TEMP%\wsusscn2.cab" del "%TEMP%\wsusscn2.cab"
 :EoF
 endlocal
