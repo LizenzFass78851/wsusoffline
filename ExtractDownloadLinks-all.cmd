@@ -1,14 +1,29 @@
 @echo off
 rem *** Author: aker ***
 
-if not exist "%TEMP%\wsusscn2.cab" (
-  .\bin\wget.exe -N -i .\static\StaticDownloadLinks-wsus.txt -P "%TEMP%"
+setlocal enabledelayedexpansion
+
+if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set WGET_PATH=.\bin\wget64.exe) else (
+  if /i "%PROCESSOR_ARCHITEW6432%"=="AMD64" (set WGET_PATH=.\bin\wget64.exe) else (set WGET_PATH=.\bin\wget.exe)
 )
-if exist "%TEMP%\package.cab" del "%TEMP%\package.cab"
-if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
-%SystemRoot%\System32\expand.exe "%TEMP%\wsusscn2.cab" -F:package.cab "%TEMP%"
-%SystemRoot%\System32\expand.exe "%TEMP%\package.cab" "%TEMP%\package.xml"
-rem del "%TEMP%\package.cab"
+if not exist %WGET_PATH% goto EoF
+
+if not exist "%TEMP%\package.xml" (
+  set PREEXISTING_PACKAGE_XML=0
+  if not exist "%TEMP%\wsusscn2.cab" (
+    set PREEXISTING_WSUSSCN2_CAB=0
+    %WGET_PATH% -N -i .\static\StaticDownloadLinks-wsus.txt -P "%TEMP%"
+  ) else (
+    set PREEXISTING_WSUSSCN2_CAB=1
+  )
+  if exist "%TEMP%\package.cab" del "%TEMP%\package.cab"
+  %SystemRoot%\System32\expand.exe "%TEMP%\wsusscn2.cab" -F:package.cab "%TEMP%"
+  %SystemRoot%\System32\expand.exe "%TEMP%\package.cab" "%TEMP%\package.xml"
+  del "%TEMP%\package.cab"
+) else (
+  set PREEXISTING_WSUSSCN2_CAB=0
+  set PREEXISTING_PACKAGE_XML=1
+)
 
 echo Extracting file 1, revision-and-update-ids.txt ...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-revision-and-update-ids.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
@@ -52,7 +67,8 @@ rem del "%TEMP%\DynamicDownloadLinks-all-unsorted.txt"
 echo Creating file 9, DownloadLinks-all.txt ...
 move /Y "%TEMP%\DynamicDownloadLinks-all.txt" "%TEMP%\DownloadLinks-all.txt" >nul
 
-del "%TEMP%\package.xml"
-del "%TEMP%\wsusscn2.cab"
+if "%PREEXISTING_PACKAGE_XML%"=="0" if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
+if "%PREEXISTING_WSUSSCN2_CAB%"=="0" if exist "%TEMP%\wsusscn2.cab" del "%TEMP%\wsusscn2.cab"
 
 :EoF
+endlocal
