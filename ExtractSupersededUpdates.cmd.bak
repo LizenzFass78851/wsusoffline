@@ -34,7 +34,6 @@ rem ** Preparation ***
 echo Extracting revision-and-update-ids.txt...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-revision-and-update-ids.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids.txt"
-.\bin\gsort.exe -u -T "%TEMP%" -t "," -k 2 "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids-inverted.txt"
 rem del "%TEMP%\revision-and-update-ids-unsorted.txt"
 echo Extracting BundledUpdateRevisionAndFileIds.txt...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
@@ -58,23 +57,10 @@ echo Creating UpdateTable-all.csv...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\ExtractIdsAndFileNames.vbs "%TEMP%\update-ids-and-locations.txt" "%TEMP%\UpdateTable-all.csv"
 rem del "%TEMP%\update-ids-and-locations.txt"
 
-echo Extracting HideList-seconly-KBNumbers.txt...
-.\bin\cut.exe -d "," -f "1" .\client\exclude\HideList-seconly.txt > "%TEMP%\HideList-seconly-KBNumbers.txt"
-echo Creating UpdateTable-HideList-seconly.csv...
-%SystemRoot%\System32\findstr.exe /L /I /G:"%TEMP%\HideList-seconly-KBNumbers.txt" "%TEMP%\UpdateTable-all.csv" > "%TEMP%\UpdateTable-HideList-seconly.csv"
-rem del "%TEMP%\HideList-seconly-KBNumbers.txt"
-rem del "%TEMP%\UpdateTable-all.csv"
-echo Creating update-ids-HideList-seconly.txt...
-.\bin\cut.exe -d "," -f "1" "%TEMP%\UpdateTable-HideList-seconly.csv" > "%TEMP%\update-ids-HideList-seconly-unsorted.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\update-ids-HideList-seconly-unsorted.txt" > "%TEMP%\update-ids-HideList-seconly.txt"
-rem del "%TEMP%\UpdateTable-HideList-seconly.csv"
-rem del "%TEMP%\update-ids-HideList-seconly-unsorted.txt"
-echo Creating revision-ids-HideList-seconly.txt...
-.\bin\join.exe -t "," -1 2 -o "1.1" "%TEMP%\revision-and-update-ids-inverted.txt" "%TEMP%\update-ids-HideList-seconly.txt" > "%TEMP%\revision-ids-HideList-seconly-unsorted.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-ids-HideList-seconly-unsorted.txt" > "%TEMP%\revision-ids-HideList-seconly.txt"
-rem del "%TEMP%\revision-and-update-ids-inverted.txt"
-rem del "%TEMP%\update-ids-HideList-seconly.txt"
-rem del "%TEMP%\revision-ids-HideList-seconly.txt"
+
+
+
+
 
 rem *** First step ***
 echo Extracting existing-bundle-revision-ids.txt...
@@ -85,19 +71,11 @@ echo Extracting superseding-and-superseded-revision-ids.txt...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-superseding-and-superseded-revision-ids.xsl "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt" >"%TEMP%\superseding-and-superseded-revision-ids.txt"
 rem del "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
-echo Joining superseding-and-superseded-revision-ids.txt and revision-ids-HideList-seconly.txt to superseding-and-superseded-revision-ids-Rollups.txt...
-.\bin\join.exe -1 1 -2 1 -t "," -o "1.1,1.2" "%TEMP%\superseding-and-superseded-revision-ids.txt" "%TEMP%\revision-ids-HideList-seconly.txt" > "%TEMP%\superseding-and-superseded-revision-ids-Rollups.txt"
-echo Creating superseding-and-superseded-revision-ids-seconly.txt...
-%SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\superseding-and-superseded-revision-ids-Rollups.txt" "%TEMP%\superseding-and-superseded-revision-ids.txt" > "%TEMP%\superseding-and-superseded-revision-ids-seconly.txt"
-rem del "%TEMP%\superseding-and-superseded-revision-ids-Rollups.txt"
 echo Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids.txt to ValidSupersededRevisionIds.txt...
 .\bin\join.exe -t "," -o "2.2" "%TEMP%\existing-bundle-revision-ids.txt" "%TEMP%\superseding-and-superseded-revision-ids.txt" >"%TEMP%\ValidSupersededRevisionIds-unsorted.txt"
-.\bin\join.exe -t "," -o "2.2" "%TEMP%\existing-bundle-revision-ids.txt" "%TEMP%\superseding-and-superseded-revision-ids-seconly.txt" >"%TEMP%\ValidSupersededRevisionIds-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidSupersededRevisionIds-unsorted.txt" >"%TEMP%\ValidSupersededRevisionIds.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidSupersededRevisionIds-seconly-unsorted.txt" >"%TEMP%\ValidSupersededRevisionIds-seconly.txt"
 rem del "%TEMP%\superseding-and-superseded-revision-ids.txt"
 rem del "%TEMP%\ValidSupersededRevisionIds-unsorted.txt"
-rem del "%TEMP%\ValidSupersededRevisionIds-seconly-unsorted.txt"
 
 rem *** Second step ***
 rem echo Extracting BundledUpdateRevisionAndFileIds.txt...
@@ -106,42 +84,26 @@ rem .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\BundledUpdateRevisionAndFileIds-unsor
 rem rem del "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 echo Joining ValidSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt...
 .\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\SupersededFileIds-unsorted.txt"
-.\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidSupersededRevisionIds-seconly.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\SupersededFileIds-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\SupersededFileIds-unsorted.txt" >"%TEMP%\SupersededFileIds.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\SupersededFileIds-seconly-unsorted.txt" >"%TEMP%\SupersededFileIds-seconly.txt"
 rem del "%TEMP%\SupersededFileIds-unsorted.txt"
-rem del "%TEMP%\SupersededFileIds-seconly-unsorted.txt"
 echo Creating ValidNonSupersededRevisionIds.txt...
 %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ValidSupersededRevisionIds.txt" "%TEMP%\existing-bundle-revision-ids.txt" > "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt"
-%SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ValidSupersededRevisionIds-seconly.txt" "%TEMP%\existing-bundle-revision-ids.txt" > "%TEMP%\ValidNonSupersededRevisionIds-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt" >"%TEMP%\ValidNonSupersededRevisionIds.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ValidNonSupersededRevisionIds-seconly-unsorted.txt" >"%TEMP%\ValidNonSupersededRevisionIds-seconly.txt"
 rem del "%TEMP%\existing-bundle-revision-ids.txt"
 rem del "%TEMP%\ValidSupersededRevisionIds.txt"
-rem del "%TEMP%\ValidSupersededRevisionIds-seconly.txt"
 rem del "%TEMP%\ValidNonSupersededRevisionIds-unsorted.txt"
-rem del "%TEMP%\ValidNonSupersededRevisionIds-seconly-unsorted.txt"
 echo Joining ValidNonSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to NonSupersededFileIds.txt...
 .\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidNonSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\NonSupersededFileIds-unsorted.txt"
-.\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidNonSupersededRevisionIds-seconly.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\NonSupersededFileIds-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\NonSupersededFileIds-unsorted.txt" >"%TEMP%\NonSupersededFileIds.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\NonSupersededFileIds-seconly-unsorted.txt" >"%TEMP%\NonSupersededFileIds-seconly.txt"
 rem del "%TEMP%\BundledUpdateRevisionAndFileIds.txt"
 rem del "%TEMP%\ValidNonSupersededRevisionIds.txt"
-rem del "%TEMP%\ValidNonSupersededRevisionIds-seconly.txt"
 rem del "%TEMP%\NonSupersededFileIds-unsorted.txt"
-rem del "%TEMP%\NonSupersededFileIds-seconly-unsorted.txt"
 echo Creating OnlySupersededFileIds.txt...
 %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\NonSupersededFileIds.txt" "%TEMP%\SupersededFileIds.txt" >"%TEMP%\OnlySupersededFileIds-unsorted.txt"
-%SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\NonSupersededFileIds-seconly.txt" "%TEMP%\SupersededFileIds-seconly.txt" >"%TEMP%\OnlySupersededFileIds-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\OnlySupersededFileIds-unsorted.txt" >"%TEMP%\OnlySupersededFileIds.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\OnlySupersededFileIds-seconly-unsorted.txt" >"%TEMP%\OnlySupersededFileIds-seconly.txt"
 rem del "%TEMP%\NonSupersededFileIds.txt"
-rem del "%TEMP%\NonSupersededFileIds-seconly.txt"
 rem del "%TEMP%\SupersededFileIds.txt"
-rem del "%TEMP%\SupersededFileIds-seconly.txt"
 rem del "%TEMP%\OnlySupersededFileIds-unsorted.txt"
-rem del "%TEMP%\OnlySupersededFileIds-seconly-unsorted.txt"
 
 rem *** Third step ***
 rem echo Extracting UpdateCabExeIdsAndLocations.txt...
@@ -150,13 +112,12 @@ rem .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.
 rem rem del "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
 echo Joining OnlySupersededFileIds.txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all.txt...
 .\bin\join.exe -t "," -o "2.2" "%TEMP%\OnlySupersededFileIds.txt" "%TEMP%\UpdateCabExeIdsAndLocations.txt" >"%TEMP%\ExcludeList-superseded-all-unsorted.txt"
-.\bin\join.exe -t "," -o "2.2" "%TEMP%\OnlySupersededFileIds-seconly.txt" "%TEMP%\UpdateCabExeIdsAndLocations.txt" >"%TEMP%\ExcludeList-superseded-all-seconly-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ExcludeList-superseded-all-unsorted.txt" >"%TEMP%\ExcludeList-superseded-all.txt"
-.\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\ExcludeList-superseded-all-seconly-unsorted.txt" >"%TEMP%\ExcludeList-superseded-all-seconly.txt"
 rem del "%TEMP%\OnlySupersededFileIds.txt"
-rem del "%TEMP%\OnlySupersededFileIds-seconly.txt"
 rem del "%TEMP%\UpdateCabExeIdsAndLocations.txt"
 rem del "%TEMP%\ExcludeList-superseded-all-unsorted.txt"
+
+rem del "%TEMP%\UpdateTable-all.csv"
 
 rem *** Apply ExcludeList-superseded-exclude.txt ***
 if exist .\exclude\ExcludeList-superseded-exclude.txt copy /Y .\exclude\ExcludeList-superseded-exclude.txt "%TEMP%\ExcludeList-superseded-exclude.txt" >nul
@@ -194,11 +155,11 @@ for %%i in (w60 w61 w62 w63) do (
 )
 for %%i in ("%TEMP%\ExcludeList-superseded-exclude.txt") do if %%~zi==0 del %%i
 if exist "%TEMP%\ExcludeList-superseded-exclude.txt" (
-  %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeList-superseded-exclude.txt" "%TEMP%\ExcludeList-superseded-all-seconly.txt" >"%TEMP%\ExcludeList-superseded-seconly.txt"
-  rem del "%TEMP%\ExcludeList-superseded-all-seconly.txt"
+  %SystemRoot%\System32\findstr.exe /L /I /V /G:"%TEMP%\ExcludeList-superseded-exclude.txt" "%TEMP%\ExcludeList-superseded-all.txt" >"%TEMP%\ExcludeList-superseded-seconly.txt"
+  rem del "%TEMP%\ExcludeList-superseded-all.txt"
   rem del "%TEMP%\ExcludeList-superseded-exclude.txt"
 ) else (
-  move /Y "%TEMP%\ExcludeList-superseded-all-seconly.txt" "%TEMP%\ExcludeList-superseded-seconly.txt" >nul
+  move /Y "%TEMP%\ExcludeList-superseded-all.txt" "%TEMP%\ExcludeList-superseded-seconly.txt" >nul
 )
 echo %TIME% - Done.
 if "%PREEXISTING_PACKAGE_XML%"=="0" if exist "%TEMP%\package.xml" del "%TEMP%\package.xml"
