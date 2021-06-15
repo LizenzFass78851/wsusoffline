@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.10)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.10 (b8r2)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.10 (b9r2)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -665,7 +665,7 @@ Dim $result
     EndIf
     Return 0
   EndIf
-  If $result <> 0 Then
+  If $result = 1 Then
     If $gergui Then
       $result = MsgBox(0x2023, "Versionsprüfung", "Sie setzen " & $caption & " ein. Eine neuere Version ist verfügbar." _
                        & @LF & "Möchten Sie WSUS Offline Update nun aktualisieren?")

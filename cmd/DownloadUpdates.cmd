@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.10 (b8r2)
+set WSUSOFFLINE_VERSION=11.9.10 (b9r2)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -273,7 +273,7 @@ if /i "%PROCESSOR_ARCHITECTURE%"=="AMD64" (set HASHDEEP_EXE=hashdeep64.exe) else
 
 rem ** disable SDD, if local version != most recent version ***
 if "%http_proxy%" NEQ "" (call CheckOUVersion.cmd /mode:different /quiet /proxy %http_proxy%) else (call CheckOUVersion.cmd /mode:different /quiet)
-if errorlevel 1 (
+if not "%errorlevel%"=="0" (
   set SKIP_SDD=1
   call :Log "Info: Disabled static and exclude definitions update due to version mismatch"
 )

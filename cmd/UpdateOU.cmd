@@ -50,7 +50,7 @@ goto EvalParams
 rem *** Update WSUS Offline Update - Community Edition ***
 title Updating WSUS Offline Update - Community Edition...
 if "%http_proxy%" NEQ "" (call CheckOUVersion.cmd /mode:newer /proxy %http_proxy%) else (call CheckOUVersion.cmd /mode:newer)
-if not errorlevel 1 goto NoNewVersion
+if not "%errorlevel%"=="1" goto NoNewVersion
 if not exist ..\static\SelfUpdateVersion-recent.txt goto DownloadError
 echo Downloading most recent released version of WSUS Offline Update - Community Edition...
 %WGET_PATH% -N -P ..\static https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/StaticDownloadLink-recent.txt
@@ -79,9 +79,14 @@ if "%FILENAME_HASH%"=="" (
 )
 %WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
 if errorlevel 1 goto DownloadError
-if not exist ..\static\StaticDownloadLink-recent.txt goto DownloadError
-echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
-%WGET_PATH% -N -P .. -i ..\static\StaticDownloadLink-recent.txt
+if not exist "..\%FILENAME_ZIP%" (
+  if exist "..\%FILENAME_HASH%" del "..\%FILENAME_HASH%"
+  goto DownloadError
+)
+if not exist "..\%FILENAME_HASH%" (
+  if exist "..\%FILENAME_ZIP%" del "..\%FILENAME_ZIP%"
+  goto DownloadError
+)
 echo %DATE% %TIME% - Info: Downloaded most recent released version of WSUS Offline Update - Community Edition>>%DOWNLOAD_LOGFILE%
 pushd ..
 echo Verifying integrity of %FILENAME_ZIP%...

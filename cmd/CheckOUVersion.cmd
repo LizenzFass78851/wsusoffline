@@ -137,28 +137,25 @@ goto Error
 :Error
 if "%EXIT_ERR%"=="1" (
   endlocal
-  verify other 2>nul
-  exit
+  exit 2
 ) else (
   title %ComSpec%
   endlocal
-  verify other 2>nul
-  goto :eof
+  goto /b 2
 )
 
 :Result_UpdateAvailable
 if "%EXIT_ERR%"=="1" (
   endlocal
-  verify other 2>nul
-  exit
+  exit 1
 ) else (
   title %ComSpec%
   endlocal
-  verify other 2>nul
-  goto :eof
+  exit /b 1
 )
 
 :Result_OK
 :EoF
 title %ComSpec%
 endlocal
+exit /b 0
