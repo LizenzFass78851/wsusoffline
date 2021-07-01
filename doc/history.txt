@@ -1810,3 +1810,4 @@ Community Edition 11.9.10 -- ??.??.????
 - June 2021 to June 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Replaced superseded May 2021 Servicing stack update (kb5003243) by June 2021 Servicing stack update (kb5003711) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
+- Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
