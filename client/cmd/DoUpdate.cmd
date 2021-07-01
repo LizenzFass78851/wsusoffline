@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b10)
+set WSUSOFFLINE_VERSION=12.6 (b11)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1617,26 +1617,40 @@ rem *** Install MSI packages and custom software ***
 if exist %SystemRoot%\Temp\wouselmsi.txt (
   echo Installing selected MSI packages...
   call TouchMSITree.cmd /instselected
-  rem FIXME (b69)
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
   call :Log "Info: Installed selected MSI packages"
   del %SystemRoot%\Temp\wouselmsi.txt
-  set REBOOT_REQUIRED=1
+  rem set REBOOT_REQUIRED=1
 ) else (
   if "%INSTALL_MSI%"=="/instmsi" (
     echo Installing all MSI packages...
     call TouchMSITree.cmd /install
-    rem FIXME (b69)
+    set ERR_LEVEL=!errorlevel!
+    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
     call :Log "Info: Installed all MSI packages"
-    set REBOOT_REQUIRED=1
+    rem set REBOOT_REQUIRED=1
   )
+)
+if "%ERR_LEVEL%"=="3010" (
+  set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
 )
 if exist ..\software\custom\InstallCustomSoftware.cmd (
   echo Installing custom software...
   pushd ..\software\custom
   call InstallCustomSoftware.cmd
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
   popd
   call :Log "Info: Executed custom software installation hook (Errorlevel: %errorlevel%)"
+  rem set REBOOT_REQUIRED=1
+)
+if "%ERR_LEVEL%"=="3010" (
   set REBOOT_REQUIRED=1
+) else if "%ERR_LEVEL%"=="3011" (
+  set RECALL_REQUIRED=1
 )
 goto UpdateSystem
 
