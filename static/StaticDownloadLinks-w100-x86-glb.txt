@@ -2,6 +2,6 @@ http://download.windowsupdate.com/c/msdownload/update/software/crup/2018/05/wind
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589198-x86_1e1e2f65d4ad6c1d8903a90fee853071561b0e6a.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589210-x86_2e8e4c0d183479a161c2e3310cff1965f52e5d42.msu
 http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/windows10.0-kb4589208-x86_bcecb619f05a87cd2c4abc13ee168ae840ed3756.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_cc1837e27113e5444e025cf2dc2e2ed556ba77f9.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_97a4f342e91e40b921727a8b944a29f7155f3ca1.msu
-http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/10/windows10.0-kb4577586-x86_947f151a8bb5a0b0797702e53431c52d56c02c32.msu
+http://download.windowsupdate.com/d/msdownload/update/software/secu/2021/07/windows10.0-kb5004950-x86_651a97e0e3240bdad318a460a4280a7db7b2ff4b.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/07/windows10.0-kb5004948-x86_b8dd84f2def04dd3a1d7de42898f776359fb527b.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/07/windows10.0-kb5004947-x86_2cd3b09c753c60d39cdc93bdec2d9f076cddf2e5.msu

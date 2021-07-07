@@ -609,3 +609,7 @@ kb5003544,June 2021 Security and Quality Rollup for .NET Framework 4.8 on Window
 kb5003781,June 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
 kb5003549,June 2021 Security and Quality Rollup for .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
 kb5003545,June 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5004955,7th July 2021 Cumulative Update for Windows Server 2008 SP2
+kb5004953,7th July 2021 Cumulative Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5004956,7th July 2021 Cumulative Update for Windows Server 2012
+kb5004954,7th July 2021 Cumulative Update for Windows 8.1 and Windows Server 2012 R2

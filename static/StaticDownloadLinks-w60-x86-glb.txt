@@ -8,3 +8,5 @@ http://download.windowsupdate.com/msdownload/update/software/updt/2011/02/window
 http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/wu-ie9-windowsvista-x86_a2b66ff9e9affda9675dd85ba2b637a882979a25.exe
 http://download.windowsupdate.com/msdownload/update/software/updt/2011/03/ie9-langpack-windowsvista-x86-deu_e540c69a3d0c24c14ed8294feeaeb7223d2a8ea3.exe
 http://download.microsoft.com/download/E/7/6/E76850B8-DA6E-4FF5-8CCE-A24FC513FD16/Windows6.0-KB2506146-x86.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/07/windows6.0-kb5004959-x86_7d5c62a788b49b296de559b792a8e1cd5b3fad2d.msu
+http://download.windowsupdate.com/c/msdownload/update/software/secu/2021/07/windows6.0-kb5004955-x86_3155801c9d8726736031aa5e1b9f486494d5129a.msu

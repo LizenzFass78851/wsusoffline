@@ -1,2 +1,2 @@
 kb3013769,December 2014 update rollup for Windows RT 8.1, Windows 8.1, and Windows Server 2012 R2
-kb4577586,Update for the removal of Adobe Flash Player for Windows 8.1 and Windows Server 2012 R2
+kb5004954,7th July 2021 Cumulative Update for Windows 8.1 and Windows Server 2012 R2

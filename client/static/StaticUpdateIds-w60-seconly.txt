@@ -44,3 +44,4 @@ kb5000856,March 2021 Security Only Quality Update for Windows Server 2008 SP2
 kb5001332,April 2021 Security Only Quality Update for Windows Server 2008 SP2
 kb5003225,May 2021 Security Only Quality Update for Windows Server 2008 SP2
 kb5003695,June 2021 Security Only Quality Update for Windows Server 2008 SP2
+kb5004959,7th July 2021 Security Only Quality Update for Windows Server 2008 SP2
