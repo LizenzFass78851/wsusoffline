@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b12)
+set WSUSOFFLINE_VERSION=12.6 (b13)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -313,6 +313,7 @@ if exist ActivateFiveLanguageServicePacks.cmd del ActivateFiveLanguageServicePac
 if exist RemoveEnglishLanguageSupport.cmd del RemoveEnglishLanguageSupport.cmd
 if exist ..\doc\faq.txt del ..\doc\faq.txt
 if exist ..\exclude\ExcludeList-SPs.txt del ..\exclude\ExcludeList-SPs.txt
+if exist ..\exclude\ExcludeList-superseded-exclude.txt.bak del ..\exclude\ExcludeList-superseded-exclude.txt.bak
 if exist ..\exclude\ExcludeList-w100-1507.txt del ..\exclude\ExcludeList-w100-1507.txt
 if exist ..\exclude\ExcludeList-w100-1607.txt del ..\exclude\ExcludeList-w100-1607.txt
 if exist ..\exclude\ExcludeList-w100-1709.txt del ..\exclude\ExcludeList-w100-1709.txt
@@ -328,11 +329,14 @@ if exist ..\client\cmd\Reboot.vbs del ..\client\cmd\Reboot.vbs
 if exist ..\client\cmd\Shutdown.vbs del ..\client\cmd\Shutdown.vbs
 if exist ..\client\msi\nul rd /S /Q ..\client\msi
 if exist ..\client\opt\OptionList-Q.txt del ..\client\opt\OptionList-Q.txt
+if exist ..\client\static\StaticUpdateIds-BuildUpgrades.txt.bak del ..\client\static\StaticUpdateIds-BuildUpgrades.txt.bak
 if exist ..\client\static\StaticUpdateIds-dotnet35.txt del ..\client\static\StaticUpdateIds-dotnet35.txt
 if exist ..\client\static\StaticUpdateIds-ie9-w61.txt del ..\client\static\StaticUpdateIds-ie9-w61.txt
 if exist ..\client\static\StaticUpdateIds-w100-x86.txt del ..\client\static\StaticUpdateIds-w100-x86.txt
 if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\StaticUpdateIds-w100-x64.txt
 if exist ..\opt\nul rd /S /Q ..\opt
+if exist ..\static\StaticDownloadFiles-w100-19041-x64-glb.txt.bak del ..\static\StaticDownloadFiles-StaticDownloadFiles-w100-19041-x64-glb.txt.bak
+if exist ..\static\StaticDownloadFiles-w100-19041-x86-glb.txt.bak del ..\static\StaticDownloadFiles-StaticDownloadFiles-w100-19041-x86-glb.txt.bak
 if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLinks-wua-x86.xsl
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl

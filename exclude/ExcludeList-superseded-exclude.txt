@@ -16,7 +16,7 @@ windows10.0-KB5001402
 windows10.0-kb5003364
 windows10.0-kb5003711
 windows10.0-kb4520390
-windows10.0-kb5003974
+windows10.0-kb5004748
 windows10.0-kb4577266
 windows10.0-kb4598481
 windows10.0-kb4495610
