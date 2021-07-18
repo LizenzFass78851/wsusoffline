@@ -32,7 +32,7 @@ windows6.1-kb3122648
 windows6.1-kb4507004
 windows6.1-kb4474419-v3
 windows6.1-kb4490628
-windows6.1-kb4592510
+windows6.1-kb5004378
 windows6.1-kb4534314
 windows8-rt-kb3122649
 windows8-rt-kb3173426
