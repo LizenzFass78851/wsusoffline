@@ -102,7 +102,8 @@ set WOU_ENDLESS=6
 goto SetOfficeName
 
 :Windows10.0
-rem *** Windows 10.0 / Server 2016 ***
+if %OS_VER_BUILD% GEQ 20231 goto Windows11.0
+rem *** Windows 10.0 / Server 2016/2019 ***
 set OS_NAME=w100
 set OS_SP_VER_TARGET_MAJOR=0
 set MSI_VER_TARGET_MAJOR=5
@@ -114,6 +115,11 @@ set IE_VER_TARGET_MINOR=11
 set TSC_VER_TARGET_MAJOR=10
 set TSC_VER_TARGET_MINOR=0
 set WOU_ENDLESS=3
+goto SetOfficeName
+
+:Windows11.0
+rem *** Windows 11 / Server xxx ***
+set OS_NAME=w110
 goto SetOfficeName
 
 :SetOfficeName
