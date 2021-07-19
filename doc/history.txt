@@ -1807,6 +1807,7 @@ Community Edition 11.9.9 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
 Community Edition 11.9.10 -- ??.??.????
+- Added ability to detect Windows 11 builds
 - June 2021 to July 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Replaced superseded October 2020 Servicing Stack Update (kb4580970) by July 2021 Servicing Stack Update (kb5004378) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
 - Replaced superseded May 2021 Servicing stack update (kb5003243) by June 2021 Servicing stack update (kb5003711) for Windows 10 Version 1809 and Windows Server 2019 (Thanks to "aker")
