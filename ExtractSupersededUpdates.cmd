@@ -35,8 +35,10 @@ rem *** Step 0: Files used multiple times ***
 echo Extracting revision-and-update-ids.txt...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-revision-and-update-ids.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
 .\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids.txt"
-.\bin\gsort.exe -u -T "%TEMP%" -t "," -k 2 "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids-inverted.txt"
+.\bin\gsort.exe -T "%TEMP%" -t "," -k 2 "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids-inverted-unclean.txt"
+%SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\ExtractUniqueFromSorted.vbs "%TEMP%\revision-and-update-ids-inverted-unclean.txt" "%TEMP%\revision-and-update-ids-inverted.txt"
 rem del "%TEMP%\revision-and-update-ids-unsorted.txt"
+rem del "%TEMP%\revision-and-update-ids-inverted-unclean.txt"
 
 echo Extracting BundledUpdateRevisionAndFileIds.txt...
 %SystemRoot%\System32\cscript.exe //Nologo //B //E:vbs .\cmd\XSLT.vbs "%TEMP%\package.xml" .\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"

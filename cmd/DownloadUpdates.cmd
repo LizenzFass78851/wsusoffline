@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b15r2)
+set WSUSOFFLINE_VERSION=12.6 (b16)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -306,7 +306,6 @@ rem *** Obsolete internal stuff ***
 if exist ActivateVistaAllLanguageServicePacks.cmd del ActivateVistaAllLanguageServicePacks.cmd
 if exist ActivateVistaFiveLanguageServicePacks.cmd del ActivateVistaFiveLanguageServicePacks.cmd
 if exist DetermineAutoDaylightTimeSet.vbs del DetermineAutoDaylightTimeSet.vbs
-if exist ExtractUniqueFromSorted.vbs del ExtractUniqueFromSorted.vbs
 if exist CheckTRCerts.cmd del CheckTRCerts.cmd
 if exist ActivateAllLanguageServicePacks.cmd del ActivateAllLanguageServicePacks.cmd
 if exist ActivateFiveLanguageServicePacks.cmd del ActivateFiveLanguageServicePacks.cmd
@@ -1355,8 +1354,10 @@ rem *** Step 0: Files used multiple times ***
 rem echo Extracting revision-and-update-ids.txt...
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-revision-and-update-ids.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids.txt"
-..\bin\gsort.exe -u -T "%TEMP%" -t "," -k 2 "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids-inverted.txt"
+..\bin\gsort.exe -T "%TEMP%" -t "," -k 2 "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids-inverted-unclean.txt"
+%CSCRIPT_PATH% //Nologo //B //E:vbs ExtractUniqueFromSorted.vbs "%TEMP%\revision-and-update-ids-inverted-unclean.txt" "%TEMP%\revision-and-update-ids-inverted.txt"
 del "%TEMP%\revision-and-update-ids-unsorted.txt"
+del "%TEMP%\revision-and-update-ids-inverted-unclean.txt"
 
 rem echo Extracting BundledUpdateRevisionAndFileIds.txt...
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
