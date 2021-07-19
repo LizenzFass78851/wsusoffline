@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b15)
+set WSUSOFFLINE_VERSION=12.6 (b15r2)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1352,8 +1352,6 @@ echo %TIME% - Determining superseded updates...
 
 rem *** Step 0: Files used multiple times ***
 
-echo Preparation - EXtracting files used multiple times...
-
 rem echo Extracting revision-and-update-ids.txt...
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-revision-and-update-ids.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids.txt"
@@ -1376,8 +1374,6 @@ rem echo Extracting existing-bundle-revision-ids.txt...
 del "%TEMP%\existing-bundle-revision-ids-unsorted.txt"
 
 rem *** Step 1: extract RevisionIds from HideList-seconly.txt [target: revision-ids-HideList-seconly.txt] ***
-
-echo Step 1 - Parsing HideList-seconly.txt...
 
 if not exist ..\client\exclude\HideList-seconly.txt (
   rem echo Creating blank revision-ids-HideList-seconly.txt...
@@ -1425,8 +1421,6 @@ del "%TEMP%\update-ids-HideList-seconly.txt"
 
 rem *** Step 2: Calculate the relations of the updates [target: ValidSupersededRevisionIds(-seconly).txt & ValidNonSupersededRevisionIds(-seconly).txt] ***
 
-echo Step 2 - Extracting superseded RevisionIds...
-
 rem echo Extracting superseding-and-superseded-revision-ids.txt...
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-superseding-and-superseded-revision-ids.xsl "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\superseding-and-superseded-revision-ids-unsorted.txt" >"%TEMP%\superseding-and-superseded-revision-ids.txt"
@@ -1460,8 +1454,6 @@ del "%TEMP%\superseding-and-superseded-revision-ids.txt"
 del "%TEMP%\superseding-and-superseded-revision-ids-seconly.txt"
 
 rem *** Step 3: Get the FileIds for the RevisionIds [target: OnlySupersededFileIds(-seconly).txt] ***
-
-echo Step 3 - Extracting superseded FileIds...
 
 rem echo Joining ValidSupersededRevisionIds(-seconly).txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds(-seconly).txt...
 ..\bin\join.exe -t "," -o "2.3" "%TEMP%\ValidSupersededRevisionIds.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" >"%TEMP%\SupersededFileIds-unsorted.txt"
@@ -1497,8 +1489,6 @@ del "%TEMP%\SupersededFileIds.txt"
 del "%TEMP%\SupersededFileIds-seconly.txt"
 
 rem *** Step 4: Get the URLs for the FileIds [target: ExcludeList-superseded-all(-seconly).txt] ***
-
-echo Step 4 - Extracting URLs for FileIds...
 
 rem echo Joining OnlySupersededFileIds(-seconly).txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all(-seconly).txt...
 ..\bin\join.exe -t "," -o "2.2" "%TEMP%\OnlySupersededFileIds.txt" "%TEMP%\UpdateCabExeIdsAndLocations.txt" >"%TEMP%\ExcludeList-superseded-all-unsorted.txt"
@@ -1685,19 +1675,19 @@ rem be deleted at the end of the script.
 rem
 rem TODO: Such tricks work great for the Linux download scripts, but
 rem not for the Windows script.
-echo Extracting revision-and-update-ids.txt...
+rem echo Extracting revision-and-update-ids.txt...
 call :Log "Info: Extracting revision-and-update-ids.txt..."
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-revision-and-update-ids-%TMP_PLATFORM%.xsl "%TEMP%\revision-and-update-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\revision-and-update-ids-unsorted.txt" > "%TEMP%\revision-and-update-ids.txt"
 del "%TEMP%\revision-and-update-ids-unsorted.txt"
 
-echo Extracting BundledUpdateRevisionAndFileIds.txt...
+rem echo Extracting BundledUpdateRevisionAndFileIds.txt...
 call :Log "Info: Extracting BundledUpdateRevisionAndFileIds.txt..."
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-revision-and-file-ids.xsl "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt" > "%TEMP%\BundledUpdateRevisionAndFileIds.txt"
 del "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 
-echo Extracting UpdateCabExeIdsAndLocations.txt...
+rem echo Extracting UpdateCabExeIdsAndLocations.txt...
 call :Log "Info: Extracting UpdateCabExeIdsAndLocations.txt..."
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-cab-exe-ids-and-locations.xsl "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt" > "%TEMP%\UpdateCabExeIdsAndLocations.txt"
@@ -1719,7 +1709,7 @@ rem - Field 3: FileId of the PayloadFile
 rem Output file: file-and-update-ids.txt
 rem - Field 1: FileId of the PayloadFile
 rem - Field 2: UpdateId of the bundle record
-echo Creating file-and-update-ids.txt...
+rem echo Creating file-and-update-ids.txt...
 call :Log "Info: Creating file-and-update-ids.txt..."
 ..\bin\join.exe -t "," -o "2.3,1.2" "%TEMP%\revision-and-update-ids.txt" "%TEMP%\BundledUpdateRevisionAndFileIds.txt" > "%TEMP%\file-and-update-ids-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\file-and-update-ids-unsorted.txt" > "%TEMP%\file-and-update-ids.txt"
@@ -1738,7 +1728,7 @@ rem - Field 2: Location (URL)
 rem Output file: update-ids-and-locations.txt
 rem - Field 1: UpdateId of the bundle record
 rem - Field 2: Location (URL)
-echo Creating update-ids-and-locations.txt...
+rem echo Creating update-ids-and-locations.txt...
 call :Log "Info: Creating update-ids-and-locations.txt..."
 ..\bin\join.exe -t "," -o "1.2,2.2" "%TEMP%\file-and-update-ids.txt" "%TEMP%\UpdateCabExeIdsAndLocations.txt" > "%TEMP%\update-ids-and-locations-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\update-ids-and-locations-unsorted.txt" > "%TEMP%\update-ids-and-locations.txt"
@@ -1747,7 +1737,7 @@ del "%TEMP%\update-ids-and-locations-unsorted.txt"
 del "%TEMP%\UpdateCabExeIdsAndLocations.txt"
 
 rem Filtering differs between Windows and Office
-echo Creating update-ids-and-locations-%2.txt...
+rem echo Creating update-ids-and-locations-%2.txt...
 call :Log "Info: Creating update-ids-and-locations-%2.txt..."
 for %%i in (%PLATFORM_WINDOWS%) do (if /i "%TMP_PLATFORM%"=="%%i" goto DetermineWindows)
 for %%i in (%PLATFORM_OFFICE%) do (if /i "%TMP_PLATFORM%"=="%%i" goto DetermineOffice)
@@ -1774,14 +1764,14 @@ goto DetermineShared
 rem Create the files ../client/UpdateTable/UpdateTable-*-*.csv, which are
 rem needed during the installation of the updates. They link the UpdateIds
 rem (in form of UUIDs) to the file names.
-echo Creating UpdateTable-%TMP_PLATFORM%-%2.csv...
+rem echo Creating UpdateTable-%TMP_PLATFORM%-%2.csv...
 call :Log "Info: Creating UpdateTable-%TMP_PLATFORM%-%2.csv..."
 %CSCRIPT_PATH% //Nologo //B //E:vbs ExtractIdsAndFileNames.vbs "%TEMP%\update-ids-and-locations-%2.txt" ..\client\UpdateTable\UpdateTable-%TMP_PLATFORM%-%2.csv
 
 rem At this point, the UpdateIds are no longer needed. Only the locations
 rem (URLs) are needed to create the initial list of dynamic download
 rem links.
-echo Creating DynamicDownloadLinks-%1-%2.txt...
+rem echo Creating DynamicDownloadLinks-%1-%2.txt...
 call :Log "Info: Creating DynamicDownloadLinks-%1-%2.txt..."
 ..\bin\cut.exe -d "," -f "2" "%TEMP%\update-ids-and-locations-%2.txt" > "%TEMP%\DynamicDownloadLinks-%1-%2-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\DynamicDownloadLinks-%1-%2-unsorted.txt" > "%TEMP%\DynamicDownloadLinks-%1-%2.txt"
@@ -1790,7 +1780,7 @@ del "%TEMP%\DynamicDownloadLinks-%1-%2-unsorted.txt"
 
 rem Remove the superseded updates to get a list of current dynamic
 rem download links
-echo Creating CurrentDynamicLinks-%1-%2.txt...
+rem echo Creating CurrentDynamicLinks-%1-%2.txt...
 call :Log "Info: Creating CurrentDynamicLinks-%1-%2.txt..."
 if exist %SUSED_LIST% (
   rem join -v1 does a "left join" and returns only lines or records,
@@ -1803,7 +1793,7 @@ if exist %SUSED_LIST% (
 
 rem Apply the remaining exclude lists, which typically contain kb numbers
 rem only, to get the final list of valid dynamic download links
-echo Creating ValidDynamicLinks-%1-%2.txt...
+rem echo Creating ValidDynamicLinks-%1-%2.txt...
 call :Log "Info: Creating ValidDynamicLinks-%1-%2.txt..."
 if exist "%TEMP%\ExcludeList-%1.txt" del "%TEMP%\ExcludeList-%1.txt"
 if exist ..\exclude\ExcludeList-%TMP_PLATFORM%.txt (
