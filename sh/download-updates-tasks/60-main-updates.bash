@@ -427,9 +427,6 @@ function calculate_dynamic_updates ()
 
     local locale=""
     local -a exclude_lists_dynamic=()
-    local update_id=""
-    local url=""
-    local skip_rest=""
 
     # Preconditions
     case "${name}" in
@@ -564,13 +561,10 @@ function calculate_dynamic_updates ()
     # which are needed for the installation of the updates. They link
     # the UpdateIds (in form of UUIDs) to the file names.
     log_info_message "Creating file 7, UpdateTable-${name}-${lang}.csv ..."
-
     mkdir -p "../client/UpdateTable"
-    while IFS=',' read -r update_id url skip_rest
-    do
-        printf '%s\r\n' "${update_id},${url##*/}"
-    done < "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
-         > "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
+    extract_ids_and_filenames_dos                                  \
+        "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+        "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
 
     # At this point, the UpdateIds are no longer needed. Only the
     # locations (URLs) are needed to create the initial list of dynamic

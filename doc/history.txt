@@ -1807,6 +1807,7 @@ Community Edition 11.9.9 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
 Community Edition 11.9.10 -- ??.??.????
+- Included complete rewrite of the Linux scripts version CE-1.21 (Special thanks to H. Buhrmester)
 - Implemented revised mechanism of calculating superseded updates (Thanks to "hbuhrmester" and "aker")
 - Added ability to detect Windows 11 builds
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30040.0 (Thanks to "aker")

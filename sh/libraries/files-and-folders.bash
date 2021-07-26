@@ -562,4 +562,49 @@ function xml_transform ()
     return 0
 }
 
+# The function extract_ids_and_filenames expects a file
+# update-ids-and-locations-*.txt as input and extracts the update ids
+# and filenames. The resulting file UpdateTable-*.csv is written with
+# Linux line-endings.
+function extract_ids_and_filenames ()
+{
+    local inputfile="$1"
+    local outputfile="$2"
+    local update_id=""
+    local url=""
+    local skip_rest=""
+
+    require_file "${inputfile}" || fail "File ${inputfile} was not found"
+
+    while IFS=',' read -r update_id url skip_rest
+    do
+        printf '%s\n' "${update_id},${url##*/}"
+    done < "${inputfile}" \
+         > "${outputfile}"
+
+    return 0
+}
+
+# The function extract_ids_and_filenames_dos is basically the same as
+# above, but for compatibility with the installations scripts, the output
+# file is written with DOS line-endings.
+function extract_ids_and_filenames_dos ()
+{
+    local inputfile="$1"
+    local outputfile="$2"
+    local update_id=""
+    local url=""
+    local skip_rest=""
+
+    require_file "${inputfile}" || fail "File ${inputfile} was not found"
+
+    while IFS=',' read -r update_id url skip_rest
+    do
+        printf '%s\r\n' "${update_id},${url##*/}"
+    done < "${inputfile}" \
+         > "${outputfile}"
+
+    return 0
+}
+
 return 0
