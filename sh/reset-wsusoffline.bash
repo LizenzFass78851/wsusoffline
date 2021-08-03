@@ -51,10 +51,12 @@ printf '%s\n' "Create a list of automatically created files..."
 
 # Setting files
 #
-# The Windows 10 versions file should not be deleted, because the download
-# script may need it.
+# The Windows 10 versions file will be deleted, but a new file with
+# default settings will be created on the next run by the script
+# 10-remove-obsolete-scripts.bash.
 file_list+=(
     ./update-generator.ini
+    ./windows-10-versions.ini
 )
 
 # Cached files

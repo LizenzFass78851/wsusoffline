@@ -1,3 +1,18 @@
+Linux download scripts, version 2.5
+
+   Release date: 2021-08-02
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.6 (b16)
+
+   Internal changes
+
+    * Implemented revised mechanism of calculating superseded updates
+      (Thanks to "hbuhrmester" and "aker")
+    * Cleaned up Microsoft Edge (Chromium) download code
+    * Cleaned up Windows 10 version-specific downloads
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.4 (beta-3)
 
    Release date: 2021-05-29

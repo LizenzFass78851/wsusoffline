@@ -222,92 +222,245 @@ function rebuild_superseded_updates ()
     local -a excludelist_overrides=()
     local -a excludelist_overrides_seconly=()
     local current_file=""
-    local line=""
+    local kb_number=""
 
     # Delete existing files, just to be sure
     rm -f "../exclude/ExcludeList-Linux-superseded.txt"
     rm -f "../exclude/ExcludeList-Linux-superseded-seconly.txt"
 
-    log_info_message "Determining superseded updates (please be patient, this will take a while)..."
+    log_info_message "Determining superseded updates..."
 
-    # *** First step ***
-    log_info_message "Extracting existing-bundle-revision-ids.txt..."
-    xml_transform "extract-existing-bundle-revision-ids.xsl" \
-                          "existing-bundle-revision-ids.txt"
+    # *** Step 0: Files used multiple times ***
 
-    log_info_message "Extracting superseding-and-superseded-revision-ids.txt..."
-    xml_transform "extract-superseding-and-superseded-revision-ids.xsl" \
-                          "superseding-and-superseded-revision-ids.txt"
+    # The file revision-and-update-ids.txt is a complete list of bundle
+    # revision ids and update ids for all products
+    log_info_message "Extracting revision-and-update-ids.txt..."
+    xml_transform "extract-revision-and-update-ids.xsl" \
+                          "revision-and-update-ids.txt"
 
-    log_info_message "Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids.txt to ValidSupersededRevisionIds.txt..."
-    join -t "," -e "unavailable" -o "2.2"                           \
-          "${temp_dir}/existing-bundle-revision-ids.txt"            \
-          "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
-        > "${temp_dir}/ValidSupersededRevisionIds.txt"
-    sort_in_place "${temp_dir}/ValidSupersededRevisionIds.txt"
+    # The function xml_transform sorts the result by the whole line.
+    #
+    # For the re-implementation of the revised method for the calculation
+    # of superseded updates, the file revision-and-update-ids.txt must
+    # also be sorted by the second field. In this case, the option
+    # --unique (-u) should be used with caution. It seems to be safe,
+    # if the order of all fields is explicitly specified. Otherwise,
+    # uniq can be used to remove duplicate lines.
+    sort -t ',' -k '2,2' -k '1,1'                 \
+        "${temp_dir}/revision-and-update-ids.txt" \
+      > "${temp_dir}/revision-and-update-ids-inverted-unclean.txt"
 
-    # *** Second step ***
+    uniq                                                           \
+        "${temp_dir}/revision-and-update-ids-inverted-unclean.txt" \
+      > "${temp_dir}/revision-and-update-ids-inverted.txt"
+
     log_info_message "Extracting BundledUpdateRevisionAndFileIds.txt..."
     xml_transform "extract-update-revision-and-file-ids.xsl" \
                   "BundledUpdateRevisionAndFileIds.txt"
 
-    log_info_message "Joining ValidSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds.txt..."
-    join -t "," -e "unavailable" -o "2.3"                   \
-          "${temp_dir}/ValidSupersededRevisionIds.txt"      \
-          "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
-        > "${temp_dir}/SupersededFileIds.txt"
-    sort_in_place "${temp_dir}/SupersededFileIds.txt"
-
-    log_info_message "Creating ValidNonSupersededRevisionIds.txt..."
-    # "grep -F -i -v -f" would be a direct translation of
-    # "findstr.exe /L /I /V /G:", but grep always causes troubles:
-    # - grep writes an empty output file, if the filter file contains
-    #   empty lines. This can be prevented by added the option -e
-    #   "unavailable" to join.
-    # - if grep doesn't find any results, then it returns an error code
-    # - grep can get rather slow for comparing large files
-    # - join works better for large files, because it reads alternately
-    #   through two sorted files
-    #
-    # join -v1 does a "left join"; it will print only lines, which are
-    # unique on the left side (in the first file)
-    join -e "unavailable" -v1                            \
-          "${temp_dir}/existing-bundle-revision-ids.txt" \
-          "${temp_dir}/ValidSupersededRevisionIds.txt"   \
-        > "${temp_dir}/ValidNonSupersededRevisionIds.txt"
-    sort_in_place "${temp_dir}/ValidNonSupersededRevisionIds.txt"
-
-    log_info_message "Joining ValidNonSupersededRevisionIds.txt and BundledUpdateRevisionAndFileIds.txt to NonSupersededFileIds.txt..."
-    join -t "," -e "unavailable" -o "2.3"                   \
-          "${temp_dir}/ValidNonSupersededRevisionIds.txt"   \
-          "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
-        > "${temp_dir}/NonSupersededFileIds.txt"
-    sort_in_place "${temp_dir}/NonSupersededFileIds.txt"
-
-    log_info_message "Creating OnlySupersededFileIds.txt..."
-    join -e "unavailable" -v1                    \
-          "${temp_dir}/SupersededFileIds.txt"    \
-          "${temp_dir}/NonSupersededFileIds.txt" \
-        > "${temp_dir}/OnlySupersededFileIds.txt"
-    sort_in_place "${temp_dir}/OnlySupersededFileIds.txt"
-
-    # *** Third step ***
     log_info_message "Extracting UpdateCabExeIdsAndLocations.txt..."
     xml_transform "extract-update-cab-exe-ids-and-locations.xsl" \
                   "UpdateCabExeIdsAndLocations.txt"
 
-    log_info_message "Joining OnlySupersededFileIds.txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all.txt..."
-    join -t "," -e "unavailable" -o "2.2"               \
-          "${temp_dir}/OnlySupersededFileIds.txt"       \
-          "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
-        > "${temp_dir}/ExcludeList-superseded-all.txt"
+    log_info_message "Extracting existing-bundle-revision-ids.txt..."
+    xml_transform "extract-existing-bundle-revision-ids.xsl" \
+                          "existing-bundle-revision-ids.txt"
+
+    # *** Step 1: Extract RevisionIds from HideList-seconly.txt
+    #             [target: revision-ids-HideList-seconly.txt] ***
+
+    if [[ -f "../client/exclude/HideList-seconly.txt" ]]
+    then
+        log_info_message "Creating file-and-update-ids.txt..."
+        join -t "," -e "unavailable" -o "2.3,1.2"             \
+            "${temp_dir}/revision-and-update-ids.txt"         \
+            "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
+          > "${temp_dir}/file-and-update-ids.txt"
+        sort_in_place "${temp_dir}/file-and-update-ids.txt"
+
+        log_info_message "Creating update-ids-and-locations.txt..."
+        join -t "," -e "unavailable" -o "1.2,2.2"         \
+            "${temp_dir}/file-and-update-ids.txt"         \
+            "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
+          > "${temp_dir}/update-ids-and-locations.txt"
+        sort_in_place "${temp_dir}/update-ids-and-locations.txt"
+
+        log_info_message "Creating UpdateTable-all.csv..."
+        extract_ids_and_filenames                      \
+            "${temp_dir}/update-ids-and-locations.txt" \
+            "${temp_dir}/UpdateTable-all.csv"
+        sort_in_place "${temp_dir}/UpdateTable-all.csv"
+
+        log_info_message "Extracting HideList-seconly-KBNumbers.txt..."
+        cut -d ',' -f '1'                            \
+            "../client/exclude/HideList-seconly.txt" \
+          > "${temp_dir}/HideList-seconly-KBNumbers.txt"
+
+        log_info_message "Creating UpdateTable-HideList-seconly.csv..."
+        grep -F -i -f                                      \
+            "${temp_dir}/HideList-seconly-KBNumbers.txt"   \
+            "${temp_dir}/UpdateTable-all.csv"              \
+          > "${temp_dir}/UpdateTable-HideList-seconly.csv" \
+            || true
+
+        log_info_message "Creating update-ids-HideList-seconly.txt..."
+        cut -d ',' -f '1'                                  \
+            "${temp_dir}/UpdateTable-HideList-seconly.csv" \
+          > "${temp_dir}/update-ids-HideList-seconly.txt"
+        sort_in_place "${temp_dir}/update-ids-HideList-seconly.txt"
+
+        log_info_message "Creating revision-ids-HideList-seconly.txt..."
+        join -t "," -e "unavailable" -1 "2" -o "1.1"           \
+            "${temp_dir}/revision-and-update-ids-inverted.txt" \
+            "${temp_dir}/update-ids-HideList-seconly.txt"      \
+          > "${temp_dir}/revision-ids-HideList-seconly.txt"
+        sort_in_place "${temp_dir}/revision-ids-HideList-seconly.txt"
+        # in DownloadUpdates.cmd: Label :SkipHideList
+    else
+        log_warning_message "The file ..client/exclude/HideList-seconly.txt was not found"
+        log_info_message "Creating blank revision-ids-HideList-seconly.txt..."
+        true > "${temp_dir}/revision-ids-HideList-seconly.txt"
+        # in DownloadUpdates.cmd: goto SkipHideList
+    fi
+
+    # *** Step 2: Calculate the relations of the updates
+    #             [target: ValidSupersededRevisionIds(-seconly).txt &
+    #                      ValidNonSupersededRevisionIds(-seconly).txt] ***
+
+    log_info_message "Extracting superseding-and-superseded-revision-ids.txt..."
+    xml_transform "extract-superseding-and-superseded-revision-ids.xsl" \
+                          "superseding-and-superseded-revision-ids.txt"
+    sort_in_place "${temp_dir}/superseding-and-superseded-revision-ids.txt"
+
+    log_info_message "Joining superseding-and-superseded-revision-ids.txt and revision-ids-HideList-seconly.txt to superseding-and-superseded-revision-ids-Rollups.txt..."
+    # The options -1 "1" -2 "1" should be the default for join
+    join -1 "1" -2 "1" -t "," -e "unavailable" -o "1.1,1.2"       \
+        "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
+        "${temp_dir}/revision-ids-HideList-seconly.txt"           \
+      > "${temp_dir}/superseding-and-superseded-revision-ids-Rollups.txt"
+    sort_in_place "${temp_dir}/superseding-and-superseded-revision-ids-Rollups.txt"
+
+    log_info_message "Creating superseding-and-superseded-revision-ids-seconly.txt..."
+    # "findstr.exe /L /I /V /G:" can be translated to "grep -F -i -v -f"
+    grep -F -i -v -f                                                      \
+        "${temp_dir}/superseding-and-superseded-revision-ids-Rollups.txt" \
+        "${temp_dir}/superseding-and-superseded-revision-ids.txt"         \
+      > "${temp_dir}/superseding-and-superseded-revision-ids-seconly.txt" \
+        || true
+    sort_in_place "${temp_dir}/superseding-and-superseded-revision-ids-seconly.txt"
+
+    log_info_message "echo Joining existing-bundle-revision-ids.txt and superseding-and-superseded-revision-ids(-seconly).txt to ValidSupersededRevisionIds(-seconly).txt..."
+
+    join -t "," -e "unavailable" -o "2.2"                         \
+        "${temp_dir}/existing-bundle-revision-ids.txt"            \
+        "${temp_dir}/superseding-and-superseded-revision-ids.txt" \
+      > "${temp_dir}/ValidSupersededRevisionIds.txt"
+    sort_in_place "${temp_dir}/ValidSupersededRevisionIds.txt"
+
+    join -t "," -e "unavailable" -o "2.2"                                 \
+        "${temp_dir}/existing-bundle-revision-ids.txt"                    \
+        "${temp_dir}/superseding-and-superseded-revision-ids-seconly.txt" \
+      > "${temp_dir}/ValidSupersededRevisionIds-seconly.txt"
+    sort_in_place "${temp_dir}/ValidSupersededRevisionIds-seconly.txt"
+
+    log_info_message "Creating ValidNonSupersededRevisionIds(-seconly).txt..."
+
+    # "grep -F -i -v -f" is a translation of "findstr.exe /L /I /V /G:",
+    # but grep always causes troubles:
+    # - grep writes an empty output file, if the filter file contains
+    #   empty lines. This can be prevented by adding the option -e
+    #   "unavailable" to join.
+    # - if grep doesn't find any results, then it returns an error code,
+    #   which must be masked.
+    # - grep can get rather slow for comparing large files.
+    # - join works better for large files, because it reads alternately
+    #   through two sorted files.
+    #
+    # grep -F -i -v -f can be replaced with a left join (join -v1) or
+    # right join (join -v2), if the input files are compatible and sorted.
+    #
+    # join -v2 does a "right join"; it will print only lines, which are
+    # unique on the right side (in the second file).
+    #
+    # If both input files are sorted and unique, then the output file
+    # must be sorted, too.
+
+    join -v2                                            \
+        "${temp_dir}/ValidSupersededRevisionIds.txt"    \
+        "${temp_dir}/existing-bundle-revision-ids.txt"  \
+      > "${temp_dir}/ValidNonSupersededRevisionIds.txt"
+
+    join -v2                                                    \
+        "${temp_dir}/ValidSupersededRevisionIds-seconly.txt"    \
+        "${temp_dir}/existing-bundle-revision-ids.txt"          \
+      > "${temp_dir}/ValidNonSupersededRevisionIds-seconly.txt"
+
+    # *** Step 3: Get the FileIds for the RevisionIds
+    #             [target: OnlySupersededFileIds(-seconly).txt] ***
+
+    log_info_message "Joining ValidSupersededRevisionIds(-seconly).txt and BundledUpdateRevisionAndFileIds.txt to SupersededFileIds(-seconly).txt..."
+
+    join -t "," -e "unavailable" -o "2.3"                 \
+        "${temp_dir}/ValidSupersededRevisionIds.txt"      \
+        "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
+      > "${temp_dir}/SupersededFileIds.txt"
+    sort_in_place "${temp_dir}/SupersededFileIds.txt"
+
+    join -t "," -e "unavailable" -o "2.3"                    \
+        "${temp_dir}/ValidSupersededRevisionIds-seconly.txt" \
+        "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"    \
+      > "${temp_dir}/SupersededFileIds-seconly.txt"
+    sort_in_place "${temp_dir}/SupersededFileIds-seconly.txt"
+
+    log_info_message "Joining ValidNonSupersededRevisionIds(-seconly).txt and BundledUpdateRevisionAndFileIds.txt to NonSupersededFileIds(-seconly).txt..."
+
+    join -t "," -e "unavailable" -o "2.3"                 \
+        "${temp_dir}/ValidNonSupersededRevisionIds.txt"   \
+        "${temp_dir}/BundledUpdateRevisionAndFileIds.txt" \
+      > "${temp_dir}/NonSupersededFileIds.txt"
+    sort_in_place "${temp_dir}/NonSupersededFileIds.txt"
+
+    join -t "," -e "unavailable" -o "2.3"                       \
+        "${temp_dir}/ValidNonSupersededRevisionIds-seconly.txt" \
+        "${temp_dir}/BundledUpdateRevisionAndFileIds.txt"       \
+      > "${temp_dir}/NonSupersededFileIds-seconly.txt"
+    sort_in_place "${temp_dir}/NonSupersededFileIds-seconly.txt"
+
+    log_info_message "Creating OnlySupersededFileIds(-seconly).txt..."
+
+    join -v2                                   \
+        "${temp_dir}/NonSupersededFileIds.txt" \
+        "${temp_dir}/SupersededFileIds.txt"    \
+      > "${temp_dir}/OnlySupersededFileIds.txt"
+
+    join -v2                                           \
+        "${temp_dir}/NonSupersededFileIds-seconly.txt" \
+        "${temp_dir}/SupersededFileIds-seconly.txt"    \
+      > "${temp_dir}/OnlySupersededFileIds-seconly.txt"
+
+    # *** Step 4: Get the URLs for the FileIds
+    #             [target: ExcludeList-superseded-all(-seconly).txt] ***
+
+    log_info_message "Joining OnlySupersededFileIds(-seconly).txt and UpdateCabExeIdsAndLocations.txt to ExcludeList-superseded-all(-seconly).txt..."
+
+    join -t "," -e "unavailable" -o "2.2"             \
+        "${temp_dir}/OnlySupersededFileIds.txt"       \
+        "${temp_dir}/UpdateCabExeIdsAndLocations.txt" \
+      > "${temp_dir}/ExcludeList-superseded-all.txt"
     sort_in_place "${temp_dir}/ExcludeList-superseded-all.txt"
 
-    # *** Apply ExcludeList-superseded-exclude.txt ***
-    #
-    # The last step is the removal of some superseded updates, which
-    # are still needed for the installation. This is done by compiling
-    # several "override" files, which typically contain kb numbers only.
+    join -t "," -e "unavailable" -o "2.2"               \
+        "${temp_dir}/OnlySupersededFileIds-seconly.txt" \
+        "${temp_dir}/UpdateCabExeIdsAndLocations.txt"   \
+      > "${temp_dir}/ExcludeList-superseded-all-seconly.txt"
+    sort_in_place "${temp_dir}/ExcludeList-superseded-all-seconly.txt"
+
+    # *** Step 5: Apply ExcludeList-superseded-exclude(-seconly).txt
+    #            [target: ExcludeList-superseded(-seconly).txt] ***
+
+    # The last step is the removal of superseded updates, which are still
+    # needed for the installation. This is done by compiling several
+    # "override" files, which typically contain kb numbers only.
     #
     # kb2975061 is defined in the file StaticUpdateIds-w63-upd1.txt,
     # but it seems to be superseded and may be missing
@@ -315,22 +468,23 @@ function rebuild_superseded_updates ()
     # StaticUpdateIds-w63-upd1.txt and StaticUpdateIds-w63-upd2.txt are
     # removed from the lists of superseded updates.
     #
-    # The kb numbers should be restricted to Windows 8.1.
+    # The kb numbers are restricted to Windows 8.1.
     cat_existing_files ../client/static/StaticUpdateIds-w63-upd1.txt \
                        ../client/static/StaticUpdateIds-w63-upd2.txt \
     | grep -i -e "^kb"                                               \
-    | while IFS=$'\r\n' read -r line
+    | while IFS=$'\r\n' read -r kb_number
       do
-          line="windows8.1-${line}"
-          echo "${line}"
-      done > "${temp_dir}/w63_excludes.txt"
+          printf '%s\n' "windows8.1-${kb_number}"
+      done > "${temp_dir}/w63-kb-numbers.txt"
 
+    # List of override files for ExcludeList-superseded.txt
     excludelist_overrides+=(
         ../exclude/ExcludeList-superseded-exclude.txt
         ../exclude/custom/ExcludeList-superseded-exclude.txt
-        "${temp_dir}/w63_excludes.txt"
+        "${temp_dir}/w63-kb-numbers.txt"
     )
 
+    # List of override files for ExcludeList-superseded-seconly.txt
     shopt -s nullglob
     excludelist_overrides_seconly+=(
         ../exclude/ExcludeList-superseded-exclude.txt
@@ -341,7 +495,7 @@ function rebuild_superseded_updates ()
         ../client/static/StaticUpdateIds-w63*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w62*-seconly.txt
         ../client/static/custom/StaticUpdateIds-w63*-seconly.txt
-        "${temp_dir}/w63_excludes.txt"
+        "${temp_dir}/w63-kb-numbers.txt"
     )
     shopt -u nullglob
 
@@ -354,6 +508,7 @@ function rebuild_superseded_updates ()
     # which usually implies a "natural" number sort. This is, of course,
     # a bad idea, because it means, that all URLs are broken down into
     # small pieces, and then the pieces are compared to each other.
+
     apply_exclude_lists                                   \
         "${temp_dir}/ExcludeList-superseded-all.txt"      \
         "../exclude/ExcludeList-Linux-superseded.txt"     \
@@ -362,7 +517,7 @@ function rebuild_superseded_updates ()
     sort_in_place "../exclude/ExcludeList-Linux-superseded.txt"
 
     apply_exclude_lists                                           \
-        "${temp_dir}/ExcludeList-superseded-all.txt"              \
+        "${temp_dir}/ExcludeList-superseded-all-seconly.txt"      \
         "../exclude/ExcludeList-Linux-superseded-seconly.txt"     \
         "${temp_dir}/ExcludeList-superseded-exclude-seconly.txt"  \
         "${excludelist_overrides_seconly[@]}"

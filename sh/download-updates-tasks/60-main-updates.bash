@@ -300,7 +300,6 @@ function calculate_static_updates ()
         ;;
         *)
             # ofc is not used anymore
-            log_debug_message "${FUNCNAME[0]}: Static updates are not available for ${name}"
             return 0
         ;;
     esac
@@ -363,14 +362,12 @@ function calculate_static_updates ()
             do
                 if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "on" ]]
                 then
-                    debug=enabled log_debug_message "Adding ${w100_version} ${w100_arch} to static download list"
                     cat_existing_files                                                                  \
                         "../static/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt"        \
                         "../static/custom/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt" \
                         >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
                 else
                     :
-                    #debug=enabled log_debug_message "Ignoring ${w100_version} ${w100_arch}"
                 fi
             done < "./${w100_versions_file}"
         else
@@ -438,8 +435,6 @@ function calculate_dynamic_updates ()
     local valid_dynamic_links="$4"
 
     local locale=""
-    local update_id=""
-    local url=""
     local w100_version=""
     local w100_arch=""
     local w100_state=""
@@ -455,7 +450,6 @@ function calculate_dynamic_updates ()
         *)
             # Dynamic updates are not calculated for "win", and ofc is
             # not used anymore
-            log_debug_message "${FUNCNAME[0]}: Dynamic updates are not available for ${name}"
             return 0
         ;;
     esac
@@ -579,13 +573,10 @@ function calculate_dynamic_updates ()
     # which are needed for the installation of the updates. They link
     # the UpdateIds (in form of UUIDs) to the file names.
     log_info_message "Creating file 7, UpdateTable-${name}-${lang}.csv ..."
-
     mkdir -p "../client/UpdateTable"
-    while IFS=',' read -r update_id url skip_rest
-    do
-        printf '%s\r\n' "${update_id},${url##*/}"
-    done < "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
-         > "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
+    extract_ids_and_filenames                                      \
+        "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
+        "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
 
     # At this point, the UpdateIds are no longer needed. Only the
     # locations (URLs) are needed to create the initial list of dynamic
@@ -658,14 +649,12 @@ function calculate_dynamic_updates ()
             do
                 if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "off" ]]
                 then
-                    debug=enabled log_debug_message "Removing ${w100_version} ${w100_arch} from dynamic download list"
                     exclude_lists_dynamic+=(
                         "../exclude/ExcludeList-w100-${w100_version}.txt"
                         "../exclude/custom/ExcludeList-w100-${w100_version}.txt"
                     )
                 else
                     :
-                    #debug=enabled log_debug_message "Ignoring ${w100_version} ${w100_arch}"
                 fi
             done < "./${w100_versions_file}"
         else

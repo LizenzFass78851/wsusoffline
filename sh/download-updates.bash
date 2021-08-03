@@ -1,14 +1,10 @@
 #!/usr/bin/env bash
 #
 # Filename: download-updates.bash
-# Version: Linux download scripts, version 2.4 (beta-3)
-# Release date: 2021-05-29
+# Version: Linux download scripts, version 2.5
+# Release date: 2021-08-02
 # Development branch: master
-# Supported version: WSUS Offline Update, Community Edition 12.5 (b78)
-#
-# Note: This version introduces the download of Microsoft Edge
-# (Chromium). The new script produces a lot of debugging output, but
-# this will be removed after some more testing.
+# Supported version: WSUS Offline Update, Community Edition 12.6 (b16)
 #
 # Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -171,8 +167,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.4 (beta-3)"
-readonly release_date="2021-05-29"
+readonly script_version="2.5"
+readonly release_date="2021-08-02"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.

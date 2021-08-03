@@ -37,9 +37,6 @@
 #       if available.
 #
 #     Usually, you only need to install jq.
-#
-#     TODO: This version produces a lot of debug output, which will be
-#     removed in a later version.
 
 
 function request_edge_chromium_links ()
@@ -117,18 +114,17 @@ function get_latest_edge_download ()
     #   }
     # }
 
-    # Some debug output, to be removed in later versions
+    # Debug output for JSON requests and answers
     #
     # jq is often used to parse JSON data. In its most basic form,
     # it will pretty-print JSON files.
-    debug=enabled log_debug_message "JSON request: $( jq '.' <<< "${json_request}" )"
+    #
+    #echo "JSON request"
     #jq '.' <<< "${json_request}"
-    echo ""
+    #echo ""
 
     # Insert target namespace and name into the url
     url="https://msedge.api.cdp.microsoft.com/api/v1.1/contents/Browser/namespaces/${target_namespace}/names/${target_name}/versions/latest?action=select"
-    debug=enabled log_debug_message "URL: ${url}"
-    echo ""
 
     # Output file for wget
     json_response="${temp_dir}/${target_name}_version.json"
@@ -156,8 +152,6 @@ function get_latest_edge_download ()
             "${url}"
     then
         wget_result_code="0"
-        debug=enabled log_debug_message "wget returned ok"
-        echo ""
     else
         wget_result_code="$?"
         log_error_message "wget returned error code ${wget_result_code}"
@@ -165,9 +159,9 @@ function get_latest_edge_download ()
         return 0
     fi
 
-    debug=enabled log_debug_message "JSON response: $( jq '.' "${json_response}" )"
+    #echo "JSON response"
     #jq '.' "${json_response}"
-    echo ""
+    #echo ""
 
     # Extract the namespace, name and version number from the
     # response. The jq option -r will produce raw output without
@@ -175,11 +169,6 @@ function get_latest_edge_download ()
     str_namespace="$( jq -r '.ContentId.Namespace' "${json_response}" )"
     str_name="$( jq -r '.ContentId.Name' "${json_response}" )"
     str_version="$( jq -r '.ContentId.Version' "${json_response}" )"
-
-    debug=enabled log_debug_message "Namespace: ${str_namespace}"
-    debug=enabled log_debug_message "Name:      ${str_name}"
-    debug=enabled log_debug_message "Version:   ${str_version}"
-    echo ""
 
     # Validate response fields
     [[ -z "${str_namespace}" ]] && return 0
@@ -233,14 +222,12 @@ function get_edge_download ()
     # Create an empty JSON array for the request
     json_request='[]'
 
-    debug=enabled log_debug_message "JSON request: $( jq '.' <<< "${json_request}" )"
+    #echo "JSON request"
     #jq '.' <<< "${json_request}"
-    echo ""
+    #echo ""
 
     # Insert target namespace, name and version into the url
     url="https://msedge.api.cdp.microsoft.com/api/v1.1/internal/contents/Browser/namespaces/${target_namespace}/names/${target_name}/versions/${target_version}/files?action=GenerateDownloadInfo&foregroundPriority=true"
-    debug=enabled log_debug_message "URL: ${url}"
-    echo ""
 
     # Output file for wget
     json_response="${temp_dir}/${target_name}_download_info.json"
@@ -259,8 +246,6 @@ function get_edge_download ()
             "${url}"
     then
         wget_result_code="0"
-        debug=enabled log_debug_message "wget returned ok"
-        echo ""
     else
         wget_result_code="$?"
         log_error_message "wget returned error code ${wget_result_code}"
@@ -268,9 +253,9 @@ function get_edge_download ()
         return 0
     fi
 
-    debug=enabled log_debug_message "JSON response: $( jq '.' "${json_response}" )"
+    #echo "JSON response"
     #jq '.' "${json_response}"
-    echo ""
+    #echo ""
 
     # The JSON response is an array. There may be one full installer
     # and several updates from previous versions.
@@ -293,18 +278,15 @@ function get_edge_download ()
 
     # Get the number of elements in the JSON response
     local -i array_length="0"
-    local -i last_index="0"
-    local -i i="0"
     array_length="$( jq 'length' "${json_response}" )"
-
     if (( array_length == 0 ))
     then
         log_warning_message "The JSON response appears to be an empty array"
         return 0
     fi
 
-    last_index="$(( array_length - 1 ))"
-    for (( i = 0; i <= last_index; i++ ))
+    local -i i="0"
+    for (( i = 0; i < array_length; i++ ))
     do
         real_filename="$( jq -r ".[${i}].FileId" "${json_response}" )"
         if [[ "${real_filename}" == "${expected_filename}" ]]
@@ -313,37 +295,31 @@ function get_edge_download ()
             filesize="$( jq -r ".[${i}].SizeInBytes" "${json_response}" )"
             sha1_base64="$( jq -r ".[${i}].Hashes.Sha1" "${json_response}" )"
             sha256_base64="$( jq -r ".[${i}].Hashes.Sha256" "${json_response}" )"
+
+            # Validate the results
+            [[ -z "${real_filename}" ]] && return 0
+            [[ -z "${download_link}" ]] && return 0
+            [[ -z "${filesize}" ]] && return 0
+            [[ -z "${sha1_base64}" ]] && return 0
+            [[ -z "${sha256_base64}" ]] && return 0
+
+            # Convert hashes from base64 encoded strings to hexadecimal
+            # numbers
+            sha1_hex="$( base64_to_hex "${sha1_base64}" )"
+            sha256_hex="$( base64_to_hex "${sha256_base64}" )"
+
+            # Append all needed data to the static download links file
+            # and the hashes file
+            printf '%s\n' "${download_link},${real_filename}" >> "${static_download_links_edge}"
+            printf '%s\n' "${filesize},${sha1_hex},${sha256_hex},${real_filename}" >> "${hashes_edge}"
+
+            # Don't test the remaining array elements, if the expected
+            # filename has been found
             break
         fi
     done
 
-    debug=enabled log_debug_message "Filename: ${real_filename}"
-    debug=enabled log_debug_message "Link:     ${download_link}"
-    debug=enabled log_debug_message "Size:     ${filesize}"
-    debug=enabled log_debug_message "Sha1:     ${sha1_base64}"
-    debug=enabled log_debug_message "Sha256:   ${sha256_base64}"
     echo ""
-
-    # Validate the results
-    [[ -z "${real_filename}" ]] && return 0
-    [[ -z "${download_link}" ]] && return 0
-    [[ -z "${filesize}" ]] && return 0
-    [[ -z "${sha1_base64}" ]] && return 0
-    [[ -z "${sha256_base64}" ]] && return 0
-
-    # Convert hashes from base64 encoded strings to hexadecimal numbers
-    sha1_hex="$( base64_to_hex "${sha1_base64}" )"
-    sha256_hex="$( base64_to_hex "${sha256_base64}" )"
-
-    debug=enabled log_debug_message "SHA-1 hexadecimal:   ${sha1_hex}"
-    debug=enabled log_debug_message "SHA-256 hexadecimal: ${sha256_hex}"
-    echo ""
-
-    # Append all needed data to the static download links file and the
-    # hashes file
-    printf '%s\n' "${download_link},${real_filename}" >> "${static_download_links_edge}"
-    printf '%s\n' "${filesize},${sha1_hex},${sha256_hex},${real_filename}" >> "${hashes_edge}"
-
     return 0
 }
 
@@ -464,17 +440,13 @@ function download_edge_chromium ()
     # Create the download directory
     mkdir -p "${download_dir}" || return 0
 
+    # Parse the static download links file
     while IFS=$'\r\n,' read -r url real_filename skip_rest
     do
         # "basename" in bash
         filename_from_url="${url##*/}"
         # delete GET parameters from the end of the URL
         filename_from_url="${filename_from_url%%\?*}"
-
-        debug=enabled log_debug_message "URL:               ${url}"
-        debug=enabled log_debug_message "Real filename:     ${real_filename}"
-        debug=enabled log_debug_message "Filename from URL: ${filename_from_url}"
-        echo ""
 
         [[ -z "${url}" ]] && return 0
         [[ -z "${real_filename}" ]] && return 0
@@ -496,73 +468,71 @@ function download_edge_chromium ()
             # hashdeep only returns okay, if there are matching input
             # files for ALL records in the hashdeep file.
             hashdeep_output="$( hashdeep -k "${hashes_edge}" -m -b -vv "${download_dir}/${real_filename}" )" || true
-            debug=enabled log_debug_message "hashdeep output: ${hashdeep_output}"
-            echo ""
 
             if [[ "${hashdeep_output}" == "${real_filename}" ]]
             then
                 log_info_message "The file ${real_filename} already exists and all hashes match. No download required."
-                echo ""
-                continue
             else
                 log_info_message "The file ${real_filename} exists, but the hashes did not match. The file will be deleted and downloaded again."
-                echo ""
                 rm "${download_dir}/${real_filename}"
             fi
         else
             log_info_message "The file ${real_filename} does not exist yet."
-            echo ""
         fi
 
-        # A new download is required
-        log_info_message "Downloading new file ${real_filename} ..."
-
-        if wget --verbose                             \
-                --server-response                     \
-                --progress="dot:mega"                 \
-                --timestamping                        \
-                --trust-server-names                  \
-                --content-disposition                 \
-                --no-http-keep-alive                  \
-                --tries="10"                          \
-                --timeout="120"                       \
-                --waitretry="20"                      \
-                --directory-prefix="${download_dir}"  \
-                --append-output="${logfile}"          \
-                "${url}"
+        # Check, if the file still exists
+        if [[ ! -f "${download_dir}/${real_filename}" ]]
         then
-            wget_result_code="0"
+            # A new download is required
+            log_info_message "Downloading new file ${real_filename} ..."
 
-            # The shell can handle file globbing best
-            log_info_message "Renaming downloaded file to real filename..."
-            shopt -s nullglob
-            for pathname in "${download_dir}/${filename_from_url}"*
-            do
-                mv "${pathname}" "${download_dir}/${real_filename}"
-            done
-            shopt -u nullglob
-
-            if [[ -f "${download_dir}/${real_filename}" ]]
+            if wget --verbose                             \
+                    --server-response                     \
+                    --progress="dot:mega"                 \
+                    --timestamping                        \
+                    --trust-server-names                  \
+                    --content-disposition                 \
+                    --no-http-keep-alive                  \
+                    --tries="10"                          \
+                    --timeout="120"                       \
+                    --waitretry="20"                      \
+                    --directory-prefix="${download_dir}"  \
+                    --append-output="${logfile}"          \
+                    "${url}"
             then
-                log_info_message "Verifying the new download with hashdeep..."
-                hashdeep_output="$( hashdeep -k "${hashes_edge}" -m -b -vv "${download_dir}/${real_filename}" )" || true
+                # wget downloaded some file, but it must be renamed to
+                # the real filename, and the file hashes must be verified.
+                wget_result_code="0"
 
-                debug=enabled log_debug_message "hashdeep output: ${hashdeep_output}"
-                if [[ "${hashdeep_output}" == "${real_filename}" ]]
+                log_info_message "Renaming downloaded file to real filename..."
+                # The shell can handle file globbing best
+                shopt -s nullglob
+                for pathname in "${download_dir}/${filename_from_url}"*
+                do
+                    mv "${pathname}" "${download_dir}/${real_filename}"
+                done
+                shopt -u nullglob
+
+                if [[ -f "${download_dir}/${real_filename}" ]]
                 then
-                    log_info_message "The download of ${real_filename} succeeded."
+                    log_info_message "Verifying the new download with hashdeep..."
+                    hashdeep_output="$( hashdeep -k "${hashes_edge}" -m -b -vv "${download_dir}/${real_filename}" )" || true
+
+                    if [[ "${hashdeep_output}" == "${real_filename}" ]]
+                    then
+                        log_info_message "The download of ${real_filename} succeeded."
+                    else
+                        log_warning_message "The download of ${real_filename} did not succeed. The file will be deleted."
+                        rm "${download_dir}/${real_filename}"
+                    fi
                 else
-                    log_warning_message "The download of ${real_filename} did not succeed. The file will be deleted."
-                    rm "${download_dir}/${real_filename}"
+                    log_warning_message "The downloaded file was not found for unknown reasons."
                 fi
             else
-                log_warning_message "The downloaded file was not found for unknown reasons."
+                wget_result_code="$?"
+                log_error_message "The download failed with wget error code ${wget_result_code}."
+                increment_error_count
             fi
-
-        else
-            wget_result_code="$?"
-            log_error_message "The download failed with wget error code ${wget_result_code}."
-            increment_error_count
         fi
         echo ""
 

@@ -31,8 +31,8 @@
 
 # ========== Configuration ================================================
 
-w100_versions_file_old="w100-versions.ini"
-w100_versions_file_new="windows-10-versions.ini"
+w100_versions_file_old="w100-versions.ini"  # version numbers with year and month
+w100_versions_file_new="windows-10-versions.ini"  # OS build numbers
 
 # ========== Functions ====================================================
 
@@ -176,20 +176,22 @@ function remove_obsolete_scripts ()
     # The format of the Windows 10 versions file was changed in WSUS
     # Offline Update, Community Edition 12.5 (b76). The old file will
     # be deleted. A new file with default settings will be created,
-    # if it doesn't exist, because the download script may need it.
+    # if it doesn't exist. Without this file, some static downloads for
+    # Windows 10 might be missing.
     file_list+=( "${w100_versions_file_old}" )
 
     if [[ ! -f "${w100_versions_file_new}" ]]
     then
-        # TODO: Writing to the log file should only be done after the
-        # second script 20-start-logging.bash
-        debug=enabled log_debug_message "Creating new style Windows 10 versions file. Check your Windows 10 selections with the script update-generator.bash or verify the file ${w100_versions_file_new} manually."
+        # Writing to the log file should only be done after the second
+        # script 20-start-logging.bash
+        printf '%s\n' "Creating new style Windows 10 versions file. Check your Windows 10 selections with the script update-generator.bash or verify the file ${w100_versions_file_new} manually."
+
         printf '%s\n' "10240_x86=on"   "10240_x64=on"   \
                       "14393_x86=on"   "14393_x64=on"   \
                       "17763_x86=on"   "17763_x64=on"   \
                       "18362_x86=off"  "18362_x64=off"  \
                       "19041_x86=on"   "19041_x64=on"   \
-                      > "${w100_versions_file_new}"
+                    > "${w100_versions_file_new}"
     fi
 
     # Delete all obsolete files, if existing
