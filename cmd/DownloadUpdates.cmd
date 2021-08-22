@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b19)
+set WSUSOFFLINE_VERSION=12.6 (b20)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1313,6 +1313,35 @@ rem *** Determine update urls for %1 %2 ***
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo.
 
+set TMP_PLATFORM=%1
+if "%TMP_PLATFORM:~-4%"=="-x64" (
+  set TMP_PLATFORM=%TMP_PLATFORM:~0,-4%
+)
+
+if "%TMP_PLATFORM%"=="w100" (
+  if exist ..\Windows10Versions.ini (
+    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
+      if "%%j"=="%3" (
+        if /i "%%k"=="Enabled" (
+          if "!TMP_BUILDS_ENABLED!"=="" (set TMP_BUILDS_ENABLED=%%i) else (set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i)
+        )
+      )
+    )
+  ) else (
+    set TMP_BUILDS_ENABLED=10240 14393 17763 18362 19041
+  )
+  set TMP_BUILDS_DISABLED=
+  for %%i in (10240 14393 17763 18362 19041) do (
+    echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
+    if errorlevel 1 (
+      if "!TMP_BUILDS_DISABLED!"=="" (set TMP_BUILDS_DISABLED=%%i) else (set TMP_BUILDS_DISABLED=!TMP_BUILDS_DISABLED! %%i)
+    )
+  )
+) else (
+  set TMP_BUILDS_ENABLED=
+  set TMP_BUILDS_DISABLED=
+)
+
 if "%SECONLY%"=="1" (
   set SUSED_LIST=..\exclude\ExcludeList-superseded-seconly.txt
 ) else (
@@ -1597,11 +1626,6 @@ if exist ..\client\md\hashes-%1-%2.txt (
 :SkipAudit
 if exist ..\client\md\hashes-%1-%2.txt del ..\client\md\hashes-%1-%2.txt
 
-set TMP_PLATFORM=%1
-if "%TMP_PLATFORM:~-4%"=="-x64" (
-  set TMP_PLATFORM=%TMP_PLATFORM:~0,-4%
-)
-
 rem *** Determine static update urls for %1 %2 ***
 if "%EXC_STATICS%"=="1" goto SkipStatics
 echo Determining static update urls for %1 %2...
@@ -1609,14 +1633,10 @@ if exist ..\static\StaticDownloadLinks-%1-%2.txt copy /Y ..\static\StaticDownloa
 if exist ..\static\StaticDownloadLinks-%1-%3-%2.txt copy /Y ..\static\StaticDownloadLinks-%1-%3-%2.txt "%TEMP%\StaticDownloadLinks-%1-%2.txt" >nul
 rem *** Windows 10 version specific static links ***
 if "%TMP_PLATFORM%"=="w100" (
-  if exist ..\Windows10Versions.ini (
-    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-      if "%%j"=="%3" (
-        if /i "%%k"=="Enabled" (
-          if exist ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
-          if exist ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
-        )
-      )
+  if not "%TMP_BUILDS_ENABLED%"=="" (
+    for %%i in (%TMP_BUILDS_ENABLED%) do (
+      if exist ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
+      if exist ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
     )
   )
 )
@@ -1832,14 +1852,10 @@ if "%TMP_PLATFORM%"=="w63" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
-  if exist ..\Windows10Versions.ini (
-    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-      if "%%j"=="%3" (
-        if /i "%%k"=="Disabled" (
-          if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-          if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-        )
-      )
+  if not "%TMP_BUILDS_DISABLED%"=="" (
+    for %%i in (%TMP_BUILDS_DISABLED%) do (
+      if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+      if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
     )
   )
 )

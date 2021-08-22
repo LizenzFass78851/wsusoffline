@@ -141,6 +141,9 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
         if exist ..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv (
           for /F "tokens=1,2 delims=," %%l in (..\UpdateTable\UpdateTable-%OS_NAME%-%%k.csv) do (
             if "%%l"=="%%j" (
+              if "%OS_NAME%"=="w100" (
+                if exist "..\%OS_SEARCH_DIR%\%%k\%OS_VER_BUILD_INTERNAL%" (call ListUpdateFile.cmd %%m ..\%OS_SEARCH_DIR%\%%k\%OS_VER_BUILD_INTERNAL% /searchleftmost /append)
+              )
               call ListUpdateFile.cmd %%m ..\%OS_SEARCH_DIR%\%%k /searchleftmost /append
             )
           )
@@ -172,6 +175,17 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\MissingUpdateIds.txt") do 
     rem statisch definierte Windows-Updates als CAB/MSU/...
     if not exist "%TEMP%\Update.txt" (
       for %%l in (%OS_LANG% glb) do (
+        if "%OS_NAME%"=="w100" (
+          if exist "..\%OS_SEARCH_DIR%\%%l\%OS_VER_BUILD_INTERNAL%" (
+            if %IE_VER_MAJOR%%IE_VER_MINOR%0 GEQ 9100 (
+              call ListUpdateFile.cmd ie%IE_VER_MINOR%-*%%i ..\%OS_SEARCH_DIR%\%%l\%OS_VER_BUILD_INTERNAL%
+            ) else (
+              call ListUpdateFile.cmd ie%IE_VER_MAJOR%-*%%i ..\%OS_SEARCH_DIR%\%%l\%OS_VER_BUILD_INTERNAL%
+            )
+            call ListUpdateFile.cmd windows*%%i ..\%OS_SEARCH_DIR%\%%l\%OS_VER_BUILD_INTERNAL% /searchleftmost
+            call ListUpdateFile.cmd %%i ..\%OS_SEARCH_DIR%\%%l\%OS_VER_BUILD_INTERNAL%
+          )
+        )
         if %IE_VER_MAJOR%%IE_VER_MINOR%0 GEQ 9100 (
           call ListUpdateFile.cmd ie%IE_VER_MINOR%-*%%i ..\%OS_SEARCH_DIR%\%%l
         ) else (

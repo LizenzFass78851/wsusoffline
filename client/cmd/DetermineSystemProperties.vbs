@@ -56,7 +56,7 @@ Private Const idxBuild                        = 2
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
 Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strStaticId, strProduct, strPatch, languageCode, i, j
-Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, ServicingStack_OSVer_Major, ServicingStack_OSVer_Minor, ServicingStack_OSVer_Build
+Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
 Dim cpp2005_x86_old_ids, cpp2005_x86_new_ids, cpp2005_x64_old_ids, cpp2005_x64_new_ids
 Dim cpp2008_x86_old_ids, cpp2008_x86_new_ids, cpp2008_x64_old_ids, cpp2008_x64_new_ids
 'Dim cpp2010_x86_old_ids, cpp2010_x86_new_ids, cpp2010_x64_old_ids, cpp2010_x64_new_ids
@@ -448,17 +448,22 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
       WriteVersionToFile objCmdFile, "OS_VER", objQueryItem.Version & Mid(strBuildLabEx, InStr(strBuildLabEx, "."), InStr(InStr(strBuildLabEx, ".") + 1, strBuildLabEx, ".") - InStr(strBuildLabEx, "."))
     End If
   End If
-  ServicingStack_OSVer_Major = CInt(Split(objQueryItem.Version, ".")(0))
-  ServicingStack_OSVer_Minor = CInt(Split(objQueryItem.Version, ".")(1))
+  OSVer_Real_Major = CInt(Split(objQueryItem.Version, ".")(0))
+  OSVer_Real_Minor = CInt(Split(objQueryItem.Version, ".")(1))
   If Split(objQueryItem.Version, ".")(2) = "18363" Then
-    ServicingStack_OSVer_Build = 18362
+    OSVer_Real_Build = 18362
   ElseIf Split(objQueryItem.Version, ".")(2) = "19042" Then
-    ServicingStack_OSVer_Build = 19041
+    OSVer_Real_Build = 19041
   ElseIf Split(objQueryItem.Version, ".")(2) = "19043" Then
-    ServicingStack_OSVer_Build = 19041
+    OSVer_Real_Build = 19041
+  ElseIf Split(objQueryItem.Version, ".")(2) = "19044" Then
+    OSVer_Real_Build = 19041
+  ElseIf Split(objQueryItem.Version, ".")(2) = "19045" Then
+    OSVer_Real_Build = 19041
   Else
-    ServicingStack_OSVer_Build = CInt(Split(objQueryItem.Version, ".")(2))
+    OSVer_Real_Build = CInt(Split(objQueryItem.Version, ".")(2))
   End If
+  objCmdFile.WriteLine("set OS_VER_BUILD_INTERNAL=" & OSVer_Real_Build)
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))
   WriteLanguageToFile objCmdFile, "OS_LANG", objQueryItem.OSLanguage, True, True
   strInstallationType = RegRead(wshShell, strRegKeyWindowsVersion & strRegValInstallationType)
@@ -517,13 +522,13 @@ Next
 objCmdFile.WriteLine("set FS_TYPE=" & objFileSystem.GetDrive(objFileSystem.GetDriveName(wshShell.CurrentDirectory)).FileSystem)
 
 ' Determine Servicing Stack version
-If ServicingStack_OSVer_Major >= 6 Then
+If OSVer_Real_Major >= 6 Then
   ServicingStack_Major = 0
   ServicingStack_Minor = 0
   ServicingStack_Build = 0
   ServicingStack_Revis = 0
   For Each objFolder In objFileSystem.GetFolder(wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\servicing\Version").SubFolders
-    If (CInt(Split(objFolder.Name, ".")(0)) = ServicingStack_OSVer_Major) And (CInt(Split(objFolder.Name, ".")(1)) = ServicingStack_OSVer_Minor) And ((ServicingStack_OSVer_Major = 6) Or (CInt(Split(objFolder.Name, ".")(2)) = ServicingStack_OSVer_Build)) Then
+    If (CInt(Split(objFolder.Name, ".")(0)) = OSVer_Real_Major) And (CInt(Split(objFolder.Name, ".")(1)) = OSVer_Real_Minor) And ((OSVer_Real_Major = 6) Or (CInt(Split(objFolder.Name, ".")(2)) = OSVer_Real_Build)) Then
       If CInt(Split(objFolder.Name, ".")(0)) > ServicingStack_Major Then
         ServicingStack_Major = CInt(Split(objFolder.Name, ".")(0))
         ServicingStack_Minor = CInt(Split(objFolder.Name, ".")(1))
