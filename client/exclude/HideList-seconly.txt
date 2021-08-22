@@ -617,9 +617,9 @@ kb5004305,July 2021 Security Monthly Quality Rollup for Windows Server 2008
 kb5004289,July 2021 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5004294,July 2021 Security Monthly Quality Rollup for Windows Server 2012
 kb5004298,July 2021 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
-kb5004232,July 2021 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2 and 4.6 on Windows Server 2008
+kb5004232,July 2021 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2, 4.6 and 4.6.2 on Windows Server 2008
 kb5004229,July 2021 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 7 and Windows Server 2008 R2
-kb5004120,July 2021 Security and Quality Rollup for .NET Framework 4.6 on Windows Server 2008 and .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5004120,July 2021 Security and Quality Rollup for .NET Framework 4.6 and 4.6.2 on Windows Server 2008 and .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5004116,July 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5004230,July 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows Server 2012
 kb5004121,July 2021 Security and Quality Rollup for .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
@@ -627,3 +627,17 @@ kb5004117,July 2021 Security and Quality Rollup for .NET Framework 4.8 on Window
 kb5004231,July 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 8.1 and Windows Server 2012 R2
 kb5004122,July 2021 Security and Quality Rollup for .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
 kb5004118,July 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5005090,August 2021 Security Monthly Quality Rollup for Windows Server 2008
+kb5005088,August 2021 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5005099,August 2021 Security Monthly Quality Rollup for Windows Server 2012
+kb5005076,August 2021 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb5004874,August 2021 Security and Quality Rollup for .NET Framework 2.0, 3.0, 4.5.2, 4.6 and 4.6.2 on Windows Server 2008
+kb5004871,August 2021 Security and Quality Rollup for .NET Framework 3.5.1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 7 and Windows Server 2008 R2
+kb5004757,August 2021 Security and Quality Rollup for .NET Framework 4.6 and 4.6.2 on Windows Server 2008 and .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5004755,August 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5004872,August 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows Server 2012
+kb5004758,August 2021 Security and Quality Rollup for .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb5004753,August 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
+kb5004873,August 2021 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.5.2, 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5004759,August 2021 Security and Quality Rollup for .NET Framework 4.6, 4.6.1, 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
+kb5004754,August 2021 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
