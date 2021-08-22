@@ -102,8 +102,9 @@ set WOU_ENDLESS=6
 goto SetOfficeName
 
 :Windows10.0
-if %OS_VER_BUILD% GEQ 20231 goto Windows11.0
+if %OS_VER_BUILD% GEQ 21382 goto Windows11.0
 rem *** Windows 10.0 / Server 2016/2019 ***
+rem *** Windows Server 2022 is "fe", but behaves like Windows 10 regarding updates, so treat it as "w100" ***
 set OS_NAME=w100
 set OS_SP_VER_TARGET_MAJOR=0
 set MSI_VER_TARGET_MAJOR=5
