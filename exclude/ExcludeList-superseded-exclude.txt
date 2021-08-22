@@ -14,11 +14,12 @@ windows10.0-kb4022730-x86_ad125b5e079babea62b5b977d34fb1652bc76fc1
 windows10.0-KB5001399
 windows10.0-KB5001402
 windows10.0-kb5003364
-windows10.0-kb5003711
+windows10.0-kb5005112
 windows10.0-kb4520390
-windows10.0-kb5004748
+windows10.0-kb5005412
 windows10.0-kb4577266
 windows10.0-kb4598481
+ssu-19041.1161
 windows10.0-kb4495610
 windows10.0-kb4495611
 windows10.0-kb4495613
