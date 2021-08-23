@@ -1824,6 +1824,7 @@ Community Edition 12.5.1 -- 31.05.2021
 Community Edition 12.6 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-2.5 (Special thanks to H. Buhrmester)
 - Implemented revised mechanism of calculating superseded updates (Thanks to "hbuhrmester" and "aker")
+- Updates for Windows 10 are now stored based on the build they are released for (Thanks to "aker")
 - Added ability to detect Windows 11 builds
 - .NET 5 updated to version 5.0.9
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30133.0 (Thanks to "aker")

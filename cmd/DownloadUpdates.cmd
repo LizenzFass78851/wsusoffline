@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b22)
+set WSUSOFFLINE_VERSION=12.6 (b23)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1921,6 +1921,11 @@ if "%4"=="/skipdownload" (
   goto EndDownload
 )
 if not exist ..\client\%1\%2\nul md ..\client\%1\%2
+if not "%TMP_BUILDS_ENABLED%"=="" (
+  for %%f in (%TMP_BUILDS_ENABLED%) do (
+    if not exist ..\client\%1\%2\%%f\nul md ..\client\%1\%2\%%f
+  )
+)
 if not exist "%TEMP%\ValidStaticLinks-%1-%2.txt" goto DownloadDynamicUpdates
 echo Downloading/validating statically defined updates for %1 %2...
 set LINES_COUNT=0
@@ -1928,26 +1933,94 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
 for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TEMP%\ValidStaticLinks-%1-%2.txt"') do (
   echo Downloading/validating update %%i of %LINES_COUNT%...
   for /F "tokens=1,2 delims=," %%k in ("%%j") do (
-    if "%%l" NEQ "" (
-      if exist ..\client\%1\%2\%%l (
-        echo Renaming file ..\client\%1\%2\%%l to %%~nxk...
-        ren ..\client\%1\%2\%%l %%~nxk
-        call :Log "Info: Renamed file ..\client\%1\%2\%%l to %%~nxk"
+    set TARGET_PATH=
+    if "%TMP_PLATFORM%"=="w100" (
+      if not "%TMP_BUILDS_ENABLED%"=="" (
+        for %%f in (%TMP_BUILDS_ENABLED%) do (
+          if exist ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt (
+            type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+            if not errorlevel 1 (
+              if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+            ) else (
+              if exist ..\static\custom\StaticDownloadLinks-w100-%%f-%3-%2.txt (
+                type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+                if not errorlevel 1 (
+                  if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+                )
+              )
+            )
+          ) else (
+            if exist ..\static\custom\StaticDownloadLinks-w100-%%f-%3-%2.txt (
+              type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+              if not errorlevel 1 (
+                if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+              )
+            )
+          )
+        )
+        if "!TARGET_PATH!"=="" set TARGET_PATH=..\client\%1\%2
+      ) else (
+        set TARGET_PATH=..\client\%1\%2
+      )
+    ) else (
+      set TARGET_PATH=..\client\%1\%2
+    )
+    rem if "%%l" NEQ "" (call :Log "Debug: TARGET_PATH for %%l is !TARGET_PATH!") else (call :Log "Debug: TARGET_PATH for %%~nxk is !TARGET_PATH!")
+
+    if not "!TARGET_PATH!"=="..\client\%1\%2" (
+      if "%%l" NEQ "" (
+        if exist "..\client\%1\%2\%%l" (
+          echo Moving file ..\client\%1\%2\%%l to !TARGET_PATH!...
+          move /Y "..\client\%1\%2\%%l" "!TARGET_PATH!" >nul
+          call :Log "Info: Moved file ..\client\%1\%2\%%l to %%~nxk"
+        )
+      ) else (
+        if exist "..\client\%1\%2\%%~nxk" (
+          echo Moving file ..\client\%1\%2\%%~nxk to !TARGET_PATH!...
+          move /Y "..\client\%1\%2\%%~nxk" "!TARGET_PATH!" >nul
+          call :Log "Info: Moved file ..\client\%1\%2\%%~nxk to !TARGET_PATH!"
+        )
+      )
+    ) else (
+      if not "%TMP_BUILDS_ENABLED%"=="" (
+        for %%f in (%TMP_BUILDS_ENABLED%) do (
+          if "%%l" NEQ "" (
+            if exist "..\client\%1\%2\%%f\%%l" (
+              echo Moving file ..\client\%1\%2\%%f\%%l to !TARGET_PATH!...
+              move /Y "..\client\%1\%2\%%f\%%l" "!TARGET_PATH!" >nul
+              call :Log "Info: Moved file ..\client\%1\%2\%%l to %%~nxk"
+            )
+          ) else (
+            if exist "..\client\%1\%2\%%f\%%~nxk" (
+              echo Moving file ..\client\%1\%2\%%f\%%~nxk to !TARGET_PATH!...
+              move /Y "..\client\%1\%2\%%f\%%~nxk" "!TARGET_PATH!" >nul
+              call :Log "Info: Moved file ..\client\%1\%2\%%f\%%~nxk to !TARGET_PATH!"
+            )
+          )
+        )
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\%1\%2 %%k
+
+    if "%%l" NEQ "" (
+      if exist "!TARGET_PATH!\%%l" (
+        echo Renaming file !TARGET_PATH!\%%l to %%~nxk...
+        ren "!TARGET_PATH!\%%l" %%~nxk
+        call :Log "Info: Renamed file !TARGET_PATH!\%%l to %%~nxk"
+      )
+    )
+    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% "!TARGET_PATH!" %%k
     if errorlevel 1 (
-      if exist ..\client\%1\%2\%%~nxk del ..\client\%1\%2\%%~nxk
+      if exist "!TARGET_PATH!\%%~nxk" del "!TARGET_PATH!\%%~nxk"
       echo Warning: Download of %%k failed.
       call :Log "Warning: Download of %%k failed"
     ) else (
-      call :Log "Info: Downloaded/validated %%k to ..\client\%1\%2"
+      call :Log "Info: Downloaded/validated %%k to !TARGET_PATH!"
     )
     if "%%l" NEQ "" (
-      if exist ..\client\%1\%2\%%~nxk (
-        echo Renaming file ..\client\%1\%2\%%~nxk to %%l...
-        ren ..\client\%1\%2\%%~nxk %%l
-        call :Log "Info: Renamed file ..\client\%1\%2\%%~nxk to %%l"
+      if exist "!TARGET_PATH!\%%~nxk" (
+        echo Renaming file !TARGET_PATH!\%%~nxk to %%l...
+        ren "!TARGET_PATH!\%%~nxk" %%l
+        call :Log "Info: Renamed file !TARGET_PATH!\%%~nxk to %%l"
       )
     )
   )
@@ -1962,12 +2035,61 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
 if "%WSUS_URL%"=="" (
   for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TEMP%\ValidDynamicLinks-%1-%2.txt"') do (
     echo Downloading/validating update %%i of %LINES_COUNT%...
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%j
+
+    set TARGET_PATH=
+    if "%TMP_PLATFORM%"=="w100" (
+      if not "%TMP_BUILDS_ENABLED%"=="" (
+        for %%f in (%TMP_BUILDS_ENABLED%) do (
+          if exist ..\exclude\ExcludeList-w100-%%f.txt (
+            for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+              echo %%~nxj | find /i "%%e" >nul 2>&1
+              if not errorlevel 1 (
+                if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+              )
+            )
+          )
+          if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
+            for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+              echo %%~nxj | find /i "%%e" >nul 2>&1
+              if not errorlevel 1 (
+                if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+              )
+            )
+          )
+        )
+        if "!TARGET_PATH!"=="" set TARGET_PATH=..\client\%1\%2
+      ) else (
+        set TARGET_PATH=..\client\%1\%2
+      )
+    ) else (
+      set TARGET_PATH=..\client\%1\%2
+    )
+    rem call :Log "Debug: TARGET_PATH for %%~nxj is !TARGET_PATH!"
+
+    if not "!TARGET_PATH!"=="..\client\%1\%2" (
+      if exist "..\client\%1\%2\%%~nxj" (
+        echo Moving file ..\client\%1\%2\%%~nxj to !TARGET_PATH!...
+        move /Y "..\client\%1\%2\%%~nxj" "!TARGET_PATH!" >nul
+        call :Log "Info: Moved file ..\client\%1\%2\%%~nxj to !TARGET_PATH!"
+      )
+    ) else (
+      if not "%TMP_BUILDS_ENABLED%"=="" (
+        for %%f in (%TMP_BUILDS_ENABLED%) do (
+          if exist "..\client\%1\%2\%%f\%%~nxj" (
+            echo Moving file ..\client\%1\%2\%%f\%%~nxj to !TARGET_PATH!...
+            move /Y "..\client\%1\%2\%%f\%%~nxj" "!TARGET_PATH!" >nul
+            call :Log "Info: Moved file ..\client\%1\%2\%%f\%%~nxj to !TARGET_PATH!"
+          )
+        )
+      )
+    )
+
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "!TARGET_PATH!" %%j
     if errorlevel 1 (
       echo Warning: Download of %%j failed.
       call :Log "Warning: Download of %%j failed"
     ) else (
-      call :Log "Info: Downloaded/validated %%j to ..\client\%1\%2"
+      call :Log "Info: Downloaded/validated %%j to !TARGET_PATH!"
     )
   )
 ) else (
@@ -1979,47 +2101,145 @@ if "%WSUS_URL%"=="" (
     echo Downloading/validating update %%i of %LINES_COUNT%...
     for /F "tokens=1-3 delims=," %%k in ("%%j") do (
       if "%%m"=="" (
-        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%l
+        rem --- UNTESTED ---
+        set TARGET_PATH=
+        if "%TMP_PLATFORM%"=="w100" (
+          if not "%TMP_BUILDS_ENABLED%"=="" (
+            for %%f in (%TMP_BUILDS_ENABLED%) do (
+              if exist ..\exclude\ExcludeList-w100-%%f.txt (
+                for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+                  echo %%~nxl | find /i "%%e" >nul 2>&1
+                  if not errorlevel 1 (
+                    if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+                  )
+                )
+              )
+              if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
+                for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+                  echo %%~nxl | find /i "%%e" >nul 2>&1
+                  if not errorlevel 1 (
+                    if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+                  )
+                )
+              )
+            )
+            if "!TARGET_PATH!"=="" set TARGET_PATH=..\client\%1\%2
+          ) else (
+            set TARGET_PATH=..\client\%1\%2
+          )
+        ) else (
+          set TARGET_PATH=..\client\%1\%2
+        )
+        rem call :Log "Debug: TARGET_PATH for %%~nxl is !TARGET_PATH!"
+
+        if not "!TARGET_PATH!"=="..\client\%1\%2" (
+          if exist "..\client\%1\%2\%%~nxl" (
+            echo Moving file ..\client\%1\%2\%%~nxl to !TARGET_PATH!...
+            move /Y "..\client\%1\%2\%%~nxl" "!TARGET_PATH!" >nul
+            call :Log "Info: Moved file ..\client\%1\%2\%%~nxl to !TARGET_PATH!"
+          )
+        ) else (
+          if not "%TMP_BUILDS_ENABLED%"=="" (
+            for %%f in (%TMP_BUILDS_ENABLED%) do (
+              if exist "..\client\%1\%2\%%f\%%~nxl" (
+                echo Moving file ..\client\%1\%2\%%f\%%~nxl to !TARGET_PATH!...
+                move /Y "..\client\%1\%2\%%f\%%~nxl" "!TARGET_PATH!" >nul
+                call :Log "Info: Moved file ..\client\%1\%2\%%f\%%~nxl to !TARGET_PATH!"
+              )
+            )
+          )
+        )
+
+        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "!TARGET_PATH!" %%l
         if errorlevel 1 (
           echo Warning: Download of %%l failed.
           call :Log "Warning: Download of %%l failed"
         ) else (
-          call :Log "Info: Downloaded/validated %%l to ..\client\%1\%2"
+          call :Log "Info: Downloaded/validated %%l to !TARGET_PATH!"
         )
       ) else (
-        if exist ..\client\%1\%2\%%k (
-          echo Renaming file ..\client\%1\%2\%%k to %%~nxl...
-          ren ..\client\%1\%2\%%k %%~nxl
-          call :Log "Info: Renamed file ..\client\%1\%2\%%k to %%~nxl"
+        rem --- UNTESTED ---
+        set TARGET_PATH=
+        if "%TMP_PLATFORM%"=="w100" (
+          if not "%TMP_BUILDS_ENABLED%"=="" (
+            for %%f in (%TMP_BUILDS_ENABLED%) do (
+              if exist ..\exclude\ExcludeList-w100-%%f.txt (
+                for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+                  echo %%k | find /i "%%e" >nul 2>&1
+                  if not errorlevel 1 (
+                    if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+                  )
+                )
+              )
+              if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
+                for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+                  echo %%k | find /i "%%e" >nul 2>&1
+                  if not errorlevel 1 (
+                    if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
+                  )
+                )
+              )
+            )
+            if "!TARGET_PATH!"=="" set TARGET_PATH=..\client\%1\%2
+          ) else (
+            set TARGET_PATH=..\client\%1\%2
+          )
+        ) else (
+          set TARGET_PATH=..\client\%1\%2
+        )
+        rem call :Log "Debug: TARGET_PATH for %%k is !TARGET_PATH!"
+
+        if not "!TARGET_PATH!"=="..\client\%1\%2" (
+          if exist "..\client\%1\%2\%%k" (
+            echo Moving file ..\client\%1\%2\%%k to !TARGET_PATH!...
+            move /Y "..\client\%1\%2\%%k" "!TARGET_PATH!" >nul
+            call :Log "Info: Moved file ..\client\%1\%2\%%k to !TARGET_PATH!"
+          )
+        ) else (
+          if not "%TMP_BUILDS_ENABLED%"=="" (
+            for %%f in (%TMP_BUILDS_ENABLED%) do (
+              if exist "..\client\%1\%2\%%f\%%k" (
+                echo Moving file ..\client\%1\%2\%%f\%%k to !TARGET_PATH!...
+                move /Y "..\client\%1\%2\%%f\%%k" "!TARGET_PATH!" >nul
+                call :Log "Info: Moved file ..\client\%1\%2\%%f\%%k to !TARGET_PATH!"
+              )
+            )
+          )
+        )
+
+        if exist "!TARGET_PATH!\%%k" (
+          echo Renaming file !TARGET_PATH!\%%k to %%~nxl...
+          ren "!TARGET_PATH!\%%k" %%~nxl
+          call :Log "Info: Renamed file !TARGET_PATH!\%%k to %%~nxl"
         )
         if "%WSUS_BY_PROXY%"=="1" (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% %%l
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% "!TARGET_PATH!" %DLDR_LOPT% %%l
         ) else (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% %%l
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% "!TARGET_PATH!" %DLDR_LOPT% %%l
         )
         if errorlevel 1 (
-          if exist ..\client\%1\%2\%%~nxl (
-            echo Renaming file ..\client\%1\%2\%%~nxl to %%k...
-            ren ..\client\%1\%2\%%~nxl %%k
-            call :Log "Info: Renamed file ..\client\%1\%2\%%~nxl to %%k"
+          if exist "!TARGET_PATH!\%%~nxl" (
+            echo Renaming file "!TARGET_PATH!\%%~nxl" to %%k...
+            ren "!TARGET_PATH!\%%~nxl" %%k
+            call :Log "Info: Renamed file !TARGET_PATH!\%%~nxl to %%k"
           )
           if "%WSUS_ONLY%"=="1" (
             echo Warning: Download of %%l ^(%%k^) failed.
             call :Log "Warning: Download of %%l (%%k) failed"
           ) else (
-            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%m
+            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "!TARGET_PATH!" %%m
             if errorlevel 1 (
               echo Warning: Download of %%m failed.
               call :Log "Warning: Download of %%m failed"
             ) else (
-              call :Log "Info: Downloaded/validated %%m to ..\client\%1\%2"
+              call :Log "Info: Downloaded/validated %%m to !TARGET_PATH!"
             )
           )
         ) else (
-          if exist ..\client\%1\%2\%%~nxl (
-            echo Renaming file ..\client\%1\%2\%%~nxl to %%k...
-            ren ..\client\%1\%2\%%~nxl %%k
-            call :Log "Info: Renamed file ..\client\%1\%2\%%~nxl to %%k"
+          if exist "!TARGET_PATH!\%%~nxl" (
+            echo Renaming file !TARGET_PATH!\%%~nxl to %%k...
+            ren "!TARGET_PATH!\%%~nxl" %%k
+            call :Log "Info: Renamed file !TARGET_PATH!\%%~nxl to %%k"
           )
         )
       )
