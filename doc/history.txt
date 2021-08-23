@@ -1809,6 +1809,7 @@ Community Edition 11.9.9 -- 31.05.2021
 Community Edition 11.9.10 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-1.21 (Special thanks to H. Buhrmester)
 - Implemented revised mechanism of calculating superseded updates (Thanks to "hbuhrmester" and "aker")
+- misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Added ability to detect Windows 11 builds
 - C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30133.0 (Thanks to "aker")
 - June 2021 to August 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
