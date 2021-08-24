@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <!--
      Author: H. Buhrmester, 2020
-             aker, 2020
+             aker, 2020-2021
      Filename: extract-revision-and-update-ids-w100.xsl
 
      This file selects updates by their Product Ids:
@@ -12,6 +12,7 @@
      Windows Server 2019 = f702a48c-919b-45d6-9aef-ca4248d50397
 	 Windows Server, version 1903 and later = 21210d67-50bc-4254-a695-281765e10665
 	 [Windows 10 GDR-DU = abc45868-0c9c-4bc0-a36d-03d54113baf4]
+	 Microsoft Server operating system-21H2 = 71718f13-7324-4b0f-8f9e-2ca9dc978e53
 
      It extracts the following fields:
      Field 1: Bundle RevisionId
@@ -26,7 +27,8 @@
                  or contains(@Id, 'd2085b71-5f1f-43a9-880d-ed159016d5c6')
                  or contains(@Id, '569e8e8f-c6cd-42c8-92a3-efbb20a0f6f5')
                  or contains(@Id, 'f702a48c-919b-45d6-9aef-ca4248d50397')
-                 or contains(@Id, '21210d67-50bc-4254-a695-281765e10665')">
+                 or contains(@Id, '21210d67-50bc-4254-a695-281765e10665')
+                 or contains(@Id, '71718f13-7324-4b0f-8f9e-2ca9dc978e53')">
         <xsl:if test="../../@RevisionId != '' and ../../@UpdateId != ''">
           <xsl:text>#</xsl:text>
           <xsl:value-of select="../../@RevisionId"/>

@@ -22,6 +22,7 @@ ExcludeList-w100_documented.txt
 ico\
 Include\
 extract-revision-and-update-ids.xsl
+extract-revision-update-and-product-ids.xsl
 CompileAutoItScripts.cmd
 ExtractDownloadLinks-all.cmd
 ExtractSupersededUpdates.cmd

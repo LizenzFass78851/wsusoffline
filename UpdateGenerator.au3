@@ -14,17 +14,17 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b24)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b25)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
 Dim Const $runAllFile                   = "RunAll.cmd"
-Dim Const $win10_vmax                   = 5
-Dim Const $win10_versions               = "10240,14393,17763,18362,19041"
-Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1"
-Dim Const $win10_displayversions_x86    = ",,,,"
-Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,"
-Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Disabled,Enabled"
+Dim Const $win10_vmax                   = 6
+Dim Const $win10_versions               = "10240,14393,17763,18362,19041,20348"
+Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1,"
+Dim Const $win10_displayversions_x86    = ",,,,,"
+Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,,Server 2022"
+Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Disabled,Enabled,Enabled"
 Dim Const $win10_ver_inifilebody        = "Windows10Versions"
 
 ; Registry constants
@@ -895,8 +895,12 @@ EndFunc
 
 Func SaveWin10Settings()
   For $i = 0 To $win10_ver_arr[0] - 1
-    IniWrite($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", CheckBoxStateToString($win10_checkboxes_x86[$i]))
-    IniWrite($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", CheckBoxStateToString($win10_checkboxes_x64[$i]))
+    If ( ($win10_dsp_arr[$i+1] <> "") OR ($win10_dsp_x86_arr[$i+1] <> "") ) Then
+      IniWrite($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", CheckBoxStateToString($win10_checkboxes_x86[$i]))
+    EndIf
+    If ( ($win10_dsp_arr[$i+1] <> "") OR ($win10_dsp_x64_arr[$i+1] <> "") ) Then
+      IniWrite($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", CheckBoxStateToString($win10_checkboxes_x64[$i]))
+    EndIf
   Next
   Return 0
 EndFunc
@@ -1057,15 +1061,34 @@ GUICtrlCreateGroup("Windows 10 x86 versions", $txtxpos, $txtypos, $groupwidth / 
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = 3 * $txtxoffset
 For $i = 0 To $win10_ver_arr[0] - 1
-  If $win10_dsp_x86_arr[$i+1] = "" Then
-    $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-  Else
+  If ( ($win10_dsp_arr[$i+1] <> "") AND ($win10_dsp_x86_arr[$i+1] <> "") ) Then
     $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1] & "/" & $win10_dsp_x86_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-  EndIf
-  If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", $win10_def_arr[$i+1]) = $enabled Then
-    GUICtrlSetState(-1, $GUI_CHECKED)
+    If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", $win10_def_arr[$i+1]) = $enabled Then
+      GUICtrlSetState(-1, $GUI_CHECKED)
+    Else
+      GUICtrlSetState(-1, $GUI_UNCHECKED)
+    EndIf
   Else
-    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If ( ($win10_dsp_arr[$i+1] <> "") AND ($win10_dsp_x86_arr[$i+1] = "") ) Then
+      $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+      If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", $win10_def_arr[$i+1]) = $enabled Then
+        GUICtrlSetState(-1, $GUI_CHECKED)
+      Else
+        GUICtrlSetState(-1, $GUI_UNCHECKED)
+      EndIf
+    Else
+      If ( ($win10_dsp_arr[$i+1] = "") AND ($win10_dsp_x86_arr[$i+1] <> "") ) Then
+        $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox($win10_dsp_x86_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+        If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x86", $win10_def_arr[$i+1]) = $enabled Then
+          GUICtrlSetState(-1, $GUI_CHECKED)
+        Else
+          GUICtrlSetState(-1, $GUI_UNCHECKED)
+        EndIf
+      Else
+        $win10_checkboxes_x86[$i] = GUICtrlCreateCheckbox("Build " & $win10_ver_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+        GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+      EndIf
+    EndIf
   EndIf
 Next
 
@@ -1076,15 +1099,34 @@ GUICtrlCreateGroup("Windows 10 x64 versions", $txtxpos, $txtypos, $groupwidth / 
 $txtypos = $txtypos + 1.5 * $txtyoffset
 $txtxpos = $groupwidth / 2 + 3 * $txtxoffset
 For $i = 0 To $win10_ver_arr[0] - 1
-  If $win10_dsp_x64_arr[$i+1] = "" Then
-    $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-  Else
+  If ( ($win10_dsp_arr[$i+1] <> "") AND ($win10_dsp_x64_arr[$i+1] <> "") ) Then
     $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1] & "/" & $win10_dsp_x64_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
-  EndIf
-  If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", $win10_def_arr[$i+1]) = $enabled Then
-    GUICtrlSetState(-1, $GUI_CHECKED)
+    If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", $win10_def_arr[$i+1]) = $enabled Then
+      GUICtrlSetState(-1, $GUI_CHECKED)
+    Else
+      GUICtrlSetState(-1, $GUI_UNCHECKED)
+    EndIf
   Else
-    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If ( ($win10_dsp_arr[$i+1] <> "") AND ($win10_dsp_x64_arr[$i+1] = "") ) Then
+      $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+      If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", $win10_def_arr[$i+1]) = $enabled Then
+        GUICtrlSetState(-1, $GUI_CHECKED)
+      Else
+        GUICtrlSetState(-1, $GUI_UNCHECKED)
+      EndIf
+    Else
+      If ( ($win10_dsp_arr[$i+1] = "") AND ($win10_dsp_x64_arr[$i+1] <> "") ) Then
+        $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win10_dsp_x64_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+        If IniRead($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", $win10_def_arr[$i+1]) = $enabled Then
+          GUICtrlSetState(-1, $GUI_CHECKED)
+        Else
+          GUICtrlSetState(-1, $GUI_UNCHECKED)
+        EndIf
+      Else
+        $win10_checkboxes_x64[$i] = GUICtrlCreateCheckbox("Build " & $win10_ver_arr[$i+1], $txtxpos + Mod($i, 2) * ($groupwidth / 4 - $txtxoffset), $txtypos + BitShift($i, 1) * $txtheight, $groupwidth / 4 - $txtxoffset, $txtheight)
+        GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+      EndIf
+    EndIf
   EndIf
 Next
 

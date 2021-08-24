@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b24)
+set WSUSOFFLINE_VERSION=12.6 (b25)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1328,10 +1328,10 @@ if "%TMP_PLATFORM%"=="w100" (
       )
     )
   ) else (
-    set TMP_BUILDS_ENABLED=10240 14393 17763 18362 19041
+    set TMP_BUILDS_ENABLED=10240 14393 17763 18362 19041 20348
   )
   set TMP_BUILDS_DISABLED=
-  for %%i in (10240 14393 17763 18362 19041) do (
+  for %%i in (10240 14393 17763 18362 19041 20348) do (
     echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
     if errorlevel 1 (
       if "!TMP_BUILDS_DISABLED!"=="" (set TMP_BUILDS_DISABLED=%%i) else (set TMP_BUILDS_DISABLED=!TMP_BUILDS_DISABLED! %%i)

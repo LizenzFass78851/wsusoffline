@@ -59,6 +59,7 @@
 6ed4a93e-e443-4965-b666-5bc7149f793c=System Center 2012 - Virtual Machine Manager
 704a0a4a-518f-4d69-9e03-10ba44198bd5=Office 2013
 7145181b-9556-4b11-b659-0162fa9df11f=SQL Server 2000
+71718f13-7324-4b0f-8f9e-2ca9dc978e53=Microsoft Server operating system-21H2
 784c9f6d-959a-433f-b7a3-b2ace1489a18=Host Integration Server 2004
 79adaa30-d83b-4d9c-8afd-e099cf34855f=Report Viewer 2008
 7cf56bdd-5b4e-4c04-a6a6-706a2199eff7=Report Viewer 2005

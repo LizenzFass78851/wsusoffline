@@ -56,6 +56,7 @@ Microsoft Lync Server 2013=01ce995b-6e10-404b-8511-08142e6b814e
 Microsoft Monitoring Agent=f3869cc3-897b-4339-bb10-32ab2c765862
 Microsoft Online Services-Anmelde-Assistent=b0247430-6f8d-4409-b39b-30de02286c71
 Microsoft Research AutoCollage 2008=a8f50393-2e42-43d1-aaf0-92bec8b60775
+Microsoft Server operating system-21H2=71718f13-7324-4b0f-8f9e-2ca9dc978e53
 Microsoft SQL Server 2008 R2 - PowerPivot for Microsoft Excel 2010=e9ece729-676d-4b57-b4d1-7e0ab0589707
 Microsoft SQL Server 2012=56750722-19b4-4449-a547-5b68f19eee38
 Microsoft SQL Server 2014=caab596c-64f2-4aa9-bbe3-784c6e2ccf9c
