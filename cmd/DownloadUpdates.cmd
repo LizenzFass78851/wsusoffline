@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b26)
+set WSUSOFFLINE_VERSION=12.6 (b27)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1319,19 +1319,24 @@ if "%TMP_PLATFORM:~-4%"=="-x64" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
+  set TMP_BUILDS_ALL=10240 14393 17763 18362 19041 20348
+
   if exist ..\Windows10Versions.ini (
     for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-      if "%%j"=="%3" (
-        if /i "%%k"=="Enabled" (
-          if "!TMP_BUILDS_ENABLED!"=="" (set TMP_BUILDS_ENABLED=%%i) else (set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i)
+      echo "!TMP_BUILDS_ALL!" | find "%%i" >nul 2>&1
+      if not errorlevel 1 (
+        if "%%j"=="%3" (
+          if /i "%%k"=="Enabled" (
+            if "!TMP_BUILDS_ENABLED!"=="" (set TMP_BUILDS_ENABLED=%%i) else (set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i)
+          )
         )
       )
     )
   ) else (
-    set TMP_BUILDS_ENABLED=10240 14393 17763 18362 19041 20348
+    set TMP_BUILDS_ENABLED=!TMP_BUILDS_ALL!
   )
   set TMP_BUILDS_DISABLED=
-  for %%i in (10240 14393 17763 18362 19041 20348) do (
+  for %%i in (!TMP_BUILDS_ALL!) do (
     echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
     if errorlevel 1 (
       if "!TMP_BUILDS_DISABLED!"=="" (set TMP_BUILDS_DISABLED=%%i) else (set TMP_BUILDS_DISABLED=!TMP_BUILDS_DISABLED! %%i)
