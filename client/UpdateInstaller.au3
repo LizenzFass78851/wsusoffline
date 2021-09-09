@@ -15,83 +15,89 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.0)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 12.6 (b27) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b28) - Installer"
 
 ; Registry constants
-Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
-Dim Const $reg_key_wsh_hklm           = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings"
-Dim Const $reg_key_wsh_hkcu           = "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings"
-Dim Const $reg_key_ie                 = "HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer"
-Dim Const $reg_key_dotnet35           = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v3.5"
-Dim Const $reg_key_dotnet4            = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v4\Full"
-Dim Const $reg_key_wmf                = "HKEY_LOCAL_MACHINE\Software\Microsoft\PowerShell\3\PowerShellEngine"
-Dim Const $reg_key_hkcu_desktop       = "HKEY_CURRENT_USER\Control Panel\Desktop"
-Dim Const $reg_key_hkcu_winmetrics    = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
-Dim Const $reg_key_windowsupdate      = "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate"
+Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
+Dim Const $reg_key_wsh_hklm             = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings"
+Dim Const $reg_key_wsh_hkcu             = "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings"
+Dim Const $reg_key_ie                   = "HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer"
+Dim Const $reg_key_dotnet35             = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v3.5"
+Dim Const $reg_key_dotnet4              = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v4\Full"
+Dim Const $reg_key_wmf                  = "HKEY_LOCAL_MACHINE\Software\Microsoft\PowerShell\3\PowerShellEngine"
+Dim Const $reg_key_hkcu_desktop         = "HKEY_CURRENT_USER\Control Panel\Desktop"
+Dim Const $reg_key_hkcu_winmetrics      = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
+Dim Const $reg_key_windowsupdate        = "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate"
 
-Dim Const $reg_val_default            = ""
-Dim Const $reg_val_enabled            = "Enabled"
-Dim Const $reg_val_version            = "Version"
-Dim Const $reg_val_pshversion         = "PowerShellVersion"
-Dim Const $reg_val_logpixels          = "LogPixels"
-Dim Const $reg_val_applieddpi         = "AppliedDPI"
-Dim Const $reg_val_wustatusserver     = "WUStatusServer"
+Dim Const $reg_val_default              = ""
+Dim Const $reg_val_enabled              = "Enabled"
+Dim Const $reg_val_version              = "Version"
+Dim Const $reg_val_pshversion           = "PowerShellVersion"
+Dim Const $reg_val_logpixels            = "LogPixels"
+Dim Const $reg_val_applieddpi           = "AppliedDPI"
+Dim Const $reg_val_wustatusserver       = "WUStatusServer"
 
 ; Defaults
-Dim Const $msimax                     = 10
-Dim Const $default_logpixels          = 96
-Dim Const $target_version_dotnet35    = "3.5.30729"
+Dim Const $msimax                       = 10
+Dim Const $default_logpixels            = 96
+Dim Const $target_version_dotnet35      = "3.5.30729"
 
 ; INI file constants
-Dim Const $ini_section_installation   = "Installation"
-Dim Const $ini_value_buildupgrade     = "upgradebuilds"
-Dim Const $ini_value_cpp              = "updatecpp"
-Dim Const $ini_value_dotnet35         = "instdotnet35"
-Dim Const $ini_value_rcerts           = "updatercerts"
-Dim Const $ini_value_dotnet4          = "instdotnet4"
-Dim Const $ini_value_wmf              = "instwmf"
+Dim Const $ini_section_installation     = "Installation"
+Dim Const $ini_value_buildupgrade       = "upgradebuilds"
+Dim Const $ini_value_cpp                = "updatecpp"
+Dim Const $ini_value_dotnet35           = "instdotnet35"
+Dim Const $ini_value_rcerts             = "updatercerts"
+Dim Const $ini_value_dotnet4            = "instdotnet4"
+Dim Const $ini_value_wmf                = "instwmf"
 ; Hidden installation constants
-Dim Const $ini_value_skipieinst       = "skipieinst"
-Dim Const $ini_value_skipdefs         = "skipdefs"
-Dim Const $ini_value_skipdynamic      = "skipdynamic"
-Dim Const $ini_value_all              = "all"
-Dim Const $ini_value_excludestatics   = "excludestatics"
-Dim Const $ini_value_seconly          = "seconly"
+Dim Const $ini_value_skipieinst         = "skipieinst"
+Dim Const $ini_value_skipdefs           = "skipdefs"
+Dim Const $ini_value_skipdynamic        = "skipdynamic"
+Dim Const $ini_value_all                = "all"
+Dim Const $ini_value_excludestatics     = "excludestatics"
+Dim Const $ini_value_seconly            = "seconly"
 
-Dim Const $ini_section_control        = "Control"
-Dim Const $ini_value_verify           = "verify"
-Dim Const $ini_value_autoreboot       = "autoreboot"
-Dim Const $ini_value_shutdown         = "shutdown"
+Dim Const $ini_section_control          = "Control"
+Dim Const $ini_value_verify             = "verify"
+Dim Const $ini_value_autoreboot         = "autoreboot"
+Dim Const $ini_value_shutdown           = "shutdown"
 
-Dim Const $ini_section_messaging      = "Messaging"
-Dim Const $ini_value_showlog          = "showlog"
+Dim Const $ini_section_messaging        = "Messaging"
+Dim Const $ini_value_showlog            = "showlog"
 ; Hidden messaging constants
-Dim Const $ini_value_showieinfo       = "showieinfo"
-Dim Const $ini_value_showdismprogress = "showdismprogress"
+Dim Const $ini_value_showieinfo         = "showieinfo"
+Dim Const $ini_value_showdismprogress   = "showdismprogress"
 
-Dim Const $ini_section_misc           = "Miscellaneous"
-Dim Const $ini_value_monitoron        = "monitoron"
-Dim Const $ini_value_wustatusserver   = "WUStatusServer"
+Dim Const $ini_section_misc             = "Miscellaneous"
+Dim Const $ini_value_monitoron          = "monitoron"
+Dim Const $ini_value_wustatusserver     = "WUStatusServer"
 
-Dim Const $ini_section_msi            = "MSI"
+Dim Const $ini_section_msi              = "MSI"
 
-Dim Const $enabled                    = "Enabled"
-Dim Const $disabled                   = "Disabled"
+Dim Const $enabled                      = "Enabled"
+Dim Const $disabled                     = "Disabled"
 
 ; Paths
-Dim Const $path_max_length            = 192
-Dim Const $path_invalid_chars         = "!%&()^+,;="
-Dim Const $path_rel_builddate         = "\builddate.txt"
-Dim Const $path_rel_hashes            = "\md\"
-Dim Const $path_rel_autologon         = "\bin\Autologon.exe"
-Dim Const $path_rel_silverlight       = "\win\glb\Silverlight*.exe"
-Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
-Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
-Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
-Dim Const $path_rel_w100_19043_x86    = "\w100\glb\windows10.0-kb5000736-x86*.*"
-Dim Const $path_rel_w100_19043_x64    = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
-Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
-Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
+Dim Const $path_max_length              = 192
+Dim Const $path_invalid_chars           = "!%&()^+,;="
+Dim Const $path_rel_builddate           = "\builddate.txt"
+Dim Const $path_rel_hashes              = "\md\"
+Dim Const $path_rel_autologon           = "\bin\Autologon.exe"
+Dim Const $path_rel_silverlight         = "\win\glb\Silverlight*.exe"
+Dim Const $path_rel_rcerts              = "\win\glb\*.crt"
+Dim Const $path_rel_cpp                 = "\cpp\vcredist*.exe"
+Dim Const $path_rel_instdotnet48        = "\dotnet\ndp48*.exe"
+Dim Const $path_rel_w100_18363_x86      = "\w100\glb\windows10.0-kb4517245-x86*."
+Dim Const $path_rel_w100_18363_x64      = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
+Dim Const $path_rel_w100_18363_x86_sub  = "\w100\glb\18362\windows10.0-kb4517245-x86*."
+Dim Const $path_rel_w100_18363_x64_sub  = "\w100-x64\glb\18362\windows10.0-kb4517245-x64*.*"
+Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
+Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
+Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
+Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5000736-x64*.*"
+Dim Const $path_rel_msi_all             = "\wouallmsi.txt"
+Dim Const $path_rel_msi_selected        = "\Temp\wouselmsi.txt"
 
 Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $buildupgrade, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
 Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
@@ -227,18 +233,22 @@ EndFunc
 Func BuildUpgradeAvailable($basepath)
   If (@OSVersion = "WIN_10") Then
     If (@OSBuild = "18362") Then
-        Return 1 ; skip checks...
-	Else
- 	   If ( (@OSBuild = "19041") OR (@OSBuild = "19042") ) Then
- 	       If (@OSArch <> "X86") Then
-  	        Return FileExists($basepath & $path_rel_w100_19043_x64)
-  	      Else
-  	        Return FileExists($basepath & $path_rel_w100_19043_x86)
-   	     EndIf
-		Else
-			Return 0
-		EndIf
-	EndIf
+      If (@OSArch <> "X86") Then
+        Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) Or (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
+      Else
+        Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
+      EndIf
+    Else
+      If ( (@OSBuild = "19041") OR (@OSBuild = "19042") ) Then
+        If (@OSArch <> "X86") Then
+          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) Or (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
+        Else
+          Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) )
+        EndIf
+      Else
+        Return 0
+      EndIf
+    EndIf
   Else
     Return 0
   EndIf
@@ -729,12 +739,22 @@ If ( (@OSVersion = "WIN_2012") _
 EndIf
 If ( (@OSVersion = "WIN_10") _
  AND (@OSBuild = "18362") ) Then
-  If $gergui Then
-     MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package" _
-                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
+  If BuildUpgradeAvailable($scriptdir) Then
+    If $gergui Then
+      MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package" _
+                     & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
+    Else
+      MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package" _
+                     & @LF & "will be automatically installed, when you start the updating process.")
+    EndIf
   Else
-     MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package" _
-                           & @LF & "will be automatically installed, when you start the updating process.")
+    If $gergui Then
+      MsgBox(0x2040, "Error", "Auf diesem System wird eine nicht unterstützte Version" _
+                     & @LF & "von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann.")
+    Else
+      MsgBox(0x2040, "Error", "This system is running a version of Windows 10," _
+                     & @LF & "which cannot be automatically upgraded to a supported one.")
+    EndIf
   EndIf
 EndIf
 Local $accelKeys[2][2] = [["{enter}", $btn_start], ["{escape}", $btn_exit]]
