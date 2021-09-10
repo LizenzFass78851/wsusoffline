@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b28) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b29) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -254,6 +254,18 @@ Func BuildUpgradeAvailable($basepath)
   EndIf
 EndFunc
 
+Func BuildUpgradeEnforced()
+  If (@OSVersion = "WIN_10") Then
+    If (@OSBuild = "18362") Then
+      Return 1
+    Else
+      Return 0
+    EndIf
+  Else
+    Return 0
+  EndIf
+EndFunc
+
 Func WSHAvailable()
 Dim $reg_val
 
@@ -439,14 +451,18 @@ If $gergui Then
 Else
   $buildupgrade = GUICtrlCreateCheckbox("Feature Update via Enablement Package", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If BuildUpgradeAvailable($scriptdir) Then
+If ( (NOT BuildUpgradeEnforced()) AND (BuildUpgradeAvailable($scriptdir)) ) Then
   If MyIniRead($ini_section_installation, $ini_value_buildupgrade, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
 Else
-  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+  If BuildUpgradeEnforced() Then
+    GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+  EndIf
 EndIf
 
 ; Update C++ Runtime Libraries
@@ -737,24 +753,20 @@ If ( (@OSVersion = "WIN_2012") _
                            & @LF & "will be automatically installed, when you start the updating process.")
   EndIf
 EndIf
-If ( (@OSVersion = "WIN_10") _
- AND (@OSBuild = "18362") ) Then
+If BuildUpgradeEnforced() Then
   If BuildUpgradeAvailable($scriptdir) Then
     If $gergui Then
-      MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package" _
-                     & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
+      MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package automatisch installiert, wenn Sie die Aktualisierung starten.")
     Else
-      MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package" _
-                     & @LF & "will be automatically installed, when you start the updating process.")
+      MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package will be automatically installed, when you start the updating process.")
     EndIf
   Else
     If $gergui Then
-      MsgBox(0x2040, "Error", "Auf diesem System wird eine nicht unterstützte Version" _
-                     & @LF & "von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann.")
+      MsgBox(0x2010, "Error", "Auf diesem System wird eine nicht unterstützte Version von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann.")
     Else
-      MsgBox(0x2040, "Error", "This system is running a version of Windows 10," _
-                     & @LF & "which cannot be automatically upgraded to a supported one.")
+      MsgBox(0x2010, "Error", "This system is running a version of Windows 10, which cannot be automatically upgraded to a supported one.")
     EndIf
+    Exit(1)
   EndIf
 EndIf
 Local $accelKeys[2][2] = [["{enter}", $btn_start], ["{escape}", $btn_exit]]
