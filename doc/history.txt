@@ -1837,3 +1837,4 @@ Community Edition 12.6 -- ??.??.????
 - Added August 2021 Servicing stack update (kb5005260) for Windows 10 Version 2004/20H2/21H1 (Thanks to "aker")
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
+- Fix: Edge Updater will be updated to the most recent version, too (Thanks to "aker")
