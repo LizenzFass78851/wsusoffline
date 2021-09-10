@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b30) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6 (b31) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -88,9 +88,9 @@ Dim Const $path_rel_silverlight         = "\win\glb\Silverlight*.exe"
 Dim Const $path_rel_rcerts              = "\win\glb\*.crt"
 Dim Const $path_rel_cpp                 = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48        = "\dotnet\ndp48*.exe"
-Dim Const $path_rel_w100_18363_x86      = "\w100\glb\windows10.0-kb4517245-x86*."
+Dim Const $path_rel_w100_18363_x86      = "\w100\glb\windows10.0-kb4517245-x86*.*"
 Dim Const $path_rel_w100_18363_x64      = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
-Dim Const $path_rel_w100_18363_x86_sub  = "\w100\glb\18362\windows10.0-kb4517245-x86*."
+Dim Const $path_rel_w100_18363_x86_sub  = "\w100\glb\18362\windows10.0-kb4517245-x86*.*"
 Dim Const $path_rel_w100_18363_x64_sub  = "\w100-x64\glb\18362\windows10.0-kb4517245-x64*.*"
 Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
 Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
@@ -234,14 +234,14 @@ Func BuildUpgradeAvailable($basepath)
   If (@OSVersion = "WIN_10") Then
     If (@OSBuild = "18362") Then
       If (@OSArch <> "X86") Then
-        Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) Or (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
+        Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) OR (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
       Else
         Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
       EndIf
     Else
       If ( (@OSBuild = "19041") OR (@OSBuild = "19042") ) Then
         If (@OSArch <> "X86") Then
-          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) Or (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
+          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
         Else
           Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) )
         EndIf
