@@ -402,7 +402,7 @@ if "%ERR_LEVEL%"=="3010" (
 ) else if "%ERR_LEVEL%" NEQ "0" (
   goto InstError
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 goto Installed
 
@@ -656,7 +656,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call :Log "Warning: Windows Update Agent installation file (kb%WUA_TARGET_ID%) not found"
   goto SkipWUAInst
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipWUAInst
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -763,7 +763,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" GEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
-    rem FIXME (b69)
+    rem FIXME 11.9.8 (b69)
     set RECALL_REQUIRED=1
     goto IEInstalled
   )
@@ -782,7 +782,7 @@ if "%ERR_LEVEL%"=="3010" (
   echo. >%SystemRoot%\Temp\wou_ie_tried.txt
   goto IEInstalled
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 if /i "%OS_LANG%"=="enu" (goto SkipIEw60LPInst)
 echo Installing Internet Explorer 9 Language Pack...
@@ -866,7 +866,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" GEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
-    rem FIXME (b69)
+    rem FIXME 11.9.8 (b69)
     set RECALL_REQUIRED=1
     goto IEInstalled
   )
@@ -894,7 +894,7 @@ for /F %%i in ('dir /B %IE_FILENAME%') do (
   ) else if "!ERR_LEVEL!" GEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_ie_tried.txt
-    rem FIXME (b69)
+    rem FIXME 11.9.8 (b69)
     set RECALL_REQUIRED=1
     goto IEInstalled
   )
@@ -941,7 +941,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" GEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_iepre_tried.txt
-    rem FIXME (b69)
+    rem FIXME 11.9.8 (b69)
     set RECALL_REQUIRED=1
     goto IEInstalled
   )
@@ -962,7 +962,7 @@ for /F %%i in ('dir /B %IE_FILENAME%') do (
     goto IEInstalled
   )
 
-  rem FIXME (b69)
+  rem FIXME 11.9.8 (b69)
   set RECALL_REQUIRED=1
 
   dir /B %IE_LANG_FILENAME% >nul 2>&1
@@ -1236,7 +1236,7 @@ if "%ERR_LEVEL%"=="3010" (
   set RECALL_REQUIRED=1
 )
 set MSSL_FILENAME=
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set REBOOT_REQUIRED=1
 :SkipMSSLInst
 set MSSL_VER_TARGET_MAJOR=
@@ -1313,7 +1313,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
     set RECALL_REQUIRED=1
   )
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 set DOTNET35_FILENAME=
 set DOTNET35LP_FILENAME=
@@ -1397,7 +1397,7 @@ if /i "%OS_ARCH%"=="x64" (
     goto SkipDotNet35Inst
   )
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set REBOOT_REQUIRED=1
 :SkipDotNet35Inst
 
@@ -1462,7 +1462,7 @@ if "%OS_LANG%" NEQ "enu" (
     call :Log "Warning: .NET Framework 4 Language Pack installation file (%DOTNET4LP_FILENAME%) not found"
   )
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 set DOTNET4_FILENAME=
 set DOTNET4LP_FILENAME=
@@ -1582,7 +1582,7 @@ if "%ERR_LEVEL%"=="3010" (
 ) else if "%ERR_LEVEL%" NEQ "0" (
   goto InstError
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipWMFInst
 
@@ -1629,7 +1629,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   call :Log "Warning: Remote Desktop Client installation file(s) not found"
   goto SkipTSCInst
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipTSCInst
 if "%REBOOT_REQUIRED%"=="1" goto Installed
@@ -1714,7 +1714,7 @@ if "%ERR_LEVEL%"=="3010" (
 ) else if "%ERR_LEVEL%" NEQ "0" (
   goto InstError
 )
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipSPOfc
 :SkipOffice
@@ -1954,7 +1954,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" GEQ "0" (
     if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
     echo. >%SystemRoot%\Temp\wou_wupre_tried.txt
-    rem FIXME (b69)
+    rem FIXME 11.9.8 (b69)
     set RECALL_REQUIRED=1
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
@@ -2079,7 +2079,7 @@ if "%ERR_LEVEL%"=="3010" (
   set RECALL_REQUIRED=1
 )
 set MSSE_FILENAME=
-rem FIXME (b69)
+rem FIXME 11.9.8 (b69)
 set REBOOT_REQUIRED=1
 :CheckMSSEDefs
 if "%SKIP_DEFS%"=="/skipdefs" goto SkipMSSEInst
