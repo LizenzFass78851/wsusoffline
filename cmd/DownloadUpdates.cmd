@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6 (b32)
+set WSUSOFFLINE_VERSION=12.6 (b33)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -2300,9 +2300,39 @@ for /F %%i in ('dir ..\client\%1\%2 /A:-D /B') do (
     call :Log "Info: Deleted ..\client\%1\%2\%%i"
   )
 )
+if "%TMP_PLATFORM%"=="w100" (
+  if not "%TMP_BUILDS_ENABLED%"=="" (
+    for %%b in (%TMP_BUILDS_ENABLED%) do (
+      for /F %%i in ('dir ..\client\%1\%2\%%b /A:-D /B') do (
+        if exist "%TEMP%\ValidLinks-%1-%2.txt" (
+          %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
+          if errorlevel 1 (
+            del ..\client\%1\%2\%%b\%%i
+            call :Log "Info: Deleted ..\client\%1\%2\%%b\%%i"
+          )
+        ) else (
+          del ..\client\%1\%2\%%b\%%i
+          call :Log "Info: Deleted ..\client\%1\%2\%%b\%%i"
+        )
+      )
+      dir ..\client\%1\%2\%%b /A:-D >nul 2>&1
+      if errorlevel 1 rd "..\client\%1\%2\%%b"
+    )
+  )
+  if not "%TMP_BUILDS_DISABLED%"=="" (
+    for %%b in (%TMP_BUILDS_DISABLED%) do (
+      if exist "..\client\%1\%2\%%b" (
+        rd /s /q "..\client\%1\%2\%%b"
+        call :Log "Info: Deleted updates for deselected build %%b"
+      )
+    )
+  )
+)
 if exist "%TEMP%\ValidLinks-%1-%2.txt" del "%TEMP%\ValidLinks-%1-%2.txt"
-dir ..\client\%1\%2 /A:-D >nul 2>&1
+dir ..\client\%1\%2 >nul 2>&1
 if errorlevel 1 rd ..\client\%1\%2
+dir ..\client\%1 >nul 2>&1
+if errorlevel 1 rd ..\client\%1
 call :Log "Info: Cleaned up client directory for %1 %2"
 
 :VerifyDownload
