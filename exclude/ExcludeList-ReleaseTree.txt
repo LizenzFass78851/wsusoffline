@@ -20,7 +20,6 @@ ExcludeList-ReleaseTree.txt
 ExcludeList-w100_documented.txt
 ico\
 Include\
-extract-revision-and-update-ids.xsl
 CompileAutoItScripts.cmd
 ExtractDownloadLinks-all.cmd
 ExtractSupersededUpdates.cmd
