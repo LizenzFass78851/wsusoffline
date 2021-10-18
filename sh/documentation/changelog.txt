@@ -1,3 +1,22 @@
+Linux download scripts, version 2.6
+
+   Release date: 2021-10-18
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.6 (b40)
+
+   New features
+
+    * Support for Windows Server 2022
+
+   Internal changes
+
+    * Updates for Windows 10 are now stored based on the build they are
+      released for (Thanks to "aker" and "hbuhrmester")
+    * Simplified the creation of the selection dialogs
+    * Renamed function verify_embedded_checksums to verify_embedded_hashes
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.5
 
    Release date: 2021-08-02

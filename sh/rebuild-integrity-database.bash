@@ -154,7 +154,7 @@ function parse_directories ()
         then
             log_info_message "Found directory ${download_directory}"
             create_integrity_database "${download_directory}" "${hashes_file}"
-            verify_embedded_checksums "${download_directory}" "${hashes_file}"
+            verify_embedded_hashes "${download_directory}" "${hashes_file}"
             echo ""
         else
             log_debug_message "Directory ${download_directory} was not found"

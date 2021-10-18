@@ -33,6 +33,15 @@
 
 w100_versions_file="windows-10-versions.ini"
 
+w100_x86_all_versions=( 10240 14393 17763 18362 19041 )
+w100_x64_all_versions=( 10240 14393 17763 18362 19041 20348 )
+
+w100_x86_enabled_versions=()
+w100_x64_enabled_versions=()
+
+w100_x86_disabled_versions=()
+w100_x64_disabled_versions=()
+
 # Exclude lists for service packs
 #
 # In the Linux download scripts, the option -includesp is applied to
@@ -56,6 +65,257 @@ fi
 
 # ========== Functions ====================================================
 
+function prepare_w100_downloads ()
+{
+    local version=""
+    local arch=""
+    local state=""
+    local skip_rest=""
+
+    # Parse the Windows 10 versions file
+    if [[ -f "${w100_versions_file}" ]]
+    then
+        log_info_message "Parsing Windows 10 versions file..."
+
+        while IFS=$'_= \r\n' read -r version arch state skip_rest
+        do
+            if [[ "${state}" == "on" ]]
+            then
+                case "${arch}" in
+                    x86)
+                        w100_x86_enabled_versions+=( "${version}" )
+                    ;;
+                    x64)
+                        w100_x64_enabled_versions+=( "${version}" )
+                    ;;
+                esac
+            fi
+        done < "${w100_versions_file}"
+
+        # Workarounds for an old bash bug, which treated empty arrays as
+        # "unset". This was fixed in bash 4.4, though.
+        if (( "${#w100_x86_enabled_versions[@]}" > 0 ))
+        then
+            for version in "${w100_x86_all_versions[@]}"
+            do
+                if ! in_array "${version}" "${w100_x86_enabled_versions[@]}"
+                then
+                    w100_x86_disabled_versions+=( "${version}" )
+                fi
+            done
+        else
+            w100_x86_disabled_versions=( "${w100_x86_all_versions[@]}" )
+        fi
+
+        if (( "${#w100_x64_enabled_versions[@]}" > 0 ))
+        then
+            for version in "${w100_x64_all_versions[@]}"
+            do
+                if ! in_array "${version}" "${w100_x64_enabled_versions[@]}"
+                then
+                    w100_x64_disabled_versions+=( "${version}" )
+                fi
+            done
+        else
+            w100_x64_disabled_versions=( "${w100_x64_all_versions[@]}" )
+        fi
+
+    else
+        log_warning_message "The Windows 10 versions file was not found. Please run the script update-generator.bash to create it"
+        w100_x86_enabled_versions=( "${w100_x86_all_versions[@]}" )
+        w100_x64_enabled_versions=( "${w100_x64_all_versions[@]}" )
+    fi
+
+    #echo ""
+    #declare -p w100_x86_enabled_versions w100_x64_enabled_versions w100_x86_disabled_versions w100_x64_disabled_versions
+    #echo ""
+
+    return 0
+}
+
+# Move versioned Windows 10 downloads into the new directories
+#
+# The static download files:
+#
+# - wsusoffline/static/StaticDownloadLinks-w100-10240-x86-glb.txt
+# - wsusoffline/static/StaticDownloadLinks-w100-10240-x64-glb.txt
+# - wsusoffline/static/StaticDownloadLinks-w100-14393-x86-glb.txt
+# - ...
+#
+# contain the full URLs for version-specific downloads. The filenames
+# are extracted to pattern file.
+#
+# The exclude list files:
+#
+# - wsusoffline/exclude/ExcludeList-w100-10240.txt
+# - wsusoffline/exclude/ExcludeList-w100-14393.txt
+# - wsusoffline/exclude/ExcludeList-w100-17763.txt
+# - ...
+#
+# contain search patterns to identify version-specific downloads. These
+# patterns are added to the filenames from the static download files.
+#
+# The resulting filter files are used to identify existing downloads in
+# the directories:
+#
+# - wsusoffline/client/w100/glb
+# - wsusoffline/client/w100-x64/glb
+#
+# These downloads are then separated into the versioned subdirectories.
+
+function sort_w100_downloads ()
+{
+    local name="$1"
+    local arch="$2"
+
+    local base_directory=""
+    local target_directory=""
+    local version=""
+    local -a enabled_versions=()
+    local -a disabled_versions=()
+    local pattern=""
+    local pathname=""
+
+    [[ "${name}" == "w100" ]] || return 0
+
+    case "${arch}" in
+        x86)
+            base_directory="../client/w100/glb"
+            if (( "${#w100_x86_enabled_versions[@]}" > 0 ))
+            then
+                enabled_versions=( "${w100_x86_enabled_versions[@]}" )
+            fi
+            if (( "${#w100_x86_disabled_versions[@]}" > 0 ))
+            then
+                disabled_versions=( "${w100_x86_disabled_versions[@]}" )
+            fi
+        ;;
+        x64)
+            base_directory="../client/w100-x64/glb"
+            if (( "${#w100_x64_enabled_versions[@]}" > 0 ))
+            then
+                enabled_versions=( "${w100_x64_enabled_versions[@]}" )
+            fi
+            if (( "${#w100_x64_disabled_versions[@]}" > 0 ))
+            then
+                disabled_versions=( "${w100_x64_disabled_versions[@]}" )
+            fi
+        ;;
+        *)
+            log_warning_message "Unknown arch ${arch}"
+        ;;
+    esac
+
+    #echo ""
+    #echo "Enabled and disabled versions for w100 ${arch}"
+    #declare -p enabled_versions disabled_versions
+    #echo ""
+
+    log_info_message "Removing unused directories..."
+    if (( "${#disabled_versions[@]}" > 0 ))
+    then
+        for version in "${disabled_versions[@]}"
+        do
+            target_directory="${base_directory}/${version}"
+            if [[ -d "${target_directory}" ]]
+            then
+                log_info_message "Deleting unused directory ${target_directory}"
+                rmdir "${target_directory}" || true
+            fi
+        done
+    fi
+
+    log_info_message "Separating Windows 10 downloads into versioned subdirectories..."
+    if (( "${#enabled_versions[@]}" > 0 ))
+    then
+        for version in "${enabled_versions[@]}"
+        do
+            log_info_message "Searching for w100-${version}-${arch} downloads..."
+
+            target_directory="${base_directory}/${version}"
+            mkdir -p "${target_directory}"
+
+            cat_existing_files                                                          \
+                "../static/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"         \
+                "../static/custom/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"  \
+              > "${temp_dir}/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"
+
+            extract_filenames                                                      \
+                "${temp_dir}/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"  \
+                "${temp_dir}/filter-file-w100-${version}-${arch}.txt"
+
+            cat_existing_files                                       \
+                "../exclude/ExcludeList-w100-${version}.txt"         \
+                "../exclude/custom/ExcludeList-w100-${version}.txt"  \
+             >> "${temp_dir}/filter-file-w100-${version}-${arch}.txt"
+
+            if [[ -s "${temp_dir}/filter-file-w100-${version}-${arch}.txt" ]]
+            then
+                while read -r pattern
+                do
+                    # safety check for empty lines
+                    if [[ -n "${pattern}" ]]
+                    then
+                        # find matching files
+                        shopt -s nullglob
+                        for pathname in "${base_directory}"/*"${pattern}"*
+                        do
+                            # safety check for file type
+                            if [[ -f "${pathname}" ]]
+                            then
+                                #log_debug_message "Found file ${pathname}"
+                                mv -n "${pathname}" "${target_directory}" || true
+                            fi
+                        done
+                        shopt -u nullglob
+                    fi
+                done < "${temp_dir}/filter-file-w100-${version}-${arch}.txt"
+            fi
+        done
+    else
+        log_warning_message "There are no Windows 10 versions selected for ${arch}"
+    fi
+
+    return 0
+}
+
+
+function unsort_win_100_downloads ()
+{
+    local name="$1"
+    local arch="$2"
+
+    local base_directory=""
+    local pathname=""
+
+    [[ "${name}" == "w100" ]] || return 0
+
+    log_info_message "Moving Windows 10 downloads back into base directory..."
+
+    case "${arch}" in
+        x86)
+            base_directory="../client/w100/glb"
+        ;;
+        x64)
+            base_directory="../client/w100-x64/glb"
+        ;;
+        *)
+            log_warning_message "Unknown arch ${arch}"
+        ;;
+    esac
+
+    shopt -s nullglob
+    for pathname in "${base_directory}"/*/*.*
+    do
+        #log_debug_message "Found file ${pathname}"
+        mv -n "${pathname}" "${base_directory}" || true
+    done
+    shopt -u nullglob
+
+    return 0
+}
+
+
 function get_main_updates ()
 {
     local current_update=""
@@ -63,6 +323,12 @@ function get_main_updates ()
 
     if (( "${#updates_list[@]}" > 0 ))
     then
+        # This in-string comparison matches both w100 and w100-x64
+        if [[ "${updates_list[*]}" == *w100* ]]
+        then
+            prepare_w100_downloads
+        fi
+
         for current_update in "${updates_list[@]}"
         do
             case "${current_update}" in
@@ -71,13 +337,29 @@ function get_main_updates ()
                     process_main_update "win" "x86" "glb"
                 ;;
                 # Global Windows and Office updates, 32-bit
-                w63 | w100 | o2k16)
+                w63 | o2k16)
                     process_main_update "${current_update}" "x86" "glb"
                 ;;
                 # Global Windows updates, 64-bit,
                 # Office 2016, 32-bit and 64-bit
-                w62-x64 | w63-x64 | w100-x64 | o2k16-x64)
+                w62-x64 | w63-x64 | o2k16-x64)
                     process_main_update "${current_update/-x64/}" "x64" "glb"
+                ;;
+                w100)
+                    if (( "${#w100_x86_enabled_versions[@]}" > 0 ))
+                    then
+                        process_main_update "w100" "x86" "glb"
+                    else
+                        log_error_message "There are no Windows 10 versions selected for x86. Skipping calculation of w100 x86 glb..."
+                    fi
+                ;;
+                w100-x64)
+                    if (( "${#w100_x64_enabled_versions[@]}" > 0 ))
+                    then
+                        process_main_update "w100" "x64" "glb"
+                    else
+                        log_error_message "There are no Windows 10 versions selected for x64. Skipping calculation of w100 x64 glb..."
+                    fi
                 ;;
                 # Localized Office updates, 32-bit
                 o2k13)
@@ -223,6 +505,7 @@ function process_main_update ()
         log_info_message "Start processing of \"${timestamp_pattern//-/ }\" ..."
 
         seconly_safety_guard "${name}"
+        unsort_win_100_downloads "${name}" "${arch}"
         verify_integrity_database "${hashed_dir}" "${hashes_file}"
         calculate_static_updates "${name}" "${arch}" "${lang}" "${valid_static_links}"
         calculate_dynamic_updates "${name}" "${arch}" "${lang}" "${valid_dynamic_links}"
@@ -231,7 +514,8 @@ function process_main_update ()
         cleanup_client_directory "${download_dir}" "${valid_links}" "${valid_static_links}" "${valid_dynamic_links}"
         verify_digital_file_signatures "${download_dir}"
         create_integrity_database "${hashed_dir}" "${hashes_file}"
-        verify_embedded_checksums "${hashed_dir}" "${hashes_file}"
+        verify_embedded_hashes "${hashed_dir}" "${hashes_file}"
+        sort_w100_downloads "${name}" "${arch}"
 
         if same_error_count "${initial_errors}"
         then
@@ -286,10 +570,8 @@ function calculate_static_updates ()
 
     local current_dir=""
     local current_lang=""
-    local w100_version=""
-    local w100_arch=""
-    local w100_state=""
-    local skip_rest=""
+    local version=""
+    local -a enabled_versions=()
     local -a exclude_lists_static=()
 
     # Preconditions
@@ -327,8 +609,8 @@ function calculate_static_updates ()
         # - Internet Explorer 11 on Windows Server 2012
         if [[ -s "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" ]]
         then
-            filter_default_languages \
-                "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
+            filter_default_languages                                              \
+                "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"  \
                 >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
         fi
     done
@@ -347,7 +629,7 @@ function calculate_static_updates ()
                 if [[ -s "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" ]]
                 then
                     cat_dos "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" \
-                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                         >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
                 fi
             done
         ;;
@@ -356,22 +638,31 @@ function calculate_static_updates ()
     # *** Windows 10 version-specific static download links ***
     if [[ "${name}" == "w100" ]]
     then
-        if [[ -f "./${w100_versions_file}" ]]
+        case "${arch}" in
+            x86)
+                # Workarounds for an old bash bug, which treated empty
+                # arrays as "unset". This was fixed in bash 4.4, though.
+                (( "${#w100_x86_enabled_versions[@]}" > 0 )) \
+                && enabled_versions=( "${w100_x86_enabled_versions[@]}" )
+            ;;
+            x64)
+                (( "${#w100_x64_enabled_versions[@]}" > 0 )) \
+                && enabled_versions=( "${w100_x64_enabled_versions[@]}" )
+            ;;
+            *)
+                log_warning_message "Unknown arch ${arch}"
+            ;;
+        esac
+
+        if (( "${#enabled_versions[@]}" > 0 ))
         then
-            while IFS=$'_= \r\n' read -r w100_version w100_arch w100_state skip_rest
+            for version in "${enabled_versions[@]}"
             do
-                if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "on" ]]
-                then
-                    cat_existing_files                                                                  \
-                        "../static/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt"        \
-                        "../static/custom/StaticDownloadLinks-w100-${w100_version}-${arch}-${lang}.txt" \
-                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
-                else
-                    :
-                fi
-            done < "./${w100_versions_file}"
-        else
-            log_warning_message "The file ${w100_versions_file} was not found. Please run the script update-generator.bash to select your Windows 10 versions."
+                cat_existing_files                                                          \
+                    "../static/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"         \
+                    "../static/custom/StaticDownloadLinks-w100-${version}-${arch}-glb.txt"  \
+                 >> "${temp_dir}/StaticDownloadLinks-w100-${arch}-glb.txt"
+            done
         fi
     fi
 
@@ -435,10 +726,8 @@ function calculate_dynamic_updates ()
     local valid_dynamic_links="$4"
 
     local locale=""
-    local w100_version=""
-    local w100_arch=""
-    local w100_state=""
-    local skip_rest=""
+    local version=""
+    local -a disabled_versions=()
     local -a exclude_lists_dynamic=()
 
     # Preconditions
@@ -515,7 +804,7 @@ function calculate_dynamic_updates ()
             # /usr/share/i18n/locales (Debian 10 Buster)
             #
             # TODO: This should be an associative array (map in Python),
-            # but it ws implemented like that for compatibility with
+            # but it was implemented like that for compatibility with
             # the ancient bash 3.x in Mac OS X.
             case "${lang}" in
                 deu) locale="de-de";;
@@ -643,22 +932,29 @@ function calculate_dynamic_updates ()
     # Add Windows 10 version-specific exclude lists
     if [[ "${name}" == "w100" ]]
     then
-        if [[ -f "./${w100_versions_file}" ]]
+        case "${arch}" in
+            x86)
+                (( "${#w100_x86_disabled_versions[@]}" > 0 )) \
+                && disabled_versions=( "${w100_x86_disabled_versions[@]}" )
+            ;;
+            x64)
+                (( "${#w100_x64_disabled_versions[@]}" > 0 )) \
+                && disabled_versions=( "${w100_x64_disabled_versions[@]}" )
+            ;;
+            *)
+                log_warning_message "Unknown arch ${arch}"
+            ;;
+        esac
+
+        if (( "${#disabled_versions[@]}" > 0 ))
         then
-            while IFS=$'_= \r\n' read -r w100_version w100_arch w100_state skip_rest
+            for version in "${disabled_versions[@]}"
             do
-                if [[ "${w100_arch}" == "${arch}" && "${w100_state}" == "off" ]]
-                then
-                    exclude_lists_dynamic+=(
-                        "../exclude/ExcludeList-w100-${w100_version}.txt"
-                        "../exclude/custom/ExcludeList-w100-${w100_version}.txt"
-                    )
-                else
-                    :
-                fi
-            done < "./${w100_versions_file}"
-        else
-            log_warning_message "The file ${w100_versions_file} was not found. Please run the script update-generator.bash to select your Windows 10 versions."
+                exclude_lists_dynamic+=(
+                    "../exclude/ExcludeList-w100-${version}.txt"
+                    "../exclude/custom/ExcludeList-w100-${version}.txt"
+                )
+            done
         fi
     fi
 

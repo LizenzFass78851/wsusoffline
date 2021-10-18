@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
 # Filename: update-generator.bash
-# Version: Linux download scripts, version 2.5
-# Release date: 2021-08-02
+# Version: Linux download scripts, version 2.6
+# Release date: 2021-10-18
 # Development branch: master
-# Supported version: WSUS Offline Update, Community Edition 12.6 (b16)
+# Supported version: WSUS Offline Update, Community Edition 12.6 (b40)
 #
 # Copyright (C) 2016-2021 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
@@ -95,8 +95,8 @@ export LC_ALL=C
 # libraries to test them and provide standard parameters for other
 # scripts.
 
-readonly script_version="2.5"
-readonly release_date="2021-08-02"
+readonly script_version="2.6"
+readonly release_date="2021-10-18"
 
 # The version of WSUS Offline Update is extracted from the script
 # DownloadUpdates.cmd, after resolving the current working directory.

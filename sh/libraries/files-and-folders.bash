@@ -598,4 +598,55 @@ function extract_ids_and_filenames ()
     return 0
 }
 
+
+function extract_filenames ()
+{
+    local inputfile="$1"
+    local outputfile="$2"
+    local url=""
+    local skip_rest=""
+
+    if [[ -s "${inputfile}" ]]
+    then
+        while read -r url skip_rest
+        do
+            printf '%s\n' "${url##*/}"
+        done < "${inputfile}" \
+             > "${outputfile}"
+    else
+        :
+        #debug=enabled log_debug_message "The file ${inputfile##*/} was not found or is empty."
+    fi
+    return 0
+}
+
+
+# The functions in_array tests, if a search-term is a member of the
+# specified array
+#
+# Usage: in_array "${search_term}" "${array[@]}"
+
+function in_array ()
+{
+    if (( $# < 2 ))
+    then
+        fail "function in_array: at least two parameters are expected."
+    fi
+
+    local -i result_code="1" # assume false
+    local search_term="$1"
+    shift 1
+
+    local array_element=""
+    for array_element in "$@"
+    do
+        if [[ "${array_element}" == "${search_term}" ]]
+        then
+            result_code="0"
+        fi
+    done
+    return "${result_code}"
+}
+
+
 return 0

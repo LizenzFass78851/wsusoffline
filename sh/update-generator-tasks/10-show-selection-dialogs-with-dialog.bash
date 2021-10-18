@@ -68,16 +68,31 @@ show_w100_versions="disabled"
 # To write the settings file in a recognizable order, the list of all
 # keys must be created manually.
 
-all_keys=(
+
+# Separating the keys simplifies the generation of the selection dialogs
+update_keys=(
     w62-x64 w63 w63-x64 w100 w100-x64
     o2k13 o2k13-x64 o2k16 o2k16-x64
     all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
     all-ofc-x86
+)
+
+language_keys=(
     deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
     plk ptg ptb rus esn sve trk
+)
+
+option_keys=(
     sp cpp dotnet wddefs
 )
 
+# Combining the keys to a single list simplifies the handling of the
+# settings file
+all_keys=(
+    "${update_keys[@]}"
+    "${language_keys[@]}"
+    "${option_keys[@]}"
+)
 
 declare -A all_labels=(
     [w62-x64]="Windows Server 2012, 64-bit"
@@ -192,6 +207,7 @@ w100_keys=(
     "17763_x86"  "17763_x64"
     "18362_x86"  "18362_x64"
     "19041_x86"  "19041_x64"
+                 "20348_x64"
 )
 
 
@@ -206,15 +222,17 @@ declare -A w100_labels=(
     [18362_x64]="Windows 10, 1903/1909, 64-bit"
     [19041_x86]="Windows 10, 2004/20H2/21H1, 32-bit"
     [19041_x64]="Windows 10, 2004/20H2/21H1, 64-bit"
+    [20348_x64]="Windows Server 2022, 64-bit"
 )
 
 
 declare -A w100_values=(
-    [10240_x86]="on"   [10240_x64]="on"
+    [10240_x86]="off"  [10240_x64]="off"
     [14393_x86]="on"   [14393_x64]="on"
     [17763_x86]="on"   [17763_x64]="on"
     [18362_x86]="off"  [18362_x64]="off"
     [19041_x86]="on"   [19041_x64]="on"
+                       [20348_x64]="on"
 )
 
 
@@ -329,6 +347,10 @@ function check_dialog_result_code ()
 function show_selection_dialogs_with_dialog ()
 {
     local key=""
+    local -a updates_dialog=()
+    local -a languages_dialog=()
+    local -a options_dialog=()
+    local -a w100_dialog=()
     local update_list=""
     local update_list_csv=""
     local w100_list=""
@@ -340,73 +362,33 @@ function show_selection_dialogs_with_dialog ()
 
     # The selection dialogs must be defined locally to have the values
     # evaluated at runtime.
-    local -a updates_dialog=(
-        "w62-x64"      "${all_labels[w62-x64]}"      "${all_values[w62-x64]}"
-        "w63"          "${all_labels[w63]}"          "${all_values[w63]}"
-        "w63-x64"      "${all_labels[w63-x64]}"      "${all_values[w63-x64]}"
-        "w100"         "${all_labels[w100]}"         "${all_values[w100]}"
-        "w100-x64"     "${all_labels[w100-x64]}"     "${all_values[w100-x64]}"
-        "o2k13"        "${all_labels[o2k13]}"        "${all_values[o2k13]}"
-        "o2k13-x64"    "${all_labels[o2k13-x64]}"    "${all_values[o2k13-x64]}"
-        "o2k16"        "${all_labels[o2k16]}"        "${all_values[o2k16]}"
-        "o2k16-x64"    "${all_labels[o2k16-x64]}"    "${all_values[o2k16-x64]}"
-        "all"          "${all_labels[all]}"          "${all_values[all]}"
-        "all-x86"      "${all_labels[all-x86]}"      "${all_values[all-x86]}"
-        "all-x64"      "${all_labels[all-x64]}"      "${all_values[all-x64]}"
-        "all-win"      "${all_labels[all-win]}"      "${all_values[all-win]}"
-        "all-win-x86"  "${all_labels[all-win-x86]}"  "${all_values[all-win-x86]}"
-        "all-win-x64"  "${all_labels[all-win-x64]}"  "${all_values[all-win-x64]}"
-        "all-ofc"      "${all_labels[all-ofc]}"      "${all_values[all-ofc]}"
-        "all-ofc-x86"  "${all_labels[all-ofc-x86]}"  "${all_values[all-ofc-x86]}"
-    )
+    for key in "${update_keys[@]}"
+    do
+        updates_dialog+=( "${key}"
+                          "${all_labels[${key}]}"
+                          "${all_values[${key}]}" )
+    done
 
-    local -a languages_dialog=(
-        "deu"  "${all_labels[deu]}"  "${all_values[deu]}"
-        "enu"  "${all_labels[enu]}"  "${all_values[enu]}"
-        "ara"  "${all_labels[ara]}"  "${all_values[ara]}"
-        "chs"  "${all_labels[chs]}"  "${all_values[chs]}"
-        "cht"  "${all_labels[cht]}"  "${all_values[cht]}"
-        "csy"  "${all_labels[csy]}"  "${all_values[csy]}"
-        "dan"  "${all_labels[dan]}"  "${all_values[dan]}"
-        "nld"  "${all_labels[nld]}"  "${all_values[nld]}"
-        "fin"  "${all_labels[fin]}"  "${all_values[fin]}"
-        "fra"  "${all_labels[fra]}"  "${all_values[fra]}"
-        "ell"  "${all_labels[ell]}"  "${all_values[ell]}"
-        "heb"  "${all_labels[heb]}"  "${all_values[heb]}"
-        "hun"  "${all_labels[hun]}"  "${all_values[hun]}"
-        "ita"  "${all_labels[ita]}"  "${all_values[ita]}"
-        "jpn"  "${all_labels[jpn]}"  "${all_values[jpn]}"
-        "kor"  "${all_labels[kor]}"  "${all_values[kor]}"
-        "nor"  "${all_labels[nor]}"  "${all_values[nor]}"
-        "plk"  "${all_labels[plk]}"  "${all_values[plk]}"
-        "ptg"  "${all_labels[ptg]}"  "${all_values[ptg]}"
-        "ptb"  "${all_labels[ptb]}"  "${all_values[ptb]}"
-        "rus"  "${all_labels[rus]}"  "${all_values[rus]}"
-        "esn"  "${all_labels[esn]}"  "${all_values[esn]}"
-        "sve"  "${all_labels[sve]}"  "${all_values[sve]}"
-        "trk"  "${all_labels[trk]}"  "${all_values[trk]}"
-    )
+    for key in "${language_keys[@]}"
+    do
+        languages_dialog+=( "${key}"
+                            "${all_labels[${key}]}"
+                            "${all_values[${key}]}" )
+    done
 
-    local -a options_dialog=(
-        "sp"      "${all_labels[sp]}"      "${all_values[sp]}"
-        "cpp"     "${all_labels[cpp]}"     "${all_values[cpp]}"
-        "dotnet"  "${all_labels[dotnet]}"  "${all_values[dotnet]}"
-        "wddefs"  "${all_labels[wddefs]}"  "${all_values[wddefs]}"
-    )
+    for key in "${option_keys[@]}"
+    do
+        options_dialog+=( "${key}"
+                          "${all_labels[${key}]}"
+                          "${all_values[${key}]}" )
+    done
 
-    local -a w100_dialog=(
-        "10240_x86"  "${w100_labels[10240_x86]}"  "${w100_values[10240_x86]}"
-        "10240_x64"  "${w100_labels[10240_x64]}"  "${w100_values[10240_x64]}"
-        "14393_x86"  "${w100_labels[14393_x86]}"  "${w100_values[14393_x86]}"
-        "14393_x64"  "${w100_labels[14393_x64]}"  "${w100_values[14393_x64]}"
-        "17763_x86"  "${w100_labels[17763_x86]}"  "${w100_values[17763_x86]}"
-        "17763_x64"  "${w100_labels[17763_x64]}"  "${w100_values[17763_x64]}"
-        "18362_x86"  "${w100_labels[18362_x86]}"  "${w100_values[18362_x86]}"
-        "18362_x64"  "${w100_labels[18362_x64]}"  "${w100_values[18362_x64]}"
-        "19041_x86"  "${w100_labels[19041_x86]}"  "${w100_values[19041_x86]}"
-        "19041_x64"  "${w100_labels[19041_x64]}"  "${w100_values[19041_x64]}"
-    )
-
+    for key in "${w100_keys[@]}"
+    do
+        w100_dialog+=( "${key}"
+                       "${w100_labels[${key}]}"
+                       "${w100_values[${key}]}" )
+    done
 
     # Update selection: On the first run, there are no updates
     # preselected. The selection dialog must be repeated, until a
@@ -436,7 +418,7 @@ function show_selection_dialogs_with_dialog ()
 
     # Remove any quotation marks, which old versions of dialog may insert
     update_list="${update_list//\"/}"
-    log_debug_message "Update selections: ${update_list}"
+    #log_debug_message "Update selections: ${update_list}"
 
     # Specify Windows 10 versions, if w100, w100-x64 or one of the
     # internal lists, which include Windows 10, is selected
@@ -470,7 +452,7 @@ function show_selection_dialogs_with_dialog ()
         done
     fi
 
-    log_debug_message "Windows 10 selections: ${w100_list}"
+    #log_debug_message "Windows 10 selections: ${w100_list}"
 
     # Language selection: On the first run, the default languages German
     # and English will be selected. These languages may be deselected,

@@ -1,3 +1,51 @@
+NEWS for the Linux download scripts, version 2.6
+
+   Release date: 2021-10-18
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.6 (b40)
+
+   New features
+
+    * Support for Windows Server 2022
+
+   Internal changes
+
+    * Updates for Windows 10 are now stored based on the build they are
+      released for (Thanks to "aker" and "hbuhrmester")
+
+      The Linux download scripts use a different approach than the Windows
+      script DownloadUpdates.cmd, and most changes could be restricted
+      to three new functions:
+
+      1. The function prepare_w100_downloads is run once for both
+         Windows 10, 32-bit and 64-bit. It parses the settings file
+         windows-10-versions.ini and creates four lists of enabled and
+         disabled versions.
+
+      2. The function unsort_win_100_downloads is run before each
+         download run. It moves all Windows 10 downloads back into the
+         base directories ../client/w100/glb and ../client/w100-x64/glb.
+
+      3. The function sort_w100_downloads is run after each download
+         run. It separates versioned Windows 10 downloads into
+         subdirectories, which are named after the build number.
+
+      There are small changes to the functions calculate_static_updates
+      and calculate_dynamic_updates, to use the lists created by
+      prepare_w100_downloads. The output of these functions stays
+      the same.
+
+      The remaining download functions, e.g. download_static_files,
+      download_multiple_files, cleanup_client_directory,
+      create_integrity_database and verify_embedded_hashes, are
+      unchanged.
+
+    * Simplified the creation of the selection dialogs
+
+    * Renamed function verify_embedded_checksums to verify_embedded_hashes
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 2.5
 
    Release date: 2021-08-02
