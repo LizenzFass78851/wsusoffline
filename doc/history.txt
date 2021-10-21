@@ -1806,7 +1806,7 @@ Community Edition 11.9.8 -- 30.05.2021
 Community Edition 11.9.9 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
-Community Edition 11.9.10 -- ??.??.????
+Community Edition 11.9.10 -- 21.10.2021
 - Included complete rewrite of the Linux scripts version CE-1.21 (Special thanks to H. Buhrmester)
 - Implemented revised mechanism of calculating superseded updates (Thanks to "hbuhrmester" and "aker")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
@@ -1820,3 +1820,4 @@ Community Edition 11.9.10 -- ??.??.????
 - Wget download utility updated to version 1.21.2 [2021-10-02] (Thanks to "boco")
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
+--------------------------------------------------------------------------------
