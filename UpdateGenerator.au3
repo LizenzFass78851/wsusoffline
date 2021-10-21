@@ -1,4 +1,4 @@
-; ***  WSUS Offline Update 12.6 - Generator  ***
+; *** WSUS Offline Update 12.6.1 - Generator ***
 ; ***       Author: T. Wittrock, Kiel        ***
 ; ***         - Community Edition -          ***
 ; ***     USB-Option added by Ch. Riedel     ***
@@ -7,14 +7,14 @@
 #include <GUIConstants.au3>
 #pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Generator")
-#pragma compile(FileVersion, 12.6.0)
+#pragma compile(FileVersion, 12.6.1)
 #pragma compile(InternalName, "Generator")
 #pragma compile(LegalCopyright, "GNU GPLv3")
 #pragma compile(OriginalFilename, UpdateGenerator.exe)
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
-#pragma compile(ProductVersion, 12.6.0)
+#pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b0)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"

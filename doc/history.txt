@@ -1842,3 +1842,4 @@ Community Edition 12.6 -- 21.10.2021
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 - Fix: Edge Updater will be updated to the most recent version, too (Thanks to "aker")
 --------------------------------------------------------------------------------
+Community Edition 12.6.1 -- ??.??.????
