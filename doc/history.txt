@@ -1821,3 +1821,4 @@ Community Edition 11.9.10 -- 21.10.2021
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 --------------------------------------------------------------------------------
+Community Edition 11.9.11 -- ??.??.2021
