@@ -220,8 +220,8 @@ declare -A w100_labels=(
     [17763_x64]="Windows 10, 1809 / Server 2019, 64-bit"
     [18362_x86]="Windows 10, 1903/1909, 32-bit"
     [18362_x64]="Windows 10, 1903/1909, 64-bit"
-    [19041_x86]="Windows 10, 2004/20H2/21H1, 32-bit"
-    [19041_x64]="Windows 10, 2004/20H2/21H1, 64-bit"
+    [19041_x86]="Windows 10, 2004/20H2/21H1/21H2, 32-bit"
+    [19041_x64]="Windows 10, 2004/20H2/21H1/21H2, 64-bit"
     [20348_x64]="Windows Server 2022, 64-bit"
 )
 

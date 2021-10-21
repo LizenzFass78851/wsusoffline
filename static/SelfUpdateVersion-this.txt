@@ -1,1 +1,1 @@
-12.6,beta
+12.6,release

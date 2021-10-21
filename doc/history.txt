@@ -1821,9 +1821,10 @@ Community Edition 12.5 -- 30.05.2021
 Community Edition 12.5.1 -- 31.05.2021
 - Fix: syntax error in DoUpdate.cmd when installing the Internet Explorer 11 prerequisites (Thanks to "rbronka")
 --------------------------------------------------------------------------------
-Community Edition 12.6 -- ??.??.????
-- Support added for Windows Server 2022
+Community Edition 12.6 -- 21.10.2021
 - Included complete rewrite of the Linux scripts version CE-2.6 (Special thanks to H. Buhrmester)
+- Support added for Windows Server 2022
+- Added static update definition files for Windows 10 Version 21H2 (build 19044)
 - Implemented revised mechanism of calculating superseded updates (Thanks to "hbuhrmester" and "aker")
 - Updates for Windows 10 are now stored based on the build they are released for (Thanks to "aker")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
@@ -1840,3 +1841,4 @@ Community Edition 12.6 -- ??.??.????
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 - Fix: Edge Updater will be updated to the most recent version, too (Thanks to "aker")
+--------------------------------------------------------------------------------
