@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.10
+WSUS Offline Update - Community Edition - 11.9.11
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1822,3 +1822,5 @@ Community Edition 11.9.10 -- 21.10.2021
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 --------------------------------------------------------------------------------
 Community Edition 11.9.11 -- ??.??.2021
+- Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
+- Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")

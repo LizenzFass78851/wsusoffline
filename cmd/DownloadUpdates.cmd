@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b0)
+set WSUSOFFLINE_VERSION=11.9.11 (b1)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -845,7 +845,7 @@ if "%VERIFY_DL%" NEQ "1" goto SkipWSUS
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signature of Windows Update catalog file...
 for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\wsus ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
-  del %%i
+  del "%%i"
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
 )
@@ -912,10 +912,10 @@ if exist ..\exclude\custom\ExcludeListForce-all.txt (
   ren "%TEMP%\StaticDownloadLinks-dotnet.txt" ValidStaticLinks-dotnet.txt
 )
 
-for /F "usebackq tokens=*" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\dotnet %%i
+for /F "usebackq tokens=* delims=" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
+  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\dotnet "%%i"
   if errorlevel 1 (
-    if exist ..\client\dotnet\%%~nxi del ..\client\dotnet\%%~nxi
+    if exist "..\client\dotnet\%%~nxi" del "..\client\dotnet\%%~nxi"
     echo Warning: Download of %%i failed.
     call :Log "Warning: Download of %%i failed"
   ) else (
@@ -928,10 +928,10 @@ if "%CLEANUP_DL%"=="0" (
   goto VerifyDotNet
 )
 echo Cleaning up client directory for .NET Frameworks 3.5 SP1 and 4.x...
-for /F %%i in ('dir ..\client\dotnet /A:-D /B') do (
+for /F "delims=" %%i in ('dir ..\client\dotnet /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidStaticLinks-dotnet.txt" >nul 2>&1
   if errorlevel 1 (
-    del ..\client\dotnet\%%i
+    del "..\client\dotnet\%%i"
     call :Log "Info: Deleted ..\client\dotnet\%%i"
   )
 )
@@ -943,7 +943,7 @@ rem *** Verifying digital file signatures for .NET Frameworks' installation file
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signatures for .NET Frameworks' installation files...
 for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\dotnet ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
-  del %%i
+  del "%%i"
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
 )
@@ -991,23 +991,23 @@ echo Downloading/validating C++ Runtime Libraries' installation files...
 for %%i in (x64 x86) do (
   for /F "tokens=1,2 delims=," %%j in (..\static\StaticDownloadLinks-cpp-%%i-glb.txt) do (
     if "%%k" NEQ "" (
-      if exist ..\client\cpp\%%k (
+      if exist "..\client\cpp\%%k" (
         echo Renaming file ..\client\cpp\%%k to %%~nxj...
-        if exist ..\client\cpp\%%~nxj del ..\client\cpp\%%~nxj
-        ren ..\client\cpp\%%k %%~nxj
+        if exist "..\client\cpp\%%~nxj" del "..\client\cpp\%%~nxj"
+        ren "..\client\cpp\%%k" "%%~nxj"
         call :Log "Info: Renamed file ..\client\cpp\%%k to %%~nxj"
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\cpp %%j
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\cpp "%%j"
     if errorlevel 1 (
-      if exist ..\client\cpp\%%~nxj del ..\client\cpp\%%~nxj
+      if exist "..\client\cpp\%%~nxj" del "..\client\cpp\%%~nxj"
       echo Warning: Download of %%j failed.
       call :Log "Warning: Download of %%j failed"
     )
     if "%%k" NEQ "" (
-      if exist ..\client\cpp\%%~nxj (
+      if exist "..\client\cpp\%%~nxj" (
         echo Renaming file ..\client\cpp\%%~nxj to %%k...
-        ren ..\client\cpp\%%~nxj %%k
+        ren "..\client\cpp\%%~nxj" "%%k"
         call :Log "Info: Renamed file ..\client\cpp\%%~nxj to %%k"
       )
     )
@@ -1016,12 +1016,12 @@ for %%i in (x64 x86) do (
 call :Log "Info: Downloaded/validated C++ Runtime Libraries' installation files"
 if "%CLEANUP_DL%"=="0" goto VerifyCPP
 echo Cleaning up client directory for C++ Runtime Libraries...
-for /F %%i in ('dir ..\client\cpp /A:-D /B') do (
+for /F "delims=" %%i in ('dir ..\client\cpp /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x64-glb.txt >nul 2>&1
   if errorlevel 1 (
     %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x86-glb.txt >nul 2>&1
     if errorlevel 1 (
-      del ..\client\cpp\%%i
+      del "..\client\cpp\%%i"
       call :Log "Info: Deleted ..\client\cpp\%%i"
     )
   )
@@ -1033,7 +1033,7 @@ rem *** Verifying digital file signatures for C++ Runtime Libraries' installatio
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signatures for C++ Runtime Libraries' installation files...
 for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\cpp ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
-  del %%i
+  del "%%i"
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
 )
@@ -1086,23 +1086,23 @@ if exist ..\static\custom\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt (
 )
 for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt") do (
   if "%%j" NEQ "" (
-    if exist ..\client\msse\%TARGET_ARCH%-glb\%%j (
+    if exist "..\client\msse\%TARGET_ARCH%-glb\%%j" (
       echo Renaming file ..\client\msse\%TARGET_ARCH%-glb\%%j to %%~nxi...
-      if exist ..\client\msse\%TARGET_ARCH%-glb\%%~nxi del ..\client\msse\%TARGET_ARCH%-glb\%%~nxi
-      ren ..\client\msse\%TARGET_ARCH%-glb\%%j %%~nxi
+      if exist "..\client\msse\%TARGET_ARCH%-glb\%%~nxi" del "..\client\msse\%TARGET_ARCH%-glb\%%~nxi"
+      ren "..\client\msse\%TARGET_ARCH%-glb\%%j" "%%~nxi"
       call :Log "Info: Renamed file ..\client\msse\%TARGET_ARCH%-glb\%%j to %%~nxi"
     )
   )
-  %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\msse\%TARGET_ARCH%-glb %%i
+  %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\msse\%TARGET_ARCH%-glb "%%i"
   if errorlevel 1 (
-    if exist ..\client\msse\%TARGET_ARCH%-glb\%%~nxi del ..\client\msse\%TARGET_ARCH%-glb\%%~nxi
+    if exist "..\client\msse\%TARGET_ARCH%-glb\%%~nxi" del "..\client\msse\%TARGET_ARCH%-glb\%%~nxi"
     echo Warning: Download of %%i failed.
     call :Log "Warning: Download of %%i failed"
   )
   if "%%j" NEQ "" (
-    if exist ..\client\msse\%TARGET_ARCH%-glb\%%~nxi (
+    if exist "..\client\msse\%TARGET_ARCH%-glb\%%~nxi" (
       echo Renaming file ..\client\msse\%TARGET_ARCH%-glb\%%~nxi to %%j...
-      ren ..\client\msse\%TARGET_ARCH%-glb\%%~nxi %%j
+      ren "..\client\msse\%TARGET_ARCH%-glb\%%~nxi" "%%j"
       call :Log "Info: Renamed file ..\client\msse\%TARGET_ARCH%-glb\%%~nxi to %%j"
     )
   )
@@ -1113,11 +1113,11 @@ if "%CLEANUP_DL%"=="0" (
   goto VerifyMSSE
 )
 echo Cleaning up client directory for Microsoft Security Essentials...
-for /F %%i in ('dir ..\client\msse\%TARGET_ARCH%-glb /A:-D /B') do (
+for /F "delims=" %%i in ('dir ..\client\msse\%TARGET_ARCH%-glb /A:-D /B 2^>nul') do (
   if "%%i" NEQ "mpam-fe.exe" (
     %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt" >nul 2>&1
     if errorlevel 1 (
-      del ..\client\msse\%TARGET_ARCH%-glb\%%i
+      del "..\client\msse\%TARGET_ARCH%-glb\%%i"
       call :Log "Info: Deleted ..\client\msse\%TARGET_ARCH%-glb\%%i"
     )
   )
@@ -1130,7 +1130,7 @@ rem *** Verifying digital file signatures for Microsoft Security Essentials file
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signatures for Microsoft Security Essentials files...
 for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\msse\%TARGET_ARCH%-glb ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
-  del %%i
+  del "%%i"
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
 )
@@ -1189,7 +1189,7 @@ if "%VERIFY_DL%" NEQ "1" goto SkipWDDefs
 if not exist %SIGCHK_PATH% goto NoSigCheck
 echo Verifying digital file signatures for Windows Defender definition files...
 for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\client\wddefs\%TARGET_ARCH%-glb ^| %SystemRoot%\System32\findstr.exe /I /V "\"Signed\""') do (
-  del %%i
+  del "%%i"
   echo Warning: Deleted unsigned file %%i.
   call :Log "Warning: Deleted unsigned file '%%~i'"
 )
@@ -1813,24 +1813,24 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
   echo Downloading/validating update %%i of %LINES_COUNT%...
   for /F "tokens=1,2 delims=," %%k in ("%%j") do (
     if "%%l" NEQ "" (
-      if exist ..\client\%1\%2\%%l (
+      if exist "..\client\%1\%2\%%l" (
         echo Renaming file ..\client\%1\%2\%%l to %%~nxk...
-        ren ..\client\%1\%2\%%l %%~nxk
+        ren "..\client\%1\%2\%%l" "%%~nxk"
         call :Log "Info: Renamed file ..\client\%1\%2\%%l to %%~nxk"
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\%1\%2 %%k
+    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\%1\%2 "%%k"
     if errorlevel 1 (
-      if exist ..\client\%1\%2\%%~nxk del ..\client\%1\%2\%%~nxk
+      if exist "..\client\%1\%2\%%~nxk" del "..\client\%1\%2\%%~nxk"
       echo Warning: Download of %%k failed.
       call :Log "Warning: Download of %%k failed"
     ) else (
       call :Log "Info: Downloaded/validated %%k to ..\client\%1\%2"
     )
     if "%%l" NEQ "" (
-      if exist ..\client\%1\%2\%%~nxk (
+      if exist "..\client\%1\%2\%%~nxk" (
         echo Renaming file ..\client\%1\%2\%%~nxk to %%l...
-        ren ..\client\%1\%2\%%~nxk %%l
+        ren "..\client\%1\%2\%%~nxk" "%%l"
         call :Log "Info: Renamed file ..\client\%1\%2\%%~nxk to %%l"
       )
     )
@@ -1846,7 +1846,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
 if "%WSUS_URL%"=="" (
   for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TEMP%\ValidDynamicLinks-%1-%2.txt"') do (
     echo Downloading/validating update %%i of %LINES_COUNT%...
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%j
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%j"
     if errorlevel 1 (
       echo Warning: Download of %%j failed.
       call :Log "Warning: Download of %%j failed"
@@ -1863,7 +1863,7 @@ if "%WSUS_URL%"=="" (
     echo Downloading/validating update %%i of %LINES_COUNT%...
     for /F "tokens=1-3 delims=," %%k in ("%%j") do (
       if "%%m"=="" (
-        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%l
+        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%l"
         if errorlevel 1 (
           echo Warning: Download of %%l failed.
           call :Log "Warning: Download of %%l failed"
@@ -1871,27 +1871,27 @@ if "%WSUS_URL%"=="" (
           call :Log "Info: Downloaded/validated %%l to ..\client\%1\%2"
         )
       ) else (
-        if exist ..\client\%1\%2\%%k (
+        if exist "..\client\%1\%2\%%k" (
           echo Renaming file ..\client\%1\%2\%%k to %%~nxl...
-          ren ..\client\%1\%2\%%k %%~nxl
+          ren "..\client\%1\%2\%%k" "%%~nxl"
           call :Log "Info: Renamed file ..\client\%1\%2\%%k to %%~nxl"
         )
         if "%WSUS_BY_PROXY%"=="1" (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% %%l
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% "%%l"
         ) else (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% %%l
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% "%%l"
         )
         if errorlevel 1 (
-          if exist ..\client\%1\%2\%%~nxl (
+          if exist "..\client\%1\%2\%%~nxl" (
             echo Renaming file ..\client\%1\%2\%%~nxl to %%k...
-            ren ..\client\%1\%2\%%~nxl %%k
+            ren "..\client\%1\%2\%%~nxl" "%%k"
             call :Log "Info: Renamed file ..\client\%1\%2\%%~nxl to %%k"
           )
           if "%WSUS_ONLY%"=="1" (
             echo Warning: Download of %%l ^(%%k^) failed.
             call :Log "Warning: Download of %%l (%%k) failed"
           ) else (
-            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 %%m
+            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%m"
             if errorlevel 1 (
               echo Warning: Download of %%m failed.
               call :Log "Warning: Download of %%m failed"
@@ -1900,9 +1900,9 @@ if "%WSUS_URL%"=="" (
             )
           )
         ) else (
-          if exist ..\client\%1\%2\%%~nxl (
+          if exist "..\client\%1\%2\%%~nxl" (
             echo Renaming file ..\client\%1\%2\%%~nxl to %%k...
-            ren ..\client\%1\%2\%%~nxl %%k
+            ren "..\client\%1\%2\%%~nxl" "%%k"
             call :Log "Info: Renamed file ..\client\%1\%2\%%~nxl to %%k"
           )
         )
@@ -1939,29 +1939,32 @@ call :Log "Info: Adjusted UpdateInstaller.ini file"
 rem *** Clean up client directory for %1 %2 ***
 if not exist ..\client\%1\%2\nul goto RemoveHashes
 if "%CLEANUP_DL%"=="0" goto VerifyDownload
+
 echo Cleaning up client directory for %1 %2...
+
 if exist "%TEMP%\ValidLinks-%1-%2.txt" del "%TEMP%\ValidLinks-%1-%2.txt"
-if exist "%TEMP%\ValidStaticLinks-%1-%2.txt" (
-  type "%TEMP%\ValidStaticLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
-)
-if exist "%TEMP%\ValidDynamicLinks-%1-%2.txt" (
-  type "%TEMP%\ValidDynamicLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
-)
-for /F %%i in ('dir ..\client\%1\%2 /A:-D /B') do (
+if exist "%TEMP%\ValidStaticLinks-%1-%2.txt"  type "%TEMP%\ValidStaticLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
+if exist "%TEMP%\ValidDynamicLinks-%1-%2.txt" type "%TEMP%\ValidDynamicLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
+if not exist "%TEMP%\ValidLinks-%1-%2.txt" echo. >>"%TEMP%\ValidLinks-%1-%2.txt"
+
+for /F "delims=" %%i in ('dir ..\client\%1\%2 /A:-D /B 2^>nul') do (
   if exist "%TEMP%\ValidLinks-%1-%2.txt" (
     %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
     if errorlevel 1 (
-      del ..\client\%1\%2\%%i
+      del "..\client\%1\%2\%%i"
       call :Log "Info: Deleted ..\client\%1\%2\%%i"
     )
   ) else (
-    del ..\client\%1\%2\%%i
+    del "..\client\%1\%2\%%i"
     call :Log "Info: Deleted ..\client\%1\%2\%%i"
   )
 )
-if exist "%TEMP%\ValidLinks-%1-%2.txt" del "%TEMP%\ValidLinks-%1-%2.txt"
+
+del "%TEMP%\ValidLinks-%1-%2.txt"
+
 dir ..\client\%1\%2 /A:-D >nul 2>&1
 if errorlevel 1 rd ..\client\%1\%2
+
 call :Log "Info: Cleaned up client directory for %1 %2"
 
 :VerifyDownload
@@ -1993,7 +1996,7 @@ for /F "skip=1 tokens=1 delims=," %%i in ('%SIGCHK_PATH% %SIGCHK_COPT% -s ..\cli
   if /i "%%~xi" NEQ ".zip" (
     if /i "%%~xi" NEQ ".crt" (
       if /i "%%~xi" NEQ ".crl" (
-        del %%i
+        del "%%i"
         echo Warning: Deleted unsigned file %%i.
         call :Log "Warning: Deleted unsigned file '%%~i'"
       )
@@ -2021,7 +2024,7 @@ for /F "usebackq tokens=3,5 delims=," %%i in ("%TEMP%\sha1-%1-%2.txt") do (
       if /i "%%~xj" NEQ ".crt" (
         if /i "%%~xj" NEQ ".crl" (
           if /i "%%l" NEQ "%%i" (
-            del ..\client\%1\%2\%%j
+            del "..\client\%1\%2\%%j"
             ren ..\client\md\hashes-%1-%2.txt hashes-%1-%2.bak
             %SystemRoot%\System32\findstr.exe /L /I /V "%%j" ..\client\md\hashes-%1-%2.bak >..\client\md\hashes-%1-%2.txt
             del ..\client\md\hashes-%1-%2.bak

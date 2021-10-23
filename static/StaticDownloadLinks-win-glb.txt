@@ -1,18 +1,18 @@
 https://download.microsoft.com/download/D/D/F/DDF23DF4-0186-495D-AA35-C93569204409/50918.00/Silverlight.exe
 https://download.microsoft.com/download/D/D/F/DDF23DF4-0186-495D-AA35-C93569204409/50918.00/Silverlight_x64.exe
-https://www.microsoft.com/pkiops/certs/Microsoft%20ECC%20Root%20Certificate%20Authority%202017.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20ECC%20Root%20Certificate%20Authority%202017.crl
-https://www.microsoft.com/pkiops/certs/Microsoft%20RSA%20Root%20Certificate%20Authority%202017.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20RSA%20Root%20Certificate%20Authority%202017.crl
-https://www.microsoft.com/pkiops/certs/Microsoft%20EV%20ECC%20Root%20Certificate%20Authority%202017.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20EV%20ECC%20Root%20Certificate%20Authority%202017.crl
-https://www.microsoft.com/pkiops/certs/Microsoft%20EV%20RSA%20Root%20Certificate%20Authority%202017.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20EV%20RSA%20Root%20Certificate%20Authority%202017.crl
+https://www.microsoft.com/pkiops/certs/Microsoft ECC Root Certificate Authority 2017.crt
+https://www.microsoft.com/pkiops/crl/Microsoft ECC Root Certificate Authority 2017.crl
+https://www.microsoft.com/pkiops/certs/Microsoft RSA Root Certificate Authority 2017.crt
+https://www.microsoft.com/pkiops/crl/Microsoft RSA Root Certificate Authority 2017.crl
+https://www.microsoft.com/pkiops/certs/Microsoft EV ECC Root Certificate Authority 2017.crt
+https://www.microsoft.com/pkiops/crl/Microsoft EV ECC Root Certificate Authority 2017.crl
+https://www.microsoft.com/pkiops/certs/Microsoft EV RSA Root Certificate Authority 2017.crt
+https://www.microsoft.com/pkiops/crl/Microsoft EV RSA Root Certificate Authority 2017.crl
 http://crl.microsoft.com/pki/crl/products/MicRooCerAut_2010-06-23.crl
 https://www.microsoft.com/pki/certs/MicRooCerAut2011_2011_03_22.crt
-https://www.microsoft.com/pkiops/certs/Microsoft%20Time%20Stamp%20Root%20Certificate%20Authority%202014.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20Time%20Stamp%20Root%20Certificate%20Authority%202014.crl
-https://www.microsoft.com/pkiops/certs/Microsoft%20ECC%20Product%20Root%20Certificate%20Authority%202018.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20ECC%20Product%20Root%20Certificate%20Authority%202018.crl
-https://www.microsoft.com/pkiops/certs/Microsoft%20ECC%20TS%20Root%20Certificate%20Authority%202018.crt
-https://www.microsoft.com/pkiops/crl/Microsoft%20ECC%20TS%20Root%20Certificate%20Authority%202018.crl
+https://www.microsoft.com/pkiops/certs/Microsoft Time Stamp Root Certificate Authority 2014.crt
+https://www.microsoft.com/pkiops/crl/Microsoft Time Stamp Root Certificate Authority 2014.crl
+https://www.microsoft.com/pkiops/certs/Microsoft ECC Product Root Certificate Authority 2018.crt
+https://www.microsoft.com/pkiops/crl/Microsoft ECC Product Root Certificate Authority 2018.crl
+https://www.microsoft.com/pkiops/certs/Microsoft ECC TS Root Certificate Authority 2018.crt
+https://www.microsoft.com/pkiops/crl/Microsoft ECC TS Root Certificate Authority 2018.crl
