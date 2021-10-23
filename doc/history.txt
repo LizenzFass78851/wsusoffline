@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 12.6
+WSUS Offline Update - Community Edition - 12.6.1
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1843,3 +1843,7 @@ Community Edition 12.6 -- 21.10.2021
 - Fix: Edge Updater will be updated to the most recent version, too (Thanks to "aker")
 --------------------------------------------------------------------------------
 Community Edition 12.6.1 -- ??.??.????
+- Improved mechanism for enforced "feature upgrades via enablement package" mechanism (Thanks to "aker")
+- Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
+- Fix: Cosmetic issue enabling Build 20438 for x86 in UpdateGenerator (Thanks to "aker")
+- Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")

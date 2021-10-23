@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b0)
+set WSUSOFFLINE_VERSION=12.6.1 (b1)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1833,26 +1833,71 @@ if "%REBOOT_REQUIRED%"=="1" goto Installed
 rem *** Feature upgrades via enablement package ***
 rem supported on Windows 10 only
 if "%OS_VER_MAJOR%.%OS_VER_MINOR%" NEQ "10.0" goto SkipBuildUpgrade
-rem Windows 10 Version 1903 is out of support, force upgrade to 1909
-if "%OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%"=="10.0.18362" goto CheckBuildUpgrade
 
-if "%DO_UPGRADES%"=="/upgradebuilds" (goto CheckBuildUpgrade) else (goto SkipBuildUpgrade)
-
-:CheckBuildUpgrade
-if not exist ..\static\StaticUpdateIds-BuildUpgrades.txt goto SkipBuildUpgrade
-echo Checking for feature upgrades via enablement package...
+rem enforced Build upgrade (e.g. 1903 -> 1909)
 set WOU_BUILDUPGRADE_OLDBUILD=
 set WOU_BUILDUPGRADE_MINREVIS=
 set WOU_BUILDUPGRADE_PREUPD=
 set WOU_BUILDUPGRADE_NEWBUILD=
 set WOU_BUILDUPGRADE_EPKGID=
+if not exist ..\static\StaticUpdateIds-BuildUpgradesForced.txt goto SkipForcedBuildUpgrade
+for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgradesForced.txt) do (
+  if "%OS_VER_BUILD%"=="%%a" (
+    if "!WOU_BUILDUPGRADE_NEWBUILD!"=="" (
+      set WOU_BUILDUPGRADE_OLDBUILD=%%a
+      set WOU_BUILDUPGRADE_MINREVIS=%%b
+      set WOU_BUILDUPGRADE_PREUPD=%%c
+      set WOU_BUILDUPGRADE_NEWBUILD=%%d
+      set WOU_BUILDUPGRADE_EPKGID=%%e
+    ) else if "%%d" GEQ "!WOU_BUILDUPGRADE_NEWBUILD!" (
+      set WOU_BUILDUPGRADE_OLDBUILD=%%a
+      set WOU_BUILDUPGRADE_MINREVIS=%%b
+      set WOU_BUILDUPGRADE_PREUPD=%%c
+      set WOU_BUILDUPGRADE_NEWBUILD=%%d
+      set WOU_BUILDUPGRADE_EPKGID=%%e
+	)
+  )
+)
+if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipForcedBuildUpgrade
+if "%WOU_BUILDUPGRADE_MINREVIS%"=="" goto SkipForcedBuildUpgrade
+if "%WOU_BUILDUPGRADE_PREUPD%"=="" goto SkipForcedBuildUpgrade
+if "%WOU_BUILDUPGRADE_NEWBUILD%"=="" goto SkipForcedBuildUpgrade
+if "%WOU_BUILDUPGRADE_EPKGID%"=="" goto SkipForcedBuildUpgrade
+
+call :Log "Info: A feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD% is enforced"
+
+rem If "StaticUpdateIds-BuildUpgradesForced.txt" says "19041->19042" while "StaticUpdateIds-BuildUpgrades.txt" says "19041->19043" and the user wants a build upgrade, go straight to 19043
+if "%DO_UPGRADES%"=="/upgradebuilds" (goto CheckBuildUpgradeOptional)
+rem otherwise go to 19042
+if %OS_VER_REVIS% GEQ %WOU_BUILDUPGRADE_MINREVIS% (goto PerformBuildUpgrade) else (goto PrepareBuildUpgrade)
+
+:SkipForcedBuildUpgrade
+if "%DO_UPGRADES%"=="/upgradebuilds" (goto CheckBuildUpgrade) else (goto SkipBuildUpgrade)
+
+:CheckBuildUpgrade
+set WOU_BUILDUPGRADE_OLDBUILD=
+set WOU_BUILDUPGRADE_MINREVIS=
+set WOU_BUILDUPGRADE_PREUPD=
+set WOU_BUILDUPGRADE_NEWBUILD=
+set WOU_BUILDUPGRADE_EPKGID=
+echo Checking for feature upgrades via enablement package...
+:CheckBuildUpgradeOptional
+if not exist ..\static\StaticUpdateIds-BuildUpgrades.txt goto SkipBuildUpgrade
 for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
   if "%OS_VER_BUILD%"=="%%a" (
-    set WOU_BUILDUPGRADE_OLDBUILD=%%a
-    set WOU_BUILDUPGRADE_MINREVIS=%%b
-    set WOU_BUILDUPGRADE_PREUPD=%%c
-    set WOU_BUILDUPGRADE_NEWBUILD=%%d
-    set WOU_BUILDUPGRADE_EPKGID=%%e
+    if "!WOU_BUILDUPGRADE_NEWBUILD!"=="" (
+      set WOU_BUILDUPGRADE_OLDBUILD=%%a
+      set WOU_BUILDUPGRADE_MINREVIS=%%b
+      set WOU_BUILDUPGRADE_PREUPD=%%c
+      set WOU_BUILDUPGRADE_NEWBUILD=%%d
+      set WOU_BUILDUPGRADE_EPKGID=%%e
+    ) else if "%%d" GEQ "!WOU_BUILDUPGRADE_NEWBUILD!" (
+      set WOU_BUILDUPGRADE_OLDBUILD=%%a
+      set WOU_BUILDUPGRADE_MINREVIS=%%b
+      set WOU_BUILDUPGRADE_PREUPD=%%c
+      set WOU_BUILDUPGRADE_NEWBUILD=%%d
+      set WOU_BUILDUPGRADE_EPKGID=%%e
+	)
   )
 )
 if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipBuildUpgrade

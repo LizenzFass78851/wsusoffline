@@ -14,7 +14,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b0)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b1)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
@@ -442,8 +442,12 @@ EndFunc
 Func SwitchDownloadTargets($state)
 
   For $i = 0 To $win10_ver_arr[0] - 1
-    GUICtrlSetState($win10_checkboxes_x86[$i], $state)
-    GUICtrlSetState($win10_checkboxes_x64[$i], $state)
+    If ( ($win10_dsp_arr[$i+1] = "") AND ($win10_dsp_x86_arr[$i+1] <> "") ) Then
+      GUICtrlSetState($win10_checkboxes_x86[$i], $state)
+    EndIf
+    If ( ($win10_dsp_arr[$i+1] = "") AND ($win10_dsp_x64_arr[$i+1] <> "") ) Then
+      GUICtrlSetState($win10_checkboxes_x64[$i], $state)
+    EndIf
   Next
   GUICtrlSetState($w62_x64_glb, $state)
   GUICtrlSetState($w63_glb, $state)
