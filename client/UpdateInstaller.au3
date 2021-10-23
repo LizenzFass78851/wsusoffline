@@ -15,14 +15,13 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.11)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.11 (b1) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.11 (b2) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_wsh_hklm           = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_wsh_hkcu           = "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_ie                 = "HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer"
-Dim Const $reg_key_mssl               = "HKEY_LOCAL_MACHINE\Software\Microsoft\Silverlight"
 Dim Const $reg_key_dotnet35           = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v3.5"
 Dim Const $reg_key_dotnet4            = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v4\Full"
 Dim Const $reg_key_wmf                = "HKEY_LOCAL_MACHINE\Software\Microsoft\PowerShell\3\PowerShellEngine"
@@ -47,7 +46,6 @@ Dim Const $target_version_dotnet35    = "3.5.30729"
 ; INI file constants
 Dim Const $ini_section_installation   = "Installation"
 Dim Const $ini_value_cpp              = "updatecpp"
-Dim Const $ini_value_mssl             = "instmssl"
 Dim Const $ini_value_dotnet35         = "instdotnet35"
 Dim Const $ini_value_rcerts           = "updatercerts"
 Dim Const $ini_value_dotnet4          = "instdotnet4"
@@ -88,7 +86,6 @@ Dim Const $path_invalid_chars         = "!%&()^+,;="
 Dim Const $path_rel_builddate         = "\builddate.txt"
 Dim Const $path_rel_hashes            = "\md\"
 Dim Const $path_rel_autologon         = "\bin\Autologon.exe"
-Dim Const $path_rel_silverlight       = "\win\glb\Silverlight*.exe"
 Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet46      = "\dotnet\NDP46*.exe"
@@ -98,7 +95,7 @@ Dim Const $path_rel_msse_x64          = "\msse\x64-glb\MSEInstall-x64-*.exe"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
 
-Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $cpp, $mssl, $dotnet35, $dotnet4, $rcerts, $wmf, $msse, $tsc, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
+Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $msse, $tsc, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
 Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
 
 Func ShowGUIInGerman()
@@ -184,7 +181,6 @@ Dim $ini_src, $ini_dest, $i
   FileSetAttrib($ini_dest, "-R")
 
   IniWrite($ini_dest, $ini_section_installation, $ini_value_cpp, CheckBoxStateToString($cpp))
-  IniWrite($ini_dest, $ini_section_installation, $ini_value_mssl, CheckBoxStateToString($mssl))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet35, CheckBoxStateToString($dotnet35))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_rcerts, CheckBoxStateToString($rcerts))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet4, CheckBoxStateToString($dotnet4))
@@ -307,13 +303,6 @@ Func WMFTargetVersion()
   EndIf
 EndFunc
 
-Func MSSLInstalled()
-Dim $dummy
-
-  $dummy = RegRead($reg_key_mssl, $reg_val_default)
-  Return (@error <= 0)
-EndFunc
-
 Func MSSEInstalled()
 Dim $dummy
 
@@ -327,10 +316,6 @@ EndFunc
 
 Func AutologonPresent($basepath)
   Return FileExists($basepath & $path_rel_autologon)
-EndFunc
-
-Func SilverlightPresent($basepath)
-  Return FileExists($basepath & $path_rel_silverlight)
 EndFunc
 
 Func RootCertificatesPresent($basepath)
@@ -445,16 +430,16 @@ $txtxpos = 2 * $txtxoffset
 $txtypos = 3.5 * $txtyoffset + 1.5 * $txtheight
 GUICtrlCreateGroup("Installation", $txtxpos, $txtypos, $groupwidth, 5 * $txtheight)
 
-; Update C++ Runtime Libraries
+; Update Root Certificates
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + 1.5 * $txtyoffset
 If $gergui Then
-  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $rcerts = GUICtrlCreateCheckbox("Update Root Certificates", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If CPPPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
+If RootCertificatesPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
@@ -463,23 +448,15 @@ Else
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
-; Install Microsoft Silverlight
+; Update C++ Runtime Libraries
 $txtxpos = $txtxpos + $txtwidth
 If $gergui Then
-  If MSSLInstalled() Then
-    $mssl = GUICtrlCreateCheckbox("Microsoft Silverlight aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
-  Else
-    $mssl = GUICtrlCreateCheckbox("Microsoft Silverlight installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
-  EndIf
+  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  If MSSLInstalled() Then
-    $mssl = GUICtrlCreateCheckbox("Update Microsoft Silverlight", $txtxpos, $txtypos, $txtwidth, $txtheight)
-  Else
-    $mssl = GUICtrlCreateCheckbox("Install Microsoft Silverlight", $txtxpos, $txtypos, $txtwidth, $txtheight)
-  EndIf
+  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If SilverlightPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_mssl, $disabled) = $enabled Then
+If CPPPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
@@ -505,23 +482,6 @@ Else
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
-EndIf
-
-; Update Root Certificates
-$txtxpos = $txtxpos + $txtwidth
-If $gergui Then
-  $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
-Else
-  $rcerts = GUICtrlCreateCheckbox("Update Root Certificates", $txtxpos, $txtypos, $txtwidth, $txtheight)
-EndIf
-If RootCertificatesPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
-    GUICtrlSetState(-1, $GUI_CHECKED)
-  Else
-    GUICtrlSetState(-1, $GUI_UNCHECKED)
-  EndIf
-Else
-  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
 ; Install .NET Framework 4
@@ -938,9 +898,6 @@ While 1
       $options = ""
       If IsCheckBoxChecked($cpp) Then
         $options = $options & " /updatecpp"
-      EndIf
-      If IsCheckBoxChecked($mssl) Then
-        $options = $options & " /instmssl"
       EndIf
       If IsCheckBoxChecked($dotnet35) Then
         $options = $options & " /instdotnet35"

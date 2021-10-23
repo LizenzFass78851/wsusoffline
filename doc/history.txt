@@ -1822,5 +1822,6 @@ Community Edition 11.9.10 -- 21.10.2021
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 --------------------------------------------------------------------------------
 Community Edition 11.9.11 -- ??.??.2021
+- Support removed for Silverlight since Microsoft discontinued support for it on October 12th, 2021 (see https://support.microsoft.com/en-us/windows/silverlight-end-of-support-0a3be3c7-bead-e203-2dfd-74f0a64f1788)
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")

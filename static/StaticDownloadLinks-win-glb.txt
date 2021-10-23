@@ -1,5 +1,3 @@
-https://download.microsoft.com/download/D/D/F/DDF23DF4-0186-495D-AA35-C93569204409/50918.00/Silverlight.exe
-https://download.microsoft.com/download/D/D/F/DDF23DF4-0186-495D-AA35-C93569204409/50918.00/Silverlight_x64.exe
 https://www.microsoft.com/pkiops/certs/Microsoft ECC Root Certificate Authority 2017.crt
 https://www.microsoft.com/pkiops/crl/Microsoft ECC Root Certificate Authority 2017.crl
 https://www.microsoft.com/pkiops/certs/Microsoft RSA Root Certificate Authority 2017.crt

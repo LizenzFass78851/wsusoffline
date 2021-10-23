@@ -17,6 +17,5 @@
 */*/x64-glb/*
 *vcredist*_x64*
 *dotnetfx35*
-*Silverlight_x64*
 *.au3
 *.cpp

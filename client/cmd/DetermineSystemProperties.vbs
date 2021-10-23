@@ -6,8 +6,6 @@ Option Explicit
 Private Const strRegKeyWindowsVersion         = "HKLM\Software\Microsoft\Windows NT\CurrentVersion\"
 Private Const strRegKeySHA2Support            = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Servicing\Codesigning\SHA2\"
 Private Const strRegKeyIE                     = "HKLM\Software\Microsoft\Internet Explorer\"
-Private Const strRegKeyMSSL_x86               = "HKLM\Software\Microsoft\Silverlight\"
-Private Const strRegKeyMSSL_x64               = "HKLM\Software\Wow6432Node\Microsoft\Silverlight\"
 Private Const strRegKeyDotNet35               = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v3.5\"
 Private Const strRegKeyDotNet4                = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Full\"
 Private Const strRegKeyPowerShell             = "HKLM\Software\Microsoft\PowerShell\1\PowerShellEngine\"
@@ -567,13 +565,6 @@ End If
 
 ' Determine Internet Explorer version
 WriteVersionToFile objCmdFile, "IE_VER", RegRead(wshShell, strRegKeyIE & strRegValVersion)
-
-' Determine Microsoft Silverlight version
-If RegExists(wshShell, strRegKeyMSSL_x64) Then
-  WriteVersionToFile objCmdFile, "MSSL_VER", RegRead(wshShell, strRegKeyMSSL_x64 & strRegValVersion)
-Else
-  WriteVersionToFile objCmdFile, "MSSL_VER", RegRead(wshShell, strRegKeyMSSL_x86 & strRegValVersion)
-End If
 
 ' Determine Microsoft .NET Framework 3.5 SP1 installation state
 WriteVersionToFile objCmdFile, "DOTNET35_VER", RegRead(wshShell, strRegKeyDotNet35 & strRegValVersion)

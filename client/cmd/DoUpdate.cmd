@@ -8,7 +8,6 @@ if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
 set UPDATE_CPP=
-set INSTALL_MSSL=
 set INSTALL_DOTNET35=
 set UPDATE_RCERTS=
 set INSTALL_DOTNET4=
@@ -32,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b1)
+set WSUSOFFLINE_VERSION=11.9.11 (b2)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -65,11 +64,10 @@ call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
-for %%i in (/updatecpp /instmssl /instdotnet35 /updatercerts /instdotnet4 /instwmf /instmsse /updatetsc /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
+for %%i in (/updatecpp /instdotnet35 /updatercerts /instdotnet4 /instwmf /instmsse /updatetsc /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
   if /i "%1"=="%%i" call :Log "Info: Option %%i detected"
 )
 if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
-if /i "%1"=="/instmssl" set INSTALL_MSSL=/instmssl
 if /i "%1"=="/instdotnet35" set INSTALL_DOTNET35=/instdotnet35
 if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
 if /i "%1"=="/instdotnet4" set INSTALL_DOTNET4=/instdotnet4
@@ -194,7 +192,6 @@ rem echo Found Windows Update Agent version: %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WU
 rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%
 rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
 rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%
-rem echo Found Microsoft Silverlight version: %MSSL_VER_MAJOR%.%MSSL_VER_MINOR%.%MSSL_VER_BUILD%.%MSSL_VER_REVIS%
 rem echo Found Remote Desktop Client version: %TSC_VER_MAJOR%.%TSC_VER_MINOR%.%TSC_VER_BUILD%.%TSC_VER_REVIS%
 rem echo Found Microsoft .NET Framework 3.5 version: %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%
 rem echo Found Windows PowerShell version: %PSH_VER_MAJOR%.%PSH_VER_MINOR%
@@ -222,7 +219,6 @@ call :Log "Info: Found Windows Update Agent version %WUA_VER_MAJOR%.%WUA_VER_MIN
 call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%"
 call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
 call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%"
-call :Log "Info: Found Microsoft Silverlight version %MSSL_VER_MAJOR%.%MSSL_VER_MINOR%.%MSSL_VER_BUILD%.%MSSL_VER_REVIS%"
 call :Log "Info: Found Remote Desktop Client version %TSC_VER_MAJOR%.%TSC_VER_MINOR%.%TSC_VER_BUILD%.%TSC_VER_REVIS%"
 call :Log "Info: Found Microsoft .NET Framework 3.5 version %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%"
 call :Log "Info: Found Windows PowerShell version %PSH_VER_MAJOR%.%PSH_VER_MINOR%"
@@ -1193,56 +1189,6 @@ if "%CPP_2015_x86%"=="1" (
   )
 )
 :SkipCPPInst
-
-rem *** Install Microsoft Silverlight ***
-if "%INSTALL_MSSL%" NEQ "/instmssl" goto SkipMSSLInst
-echo Checking Microsoft Silverlight version...
-if "%OS_NAME%"=="w61" goto MSSL%OS_ARCH%
-if "%OS_NAME%"=="w62" goto MSSL%OS_ARCH%
-if "%OS_NAME%"=="w63" goto MSSL%OS_ARCH%
-if "%OS_NAME%"=="w100" goto MSSL%OS_ARCH%
-:MSSLx86
-set MSSL_FILENAME=..\win\glb\Silverlight.exe
-goto CheckMSSL
-:MSSLx64
-set MSSL_FILENAME=..\win\glb\Silverlight_x64.exe
-:CheckMSSL
-if not exist %MSSL_FILENAME% (
-  echo Warning: Microsoft Silverlight installation file ^(%MSSL_FILENAME%^) not found.
-  call :Log "Warning: Microsoft Silverlight installation file (%MSSL_FILENAME%) not found"
-  goto SkipMSSLInst
-)
-rem *** Determine Microsoft Silverlight installation file version ***
-echo Determining Microsoft Silverlight installation file version...
-%CSCRIPT_PATH% //Nologo //B //E:vbs DetermineFileVersion.vbs %MSSL_FILENAME% MSSL_VER_TARGET
-if not exist "%TEMP%\SetFileVersion.cmd" goto SkipMSSLInst
-call "%TEMP%\SetFileVersion.cmd"
-del "%TEMP%\SetFileVersion.cmd"
-if %MSSL_VER_MAJOR% LSS %MSSL_VER_TARGET_MAJOR% goto InstallMSSL
-if %MSSL_VER_MAJOR% GTR %MSSL_VER_TARGET_MAJOR% goto SkipMSSLInst
-if %MSSL_VER_MINOR% LSS %MSSL_VER_TARGET_MINOR% goto InstallMSSL
-if %MSSL_VER_MINOR% GTR %MSSL_VER_TARGET_MINOR% goto SkipMSSLInst
-if %MSSL_VER_BUILD% LSS %MSSL_VER_TARGET_BUILD% goto InstallMSSL
-if %MSSL_VER_BUILD% GTR %MSSL_VER_TARGET_BUILD% goto SkipMSSLInst
-if %MSSL_VER_REVIS% GEQ %MSSL_VER_TARGET_REVIS% goto SkipMSSLInst
-:InstallMSSL
-echo Installing Microsoft Silverlight...
-call InstallOSUpdate.cmd "%MSSL_FILENAME%" %VERIFY_MODE% /errorsaswarnings /q
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-)
-set MSSL_FILENAME=
-rem FIXME 11.9.8 (b69)
-set REBOOT_REQUIRED=1
-:SkipMSSLInst
-set MSSL_VER_TARGET_MAJOR=
-set MSSL_VER_TARGET_MINOR=
-set MSSL_VER_TARGET_BUILD=
-set MSSL_VER_TARGET_REVIS=
 
 rem *** Install .NET Framework 3.5 SP1 ***
 if "%INSTALL_DOTNET35%" NEQ "/instdotnet35" goto SkipDotNet35Inst
@@ -2282,7 +2228,7 @@ if "%RECALL_REQUIRED%"=="1" (
     )
     if "%USERNAME%" NEQ "WOUTempAdmin" (
       echo Preparing automatic recall...
-      call PrepareRecall.cmd "%~f0" %VERIFY_MODE% %SKIP_IEINST% %UPDATE_CPP% %INSTALL_MSSL% %INSTALL_DOTNET35% %UPDATE_RCERTS% %INSTALL_DOTNET4% %INSTALL_WMF% %INSTALL_MSSE% %SKIP_DEFS% %UPDATE_TSC% %INSTALL_OFV% %INSTALL_MSI% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %SKIP_DYNAMIC%
+      call PrepareRecall.cmd "%~f0" %VERIFY_MODE% %SKIP_IEINST% %UPDATE_CPP% %INSTALL_DOTNET35% %UPDATE_RCERTS% %INSTALL_DOTNET4% %INSTALL_WMF% %INSTALL_MSSE% %SKIP_DEFS% %UPDATE_TSC% %INSTALL_OFV% %INSTALL_MSI% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %SKIP_DYNAMIC%
     )
     if exist %SystemRoot%\System32\bcdedit.exe (
       echo Adjusting boot sequence for next reboot...

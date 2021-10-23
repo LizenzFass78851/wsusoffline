@@ -22,6 +22,5 @@ w62-x64\
 w63-x64\
 w100-x64\
 NDP48-
-Silverlight_x64
 .au3
 .cpp
