@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b1) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b2) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -84,7 +84,6 @@ Dim Const $path_invalid_chars           = "!%&()^+,;="
 Dim Const $path_rel_builddate           = "\builddate.txt"
 Dim Const $path_rel_hashes              = "\md\"
 Dim Const $path_rel_autologon           = "\bin\Autologon.exe"
-Dim Const $path_rel_silverlight         = "\win\glb\Silverlight*.exe"
 Dim Const $path_rel_rcerts              = "\win\glb\*.crt"
 Dim Const $path_rel_cpp                 = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48        = "\dotnet\ndp48*.exe"
@@ -336,10 +335,6 @@ Func AutologonPresent($basepath)
   Return FileExists($basepath & $path_rel_autologon)
 EndFunc
 
-Func SilverlightPresent($basepath)
-  Return FileExists($basepath & $path_rel_silverlight)
-EndFunc
-
 Func RootCertificatesPresent($basepath)
   Return FileExists($basepath & $path_rel_rcerts)
 EndFunc
@@ -465,16 +460,16 @@ Else
   EndIf
 EndIf
 
-; Update C++ Runtime Libraries
+; Update Root Certificates
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
 If $gergui Then
-  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $rcerts = GUICtrlCreateCheckbox("Update Root Certificates", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If CPPPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
+If RootCertificatesPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
@@ -483,15 +478,15 @@ Else
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
-; Update Root Certificates
+; Update C++ Runtime Libraries
 $txtxpos = $txtxpos + $txtwidth
 If $gergui Then
-  $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $rcerts = GUICtrlCreateCheckbox("Update Root Certificates", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If RootCertificatesPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
+If CPPPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)

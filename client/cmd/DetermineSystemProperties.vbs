@@ -8,8 +8,6 @@ Private Const strRegKeySHA2Support            = "HKLM\SOFTWARE\Microsoft\Windows
 Private Const strRegKeyIE                     = "HKLM\Software\Microsoft\Internet Explorer\"
 Private Const strRegKeyEdgeUpdate_x86         = "HKLM\Software\Microsoft\EdgeUpdate\"
 Private Const strRegKeyEdgeUpdate_x64         = "HKLM\Software\Wow6432Node\Microsoft\EdgeUpdate\"
-Private Const strRegKeyMSSL_x86               = "HKLM\Software\Microsoft\Silverlight\"
-Private Const strRegKeyMSSL_x64               = "HKLM\Software\Wow6432Node\Microsoft\Silverlight\"
 Private Const strRegKeyDotNet35               = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v3.5\"
 Private Const strRegKeyDotNet4                = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Full\"
 Private Const strRegKeyPowerShell             = "HKLM\Software\Microsoft\PowerShell\1\PowerShellEngine\"
@@ -635,13 +633,6 @@ If strVersionMSEdgeUpdate <> "" Then
 Else
   objCmdFile.WriteLine("set MSEDGEUPDATE_INSTALLED=0")
   WriteVersionToFile objCmdFile, "MSEDGEUPDATE_VER", ""
-End If
-
-' Determine Microsoft Silverlight version
-If RegExists(wshShell, strRegKeyMSSL_x64) Then
-  WriteVersionToFile objCmdFile, "MSSL_VER", RegRead(wshShell, strRegKeyMSSL_x64 & strRegValVersion)
-Else
-  WriteVersionToFile objCmdFile, "MSSL_VER", RegRead(wshShell, strRegKeyMSSL_x86 & strRegValVersion)
 End If
 
 ' Determine Microsoft .NET Framework 3.5 SP1 installation state

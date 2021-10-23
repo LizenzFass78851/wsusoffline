@@ -7,9 +7,9 @@ setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
+set UPDATE_RCERTS=
 set UPDATE_CPP=
 set INSTALL_DOTNET35=
-set UPDATE_RCERTS=
 set INSTALL_DOTNET4=
 set INSTALL_WMF=
 set SKIP_IEINST=
@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b1)
+set WSUSOFFLINE_VERSION=12.6.1 (b2)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -63,12 +63,12 @@ call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
-for %%i in (/updatecpp /instdotnet35 /updatercerts /instdotnet4 /instwmf /skipieinst /upgradebuilds /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
+for %%i in (/updatercerts /updatecpp /instdotnet35 /instdotnet4 /instwmf /skipieinst /upgradebuilds /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
   if /i "%1"=="%%i" call :Log "Info: Option %%i detected"
 )
+if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
 if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
 if /i "%1"=="/instdotnet35" set INSTALL_DOTNET35=/instdotnet35
-if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
 if /i "%1"=="/instdotnet4" set INSTALL_DOTNET4=/instdotnet4
 if /i "%1"=="/instwmf" set INSTALL_WMF=/instwmf
 if /i "%1"=="/skipieinst" set SKIP_IEINST=/skipieinst
