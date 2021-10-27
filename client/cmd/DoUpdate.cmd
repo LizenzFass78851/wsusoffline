@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b2)
+set WSUSOFFLINE_VERSION=11.9.11 (b3)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -361,7 +361,16 @@ for %%i in (monitor) do (
 call :Log "Info: Adjusted power management settings"
 :SkipPowerCfg
 
+rem *** Determine Windows Update Agent (WUA) support for SHA2-signed wsusscn2.cab ***
+if "%WUA_SHA2_SUPPORT%" NEQ "1" (
+  if %WUA_VER_MAJOR% GTR %WUA_VER_TARGET_MAJOR% set WUA_SHA2_SUPPORT=1
+  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% GTR %WUA_VER_TARGET_MINOR% set WUA_SHA2_SUPPORT=1
+  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_TARGET_MINOR% if %WUA_VER_BUILD% GTR %WUA_VER_TARGET_BUILD% set WUA_SHA2_SUPPORT=1
+  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_TARGET_MINOR% if %WUA_VER_BUILD% EQU %WUA_VER_TARGET_BUILD% if %WUA_VER_REVIS% GEQ %WUA_VER_TARGET_REVIS% set WUA_SHA2_SUPPORT=1
+)
+
 if "%JUST_OFFICE%"=="1" goto JustOffice
+
 rem *** Install Windows Service Pack ***
 if "%OS_NAME%"=="w63" goto SPw63
 echo Checking Windows Service Pack version...
@@ -647,6 +656,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" NEQ "0" (
     goto InstError
   )
+  set WUA_SHA2_SUPPORT=1
 ) else (
   echo Warning: Windows Update Agent installation file ^(kb%WUA_TARGET_ID%^) not found.
   call :Log "Warning: Windows Update Agent installation file (kb%WUA_TARGET_ID%) not found"
@@ -1936,6 +1946,14 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
 :SkipVerifyCatalog
+if "%OS_SHA2_SUPPORT%" NEQ "1" (
+  echo Warning: Support for SHA2 signed updates is missing. Updates might fail to install.
+  call :Log "Warning: Support for SHA2 signed updates is missing"
+)
+if "%WUA_SHA2_SUPPORT%" NEQ "1" (
+  echo Warning: Support for a SHA2 signed catalog file is missing. Missing updates might not be found.
+  call :Log "Warning: Support for a SHA2 signed catalog file is missing"
+)
 echo %TIME% - Listing ids of missing updates (please be patient, this will take a while)...
 copy /Y ..\wsus\wsusscn2.cab "%TEMP%" >nul
 %CSCRIPT_PATH% //Nologo //E:vbs ListMissingUpdateIds.vbs %LIST_MODE_IDS%
