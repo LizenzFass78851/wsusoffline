@@ -30,7 +30,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b2)
+set WSUSOFFLINE_VERSION=12.6.1 (b4)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -748,6 +748,7 @@ echo Installing most recent Edge (Chromium) Updater...
 :InstallMSEdgeUpdateSilent
 rem This line is intentionally implemented twice
 if exist %SystemRoot%\Temp\wou_msedgeupdate_tried.txt goto SkipMSEdgeUpdateInst
+rem The official updating mechanism uses this command line: "...\MicrosoftEdgeUpdateSetup.exe" /install "runtime=true&needsadmin=true" /installsource chromerecovery /silent
 call InstallOSUpdate.cmd "..\msedge\%MSEDGEUPDATE_FILENAME%" %VERIFY_MODE% /errorsaswarnings /recover /machine
 set ERR_LEVEL=%errorlevel%
 rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
