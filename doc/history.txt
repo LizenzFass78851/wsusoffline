@@ -1845,5 +1845,7 @@ Community Edition 12.6 -- 21.10.2021
 Community Edition 12.6.1 -- ??.??.????
 - Improved mechanism for enforced "feature upgrades via enablement package" mechanism (Thanks to "aker")
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
+- misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
+- Changed command line for updating Edge Updater to be more similar to what Edge does (Thanks to "aker")
 - Fix: Cosmetic issue enabling Build 20438 for x86 in UpdateGenerator (Thanks to "aker")
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
