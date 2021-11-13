@@ -22,10 +22,9 @@ if "%HASHDEEP_PATH%"=="" (
   if /i "%OS_ARCH%"=="x64" (set HASHDEEP_PATH=..\bin\hashdeep64.exe) else (set HASHDEEP_PATH=..\bin\hashdeep.exe)
 )
 
-if '%1'=='' goto NoParam
+if "%~1"=="" goto NoParam
 
-set FILE_FULL_PATH=%1
-set "FILE_FULL_PATH=!FILE_FULL_PATH:"=!"
+set FILE_FULL_PATH=%~1
 
 set SpaceHelper=
 :RemoveSpaces
@@ -35,11 +34,8 @@ if "%FILE_FULL_PATH:~-1%"==" " (
   goto RemoveSpaces
 )
 
-rem DO NOT CHANGE THE ORDER OF THE CHECKS
-if '"%FILE_FULL_PATH%"'=='%1' goto FileFullPathParsed
-if not "%SpaceHelper%"=="" if '"%FILE_FULL_PATH%%SpaceHelper%"'=='%1' goto FileFullPathParsed
-if '%FILE_FULL_PATH%'=='%1' goto FileFullPathParsed
-if not "%SpaceHelper%"=="" if '%FILE_FULL_PATH%%SpaceHelper%'=='%1' goto FileFullPathParsed
+if "%FILE_FULL_PATH%"=="%~1" goto FileFullPathParsed
+if not "%SpaceHelper%"=="" if "%FILE_FULL_PATH%%SpaceHelper%"=="%~1" goto FileFullPathParsed
 goto InvalidParam
 :FileFullPathParsed
 if not exist "%FILE_FULL_PATH%" goto ParamFileNotFound
@@ -55,31 +51,32 @@ pushd "%TEMP%"
 if errorlevel 1 goto NoTempDir
 popd
 
+shift /1
 :EvalParams
-if "%2"=="" goto NoMoreParams
-if /i "%2"=="/selectoptions" (
+if "%~1"=="" goto NoMoreParams
+if /i "%~1"=="/selectoptions" (
   set SELECT_OPTIONS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/verify" (
+if /i "%~1"=="/verify" (
   set VERIFY_FILES=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/showdismprogress" (
+if /i "%~1"=="/showdismprogress" (
   set DISM_PROGRESS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/errorsaswarnings" (
+if /i "%~1"=="/errorsaswarnings" (
   set ERRORS_AS_WARNINGS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/ignoreerrors" (
+if /i "%~1"=="/ignoreerrors" (
   set IGNORE_ERRORS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
 
@@ -124,14 +121,15 @@ if "%FILE_FULL_PATH:~-4%"==".cab" goto InstCab
 goto UnsupType
 
 :InstExe
-if "%SELECT_OPTIONS%" NEQ "1" set INSTALL_SWITCHES=%2 %3 %4 %5 %6 %7 %8 %9
-if "%INSTALL_SWITCHES%"=="" (
+rem This can be improved by using %*, but %* is not affected by shift-operations
+if "%SELECT_OPTIONS%" NEQ "1" set INSTALL_SWITCHES=%1 %2 %3 %4 %5 %6 %7 %8 %9
+if "!INSTALL_SWITCHES!"=="" (
   for /F %%i in (..\opt\OptionList-Q.txt) do (
     echo %FILE_FULL_PATH% | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
     if not errorlevel 1 set INSTALL_SWITCHES=/Q
   )
 )
-if "%INSTALL_SWITCHES%"=="" (
+if "!INSTALL_SWITCHES!"=="" (
   for /F %%i in (..\opt\OptionList-qn.txt) do (
     echo %FILE_FULL_PATH% | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
     if not errorlevel 1 set INSTALL_SWITCHES=/q /norestart
@@ -141,7 +139,7 @@ if "%INSTALL_SWITCHES%"=="" (
   set INSTALL_SWITCHES=/q /z
 )
 echo Installing %FILE_FULL_PATH%...
-"%FILE_FULL_PATH%" %INSTALL_SWITCHES%
+"%FILE_FULL_PATH%" !INSTALL_SWITCHES!
 set ERR_LEVEL=%errorlevel%
 rem echo InstallOSUpdate: ERR_LEVEL=%ERR_LEVEL%
 if "%ERR_LEVEL%"=="0" (
@@ -377,12 +375,12 @@ if "%ERRORS_AS_WARNINGS%"=="1" (goto InstWarning) else (goto InstError)
 
 :InstWarning
 echo Warning: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Warning: Installation of %FILE_FULL_PATH% %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo %DATE% %TIME% - Warning: Installation of %FILE_FULL_PATH% !INSTALL_SWITCHES! failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstError
 echo ERROR: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Error: Installation of %FILE_FULL_PATH% %INSTALL_SWITCHES% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo %DATE% %TIME% - Error: Installation of %FILE_FULL_PATH% !INSTALL_SWITCHES! failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto Error
 
 :Error

@@ -21,10 +21,9 @@ if "%HASHDEEP_PATH%"=="" (
   if /i "%OS_ARCH%"=="x64" (set HASHDEEP_PATH=..\bin\hashdeep64.exe) else (set HASHDEEP_PATH=..\bin\hashdeep.exe)
 )
 
-if '%1'=='' goto NoParam
+if "%~1"=="" goto NoParam
 
-set FILE_FULL_PATH=%1
-set "FILE_FULL_PATH=!FILE_FULL_PATH:"=!"
+set FILE_FULL_PATH=%~1
 
 set SpaceHelper=
 :RemoveSpaces
@@ -34,11 +33,8 @@ if "%FILE_FULL_PATH:~-1%"==" " (
   goto RemoveSpaces
 )
 
-rem DO NOT CHANGE THE ORDER OF THE CHECKS
-if '"%FILE_FULL_PATH%"'=='%1' goto FileFullPathParsed
-if not "%SpaceHelper%"=="" if '"%FILE_FULL_PATH%%SpaceHelper%"'=='%1' goto FileFullPathParsed
-if '%FILE_FULL_PATH%'=='%1' goto FileFullPathParsed
-if not "%SpaceHelper%"=="" if '%FILE_FULL_PATH%%SpaceHelper%'=='%1' goto FileFullPathParsed
+if "%FILE_FULL_PATH%"=="%~1" goto FileFullPathParsed
+if not "%SpaceHelper%"=="" if "%FILE_FULL_PATH%%SpaceHelper%"=="%~1" goto FileFullPathParsed
 goto InvalidParam
 :FileFullPathParsed
 if not exist "%FILE_FULL_PATH%" goto ParamFileNotFound
@@ -54,26 +50,27 @@ pushd "%TEMP%"
 if errorlevel 1 goto NoTempDir
 popd
 
+shift /1
 :EvalParams
-if "%2"=="" goto NoMoreParams
-if /i "%2"=="/selectoptions" (
+if "%~1"=="" goto NoMoreParams
+if /i "%~1"=="/selectoptions" (
   set SELECT_OPTIONS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/verify" (
+if /i "%~1"=="/verify" (
   set VERIFY_FILES=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/errorsaswarnings" (
+if /i "%~1"=="/errorsaswarnings" (
   set ERRORS_AS_WARNINGS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
-if /i "%2"=="/ignoreerrors" (
+if /i "%~1"=="/ignoreerrors" (
   set IGNORE_ERRORS=1
-  shift /2
+  shift /1
   goto EvalParams
 )
 
