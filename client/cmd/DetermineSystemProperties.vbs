@@ -924,7 +924,7 @@ For Each strProduct In objInstaller.Products
     End If
   Next
 
-  ' C++ 2015-2019 (x86)
+  ' C++ 2015-2022 (x86)
   For Each strStaticId in cpp2015_x86_old_ids.Items
     If UCase(strProduct) = UCase(strStaticId) Then
       'WScript.Echo "cpp2015_x86_old"
@@ -937,7 +937,7 @@ For Each strProduct In objInstaller.Products
       cpp2015_x86_new = True
     End If
   Next
-  ' C++ 2015-2019 (x64)
+  ' C++ 2015-2022 (x64)
   For Each strStaticId in cpp2015_x64_old_ids.Items
     If UCase(strProduct) = UCase(strStaticId) Then
       'WScript.Echo "cpp2015_x64_old"
