@@ -1,1 +1,1 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/d433e17eb7b7162e4e96e28797bde94c/ndp48-x86-x64-allos-trk.exe
+https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/6d3caacca57d689a94d3c4460bc96706/ndp48-x86-x64-allos-trk.exe

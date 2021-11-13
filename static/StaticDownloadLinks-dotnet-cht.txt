@@ -1,1 +1,1 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/7676d67ad615dcfd9a649eaed5645a05/ndp48-x86-x64-allos-cht.exe
+https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/d5d4c9b0fed4acb5dbe67d065ac2849a/ndp48-x86-x64-allos-cht.exe

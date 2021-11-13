@@ -1,1 +1,1 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/9d1856530a5ddf727b92522c373c9ab4/ndp48-x86-x64-allos-kor.exe
+https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/2a3f786c480c1122ff3696ba1ad9564b/ndp48-x86-x64-allos-kor.exe

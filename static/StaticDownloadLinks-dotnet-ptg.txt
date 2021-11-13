@@ -1,1 +1,1 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/6f5a86061349e0aa52261f63a392f3b9/ndp48-x86-x64-allos-ptg.exe
+https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/acfd09791eb43c2d2e6d680570af577b/ndp48-x86-x64-allos-ptg.exe

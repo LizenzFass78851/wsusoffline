@@ -1,1 +1,1 @@
-http://download.visualstudio.microsoft.com/download/pr/7afca223-55d2-470a-8edc-6a1739ae3252/7106c4c18b27315687c26caceeea3543/ndp48-x86-x64-allos-csy.exe
+https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/3202fead98f73887ec01c8059de5acff/ndp48-x86-x64-allos-csy.exe
