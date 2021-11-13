@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b5)
+set WSUSOFFLINE_VERSION=11.9.11 (b6r2)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1087,7 +1087,7 @@ if "%CPP_2013_x64%"=="1" (
 )
 if "%CPP_2015_x64%"=="1" (
   if exist ..\cpp\vcredist2015_x64.exe (
-    echo Installing most recent C++ 2015-2019 x64 Runtime Library...
+    echo Installing most recent C++ 2015-2022 x64 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2015_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
     set ERR_LEVEL=!errorlevel!
     rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
@@ -1184,7 +1184,7 @@ if "%CPP_2013_x86%"=="1" (
 )
 if "%CPP_2015_x86%"=="1" (
   if exist ..\cpp\vcredist2015_x86.exe (
-    echo Installing most recent C++ 2015-2019 x86 Runtime Library...
+    echo Installing most recent C++ 2015-2022 x86 Runtime Library...
     call InstallOSUpdate.cmd ..\cpp\vcredist2015_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
     set ERR_LEVEL=!errorlevel!
     rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
