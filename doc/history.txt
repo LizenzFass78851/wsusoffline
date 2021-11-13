@@ -1523,7 +1523,7 @@ Version 11.6.1 -- 13.03.19
 Version 11.6.2 -- 13.04.19
 - Included complete rewrite of the Linux scripts version 1.12 (Special thanks to H. Buhrmester)
 - April 2019 updates added to 'security only' lists for Windows 7 / 8.1 and Server 2008 R2 / 2012 / 2012 R2 (x86/x64) systems
-- C++ 2017 Redistributable Runtime Libraries (v. 14.16.27027.1) replaced by C++ 2019 Redistributable Runtime Libraries v. 14.20.27508.1 (Thanks to "aker")
+- C++ 2017 Redistributable Runtime Libraries (v. 14.16.27027.1) replaced by C++ 2015-2019 Redistributable Runtime Libraries v. 14.20.27508.1 (Thanks to "aker")
 - Replaced superseded November 2018 Servicing stack update (kb4470788) by April 2019 Servicing stack update (kb4493510) for Windows Server 2019 and Windows 10 Version 1809 (Thanks to "aker")
 - Added /monitoron switch to DoUpdate.cmd script as well as corresponding key to [Miscellaneous] section of UpdateInstaller.ini file (Thanks to "GCRaistlin", "tlh864", "zimon" and "Dalai")
 - Fix: DownloadUpdates.cmd script didn't handle AM/PM time format correctly while determining catalog date (Thanks to "negg", "Dalai" and "boco")
@@ -1565,7 +1565,7 @@ Version 11.7.3 -- 25.06.19
 - Included complete rewrite of the Linux scripts version 1.14 (Special thanks to H. Buhrmester)
 - Added option to install/update Trusted Root Certificates and Certificate revocation lists (Thanks to "Dalai")
 - Removed option to install Windows PowerShell 2.0
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.21.27702.2 (Thanks to "harry")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.21.27702.2 (Thanks to "harry")
 - Sysinternals' tools Autologon, Sigcheck and Streams will now also be updated automatically
 - Replaced superseded May 2019 Servicing stack update (kb4500109) by May 2019 Servicing stack update (kb4498523) for Windows 10 Version 1903 (Thanks to "aker")
 - June 2019 updates added to 'security only' lists for Windows 7 / 8.1 and Server 2008 R2 / 2012 / 2012 R2 (x86/x64) systems
@@ -1601,7 +1601,7 @@ Version 11.8 -- 05.08.19
 - Included complete rewrite of the Linux scripts version 1.15 (Special thanks to H. Buhrmester)
 - Mandatory installation of Internet Explorer 11 on Windows Server 2012 systems (Thanks to "boco" and "aker")
 - Static download definitions added for Intel microcode updates (Thanks to "boco" and "aker")
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.22.27821.0 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.22.27821.0 (Thanks to "aker")
 - Replaced superseded July 2019 Servicing stack update (kb4509095) by July 2019 Servicing stack update (kb4512937) for Windows Server 2019 and Windows 10 Version 1809 (Thanks to "aker")
 - Replaced superseded July 2019 Servicing stack update (kb4509096) by July 2019 Servicing stack update (kb4508433) for Windows 10 Version 1903 (Thanks to "aker")
 - Fix: Download part erroneously excluded January 2016 Security Update (kb3122649) for Microsoft .NET Framework 3.5 on Windows Server 2012
@@ -1628,7 +1628,7 @@ Version 11.8.1 -- 12.09.19
 Version 11.8.2 -- 04.11.19
 - October 2019 updates added to 'security only' lists for Windows 7 / 8.1 and Server 2008 R2 / 2012 / 2012 R2 (x86/x64) systems
 - Integrated .NET Frameworks' September 2019 Security Only Updates and Quality Rollups II
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.23.27820.0 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.23.27820.0 (Thanks to "aker")
 - Aria2 download utility updated to v. 1.35.0
 - Replaced superseded September 2019 Servicing Stack Update (kb4512939) by October 2019 Servicing Stack Update (kb4521857) for Windows Server 2012 (Thanks to "aker")
 - Replaced superseded September 2019 Servicing Stack Update (kb4512938) by October 2019 Servicing Stack Update (kb4521864) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
@@ -1675,7 +1675,7 @@ Version 11.9 -- 03.03.20
 - January 2020 updates added to 'security only' lists for Windows 7 / 8.1 and Server 2008 R2 / 2012 / 2012 R2 (x86/x64) systems
 - February 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - Integrated .NET Frameworks' January 2020 Security Only Updates and Quality Rollups
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.24.28127.4 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.24.28127.4 (Thanks to "aker")
 - Replaced superseded November 2019 Servicing stack update (kb4526478) by February 2020 Servicing Stack Update (kb4537830) for Windows Server 2008 SP2 (Thanks to "aker")
 - Replaced superseded November 2019 Servicing stack update (kb4523206) by February 2020 Servicing Stack Update (kb4537829) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
 - Replaced superseded November 2019 Servicing Stack Update (kb4523208) by December 2019 Servicing Stack Update (kb4532920) for Windows Server 2012 (Thanks to "aker")
@@ -1723,7 +1723,7 @@ Community Edition 12.1 -- 29.07.2020
 - Removed obsolete Office File Validation Update kb2553065 (Thanks to "aker")
 - Added static update definition files for Windows 10 Version 2004 (build 19041)
 - Allowed to perform "feature upgrades via enablement package" (1903 -> 1909) (Thanks to "aker")
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.26.28720.3 (Thanks to "aker")
 - Replaced superseded Office Updates for Office 2010, 2013 and 2016 (Thanks to "aker")
 - Replaced superseded December 2019 Servicing Stack Update (kb4532920) by July 2020 Servicing Stack Update (KB4566426) for Windows Server 2012 (Thanks to "aker")
 - Replaced superseded November 2019 Servicing Stack Update (kb4524445) by July 2020 Servicing Stack Update (KB4566425) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
@@ -1749,7 +1749,7 @@ Community Edition 12.3 -- 20.10.2020
 - NOTE: This version will be the last one supporting Windows 10 (1709)
 - NOTE: This version will be the last one supporting Office 2010
 - Included complete rewrite of the Linux scripts version CE-2.2 (Special thanks to H. Buhrmester)
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.27.29112.0 (Thanks to "harry")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.27.29112.0 (Thanks to "harry")
 - Removed download of legacy .NET Framework updates (Thanks to "aker")
 - August to October 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - August to October 2020 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
@@ -1774,7 +1774,7 @@ Community Edition 12.3.1 -- 23.10.2020
 Community Edition 12.4 -- 06.12.2020
 - Support removed for Windows 10 version 1709 since Microsoft discontinued support for it on October 13th, 2020
 - Support removed for Office 2010 since Microsoft discontinued support for it on October 13th, 2020
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.28.29325.2 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.28.29325.2 (Thanks to "aker")
 - reintroduced the "/excludesp"-option for the download part (Thanks to "negg")
 - cleaned up ExcludeList-ofc*.txt
 - November 2020 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
@@ -1799,7 +1799,7 @@ Community Edition 12.5 -- 30.05.2021
 - Allow C++ definitions to be updated via static definition download (Thanks to "aker")
 - Added .\client\exclude\ExcludeList.txt to the static definition update routine (Thanks to "aker")
 - Refactored Windows 10 download to make maintenance easier
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30037.0 (Thanks to "aker" and "harry")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.29.30037.0 (Thanks to "aker" and "harry")
 - December 2020 to May 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - December 2020 to May 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
 - Replaced superseded July 2020 Servicing Stack Update (KB4566426) by April 2021 Servicing Stack Update (kb5001401) for Windows Server 2012 (Thanks to "aker")
@@ -1830,7 +1830,7 @@ Community Edition 12.6 -- 21.10.2021
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Added ability to detect Windows 11 builds
 - .NET 5 updated to version 5.0.11
-- C++ 2019 Redistributable Runtime Libraries updated to v. 14.29.30135.0 (Thanks to "aker")
+- C++ 2015-2019 Redistributable Runtime Libraries updated to v. 14.29.30135.0 (Thanks to "aker")
 - June 2021 to October 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - June 2021 to October 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 (x86/x64) systems
 - Replaced superseded April 2021 Servicing stack update (kb5001402) by September 2021 Servicing stack update (kb5005698) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
@@ -1847,5 +1847,9 @@ Community Edition 12.6.1 -- ??.??.????
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Changed command line for updating Edge Updater to be more similar to what Edge does (Thanks to "aker")
+- .NET 5 updated to version 5.0.12
+- C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.30.30704.0 (Thanks to "aker")
+- November 2021 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
+- November 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 /2022 (x86/x64) systems
 - Fix: Cosmetic issue enabling Build 20438 for x86 in UpdateGenerator (Thanks to "aker")
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
