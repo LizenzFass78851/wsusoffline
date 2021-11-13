@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.11)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.11 (b6r2) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.11 (b7) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -88,8 +88,8 @@ Dim Const $path_rel_hashes            = "\md\"
 Dim Const $path_rel_autologon         = "\bin\Autologon.exe"
 Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
-Dim Const $path_rel_instdotnet46      = "\dotnet\NDP46*.exe"
-Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48*.exe"
+Dim Const $path_rel_instdotnet46      = "\dotnet\ndp462-kb3151800-x86-x64-allos-*.exe"
+Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48-x86-x64-allos-*.exe"
 Dim Const $path_rel_msse_x86          = "\msse\x86-glb\MSEInstall-x86-*.exe"
 Dim Const $path_rel_msse_x64          = "\msse\x64-glb\MSEInstall-x64-*.exe"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
@@ -276,7 +276,7 @@ EndFunc
 
 Func DotNet4TargetVersion()
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-    Return "4.6.00081"
+    Return "4.6.01590"
   Else
     Return "4.8.03761"
   EndIf
@@ -284,7 +284,7 @@ EndFunc
 
 Func DotNet4DisplayVersion()
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-    Return "4.6"
+    Return "4.6.2"
   Else
     Return "4.8"
   EndIf
