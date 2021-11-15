@@ -1825,6 +1825,7 @@ Community Edition 11.9.11 -- ??.??.????
 - Support removed for Silverlight since Microsoft discontinued support for it on October 12th, 2021 (see https://support.microsoft.com/en-us/windows/silverlight-end-of-support-0a3be3c7-bead-e203-2dfd-74f0a64f1788)
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
+- Rewrite the complete code related to the installation of C++ (Thanks to "aker")
 - .NET Framework 4 for Windows Server 2008 updated to v. 4.6.2 (Thanks to "aker")
 - Links to .NET 4.8 updated to fetch the updated files released 2021 (signing date 2021-05-01) (Thanks to "aker")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.30.30704.0 (Thanks to "aker")

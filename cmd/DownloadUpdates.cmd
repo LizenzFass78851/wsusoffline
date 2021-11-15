@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b7)
+set WSUSOFFLINE_VERSION=11.9.11 (b8)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -321,6 +321,8 @@ if exist ..\doc\faq.txt del ..\doc\faq.txt
 if exist ..\client\cmd\Reboot.vbs del ..\client\cmd\Reboot.vbs
 if exist ..\client\cmd\Shutdown.vbs del ..\client\cmd\Shutdown.vbs
 if exist ..\client\msi\nul rd /S /Q ..\client\msi
+if exist ..\client\opt\OptionList-Q.txt del ..\client\opt\OptionList-Q.txt
+if exist ..\client\opt\OptionList-qn.txt del ..\client\opt\OptionList-qn.txt
 if exist ..\client\static\StaticUpdateIds-ie9-w61.txt del ..\client\static\StaticUpdateIds-ie9-w61.txt
 if exist ..\client\static\StaticUpdateIds-w100-x86.txt del ..\client\static\StaticUpdateIds-w100-x86.txt
 if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\StaticUpdateIds-w100-x64.txt
@@ -522,6 +524,42 @@ if exist ..\client\cpp\x86-glb\nul (
   move /Y ..\client\cpp\x86-glb\*.* ..\client\cpp >nul
   rd /S /Q ..\client\cpp\x86-glb
 )
+if exist ..\client\static\StaticUpdateIds-cpp2005_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2005_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2005_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2005_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2005_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2005_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2008_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2010_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2012_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2013_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_old.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_documented.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_new.txt
+if exist ..\client\static\StaticUpdateIds-cpp2015_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_old.txt
 
 rem *** .NET restructuring stuff ***
 if exist ..\exclude\ExcludeList-dotnet.txt del ..\exclude\ExcludeList-dotnet.txt
@@ -724,8 +762,22 @@ if "%SDDCoreReturnValue%"=="0" (
   call :Log "Warning: Failed to update .\client\exclude\HideList-seconly.txt"
   move /Y ..\client\exclude\HideList-seconly.ori ..\client\exclude\HideList-seconly.txt >nul
 )
-
-
+copy /Y ..\client\opt\OptionList.txt ..\client\opt\OptionList.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/OptionList.txt ..\client\opt
+if "%SDDCoreReturnValue%"=="0" (
+  del ..\client\opt\OptionList.ori
+) else (
+  call :Log "Warning: Failed to update .\client\opt\OptionList.txt"
+  move /Y ..\client\opt\OptionList.ori ..\client\opt\OptionList.txt >nul
+)
+copy /Y ..\client\opt\OptionList-wildcard.txt ..\client\opt\OptionList-wildcard.ori >nul
+call :SDDCore https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/esr-11.9/OptionList-wildcard.txt ..\client\opt
+if "%SDDCoreReturnValue%"=="0" (
+  del ..\client\opt\OptionList-wildcard.ori
+) else (
+  call :Log "Warning: Failed to update .\client\opt\OptionList-wildcard.txt"
+  move /Y ..\client\opt\OptionList-wildcard.ori ..\client\opt\OptionList-wildcard.txt >nul
+)
 call :Log "Info: Updated static and exclude definitions for download and update"
 :SkipSDDDownload
 

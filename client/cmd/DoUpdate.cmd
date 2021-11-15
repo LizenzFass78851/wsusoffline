@@ -7,11 +7,11 @@ setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
-set UPDATE_CPP=
-set INSTALL_DOTNET35=
 set UPDATE_RCERTS=
+set INSTALL_DOTNET35=
 set INSTALL_DOTNET4=
 set INSTALL_WMF=
+set UPDATE_CPP=
 set INSTALL_MSSE=
 set UPDATE_TSC=
 set SKIP_IEINST=
@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b7)
+set WSUSOFFLINE_VERSION=11.9.11 (b8)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -64,14 +64,14 @@ call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
-for %%i in (/updatecpp /instdotnet35 /updatercerts /instdotnet4 /instwmf /instmsse /updatetsc /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
+for %%i in (/updatercerts /instdotnet35 /instdotnet4 /instwmf /updatecpp /instmsse /updatetsc /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
   if /i "%1"=="%%i" call :Log "Info: Option %%i detected"
 )
-if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
-if /i "%1"=="/instdotnet35" set INSTALL_DOTNET35=/instdotnet35
 if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
+if /i "%1"=="/instdotnet35" set INSTALL_DOTNET35=/instdotnet35
 if /i "%1"=="/instdotnet4" set INSTALL_DOTNET4=/instdotnet4
 if /i "%1"=="/instwmf" set INSTALL_WMF=/instwmf
+if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
 if /i "%1"=="/instmsse" set INSTALL_MSSE=/instmsse
 if /i "%1"=="/updatetsc" set UPDATE_TSC=/updatetsc
 if /i "%1"=="/skipieinst" set SKIP_IEINST=/skipieinst
@@ -804,7 +804,7 @@ if not exist "%HASH_FILE_NAME%" (
   goto SkipIEw60LPVerify
 )
 if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%IE_LANG_FILENAME_SHORT%" %HASH_FILE_NAME% >"%TEMP%\hash-ieLangPack.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:"%IE_LANG_FILENAME_SHORT%" %HASH_FILE_NAME% >"%TEMP%\hash-ieLangPack.txt"
 %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-ieLangPack.txt" "%IE_LANG_FILENAME_FULL%"
 if errorlevel 1 (
   if exist "%TEMP%\hash-ieLangPack.txt" del "%TEMP%\hash-ieLangPack.txt"
@@ -998,207 +998,6 @@ set IE_FILENAME=
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipIEInst
-
-rem *** Install C++ Runtime Libraries ***
-if "%UPDATE_CPP%" NEQ "/updatecpp" goto SkipCPPInst
-echo Checking C++ Runtime Libraries' installation state...
-goto CPPInst%OS_ARCH%
-
-:CPPInstx64
-if "%CPP_2005_x64%"=="1" (
-  if exist ..\cpp\vcredist2005_x64.exe (
-    echo Installing most recent C++ 2005 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2005_x64.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2005_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2005_x64.exe not found"
-  )
-)
-if "%CPP_2008_x64%"=="1" (
-  if exist ..\cpp\vcredist2008_x64.exe (
-    echo Installing most recent C++ 2008 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2008_x64.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2008_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2008_x64.exe not found"
-  )
-)
-if "%CPP_2010_x64%"=="1" (
-  if exist ..\cpp\vcredist2010_x64.exe (
-    echo Installing most recent C++ 2010 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2010_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2010_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2010_x64.exe not found"
-  )
-)
-if "%CPP_2012_x64%"=="1" (
-  if exist ..\cpp\vcredist2012_x64.exe (
-    echo Installing most recent C++ 2012 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2012_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2012_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2012_x64.exe not found"
-  )
-)
-if "%CPP_2013_x64%"=="1" (
-  if exist ..\cpp\vcredist2013_x64.exe (
-    echo Installing most recent C++ 2013 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2013_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2013_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2013_x64.exe not found"
-  )
-)
-if "%CPP_2015_x64%"=="1" (
-  if exist ..\cpp\vcredist2015_x64.exe (
-    echo Installing most recent C++ 2015-2022 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2015_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2015_x64.exe not found"
-  )
-)
-:CPPInstx86
-if "%CPP_2005_x86%"=="1" (
-  if exist ..\cpp\vcredist2005_x86.exe (
-    echo Installing most recent C++ 2005 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2005_x86.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2005_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2005_x86.exe not found"
-  )
-)
-if "%CPP_2008_x86%"=="1" (
-  if exist ..\cpp\vcredist2008_x86.exe (
-    echo Installing most recent C++ 2008 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2008_x86.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2008_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2008_x86.exe not found"
-  )
-)
-if "%CPP_2010_x86%"=="1" (
-  if exist ..\cpp\vcredist2010_x86.exe (
-    echo Installing most recent C++ 2010 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2010_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2010_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2010_x86.exe not found"
-  )
-)
-if "%CPP_2012_x86%"=="1" (
-  if exist ..\cpp\vcredist2012_x86.exe (
-    echo Installing most recent C++ 2012 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2012_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2012_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2012_x86.exe not found"
-  )
-)
-if "%CPP_2013_x86%"=="1" (
-  if exist ..\cpp\vcredist2013_x86.exe (
-    echo Installing most recent C++ 2013 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2013_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2013_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2013_x86.exe not found"
-  )
-)
-if "%CPP_2015_x86%"=="1" (
-  if exist ..\cpp\vcredist2015_x86.exe (
-    echo Installing most recent C++ 2015-2022 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2015_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2015_x86.exe not found"
-  )
-)
-:SkipCPPInst
 
 rem *** Install .NET Framework 3.5 SP1 ***
 if "%INSTALL_DOTNET35%" NEQ "/instdotnet35" goto SkipDotNet35Inst
@@ -1541,6 +1340,98 @@ if "%ERR_LEVEL%"=="3010" (
 rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipWMFInst
+
+rem *** MSI-detection based products (such as CPP and dotNet5) ***
+set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=
+set CURRENT_MSIPRODUCT_NEEDSINSTALL=
+set CURRENT_MSIPRODUCT_ID=
+set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+set CURRENT_MSIPRODUCT_FILENAME_FINAL=
+for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-MSIProducts.txt) do (
+  rem echo MSI a: %%a
+  rem echo MSI b: %%b
+  rem echo MSI c: %%c
+
+  set CURRENT_MSIPRODUCT_ID=%%a
+  set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%~dpc
+  
+  rem check user options
+  if /i "!CURRENT_MSIPRODUCT_ID:~0,3!"=="cpp" (
+    rem C++ runtimes
+    if "%UPDATE_CPP%"=="/updatecpp" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=1) else (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+    if exist %SystemRoot%\Temp\wou_cpp_tried.txt (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  ) else (
+    rem nothing else supported yet
+    set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [1]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem some additional checking just to be sure
+  if "%%b"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  if "%%c"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  if "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL!"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [2]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem check system architecture
+  if /i "!CURRENT_MSIPRODUCT_ID:~-3!"=="x64" (
+    if "%OS_ARCH%" NEQ "x64" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  ) else if /i "!CURRENT_MSIPRODUCT_ID:~-3!"=="x86" (
+    rem should always work
+  ) else (
+    rem unknown architecture
+    set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [3]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem check, if DetermineSystemProperties.vbs listed the component as outdated
+  if "!CURRENT_MSIPRODUCT_ATTEMPTINSTALL!"=="1" (
+    call set "CURRENT_MSIPRODUCT_NEEDSINSTALL=%%!CURRENT_MSIPRODUCT_ID!%%"
+  ) else (
+    set CURRENT_MSIPRODUCT_NEEDSINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_NEEDSINSTALL: !CURRENT_MSIPRODUCT_NEEDSINSTALL!
+  
+  if "!CURRENT_MSIPRODUCT_NEEDSINSTALL!"=="1" (
+    rem try to find file
+    dir /B "%%c" >nul 2>&1
+    if not errorlevel 1 (
+      rem if found, try to get complete file name
+      set CURRENT_MSIPRODUCT_FILENAME_FINAL=
+      for /F %%i in ('dir /B %%c') do (
+        if not "%%i"=="" set CURRENT_MSIPRODUCT_FILENAME_FINAL=%%i
+      )
+      if not "!CURRENT_MSIPRODUCT_FILENAME_FINAL!"=="" (
+        rem using full file name, try to install
+        echo Installing most recent version of %%b...
+        call InstallOSUpdate.cmd "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL!\!CURRENT_MSIPRODUCT_FILENAME_FINAL!" %VERIFY_MODE% /errorsaswarnings
+        set ERR_LEVEL=!errorlevel!
+        rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          set RECALL_REQUIRED=1
+        )
+      ) else (
+        echo Warning: File %%c not found.
+        call :Log "Warning: File %%c not found"
+      )
+    ) else (
+      echo Warning: File %%c not found.
+      call :Log "Warning: File %%c not found"
+    )
+  )
+)
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+if "%UPDATE_CPP%"=="/updatecpp" echo. >%SystemRoot%\Temp\wou_cpp_tried.txt
+set CURRENT_MSIPRODUCT_SHOULDINSTALL=
+set CURRENT_MSIPRODUCT_NEEDSINSTALL=
+set CURRENT_MSIPRODUCT_ID=
+set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+set CURRENT_MSIPRODUCT_FILENAME_FINAL=
 
 rem *** Install most recent Remote Desktop Client ***
 if "%UPDATE_TSC%" NEQ "/updatetsc" goto SkipTSCInst
@@ -1938,7 +1829,7 @@ if not exist ..\md\hashes-wsus.txt (
   goto SkipVerifyCatalog
 )
 echo Verifying integrity of Windows Update catalog file...
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
 %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
 if errorlevel 1 (
   if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
@@ -2209,6 +2100,7 @@ if exist %SystemRoot%\Temp\wou_ie_tried.txt del %SystemRoot%\Temp\wou_ie_tried.t
 if exist %SystemRoot%\Temp\wou_net35_tried.txt del %SystemRoot%\Temp\wou_net35_tried.txt
 if exist %SystemRoot%\Temp\wou_net4_tried.txt del %SystemRoot%\Temp\wou_net4_tried.txt
 if exist %SystemRoot%\Temp\wou_wmf_tried.txt del %SystemRoot%\Temp\wou_wmf_tried.txt
+if exist %SystemRoot%\Temp\wou_cpp_tried.txt del %SystemRoot%\Temp\wou_cpp_tried.txt
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt del %SystemRoot%\Temp\wou_wupre_tried.txt
 if exist "%TEMP%\UpdateInstaller.ini" del "%TEMP%\UpdateInstaller.ini"
 call :CleanupPwrCfg
@@ -2246,7 +2138,7 @@ if "%RECALL_REQUIRED%"=="1" (
     )
     if "%USERNAME%" NEQ "WOUTempAdmin" (
       echo Preparing automatic recall...
-      call PrepareRecall.cmd "%~f0" %VERIFY_MODE% %SKIP_IEINST% %UPDATE_CPP% %INSTALL_DOTNET35% %UPDATE_RCERTS% %INSTALL_DOTNET4% %INSTALL_WMF% %INSTALL_MSSE% %SKIP_DEFS% %UPDATE_TSC% %INSTALL_OFV% %INSTALL_MSI% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %SKIP_DYNAMIC%
+      call PrepareRecall.cmd "%~f0" %UPDATE_RCERTS% %INSTALL_DOTNET35% %INSTALL_DOTNET4% %INSTALL_WMF% %UPDATE_CPP% %INSTALL_MSSE% %UPDATE_TSC% %SKIP_IEINST% %SKIP_DEFS% %SKIP_DYNAMIC% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %VERIFY_MODE% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %INSTALL_MSI%
     )
     if exist %SystemRoot%\System32\bcdedit.exe (
       echo Adjusting boot sequence for next reboot...
