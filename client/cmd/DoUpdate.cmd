@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b8)
+set WSUSOFFLINE_VERSION=12.6.1 (b9)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1047,6 +1047,7 @@ for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-MSIProducts.txt
 
   set CURRENT_MSIPRODUCT_ID=%%a
   set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%~dpc
+  if "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL:~-1!"=="\" (set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL:~0,-1!)
   
   rem check user options
   if /i "!CURRENT_MSIPRODUCT_ID:~0,6!"=="dotnet" (

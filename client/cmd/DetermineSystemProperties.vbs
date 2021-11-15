@@ -54,14 +54,13 @@ Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
 
-Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
+Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames, MSIProducts
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
 Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
-Dim MSIProducts
 
 Private Function RegExists(objShell, strName)
-Dim dummy
+  Dim dummy
   On Error Resume Next
   dummy = objShell.RegRead(strName)
   RegExists = (Err >= 0)
