@@ -54,28 +54,11 @@ Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4
 Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
 Private Const idxBuild                        = 2
 
-Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, objInstaller, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
+Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
-Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strStaticId, strProduct, strPatch, languageCode, i, j
+Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
-Dim cpp2005_x86_old_ids, cpp2005_x86_new_ids, cpp2005_x64_old_ids, cpp2005_x64_new_ids
-Dim cpp2008_x86_old_ids, cpp2008_x86_new_ids, cpp2008_x64_old_ids, cpp2008_x64_new_ids
-'Dim cpp2010_x86_old_ids, cpp2010_x86_new_ids, cpp2010_x64_old_ids, cpp2010_x64_new_ids
-Dim cpp2012_x86_old_ids, cpp2012_x86_new_ids, cpp2012_x64_old_ids, cpp2012_x64_new_ids
-Dim cpp2013_x86_old_ids, cpp2013_x86_new_ids, cpp2013_x64_old_ids, cpp2013_x64_new_ids
-Dim cpp2015_x86_old_ids, cpp2015_x86_new_ids, cpp2015_x64_old_ids, cpp2015_x64_new_ids
-Dim dotNET5_Runtime_x86_old_ids, dotNET5_Runtime_x86_new_ids, dotNET5_Runtime_x64_old_ids, dotNET5_Runtime_x64_new_ids
-Dim dotNET5_DesktopRuntime_x86_old_ids, dotNET5_DesktopRuntime_x86_new_ids, dotNET5_DesktopRuntime_x64_old_ids, dotNET5_DesktopRuntime_x64_new_ids
-Dim dotNET5_ASPNETRuntime_x86_old_ids, dotNET5_ASPNETRuntime_x86_new_ids, dotNET5_ASPNETRuntime_x64_old_ids, dotNET5_ASPNETRuntime_x64_new_ids
-Dim cpp2005_x86_old, cpp2005_x86_new, cpp2005_x64_old, cpp2005_x64_new
-Dim cpp2008_x86_old, cpp2008_x86_new, cpp2008_x64_old, cpp2008_x64_new
-Dim cpp2010_x86_old, cpp2010_x86_new, cpp2010_x64_old, cpp2010_x64_new
-Dim cpp2012_x86_old, cpp2012_x86_new, cpp2012_x64_old, cpp2012_x64_new
-Dim cpp2013_x86_old, cpp2013_x86_new, cpp2013_x64_old, cpp2013_x64_new
-Dim cpp2015_x86_old, cpp2015_x86_new, cpp2015_x64_old, cpp2015_x64_new
-Dim dotNET5_Runtime_x86_old, dotNET5_Runtime_x86_new, dotNET5_Runtime_x64_old, dotNET5_Runtime_x64_new
-Dim dotNET5_DesktopRuntime_x86_old, dotNET5_DesktopRuntime_x86_new, dotNET5_DesktopRuntime_x64_old, dotNET5_DesktopRuntime_x64_new
-Dim dotNET5_ASPNETRuntime_x86_old, dotNET5_ASPNETRuntime_x86_new, dotNET5_ASPNETRuntime_x64_old, dotNET5_ASPNETRuntime_x64_new
+Dim MSIProducts
 
 Private Function RegExists(objShell, strName)
 Dim dummy
@@ -414,6 +397,83 @@ Private Function ReadStaticFile(strRelFileName)
   Set ReadStaticFile = dict
 End Function
 
+Private Function CheckMSIProduct(strProductName)
+  ' CheckMSIProduct(strProductName):
+  ' cpp2005_x86, cpp2005_x64
+  ' cpp2008_x86, cpp2008_x64
+  ' cpp2010_x86, cpp2010_x64
+  ' cpp2012_x86, cpp2012_x64
+  ' cpp2013_x86, cpp2013_x64
+  ' cpp2015_x86, cpp2015_x64
+  ' dotNET5_Runtime_x86, dotNET5_Runtime_x64
+  ' dotNET5_DesktopRuntime_x86, dotNET5_DesktopRuntime_x64
+  ' dotNET5_ASPNETRuntime_x86, dotNET5_ASPNETRuntime_x64
+  
+  Dim objInstaller
+  Dim MSIProduct_old, MSIProduct_new
+  Dim MSIProduct_old_ids, MSIProduct_new_ids
+  Dim strMSIProductProductBuffer, strMSIProductPatchBuffer, strMSIProductStaticId, strMSIProductStaticIdProductBuffer, strMSIProductStaticIdPatchBuffer
+  
+  Set MSIProduct_old_ids = ReadStaticFile("StaticUpdateIds-MSIProducts-" & strProductName & "_old.txt")
+  Set MSIProduct_new_ids = ReadStaticFile("StaticUpdateIds-MSIProducts-" & strProductName & "_new.txt")
+  
+  Set objInstaller = CreateObject("WindowsInstaller.Installer")
+  
+  MSIProduct_old = False
+  MSIProduct_new = False
+  
+  For Each strMSIProductProductBuffer In objInstaller.Products
+    For Each strMSIProductStaticId in MSIProduct_old_ids.Items
+      If InStr(1, strMSIProductStaticId, ",", vbTextCompare) > 0 Then
+        strMSIProductStaticIdProductBuffer = Split(strMSIProductStaticId, ",")(0)
+        strMSIProductStaticIdPatchBuffer = Split(strMSIProductStaticId, ",")(1)
+      Else
+        strMSIProductStaticIdProductBuffer = strMSIProductStaticId
+        strMSIProductStaticIdPatchBuffer = ""
+      End If
+      If UCase(strMSIProductProductBuffer) = UCase(strMSIProductStaticIdProductBuffer) Then
+        If strMSIProductStaticIdPatchBuffer = "" Then
+          MSIProduct_old = True
+        Else
+          For Each strMSIProductPatchBuffer In objInstaller.Patches(strMSIProductProductBuffer)
+            If UCase(strMSIProductPatchBuffer) = UCase(strMSIProductStaticIdPatchBuffer) Then
+              MSIProduct_old = True
+            End If
+          Next
+        End If
+      End If
+    Next
+    For Each strMSIProductStaticId in MSIProduct_new_ids.Items
+      If InStr(1, strMSIProductStaticId, ",", vbTextCompare) > 0 Then
+        strMSIProductStaticIdProductBuffer = Split(strMSIProductStaticId, ",")(0)
+        strMSIProductStaticIdPatchBuffer = Split(strMSIProductStaticId, ",")(1)
+      Else
+        strMSIProductStaticIdProductBuffer = strMSIProductStaticId
+        strMSIProductStaticIdPatchBuffer = ""
+      End If
+      If UCase(strMSIProductProductBuffer) = UCase(strMSIProductStaticIdProductBuffer) Then
+        If strMSIProductStaticIdPatchBuffer = "" Then
+          MSIProduct_new = True
+        Else
+          For Each strMSIProductPatchBuffer In objInstaller.Patches(strMSIProductProductBuffer)
+            If UCase(strMSIProductPatchBuffer) = UCase(strMSIProductStaticIdPatchBuffer) Then
+              MSIProduct_new = True
+            End If
+          Next
+        End If
+      End If
+    Next
+  Next
+  
+  'WScript.Echo "CheckMSIProduct: " & strProductName & " -> old=" & CStr(MSIProduct_old) & " & new=" & CStr(MSIProduct_new)
+  
+  If ((MSIProduct_old = True) And (MSIProduct_new = False)) Then
+    CheckMSIProduct = True
+  Else
+    CheckMSIProduct = False
+  End If
+End Function
+
 ' Main
 Set wshShell = WScript.CreateObject("WScript.Shell")
 strSystemFolder = wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\system32"
@@ -499,7 +559,7 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
     ElseIf CInt(Split(objQueryItem.Version, ".")(1)) >= 2 Then
       ' Windows 8 / Windows Server 2012, Windows 8.1 / Windows Server 2012 R2 have native SHA2-support
       objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
-	End If
+    End If
   ElseIf CInt(Split(objQueryItem.Version, ".")(0)) > 6 Then
     ' Windows 10 / Windows Server 2016 / Windows Server 2019 have native SHA2-support
     objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
@@ -700,365 +760,10 @@ For i = 0 To UBound(arrayOfficeNames)
 Next
 
 ' Determine installed products (for C++ and dotNET 5+)
-cpp2005_x86_old = False
-cpp2005_x86_new = False
-cpp2005_x64_old = False
-cpp2005_x64_new = False
-cpp2008_x86_old = False
-cpp2008_x86_new = False
-cpp2008_x64_old = False
-cpp2008_x64_new = False
-cpp2010_x86_old = False
-cpp2010_x86_new = False
-cpp2010_x64_old = False
-cpp2010_x64_new = False
-cpp2012_x86_old = False
-cpp2012_x86_new = False
-cpp2012_x64_old = False
-cpp2012_x64_new = False
-cpp2013_x86_old = False
-cpp2013_x86_new = False
-cpp2013_x64_old = False
-cpp2013_x64_new = False
-cpp2015_x86_old = False
-cpp2015_x86_new = False
-cpp2015_x64_old = False
-cpp2015_x64_new = False
-dotNET5_Runtime_x86_old = False
-dotNET5_Runtime_x64_old = False
-dotNET5_Runtime_x86_new = False
-dotNET5_Runtime_x64_new = False
-dotNET5_DesktopRuntime_x86_old = False
-dotNET5_DesktopRuntime_x64_old = False
-dotNET5_DesktopRuntime_x86_new = False
-dotNET5_DesktopRuntime_x64_new = False
-dotNET5_ASPNETRuntime_x86_old = False
-dotNET5_ASPNETRuntime_x64_old = False
-dotNET5_ASPNETRuntime_x86_new = False
-dotNET5_ASPNETRuntime_x64_new = False
-
-Set cpp2005_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2005_x86_old.txt")
-Set cpp2005_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2005_x86_new.txt")
-Set cpp2005_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2005_x64_old.txt")
-Set cpp2005_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2005_x64_new.txt")
-
-Set cpp2008_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2008_x86_old.txt")
-Set cpp2008_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2008_x86_new.txt")
-Set cpp2008_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2008_x64_old.txt")
-Set cpp2008_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2008_x64_new.txt")
-
-'Set cpp2010_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2010_x86_old.txt")
-'Set cpp2010_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2010_x86_new.txt")
-'Set cpp2010_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2010_x64_old.txt")
-'Set cpp2010_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2010_x64_new.txt")
-
-Set cpp2012_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2012_x86_old.txt")
-Set cpp2012_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2012_x86_new.txt")
-Set cpp2012_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2012_x64_old.txt")
-Set cpp2012_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2012_x64_new.txt")
-
-Set cpp2013_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2013_x86_old.txt")
-Set cpp2013_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2013_x86_new.txt")
-Set cpp2013_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2013_x64_old.txt")
-Set cpp2013_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2013_x64_new.txt")
-
-Set cpp2015_x86_old_ids = ReadStaticFile("StaticUpdateIds-cpp2015_x86_old.txt")
-Set cpp2015_x86_new_ids = ReadStaticFile("StaticUpdateIds-cpp2015_x86_new.txt")
-Set cpp2015_x64_old_ids = ReadStaticFile("StaticUpdateIds-cpp2015_x64_old.txt")
-Set cpp2015_x64_new_ids = ReadStaticFile("StaticUpdateIds-cpp2015_x64_new.txt")
-
-Set dotNET5_Runtime_x86_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_Runtime_x86_old.txt")
-Set dotNET5_Runtime_x86_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_Runtime_x86_new.txt")
-Set dotNET5_Runtime_x64_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_Runtime_x64_old.txt")
-Set dotNET5_Runtime_x64_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_Runtime_x64_new.txt")
-
-Set dotNET5_DesktopRuntime_x86_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_DesktopRuntime_x86_old.txt")
-Set dotNET5_DesktopRuntime_x86_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_DesktopRuntime_x86_new.txt")
-Set dotNET5_DesktopRuntime_x64_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_DesktopRuntime_x64_old.txt")
-Set dotNET5_DesktopRuntime_x64_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_DesktopRuntime_x64_new.txt")
-
-Set dotNET5_ASPNETRuntime_x86_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_ASPNETRuntime_x86_old.txt")
-Set dotNET5_ASPNETRuntime_x86_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_ASPNETRuntime_x86_new.txt")
-Set dotNET5_ASPNETRuntime_x64_old_ids = ReadStaticFile("StaticUpdateIds-dotnet5_ASPNETRuntime_x64_old.txt")
-Set dotNET5_ASPNETRuntime_x64_new_ids = ReadStaticFile("StaticUpdateIds-dotnet5_ASPNETRuntime_x64_new.txt")
-
-Set objInstaller = CreateObject("WindowsInstaller.Installer")
-For Each strProduct In objInstaller.Products
-  
-  ' Documentation: http://blogs.msdn.com/b/astebner/archive/2007/01/16/mailbag-how-to-detect-the-presence-of-the-vc-8-0-runtime-redistributable-package.aspx
-  ' C++ 2005 (x86)
-  For Each strStaticId in cpp2005_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2005_x86_old"
-      cpp2005_x86_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2005_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2005_x86_new"
-      cpp2005_x86_new = True
-    End If
-  Next
-  ' C++ 2005 (x64)
-  For Each strStaticId in cpp2005_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2005_x64_old"
-      cpp2005_x64_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2005_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2005_x64_new"
-      cpp2005_x64_new = True
-    End If
-  Next
-
-  ' Documentation: http://blogs.msdn.com/b/astebner/archive/2009/01/29/9384143.aspx
-  ' C++ 2008 (x86)
-  For Each strStaticId in cpp2008_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2008_x86_old"
-      cpp2008_x86_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2008_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2008_x86_new"
-      cpp2008_x86_new = True
-    End If
-  Next
-  ' C++ 2008 (x64)
-  For Each strStaticId in cpp2008_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2008_x64_old"
-      cpp2008_x64_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2008_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2008_x64_new"
-      cpp2008_x64_new = True
-    End If
-  Next
-
-  ' C++ 2010 nach altem Mechanismus
-  ' Documentation: http://blogs.msdn.com/b/astebner/archive/2010/05/05/10008146.aspx
-  Select Case UCase(strProduct)
-    Case "{196BB40D-1578-3D01-B289-BEFC77A11A1E}"
-      'WScript.Echo "cpp2010_x86_old"
-      cpp2010_x86_old = True
-    Case "{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}"
-      'WScript.Echo "cpp2010_x86_old"
-      cpp2010_x86_old = True
-      For Each strPatch In objInstaller.Patches(strProduct)
-        If UCase(strPatch) = "{F11DB03E-9EFF-3E33-8D0D-827AB22DAB1B}" Then
-          'WScript.Echo "cpp2010_x86_new"
-          cpp2010_x86_new = True
-        End If
-      Next
-    Case "{DA5E371C-6333-3D8A-93A4-6FD5B20BCC6E}"
-      'WScript.Echo "cpp2010_x64_old"
-      cpp2010_x64_old = True
-    Case "{1D8E6291-B0D5-35EC-8441-6616F567A0F7}"
-      'WScript.Echo "cpp2010_x64_old"
-      cpp2010_x64_old = True
-      For Each strPatch In objInstaller.Patches(strProduct)
-        If UCase(strPatch) = "{45C1B2E6-FE51-3FDA-81C6-5C8602F9B025}" Then
-          'WScript.Echo "cpp2010_x64_new"
-          cpp2010_x64_new = True
-        End If
-      Next
-  End Select
-  
-  ' C++ 2012 (x86)
-  For Each strStaticId in cpp2012_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2012_x86_old"
-      cpp2012_x86_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2012_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2012_x86_new"
-      cpp2012_x86_new = True
-    End If
-  Next
-  ' C++ 2012 (x64)
-  For Each strStaticId in cpp2012_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2012_x64_old"
-      cpp2012_x64_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2012_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2012_x64_new"
-      cpp2012_x64_new = True
-    End If
-  Next
-
-  ' C++ 2013 (x86)
-  For Each strStaticId in cpp2013_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2013_x86_old"
-      cpp2013_x86_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2013_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2013_x86_new"
-      cpp2013_x86_new = True
-    End If
-  Next
-  ' C++ 2013 (x64)
-  For Each strStaticId in cpp2013_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2013_x64_old"
-      cpp2013_x64_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2013_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2013_x64_new"
-      cpp2013_x64_new = True
-    End If
-  Next
-
-  ' C++ 2015-2022 (x86)
-  For Each strStaticId in cpp2015_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2015_x86_old"
-      cpp2015_x86_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2015_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2015_x86_new"
-      cpp2015_x86_new = True
-    End If
-  Next
-  ' C++ 2015-2022 (x64)
-  For Each strStaticId in cpp2015_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2015_x64_old"
-      cpp2015_x64_old = True
-    End If
-  Next
-  For Each strStaticId in cpp2015_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "cpp2015_x64_new"
-      cpp2015_x64_new = True
-    End If
-  Next
-
-  ' .NET Runtime (x86)
-  For Each strStaticId in dotNET5_Runtime_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_Runtime_x86_old"
-      dotNET5_Runtime_x86_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_Runtime_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_Runtime_x86_new"
-      dotNET5_Runtime_x86_new = True
-    End If
-  Next
-  ' .NET Runtime (x64)
-  For Each strStaticId in dotNET5_Runtime_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_Runtime_x64_old"
-      dotNET5_Runtime_x64_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_Runtime_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_Runtime_x64_new"
-      dotNET5_Runtime_x64_new = True
-    End If
-  Next
-
-  ' .NET Desktop Runtime (x86)
-  For Each strStaticId in dotNET5_DesktopRuntime_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_DesktopRuntime_x86_old"
-      dotNET5_DesktopRuntime_x86_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_DesktopRuntime_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_DesktopRuntime_x86_new"
-      dotNET5_DesktopRuntime_x86_new = True
-    End If
-  Next
-  ' .NET Desktop Runtime (x64)
-  For Each strStaticId in dotNET5_DesktopRuntime_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_DesktopRuntime_x64_old"
-      dotNET5_DesktopRuntime_x64_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_DesktopRuntime_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_DesktopRuntime_x64_new"
-      dotNET5_DesktopRuntime_x64_new = True
-    End If
-  Next
-
-  ' ASP.NET Core Runtime (x86)
-  For Each strStaticId in dotNET5_ASPNETRuntime_x86_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_ASPNETRuntime_x86_old"
-      dotNET5_ASPNETRuntime_x86_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_ASPNETRuntime_x86_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_ASPNETRuntime_x86_new"
-      dotNET5_ASPNETRuntime_x86_new = True
-    End If
-  Next
-  ' ASP.NET Core Runtime (x64)
-  For Each strStaticId in dotNET5_ASPNETRuntime_x64_old_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_ASPNETRuntime_x64_old"
-      dotNET5_ASPNETRuntime_x64_old = True
-    End If
-  Next
-  For Each strStaticId in dotNET5_ASPNETRuntime_x64_new_ids.Items
-    If UCase(strProduct) = UCase(strStaticId) Then
-      'WScript.Echo "dotNET5_ASPNETRuntime_x64_new"
-      dotNET5_ASPNETRuntime_x64_new = True
-    End If
-  Next
+Set MSIProducts = ReadStaticFile("StaticUpdateIds-MSIProducts.txt")
+For Each strMSIProductId in MSIProducts.Items
+  If CheckMSIProduct(Split(strMSIProductId, ",")(0)) = True Then objCmdFile.WriteLine("set " & UCase(Split(strMSIProductId, ",")(0)) & "=1")
 Next
-
-If ((cpp2005_x86_old = True) And (cpp2005_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2005_x86=1")
-If ((cpp2005_x64_old = True) And (cpp2005_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2005_x64=1")
-
-If ((cpp2008_x86_old = True) And (cpp2008_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2008_x86=1")
-If ((cpp2008_x64_old = True) And (cpp2008_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2008_x64=1")
-
-If ((cpp2010_x86_old = True) And (cpp2010_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2010_x86=1")
-If ((cpp2010_x64_old = True) And (cpp2010_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2010_x64=1")
-
-If ((cpp2012_x86_old = True) And (cpp2012_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2012_x86=1")
-If ((cpp2012_x64_old = True) And (cpp2012_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2012_x64=1")
-
-If ((cpp2013_x86_old = True) And (cpp2013_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2013_x86=1")
-If ((cpp2013_x64_old = True) And (cpp2013_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2013_x64=1")
-
-If ((cpp2015_x86_old = True) And (cpp2015_x86_new = False)) Then objCmdFile.WriteLine("set CPP_2015_x86=1")
-If ((cpp2015_x64_old = True) And (cpp2015_x64_new = False)) Then objCmdFile.WriteLine("set CPP_2015_x64=1")
-
-If ((dotNET5_Runtime_x86_old = True) And (dotNET5_Runtime_x86_new = False) And (Not ((dotNET5_DesktopRuntime_x86_old = True) And (dotNET5_DesktopRuntime_x86_new = False)))) Then objCmdFile.WriteLine("set DOTNET5_RUNTIME_x86=1")
-If ((dotNET5_Runtime_x64_old = True) And (dotNET5_Runtime_x64_new = False) And (Not ((dotNET5_DesktopRuntime_x64_old = True) And (dotNET5_DesktopRuntime_x64_new = False)))) Then objCmdFile.WriteLine("set DOTNET5_RUNTIME_x64=1")
-
-If ((dotNET5_DesktopRuntime_x86_old = True) And (dotNET5_DesktopRuntime_x86_new = False)) Then objCmdFile.WriteLine("set DOTNET5_DESKTOPRUNTIME_x86=1")
-If ((dotNET5_DesktopRuntime_x64_old = True) And (dotNET5_DesktopRuntime_x64_new = False)) Then objCmdFile.WriteLine("set DOTNET5_DESKTOPRUNTIME_x64=1")
-
-If ((dotNET5_ASPNETRuntime_x86_old = True) And (Not dotNET5_ASPNETRuntime_x86_new = False)) Then objCmdFile.WriteLine("set DOTNET5_ASPNET_x86=1")
-If ((dotNET5_ASPNETRuntime_x64_old = True) And (Not dotNET5_ASPNETRuntime_x64_new = False)) Then objCmdFile.WriteLine("set DOTNET5_ASPNET_x64=1")
 
 objCmdFile.Close
 

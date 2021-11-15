@@ -84,7 +84,7 @@ if not exist %HASHDEEP_PATH% (
 echo Verifying integrity of %FILE_FULL_PATH%...
 for /F "tokens=2,3 delims=\" %%i in ("%FILE_FULL_PATH%") do (
   if exist ..\md\hashes-%%i-%%j.txt (
-    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%FILE_NAME% ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%FILE_NAME% ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
     %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" "%FILE_FULL_PATH%"
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
@@ -93,8 +93,18 @@ for /F "tokens=2,3 delims=\" %%i in ("%FILE_FULL_PATH%") do (
     if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
     goto SkipVerification
   )
-  echo Warning: Hash file ..\md\hashes-%%i-%%j.txt not found.
-  echo %DATE% %TIME% - Warning: Hash file ..\md\hashes-%%i-%%j.txt not found>>%UPDATE_LOGFILE%
+  if exist ..\md\hashes-%%i.txt (
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%FILE_NAME% ..\md\hashes-%%i.txt >"%TEMP%\hash-%%i.txt"
+    %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i.txt" "%FILE_FULL_PATH%"
+    if errorlevel 1 (
+      if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
+      goto IntegrityError
+    )
+    if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
+    goto SkipVerification
+  )
+  echo Warning: Hash files ..\md\hashes-%%i-%%j.txt and ..\md\hashes-%%i.txt not found.
+  echo %DATE% %TIME% - Warning: Hash files ..\md\hashes-%%i-%%j.txt and ..\md\hashes-%%i.txt not found>>%UPDATE_LOGFILE%
 )
 :SkipVerification
 if "%FILE_FULL_PATH:~-4%"==".exe" goto InstExe
@@ -103,18 +113,56 @@ if "%FILE_FULL_PATH:~-4%"==".msp" goto InstMsp
 goto UnsupType
 
 :InstExe
-rem *** Check proper Office version ***
-for %%i in (o2k13 o2k16) do (
-  echo %FILE_FULL_PATH% | %SystemRoot%\System32\find.exe /I "\%%i\" >nul 2>&1
-  if not errorlevel 1 goto %%i
+if "%SELECT_OPTIONS%" NEQ "1" (
+  rem This can be improved by using %*, but %* is not affected by shift-operations
+  set INSTALL_SWITCHES=%1 %2 %3 %4 %5 %6 %7 %8 %9
+) else (
+  set INSTALL_SWITCHES=
 )
-goto UnsupVersion
-
-:o2k13
-:o2k16
+rem remove spaces at begin/end of "INSTALL_SWITCHES"
+:InstExe_CleanSwitchBegin
+if "!INSTALL_SWITCHES!"=="" goto InstExe_Cleaned
+if "!INSTALL_SWITCHES:~0,1!"==" " (
+  set INSTALL_SWITCHES=!INSTALL_SWITCHES:~1!
+  goto InstExe_CleanSwitchBegin
+)
+:InstExe_CleanSwitchEnd
+if "!INSTALL_SWITCHES!"=="" goto InstExe_Cleaned
+if "!INSTALL_SWITCHES:~-1!"==" " (
+  set INSTALL_SWITCHES=!INSTALL_SWITCHES:~0,-1!
+  goto InstExe_CleanSwitchEnd
+)
+:InstExe_Cleaned
+if "!INSTALL_SWITCHES!"=="" (
+  if exist ..\opt\OptionList.txt (
+    for /F "tokens=1,2 delims=," %%a in (..\opt\OptionList.txt) do (
+      if "%FILE_NAME%"=="%%a" (
+        set INSTALL_SWITCHES=%%b
+        rem echo InstallOfficeUpdate: Found match in OptionList.txt for %FILE_NAME%, install switches set to "%%b"
+        goto InstExe_FoundOptions
+      )
+    )
+  )
+)
+if "!INSTALL_SWITCHES!"=="" (
+  if exist ..\opt\OptionList-wildcard.txt (
+    for /F "tokens=1,2 delims=," %%a in (..\opt\OptionList-wildcard.txt) do (
+      echo %FILE_NAME% | %SystemRoot%\System32\find.exe /I "%%a" >nul 2>&1
+      if not errorlevel 1 (
+        set INSTALL_SWITCHES=%%b
+        rem echo InstallOfficeUpdate: Found match in OptionList-wildcard.txt for %FILE_NAME% ^(^*%%a^*^), install switches set to "%%b"
+        goto InstExe_FoundOptions
+      )
+    )
+  )
+)
+if "!INSTALL_SWITCHES!"=="" (
+  set INSTALL_SWITCHES=/quiet /norestart
+  rem echo InstallOfficeUpdate: Using default install switches "/quiet /norestart"
+)
+:InstExe_FoundOptions
 echo Installing %FILE_FULL_PATH%...
-echo %FILE_FULL_PATH% | %SystemRoot%\System32\find.exe /I "sp" >nul 2>&1
-if errorlevel 1 ("%FILE_FULL_PATH%" /quiet /norestart) else ("%FILE_FULL_PATH%" /passive /norestart)
+"%FILE_FULL_PATH%" !INSTALL_SWITCHES!
 set ERR_LEVEL=%errorlevel%
 rem echo InstallOfficeUpdate: ERR_LEVEL=%ERR_LEVEL%
 if "%ERR_LEVEL%"=="0" (
@@ -185,8 +233,8 @@ echo ERROR: No command extensions available.
 goto Error
 
 :NoParam
-echo ERROR: Invalid parameter. Usage: %~n0 ^<filename^> [/selectoptions] [/verify] [/errorsaswarnings] [/ignoreerrors]
-echo %DATE% %TIME% - Error: Invalid parameter. Usage: %~n0 ^<filename^> [/selectoptions] [/verify] [/errorsaswarnings] [/ignoreerrors]>>%UPDATE_LOGFILE%
+echo ERROR: Invalid parameter. Usage: %~n0 ^<filename^> [/selectoptions] [/verify] [/errorsaswarnings] [/ignoreerrors] [switches]
+echo %DATE% %TIME% - Error: Invalid parameter. Usage: %~n0 ^<filename^> [/selectoptions] [/verify] [/errorsaswarnings] [/ignoreerrors] [switches]>>%UPDATE_LOGFILE%
 goto Error
 
 :InvalidParam
@@ -214,11 +262,6 @@ echo ERROR: Directory "%TEMP%" not found.
 echo %DATE% %TIME% - Error: Directory "%TEMP%" not found>>%UPDATE_LOGFILE%
 goto Error
 
-:UnsupVersion
-echo ERROR: Unsupported Office version.
-echo %DATE% %TIME% - Error: Unsupported Office version>>%UPDATE_LOGFILE%
-goto Error
-
 :UnsupType
 echo ERROR: Unsupported file type (file: %FILE_FULL_PATH%).
 echo %DATE% %TIME% - Error: Unsupported file type (file: %FILE_FULL_PATH%)>>%UPDATE_LOGFILE%
@@ -234,6 +277,7 @@ echo %DATE% %TIME% - Info: Installed %FILE_FULL_PATH%>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstFailure
+if "%IGNORE_ERRORS%"=="1" goto EoF
 if "%ERRORS_AS_WARNINGS%"=="1" (goto InstWarning) else (goto InstError)
 
 :InstWarning

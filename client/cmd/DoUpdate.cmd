@@ -7,13 +7,14 @@ setlocal enableextensions enabledelayedexpansion
 if errorlevel 1 goto NoExtensions
 
 rem clear vars storing parameters
+set DO_UPGRADES=
 set UPDATE_RCERTS=
-set UPDATE_CPP=
 set INSTALL_DOTNET35=
 set INSTALL_DOTNET4=
 set INSTALL_WMF=
+set UPDATE_DOTNET5=
+set UPDATE_CPP=
 set SKIP_IEINST=
-set DO_UPGRADES=
 set SKIP_DEFS=
 set SKIP_DYNAMIC=
 set LIST_MODE_IDS=
@@ -30,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b7)
+set WSUSOFFLINE_VERSION=12.6.1 (b8)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -63,16 +64,17 @@ call :Log "Info: Used path "%~dp0" on %COMPUTERNAME% (user: %USERNAME%)"
 
 :EvalParams
 if "%1"=="" goto NoMoreParams
-for %%i in (/updatercerts /updatecpp /instdotnet35 /instdotnet4 /instwmf /skipieinst /upgradebuilds /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
+for %%i in (/upgradebuilds /updatercerts /instdotnet35 /instdotnet4 /instwmf /updatedotnet5 /updatecpp /skipieinst /skipdefs /skipdynamic /all /excludestatics /seconly /verify /autoreboot /shutdown /showlog /showdismprogress /monitoron /instmsi) do (
   if /i "%1"=="%%i" call :Log "Info: Option %%i detected"
 )
+if /i "%1"=="/upgradebuilds" set DO_UPGRADES=/upgradebuilds
 if /i "%1"=="/updatercerts" set UPDATE_RCERTS=/updatercerts
-if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
 if /i "%1"=="/instdotnet35" set INSTALL_DOTNET35=/instdotnet35
 if /i "%1"=="/instdotnet4" set INSTALL_DOTNET4=/instdotnet4
 if /i "%1"=="/instwmf" set INSTALL_WMF=/instwmf
+if /i "%1"=="/updatedotnet5" set UPDATE_DOTNET5=/updatedotnet5
+if /i "%1"=="/updatecpp" set UPDATE_CPP=/updatecpp
 if /i "%1"=="/skipieinst" set SKIP_IEINST=/skipieinst
-if /i "%1"=="/upgradebuilds" set DO_UPGRADES=/upgradebuilds
 if /i "%1"=="/skipdefs" set SKIP_DEFS=/skipdefs
 if /i "%1"=="/skipdynamic" set SKIP_DYNAMIC=/skipdynamic
 if /i "%1"=="/all" set LIST_MODE_IDS=/all
@@ -765,207 +767,6 @@ set MSEDGEUPDATE_FILENAME_SHORT=
 set MSEDGEUPDATE_FILENAME=
 :SkipMSEdgeUpdateInst
 
-rem *** Install C++ Runtime Libraries ***
-if "%UPDATE_CPP%" NEQ "/updatecpp" goto SkipCPPInst
-echo Checking C++ Runtime Libraries' installation state...
-goto CPPInst%OS_ARCH%
-
-:CPPInstx64
-if "%CPP_2005_x64%"=="1" (
-  if exist ..\cpp\vcredist2005_x64.exe (
-    echo Installing most recent C++ 2005 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2005_x64.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2005_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2005_x64.exe not found"
-  )
-)
-if "%CPP_2008_x64%"=="1" (
-  if exist ..\cpp\vcredist2008_x64.exe (
-    echo Installing most recent C++ 2008 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2008_x64.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2008_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2008_x64.exe not found"
-  )
-)
-if "%CPP_2010_x64%"=="1" (
-  if exist ..\cpp\vcredist2010_x64.exe (
-    echo Installing most recent C++ 2010 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2010_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2010_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2010_x64.exe not found"
-  )
-)
-if "%CPP_2012_x64%"=="1" (
-  if exist ..\cpp\vcredist2012_x64.exe (
-    echo Installing most recent C++ 2012 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2012_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2012_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2012_x64.exe not found"
-  )
-)
-if "%CPP_2013_x64%"=="1" (
-  if exist ..\cpp\vcredist2013_x64.exe (
-    echo Installing most recent C++ 2013 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2013_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2013_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2013_x64.exe not found"
-  )
-)
-if "%CPP_2015_x64%"=="1" (
-  if exist ..\cpp\vcredist2015_x64.exe (
-    echo Installing most recent C++ 2015-2022 x64 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x64.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2015_x64.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2015_x64.exe not found"
-  )
-)
-:CPPInstx86
-if "%CPP_2005_x86%"=="1" (
-  if exist ..\cpp\vcredist2005_x86.exe (
-    echo Installing most recent C++ 2005 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2005_x86.exe %VERIFY_MODE% /errorsaswarnings /Q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2005_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2005_x86.exe not found"
-  )
-)
-if "%CPP_2008_x86%"=="1" (
-  if exist ..\cpp\vcredist2008_x86.exe (
-    echo Installing most recent C++ 2008 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2008_x86.exe %VERIFY_MODE% /errorsaswarnings /q /r:n
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2008_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2008_x86.exe not found"
-  )
-)
-if "%CPP_2010_x86%"=="1" (
-  if exist ..\cpp\vcredist2010_x86.exe (
-    echo Installing most recent C++ 2010 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2010_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2010_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2010_x86.exe not found"
-  )
-)
-if "%CPP_2012_x86%"=="1" (
-  if exist ..\cpp\vcredist2012_x86.exe (
-    echo Installing most recent C++ 2012 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2012_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2012_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2012_x86.exe not found"
-  )
-)
-if "%CPP_2013_x86%"=="1" (
-  if exist ..\cpp\vcredist2013_x86.exe (
-    echo Installing most recent C++ 2013 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2013_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2013_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2013_x86.exe not found"
-  )
-)
-if "%CPP_2015_x86%"=="1" (
-  if exist ..\cpp\vcredist2015_x86.exe (
-    echo Installing most recent C++ 2015-2022 x86 Runtime Library...
-    call InstallOSUpdate.cmd ..\cpp\vcredist2015_x86.exe %VERIFY_MODE% /errorsaswarnings /q /norestart
-    set ERR_LEVEL=!errorlevel!
-    rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
-    if "!ERR_LEVEL!"=="3010" (
-      set REBOOT_REQUIRED=1
-    ) else if "!ERR_LEVEL!"=="3011" (
-      set RECALL_REQUIRED=1
-    )
-  ) else (
-    echo Warning: File ..\cpp\vcredist2015_x86.exe not found.
-    call :Log "Warning: File ..\cpp\vcredist2015_x86.exe not found"
-  )
-)
-:SkipCPPInst
-
 rem *** Install .NET Framework 3.5 SP1 ***
 if "%INSTALL_DOTNET35%" NEQ "/instdotnet35" goto SkipDotNet35Inst
 echo Checking .NET Framework 3.5 installation state...
@@ -1233,308 +1034,102 @@ set RECALL_REQUIRED=1
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
-rem *** .NET 5 and newer ***
-echo Checking .NET 5 (and newer) installation state...
-if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt goto SkipDotNet5Inst
+rem *** MSI-detection based products (such as CPP and dotNet5) ***
+set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=
+set CURRENT_MSIPRODUCT_NEEDSINSTALL=
+set CURRENT_MSIPRODUCT_ID=
+set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+set CURRENT_MSIPRODUCT_FILENAME_FINAL=
+for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-MSIProducts.txt) do (
+  rem echo MSI a: %%a
+  rem echo MSI b: %%b
+  rem echo MSI c: %%c
+
+  set CURRENT_MSIPRODUCT_ID=%%a
+  set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%~dpc
+  
+  rem check user options
+  if /i "!CURRENT_MSIPRODUCT_ID:~0,6!"=="dotnet" (
+    rem dotNET 5 (and newer)
+    if "%UPDATE_DOTNET5%"=="/updatedotnet5" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=1) else (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+    if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  ) else if /i "!CURRENT_MSIPRODUCT_ID:~0,3!"=="cpp" (
+    rem C++ runtimes
+    if "%UPDATE_CPP%"=="/updatecpp" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=1) else (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+    if exist %SystemRoot%\Temp\wou_cpp_tried.txt (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  ) else (
+    rem nothing else supported yet
+    set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [1]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem some additional checking just to be sure
+  if "%%b"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  if "%%c"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  if "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL!"=="" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [2]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem check system architecture
+  if /i "!CURRENT_MSIPRODUCT_ID:~-3!"=="x64" (
+    if "%OS_ARCH%" NEQ "x64" (set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0)
+  ) else if /i "!CURRENT_MSIPRODUCT_ID:~-3!"=="x86" (
+    rem should always work
+  ) else (
+    rem unknown architecture
+    set CURRENT_MSIPRODUCT_ATTEMPTINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_ATTEMPTINSTALL [3]: !CURRENT_MSIPRODUCT_ATTEMPTINSTALL!
+  
+  rem check, if DetermineSystemProperties.vbs listed the component as outdated
+  if "!CURRENT_MSIPRODUCT_ATTEMPTINSTALL!"=="1" (
+    call set "CURRENT_MSIPRODUCT_NEEDSINSTALL=%%!CURRENT_MSIPRODUCT_ID!%%"
+  ) else (
+    set CURRENT_MSIPRODUCT_NEEDSINSTALL=0
+  )
+  
+  rem echo CURRENT_MSIPRODUCT_NEEDSINSTALL: !CURRENT_MSIPRODUCT_NEEDSINSTALL!
+  
+  if "!CURRENT_MSIPRODUCT_NEEDSINSTALL!"=="1" (
+    rem try to find file
+    dir /B "%%c" >nul 2>&1
+    if not errorlevel 1 (
+      rem if found, try to get complete file name
+      set CURRENT_MSIPRODUCT_FILENAME_FINAL=
+      for /F %%i in ('dir /B %%c') do (
+        if not "%%i"=="" set CURRENT_MSIPRODUCT_FILENAME_FINAL=%%i
+      )
+      if not "!CURRENT_MSIPRODUCT_FILENAME_FINAL!"=="" (
+        rem using full file name, try to install
+        echo Installing most recent version of %%b...
+        call InstallOSUpdate.cmd "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL!\!CURRENT_MSIPRODUCT_FILENAME_FINAL!" %VERIFY_MODE% /errorsaswarnings
+        set ERR_LEVEL=!errorlevel!
+        rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          set RECALL_REQUIRED=1
+        )
+      ) else (
+        echo Warning: File %%c not found.
+        call :Log "Warning: File %%c not found"
+      )
+    ) else (
+      echo Warning: File %%c not found.
+      call :Log "Warning: File %%c not found"
+    )
+  )
+)
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-goto InstDotNet5%OS_ARCH%
-
-:InstDotNet5x64
-if not "%DOTNET5_DESKTOPRUNTIME_x64%"=="1" goto SkipDotNet5DesktopRuntimex64
-set DOTNET5_FILENAME=..\dotnet\windowsdesktop-runtime-*-win-x64.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5DesktopRuntimex64
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5DesktopRuntimex64
-)
-echo Installing .NET 5 (and newer) Windows Desktop Runtime (x64)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5DesktopRuntimex64Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5DesktopRuntimex64Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5DesktopRuntimex64
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5DesktopRuntimex64Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5Runtimex64
-)
-
-:SkipDotNet5DesktopRuntimex64
-if "%DOTNET5_DESKTOPRUNTIME_x64%"=="1" goto SkipDotNet5Runtimex64
-if not "%DOTNET5_RUNTIME_x64%"=="1" goto SkipDotNet5Runtimex64
-set DOTNET5_FILENAME=..\dotnet\dotnet-runtime-*-win-x64.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5Runtimex64
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5Runtimex64
-)
-echo Installing .NET 5 (and newer) Windows Runtime (x64)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5Runtimex64Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5Runtimex64Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5Runtimex64
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5Runtimex64Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5Runtimex64
-)
-
-:SkipDotNet5Runtimex64
-if not "%DOTNET5_ASPNET_x64%"=="1" goto SkipDotNet5AspNetx64
-set DOTNET5_FILENAME=..\dotnet\aspnetcore-runtime-*-win-x64.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5AspNetx64
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5AspNetx64
-)
-echo Installing .NET 5 (and newer) ASP.NET Core Runtime (x64)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5AspNetx64Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5AspNetx64Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5AspNetx64
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5AspNetx64Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5AspNetx64
-)
-
-:SkipDotNet5AspNetx64
-:InstDotNet5x86
-if not "%DOTNET5_DESKTOPRUNTIME_x86%"=="1" goto SkipDotNet5DesktopRuntimex86
-set DOTNET5_FILENAME=..\dotnet\windowsdesktop-runtime-*-win-x86.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5DesktopRuntimex86
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5DesktopRuntimex86
-)
-echo Installing .NET 5 (and newer) Windows Desktop Runtime (x86)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5DesktopRuntimex86Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5DesktopRuntimex86Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5DesktopRuntimex86
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5DesktopRuntimex86Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5Runtimex86
-)
-
-:SkipDotNet5DesktopRuntimex86
-if "%DOTNET5_DESKTOPRUNTIME_x86%"=="1" goto SkipDotNet5Runtimex86
-if not "%DOTNET5_RUNTIME_x86%"=="1" goto SkipDotNet5Runtimex86
-set DOTNET5_FILENAME=..\dotnet\dotnet-runtime-*-win-x86.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5Runtimex86
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5Runtimex86
-)
-echo Installing .NET 5 (and newer) Windows Runtime (x86)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5Runtimex86Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5Runtimex86Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5Runtimex86
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5Runtimex86Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5Runtimex86
-)
-
-:SkipDotNet5Runtimex86
-if not "%DOTNET5_ASPNET_x86%"=="1" goto SkipDotNet5AspNetx86
-set DOTNET5_FILENAME=..\dotnet\aspnetcore-runtime-*-win-x86.exe
-dir /B %DOTNET5_FILENAME% >nul 2>&1
-if errorlevel 1 (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5AspNetx86
-)
-for /F %%i in ('dir /B %DOTNET5_FILENAME%') do (
-  if not "%%i"=="" set DOTNET5_FILENAME_SHORT=%%i
-)
-if "%DOTNET5_FILENAME_SHORT%"=="" (
-  echo Warning: File %DOTNET5_FILENAME% not found.
-  call :Log "Warning: File %DOTNET5_FILENAME% not found"
-  goto SkipDotNet5AspNetx86
-)
-echo Installing .NET 5 (and newer) ASP.NET Core Runtime (x86)...
-if "%VERIFY_MODE%" NEQ "/verify" (goto SkipDotNet5AspNetx86Verify)
-if not exist "..\md\hashes-dotnet.txt" (
-  echo Warning: Hash file ..\md\hashes-dotnet.txt not found.
-  call :Log "Warning: Hash file ..\md\hashes-dotnet.txt not found"
-  goto SkipDotNet5AspNetx86Verify
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:"%DOTNET5_FILENAME_SHORT%" ..\md\hashes-dotnet.txt >"%TEMP%\hash-dotnet5.txt"
-%HASHDEEP_PATH% -a -b -k "%TEMP%\hash-dotnet5.txt" "..\dotnet\%DOTNET5_FILENAME_SHORT%"
-if errorlevel 1 (
-  if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-  echo ERROR: File hash does not match stored value ^(%DOTNET5_FILENAME_SHORT%^).
-  call :Log "Error: File hash does not match stored value (%DOTNET5_FILENAME_SHORT%)"
-  goto SkipDotNet5AspNetx86
-)
-if exist "%TEMP%\hash-dotnet5.txt" del "%TEMP%\hash-dotnet5.txt"
-:SkipDotNet5AspNetx86Verify
-call InstallOSUpdate.cmd "..\dotnet\%DOTNET5_FILENAME_SHORT%" %VERIFY_MODE% /ignoreerrors /install /quiet /norestart
-set ERR_LEVEL=%errorlevel%
-rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
-if "%ERR_LEVEL%"=="3010" (
-  set REBOOT_REQUIRED=1
-) else if "%ERR_LEVEL%"=="3011" (
-  set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL%" NEQ "0" (
-  if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-  echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
-  goto SkipDotNet5AspNetx86
-)
-:SkipDotNet5AspNetx86
-:DotNet5Installed
-if "%RECALL_REQUIRED%"=="1" goto Installed
-if "%REBOOT_REQUIRED%"=="1" goto Installed
-:SkipDotNet5Inst
+if "%UPDATE_DOTNET5%"=="/updatedotnet5" echo. >%SystemRoot%\Temp\wou_dotnet5_tried.txt
+if "%UPDATE_CPP%"=="/updatecpp" echo. >%SystemRoot%\Temp\wou_cpp_tried.txt
+set CURRENT_MSIPRODUCT_SHOULDINSTALL=
+set CURRENT_MSIPRODUCT_NEEDSINSTALL=
+set CURRENT_MSIPRODUCT_ID=
+set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+set CURRENT_MSIPRODUCT_FILENAME_FINAL=
 
 rem *** Update Windows Defender definitions ***
 echo Checking Windows Defender installation state...
@@ -1857,7 +1452,7 @@ for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrad
       set WOU_BUILDUPGRADE_PREUPD=%%c
       set WOU_BUILDUPGRADE_NEWBUILD=%%d
       set WOU_BUILDUPGRADE_EPKGID=%%e
-	)
+    )
   )
 )
 if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipForcedBuildUpgrade
@@ -1899,7 +1494,7 @@ for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrad
       set WOU_BUILDUPGRADE_PREUPD=%%c
       set WOU_BUILDUPGRADE_NEWBUILD=%%d
       set WOU_BUILDUPGRADE_EPKGID=%%e
-	)
+    )
   )
 )
 if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipBuildUpgrade
@@ -1979,7 +1574,7 @@ if not exist ..\md\hashes-wsus.txt (
   goto SkipVerifyCatalog
 )
 echo Verifying integrity of Windows Update catalog file...
-%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
+%SystemRoot%\System32\findstr.exe /L /I /C:%% /C:wsusscn2.cab ..\md\hashes-wsus.txt >"%TEMP%\hash-wsusscn2.txt"
 %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-wsusscn2.txt" ..\wsus\wsusscn2.cab
 if errorlevel 1 (
   if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
@@ -2121,8 +1716,9 @@ if exist %SystemRoot%\Temp\wou_ie_tried.txt del %SystemRoot%\Temp\wou_ie_tried.t
 if exist %SystemRoot%\Temp\wou_msedge_tried.txt del %SystemRoot%\Temp\wou_msedge_tried.txt
 if exist %SystemRoot%\Temp\wou_net35_tried.txt del %SystemRoot%\Temp\wou_net35_tried.txt
 if exist %SystemRoot%\Temp\wou_net4_tried.txt del %SystemRoot%\Temp\wou_net4_tried.txt
-if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt del %SystemRoot%\Temp\wou_dotnet5_tried.txt
 if exist %SystemRoot%\Temp\wou_wmf_tried.txt del %SystemRoot%\Temp\wou_wmf_tried.txt
+if exist %SystemRoot%\Temp\wou_dotnet5_tried.txt del %SystemRoot%\Temp\wou_dotnet5_tried.txt
+if exist %SystemRoot%\Temp\wou_cpp_tried.txt del %SystemRoot%\Temp\wou_cpp_tried.txt
 if exist %SystemRoot%\Temp\wou_wupre_tried.txt del %SystemRoot%\Temp\wou_wupre_tried.txt
 if exist %SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt del %SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt
 if exist %SystemRoot%\Temp\wou_buildupgrade_tried.txt del %SystemRoot%\Temp\wou_buildupgrade_tried.txt
@@ -2162,7 +1758,7 @@ if "%RECALL_REQUIRED%"=="1" (
     )
     if "%USERNAME%" NEQ "WOUTempAdmin" (
       echo Preparing automatic recall...
-      call PrepareRecall.cmd "%~f0" %VERIFY_MODE% %SKIP_IEINST% %UPDATE_CPP% %INSTALL_DOTNET35% %UPDATE_RCERTS% %INSTALL_DOTNET4% %INSTALL_WMF% %SKIP_DEFS% %INSTALL_OFV% %INSTALL_MSI% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %SKIP_DYNAMIC%
+      call PrepareRecall.cmd "%~f0" %DO_UPGRADES% %UPDATE_RCERTS% %INSTALL_DOTNET35% %INSTALL_DOTNET4% %INSTALL_WMF% %UPDATE_DOTNET5% %UPDATE_CPP% %SKIP_IEINST% %SKIP_DEFS% %SKIP_DYNAMIC% %LIST_MODE_IDS% %LIST_MODE_UPDATES% %VERIFY_MODE% %BOOT_MODE% %FINISH_MODE% %SHOW_LOG% %DISM_MODE% %MONITOR_ON% %INSTALL_MSI%
     )
     if exist %SystemRoot%\System32\bcdedit.exe (
       echo Adjusting boot sequence for next reboot...

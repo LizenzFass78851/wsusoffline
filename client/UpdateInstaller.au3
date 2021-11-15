@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b7) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b8) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -45,11 +45,12 @@ Dim Const $target_version_dotnet35      = "3.5.30729"
 ; INI file constants
 Dim Const $ini_section_installation     = "Installation"
 Dim Const $ini_value_buildupgrade       = "upgradebuilds"
-Dim Const $ini_value_cpp                = "updatecpp"
-Dim Const $ini_value_dotnet35           = "instdotnet35"
 Dim Const $ini_value_rcerts             = "updatercerts"
+Dim Const $ini_value_dotnet35           = "instdotnet35"
 Dim Const $ini_value_dotnet4            = "instdotnet4"
 Dim Const $ini_value_wmf                = "instwmf"
+Dim Const $ini_value_dotnet5            = "updatedotnet5"
+Dim Const $ini_value_cpp                = "updatecpp"
 ; Hidden installation constants
 Dim Const $ini_value_skipieinst         = "skipieinst"
 Dim Const $ini_value_skipdefs           = "skipdefs"
@@ -98,7 +99,7 @@ Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb500
 Dim Const $path_rel_msi_all             = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected        = "\Temp\wouselmsi.txt"
 
-Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $buildupgrade, $cpp, $dotnet35, $dotnet4, $rcerts, $wmf, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
+Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $buildupgrade, $rcerts, $dotnet35, $dotnet4, $wmf, $dotnet5, $cpp, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
 Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
 
 Func ShowGUIInGerman()
@@ -183,11 +184,12 @@ Dim $ini_src, $ini_dest, $i
   FileCopy($ini_src, $ini_dest, 1)
   FileSetAttrib($ini_dest, "-R")
 
-  IniWrite($ini_dest, $ini_section_installation, $ini_value_cpp, CheckBoxStateToString($cpp))
-  IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet35, CheckBoxStateToString($dotnet35))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_rcerts, CheckBoxStateToString($rcerts))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet35, CheckBoxStateToString($dotnet35))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet4, CheckBoxStateToString($dotnet4))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_wmf, CheckBoxStateToString($wmf))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet5, CheckBoxStateToString($dotnet5))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_cpp, CheckBoxStateToString($cpp))
 
   IniWrite($ini_dest, $ini_section_control, $ini_value_verify, CheckBoxStateToString($verify))
   IniWrite($ini_dest, $ini_section_control, $ini_value_autoreboot, CheckBoxStateToString($autoreboot))
@@ -461,8 +463,7 @@ Else
 EndIf
 
 ; Update Root Certificates
-$txtxpos = 3 * $txtxoffset
-$txtypos = $txtypos + $txtheight
+$txtxpos = $txtxpos + $txtwidth
 If $gergui Then
   $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
@@ -470,23 +471,6 @@ Else
 EndIf
 If RootCertificatesPresent($scriptdir) Then
   If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
-    GUICtrlSetState(-1, $GUI_CHECKED)
-  Else
-    GUICtrlSetState(-1, $GUI_UNCHECKED)
-  EndIf
-Else
-  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
-EndIf
-
-; Update C++ Runtime Libraries
-$txtxpos = $txtxpos + $txtwidth
-If $gergui Then
-  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
-Else
-  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
-EndIf
-If CPPPresent($scriptdir) Then
-  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
@@ -544,6 +528,37 @@ Else
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
+EndIf
+
+; Install .NET Framework 5 (and newer)
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If $gergui Then
+  $dotnet5 = GUICtrlCreateCheckbox(".NET Framework 5 (und neuer) aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $dotnet5 = GUICtrlCreateCheckbox("Update .NET Framework 5 (and newer)", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If MyIniRead($ini_section_installation, $ini_value_dotnet5, $disabled) = $enabled Then
+  GUICtrlSetState(-1, $GUI_CHECKED)
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED)
+EndIf
+
+; Update C++ Runtime Libraries
+$txtxpos = $txtxpos + $txtwidth
+If $gergui Then
+  $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If CPPPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_cpp, $enabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
 ;  Control group
@@ -860,20 +875,23 @@ While 1
       If IsCheckBoxChecked($buildupgrade) Then
         $options = $options & " /upgradebuilds"
       EndIf
-      If IsCheckBoxChecked($cpp) Then
-        $options = $options & " /updatecpp"
+      If IsCheckBoxChecked($rcerts) Then
+        $options = $options & " /updatercerts"
       EndIf
       If IsCheckBoxChecked($dotnet35) Then
         $options = $options & " /instdotnet35"
-      EndIf
-      If IsCheckBoxChecked($rcerts) Then
-        $options = $options & " /updatercerts"
       EndIf
       If IsCheckBoxChecked($dotnet4) Then
         $options = $options & " /instdotnet4"
       EndIf
       If IsCheckBoxChecked($wmf) Then
         $options = $options & " /instwmf"
+      EndIf
+      If IsCheckBoxChecked($dotnet5) Then
+        $options = $options & " /updatedotnet5"
+      EndIf
+      If IsCheckBoxChecked($cpp) Then
+        $options = $options & " /updatecpp"
       EndIf
       If DefaultIniRead($ini_section_installation, $ini_value_skipieinst, $disabled) = $enabled Then
         $options = $options & " /skipieinst"

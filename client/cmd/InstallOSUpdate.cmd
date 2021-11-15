@@ -90,7 +90,7 @@ if not exist %HASHDEEP_PATH% (
 echo Verifying integrity of %FILE_FULL_PATH%...
 for /F "tokens=2,3 delims=\" %%i in ("%FILE_FULL_PATH%") do (
   if exist ..\md\hashes-%%i-%%j.txt (
-    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%FILE_NAME% ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%FILE_NAME% ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
     %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" "%FILE_FULL_PATH%"
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
@@ -100,7 +100,7 @@ for /F "tokens=2,3 delims=\" %%i in ("%FILE_FULL_PATH%") do (
     goto SkipVerification
   )
   if exist ..\md\hashes-%%i.txt (
-    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:## /C:%FILE_NAME% ..\md\hashes-%%i.txt >"%TEMP%\hash-%%i.txt"
+    %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%FILE_NAME% ..\md\hashes-%%i.txt >"%TEMP%\hash-%%i.txt"
     %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i.txt" "%FILE_FULL_PATH%"
     if errorlevel 1 (
       if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
@@ -121,17 +121,54 @@ if "%FILE_FULL_PATH:~-4%"==".cab" goto InstCab
 goto UnsupType
 
 :InstExe
-rem This can be improved by using %*, but %* is not affected by shift-operations
-if "%SELECT_OPTIONS%" NEQ "1" set INSTALL_SWITCHES=%1 %2 %3 %4 %5 %6 %7 %8 %9
+if "%SELECT_OPTIONS%" NEQ "1" (
+  rem This can be improved by using %*, but %* is not affected by shift-operations
+  set INSTALL_SWITCHES=%1 %2 %3 %4 %5 %6 %7 %8 %9
+) else (
+  set INSTALL_SWITCHES=
+)
+rem remove spaces at begin/end of "INSTALL_SWITCHES"
+:InstExe_CleanSwitchBegin
+if "!INSTALL_SWITCHES!"=="" goto InstExe_Cleaned
+if "!INSTALL_SWITCHES:~0,1!"==" " (
+  set INSTALL_SWITCHES=!INSTALL_SWITCHES:~1!
+  goto InstExe_CleanSwitchBegin
+)
+:InstExe_CleanSwitchEnd
+if "!INSTALL_SWITCHES!"=="" goto InstExe_Cleaned
+if "!INSTALL_SWITCHES:~-1!"==" " (
+  set INSTALL_SWITCHES=!INSTALL_SWITCHES:~0,-1!
+  goto InstExe_CleanSwitchEnd
+)
+:InstExe_Cleaned
 if "!INSTALL_SWITCHES!"=="" (
-  for /F %%i in (..\opt\OptionList-qn.txt) do (
-    echo %FILE_FULL_PATH% | %SystemRoot%\System32\find.exe /I "%%i" >nul 2>&1
-    if not errorlevel 1 set INSTALL_SWITCHES=/q /norestart
+  if exist ..\opt\OptionList.txt (
+    for /F "tokens=1,2 delims=," %%a in (..\opt\OptionList.txt) do (
+      if "%FILE_NAME%"=="%%a" (
+        set INSTALL_SWITCHES=%%b
+        rem echo InstallOSUpdate: Found match in OptionList.txt for %FILE_NAME%, install switches set to "%%b"
+        goto InstExe_FoundOptions
+      )
+    )
+  )
+)
+if "!INSTALL_SWITCHES!"=="" (
+  if exist ..\opt\OptionList-wildcard.txt (
+    for /F "tokens=1,2 delims=," %%a in (..\opt\OptionList-wildcard.txt) do (
+      echo %FILE_NAME% | %SystemRoot%\System32\find.exe /I "%%a" >nul 2>&1
+      if not errorlevel 1 (
+        set INSTALL_SWITCHES=%%b
+        rem echo InstallOSUpdate: Found match in OptionList-wildcard.txt for %FILE_NAME% ^(^*%%a^*^), install switches set to "%%b"
+        goto InstExe_FoundOptions
+      )
+    )
   )
 )
 if "!INSTALL_SWITCHES!"=="" (
   set INSTALL_SWITCHES=/q /z
+  rem echo InstallOSUpdate: Using default install switches "/q /z"
 )
+:InstExe_FoundOptions
 echo Installing %FILE_FULL_PATH%...
 "%FILE_FULL_PATH%" !INSTALL_SWITCHES!
 set ERR_LEVEL=%errorlevel%
@@ -340,8 +377,8 @@ echo %DATE% %TIME% - Error: Directory "%TEMP%" not found>>%UPDATE_LOGFILE%
 goto Error
 
 :UnsupType
-echo ERROR: Unsupported file type (%FILE_FULL_PATH%).
-echo %DATE% %TIME% - Error: Unsupported file type (%FILE_FULL_PATH%)>>%UPDATE_LOGFILE%
+echo ERROR: Unsupported file type (file: %FILE_FULL_PATH%).
+echo %DATE% %TIME% - Error: Unsupported file type (file: %FILE_FULL_PATH%)>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :NoUnZip
@@ -350,8 +387,8 @@ echo %DATE% %TIME% - Error: Utility ..\bin\unzip.exe not found>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :IntegrityError
-echo ERROR: File hash does not match stored value (%FILE_FULL_PATH%).
-echo %DATE% %TIME% - Error: File hash does not match stored value (%FILE_FULL_PATH%)>>%UPDATE_LOGFILE%
+echo ERROR: File hash does not match stored value (file: %FILE_FULL_PATH%).
+echo %DATE% %TIME% - Error: File hash does not match stored value (file: %FILE_FULL_PATH%)>>%UPDATE_LOGFILE%
 goto InstFailure
 
 :InstSkipped
@@ -369,12 +406,12 @@ if "%ERRORS_AS_WARNINGS%"=="1" (goto InstWarning) else (goto InstError)
 
 :InstWarning
 echo Warning: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Warning: Installation of %FILE_FULL_PATH% !INSTALL_SWITCHES! failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo %DATE% %TIME% - Warning: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto EoF
 
 :InstError
 echo ERROR: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%).
-echo %DATE% %TIME% - Error: Installation of %FILE_FULL_PATH% !INSTALL_SWITCHES! failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
+echo %DATE% %TIME% - Error: Installation of %FILE_FULL_PATH% failed (errorlevel: %ERR_LEVEL%)>>%UPDATE_LOGFILE%
 goto Error
 
 :Error
