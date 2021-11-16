@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b9)
+set WSUSOFFLINE_VERSION=12.6.1 (b10)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1626,11 +1626,11 @@ for %%i in (upd1 upd2) do (
     echo windows8.1-%%j>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
   )
 )
-for /F "tokens=3 delims=," %%c in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
+for /F "tokens=3 delims=," %%c in (..\client\static\StaticUpdateIds-BuildUpgrades.txt) do (
   echo windows10.0-%%c>>"%TEMP%\ExcludeList-superseded-exclude.txt"
   echo windows10.0-%%c>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
 )
-for /F "tokens=3 delims=," %%c in (..\static\StaticUpdateIds-BuildUpgradesForced.txt) do (
+for /F "tokens=3 delims=," %%c in (..\client\static\StaticUpdateIds-BuildUpgradesForced.txt) do (
   echo windows10.0-%%c>>"%TEMP%\ExcludeList-superseded-exclude.txt"
   echo windows10.0-%%c>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
 )
