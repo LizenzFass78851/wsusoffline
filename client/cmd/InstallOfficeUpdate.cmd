@@ -82,6 +82,7 @@ if not exist %HASHDEEP_PATH% (
   goto SkipVerification
 )
 echo Verifying integrity of %FILE_FULL_PATH%...
+rem FIXME: This expects a relative path and might fail, when an absolute path is passed
 for /F "tokens=2,3 delims=\" %%i in ("%FILE_FULL_PATH%") do (
   if exist ..\md\hashes-%%i-%%j.txt (
     %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%FILE_NAME% ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
