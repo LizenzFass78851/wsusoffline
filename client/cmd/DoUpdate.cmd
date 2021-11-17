@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b9)
+set WSUSOFFLINE_VERSION=11.9.11 (b11)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1353,8 +1353,34 @@ for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-MSIProducts.txt
   rem echo MSI c: %%c
 
   set CURRENT_MSIPRODUCT_ID=%%a
-  set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%~dpc
-  if "!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL:~-1!"=="\" (set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL:~0,-1!)
+  
+  rem The idea behind this is, that every token of the for loop is a folder name as long as it is not the last one
+  rem FIXME: This mus be possible with some kind of "for /L"-loop
+  set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+  if "%%c" NEQ "" (
+    for /f "tokens=1,2,3,4,5,6 delims=\" %%f in ('echo %%c') do (
+      if "%%f"=="" (
+        rem ERROR (kein Pfad angegeben)
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+      ) else if "%%g"=="" (
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=.
+      ) else if "%%h"=="" (
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%f
+      ) else if "%%i"=="" (
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%f\%%g
+      ) else if "%%j"=="" (
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%f\%%g\%%h
+      ) else if "%%k"=="" (
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%f\%%g\%%h\%%i
+      ) else (
+	    rem ERROR (maximale Iterationstiefe erreicht)
+        set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+      )
+    )
+  ) else (
+    set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
+  )
+  rem echo CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=!CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL!
   
   rem check user options
   if /i "!CURRENT_MSIPRODUCT_ID:~0,3!"=="cpp" (
