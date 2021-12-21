@@ -3,6 +3,7 @@
 Dim strFileName, strURL, strSizeInBytes, strHashesSha1Base64, strHashesSha256Base64
 Dim strFileNameX86, strURLX86, strSizeInBytesX86, strHashesSha1Base64X86, strHashesSha256Base64X86, strHashesSha1HexX86, strHashesSha256HexX86
 Dim strFileNameX64, strURLX64, strSizeInBytesX64, strHashesSha1Base64X64, strHashesSha256Base64X64, strHashesSha1HexX64, strHashesSha256HexX64
+'Dim strFileNameARM64, strURLARM64, strSizeInBytesARM64, strHashesSha1Base64ARM64, strHashesSha256Base64ARM64, strHashesSha1HexARM64, strHashesSha256HexARM64
 Dim strFileNameUpdater, strURLUpdater, strSizeInBytesUpdater, strHashesSha1Base64Updater, strHashesSha256Base64Updater, strHashesSha1HexUpdater, strHashesSha256HexUpdater
 Dim fso, fDynamicDownloadLinks, fHashes
 Dim strPathDynamicDownloadLinks, strPathHashes
@@ -65,6 +66,29 @@ If strHashesSha256Base64X64 = "" Then
   WScript.Quit(1)
 End If
 
+'GetLatestEdgeDL "Default", "msedge-stable-win-arm64"
+'strFileNameARM64 = strFileName
+'strURLARM64 = strURL
+'strSizeInBytesARM64 = strSizeInBytes
+'strHashesSha1Base64ARM64 = strHashesSha1Base64
+'strHashesSha256Base64ARM64 = strHashesSha256Base64
+
+'If strFileNameARM64 = "" Then
+'  WScript.Quit(1)
+'End If
+'If strURLARM64 = "" Then
+'  WScript.Quit(1)
+'End If
+'If strSizeInBytesARM64 = "" Then
+'  WScript.Quit(1)
+'End If
+'If strHashesSha1Base64ARM64 = "" Then
+'  WScript.Quit(1)
+'End If
+'If strHashesSha256Base64ARM64 = "" Then
+'  WScript.Quit(1)
+'End If
+
 GetLatestEdgeDL "Default", "msedgeupdate-stable-win-x86"
 strFileNameUpdater = strFileName
 strURLUpdater = strURL
@@ -112,6 +136,17 @@ Else
   WScript.Quit(1)
 End If
 
+'If ValidateBase64(strHashesSha1Base64ARM64) = True Then
+'  strHashesSha1HexARM64 = LCase(Base64ToHex(strHashesSha1Base64ARM64))
+'Else
+'  WScript.Quit(1)
+'End If
+'If ValidateBase64(strHashesSha256Base64ARM64) = True Then
+'  strHashesSha256HexARM64 = LCase(Base64ToHex(strHashesSha256Base64ARM64))
+'Else
+'  WScript.Quit(1)
+'End If
+
 If ValidateBase64(strHashesSha1Base64Updater) = True Then
   strHashesSha1HexUpdater = LCase(Base64ToHex(strHashesSha1Base64Updater))
 Else
@@ -130,6 +165,7 @@ Set fso = CreateObject("Scripting.FileSystemObject")
 Set fDynamicDownloadLinks = fso.CreateTextFile(strPathDynamicDownloadLinks, True)
 fDynamicDownloadLinks.WriteLine(strURLX86 & "," & strFileNameX86)
 fDynamicDownloadLinks.WriteLine(strURLX64 & "," & strFileNameX64)
+'fDynamicDownloadLinks.WriteLine(strURLARM64 & "," & strFileNameARM64)
 fDynamicDownloadLinks.WriteLine(strURLUpdater & "," & strFileNameUpdater)
 fDynamicDownloadLinks.Close
 
@@ -138,6 +174,7 @@ fHashes.WriteLine("%%%% HASHDEEP-1.0")
 fHashes.WriteLine("%%%% size,sha1,sha256,filename")
 fHashes.WriteLine(strSizeInBytesX86 & "," & strHashesSha1HexX86 & "," & strHashesSha256HexX86 & "," & strFileNameX86)
 fHashes.WriteLine(strSizeInBytesX64 & "," & strHashesSha1HexX64 & "," & strHashesSha256HexX64 & "," & strFileNameX64)
+'fHashes.WriteLine(strSizeInBytesARM64 & "," & strHashesSha1HexARM64 & "," & strHashesSha256HexARM64 & "," & strFileNameARM64)
 fHashes.WriteLine(strSizeInBytesUpdater & "," & strHashesSha1HexUpdater & "," & strHashesSha256HexUpdater & "," & strFileNameUpdater)
 fHashes.Close
 
@@ -271,7 +308,7 @@ Sub GetEdgeDL(TargetNameSpace, TargetName, TargetVersion)
   strHashesSha256Base64Buf = ""
   
   For Each i In oJSON.data
-    If ((oJSON.data(i).item("FileId") = "MicrosoftEdge_X86_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdge_X64_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdgeUpdateSetup_X86_" & TargetVersion & ".exe")) Then
+    If ((oJSON.data(i).item("FileId") = "MicrosoftEdge_X86_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdge_X64_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdge_ARM64_" & TargetVersion & ".exe") Or (oJSON.data(i).item("FileId") = "MicrosoftEdgeUpdateSetup_X86_" & TargetVersion & ".exe")) Then
       strFileNameBuf = oJSON.data(i).item("FileId")
       strURLBuf = oJSON.data(i).item("Url")
       strSizeInBytesBuf = oJSON.data(i).item("SizeInBytes")
