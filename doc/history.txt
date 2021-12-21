@@ -1821,7 +1821,7 @@ Community Edition 11.9.10 -- 21.10.2021
 - Fix: The self-update errornously reported a more recent versions in UpdateGenerator when the update check fails (Thanks to "negg")
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 --------------------------------------------------------------------------------
-Community Edition 11.9.11 -- ??.??.????
+Community Edition 11.9.11 -- ??.12.2021
 - Support removed for Silverlight since Microsoft discontinued support for it on October 12th, 2021 (see https://support.microsoft.com/en-us/windows/silverlight-end-of-support-0a3be3c7-bead-e203-2dfd-74f0a64f1788)
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
@@ -1829,6 +1829,6 @@ Community Edition 11.9.11 -- ??.??.????
 - .NET Framework 4 for Windows Server 2008 updated to v. 4.6.2 (Thanks to "aker")
 - Links to .NET 4.8 updated to fetch the updated files released 2021 (signing date 2021-05-01) (Thanks to "aker")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.30.30704.0 (Thanks to "aker")
-- November 2021  updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
+- November 2021 to December 2021 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
 - Fix: DoUpdate.cmd will now show a warning, if Windows does not support SHA2 signed updates / catalog files (Thanks to "Davide Zanon")
