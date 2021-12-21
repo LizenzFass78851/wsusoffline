@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b13) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b14) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -258,9 +258,13 @@ EndFunc
 Func BuildUpgradeEnforced()
   If (@OSVersion = "WIN_10") Then
     If (@OSBuild = "18362") Then
-      Return 1
+      Return 2
     Else
-      Return 0
+      If (@OSBuild = "19041") Then
+        Return 1
+      Else
+        Return 0
+      EndIf
     EndIf
   Else
     Return 0
@@ -448,14 +452,14 @@ If $gergui Then
 Else
   $buildupgrade = GUICtrlCreateCheckbox("Feature Update via Enablement Package", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (NOT BuildUpgradeEnforced()) AND (BuildUpgradeAvailable($scriptdir)) ) Then
+If ( (BuildUpgradeEnforced() = 1) AND (BuildUpgradeAvailable($scriptdir)) ) Then
   If MyIniRead($ini_section_installation, $ini_value_buildupgrade, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
 Else
-  If BuildUpgradeEnforced() Then
+  If ( BuildUpgradeEnforced() > 1 ) Then
     GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
@@ -763,7 +767,7 @@ If ( (@OSVersion = "WIN_2012") _
                            & @LF & "will be automatically installed, when you start the updating process.")
   EndIf
 EndIf
-If BuildUpgradeEnforced() Then
+If ( BuildUpgradeEnforced() > 0 ) Then
   If BuildUpgradeAvailable($scriptdir) Then
     If $gergui Then
       MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package automatisch installiert, wenn Sie die Aktualisierung starten.")
