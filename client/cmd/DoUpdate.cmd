@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b13)
+set WSUSOFFLINE_VERSION=11.9.11 (b15)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -190,7 +190,6 @@ rem echo Found total physical memory: %OS_RAM_GB% GB
 rem echo Found Servicing Stack version: %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%
 rem echo Found Windows Update Agent version: %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%
 rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%
-rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
 rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%
 rem echo Found Remote Desktop Client version: %TSC_VER_MAJOR%.%TSC_VER_MINOR%.%TSC_VER_BUILD%.%TSC_VER_REVIS%
 rem echo Found Microsoft .NET Framework 3.5 version: %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%
@@ -202,10 +201,10 @@ rem echo Found Microsoft Security Essentials definitions version: %MSSEDEFS_VER_
 rem echo Found Network Inspection System definitions version: %NISDEFS_VER_MAJOR%.%NISDEFS_VER_MINOR%.%NISDEFS_VER_BUILD%.%NISDEFS_VER_REVIS%
 rem echo Found Windows Defender definitions version: %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%
 if "%O2K13_VER_MAJOR%" NEQ "" (
-  echo Found Microsoft Office 2013 %O2K13_VER_APP% version: %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% ^(o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%^)
+  echo Found Microsoft Office 2013 version: %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% ^(o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%^)
 )
 if "%O2K16_VER_MAJOR%" NEQ "" (
-  echo Found Microsoft Office 2016 %O2K16_VER_APP% version: %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% ^(o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%^)
+  echo Found Microsoft Office 2016 version: %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% ^(o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%^)
 )
 call :Log "Info: Found Microsoft Windows version %OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%.%OS_VER_REVIS% (%OS_NAME% %OS_ARCH% %OS_LANG% sp%OS_SP_VER_MAJOR%)"
 if exist "%TEMP%\wou_slmgr.txt" (
@@ -217,7 +216,6 @@ call :Log "Info: Found total physical memory: %OS_RAM_GB% GB"
 call :Log "Info: Found Servicing Stack version %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%"
 call :Log "Info: Found Windows Update Agent version %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%"
 call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%"
-call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
 call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%"
 call :Log "Info: Found Remote Desktop Client version %TSC_VER_MAJOR%.%TSC_VER_MINOR%.%TSC_VER_BUILD%.%TSC_VER_REVIS%"
 call :Log "Info: Found Microsoft .NET Framework 3.5 version %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%"
@@ -233,10 +231,10 @@ call :Log "Info: Found Network Inspection System definitions version %NISDEFS_VE
 :SkipLogMSSEVer
 call :Log "Info: Found Windows Defender definitions version %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%"
 if "%O2K13_VER_MAJOR%" NEQ "" (
-  call :Log "Info: Found Microsoft Office 2013 %O2K13_VER_APP% version %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% (o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%)"
+  call :Log "Info: Found Microsoft Office 2013 version %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% (o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%)"
 )
 if "%O2K16_VER_MAJOR%" NEQ "" (
-  call :Log "Info: Found Microsoft Office 2016 %O2K16_VER_APP% version %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% (o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%)"
+  call :Log "Info: Found Microsoft Office 2016 version %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% (o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%)"
 )
 
 rem ***  Check compatibility mode ***
