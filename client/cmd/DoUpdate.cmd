@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.11 (b15)
+set WSUSOFFLINE_VERSION=11.9.11 (b16)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -392,7 +392,7 @@ if "%BOOT_MODE%" NEQ "/autoreboot" goto SPw6Now
 if "%USERNAME%"=="WOUTempAdmin" goto SPw6Now
 call :Log "Info: Preparing installation of most recent Service Pack"
 set RECALL_REQUIRED=1
-goto Installed
+goto SPInstalled
 :SPw6Now
 call :Log "Info: Installing most recent Service Pack"
 call InstallListedUpdates.cmd %VERIFY_MODE% %DISM_MODE% /unattend /forcerestart
@@ -407,7 +407,7 @@ if "%ERR_LEVEL%"=="3010" (
 )
 rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
-goto Installed
+goto SPInstalled
 
 :SPw63
 echo Checking Windows 8.1 / Server 2012 R2 Update Rollup April 2014 installation state...
@@ -508,7 +508,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_w63upd2_tried.txt
 )
+goto SPInstalled
 :SPw100
+goto SkipSPInst
+:SPw110
+goto SkipSPInst
+:SPInstalled
+if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipSPInst
 
 rem *** Install Trusted Root Certificates and Certificate revocation lists ***
