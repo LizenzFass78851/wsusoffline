@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b14) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b15) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -776,11 +776,10 @@ If ( BuildUpgradeEnforced() > 0 ) Then
     EndIf
   Else
     If $gergui Then
-      MsgBox(0x2010, "Error", "Auf diesem System wird eine nicht unterstützte Version von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann.")
+      MsgBox(0x2030, "Warnung", "Auf diesem System wird eine nicht unterstützte Version von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann." & @LF & "Die Update-Ermittlung kann fehlende Updates für Windows melden.")
     Else
-      MsgBox(0x2010, "Error", "This system is running a version of Windows 10, which cannot be automatically upgraded to a supported one.")
+      MsgBox(0x2030, "Warning", "This system is running a version of Windows 10, which cannot be automatically upgraded to a supported one." & @LF & "The dynamic update search might report missing updates for Windows.")
     EndIf
-    Exit(1)
   EndIf
 EndIf
 Local $accelKeys[2][2] = [["{enter}", $btn_start], ["{escape}", $btn_exit]]

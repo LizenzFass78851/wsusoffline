@@ -1857,3 +1857,4 @@ Community Edition 12.6.1 -- ??.12.2021
 - November 2021 to December 2021 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 /2022 (x86/x64) systems
 - Fix: Cosmetic issue enabling Build 20438 for x86 in UpdateGenerator (Thanks to "aker")
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
+- Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")

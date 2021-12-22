@@ -3,60 +3,59 @@
 
 Option Explicit
 
-Private Const strRegKeyWindowsVersion         = "HKLM\Software\Microsoft\Windows NT\CurrentVersion\"
-Private Const strRegKeySHA2Support            = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Servicing\Codesigning\SHA2\"
-Private Const strRegKeyIE                     = "HKLM\Software\Microsoft\Internet Explorer\"
-Private Const strRegKeyEdgeUpdate_x86         = "HKLM\Software\Microsoft\EdgeUpdate\"
-Private Const strRegKeyEdgeUpdate_x64         = "HKLM\Software\Wow6432Node\Microsoft\EdgeUpdate\"
-Private Const strRegKeyDotNet35               = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v3.5\"
-Private Const strRegKeyDotNet4                = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Full\"
-Private Const strRegKeyPowerShell             = "HKLM\Software\Microsoft\PowerShell\1\PowerShellEngine\"
-Private Const strRegKeyManagementFramework    = "HKLM\Software\Microsoft\PowerShell\3\PowerShellEngine\"
-Private Const strRegKeyWD                     = "HKLM\Software\Microsoft\Windows Defender\"
-Private Const strRegKeyWDPolicy               = "HKLM\Software\Policies\Microsoft\Windows Defender\"
-Private Const strRegKeyWDDefs                 = "HKLM\Software\Microsoft\Windows Defender\Signature Updates\"
-Private Const strRegKeyQualityCompat          = "HKLM\Software\Microsoft\Windows\CurrentVersion\QualityCompat\cadca5fe-87d3-4b96-b7fb-a231484277cc"
-Private Const strRegKeyPowerCfg               = "HKCU\Control Panel\PowerCfg\"
+Private Const strRegKeyWindowsVersion          = "HKLM\Software\Microsoft\Windows NT\CurrentVersion\"
+Private Const strRegKeySHA2Support             = "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Servicing\Codesigning\SHA2\"
+Private Const strRegKeyIE                      = "HKLM\Software\Microsoft\Internet Explorer\"
+Private Const strRegKeyEdgeUpdate_x86          = "HKLM\Software\Microsoft\EdgeUpdate\"
+Private Const strRegKeyEdgeUpdate_x64          = "HKLM\Software\Wow6432Node\Microsoft\EdgeUpdate\"
+Private Const strRegKeyDotNet35                = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v3.5\"
+Private Const strRegKeyDotNet4                 = "HKLM\Software\Microsoft\NET Framework Setup\NDP\v4\Full\"
+Private Const strRegKeyPowerShell              = "HKLM\Software\Microsoft\PowerShell\1\PowerShellEngine\"
+Private Const strRegKeyManagementFramework     = "HKLM\Software\Microsoft\PowerShell\3\PowerShellEngine\"
+Private Const strRegKeyWD                      = "HKLM\Software\Microsoft\Windows Defender\"
+Private Const strRegKeyWDPolicy                = "HKLM\Software\Policies\Microsoft\Windows Defender\"
+Private Const strRegKeyWDDefs                  = "HKLM\Software\Microsoft\Windows Defender\Signature Updates\"
+Private Const strRegKeyQualityCompat           = "HKLM\Software\Microsoft\Windows\CurrentVersion\QualityCompat\cadca5fe-87d3-4b96-b7fb-a231484277cc"
+Private Const strRegKeyPowerCfg                = "HKCU\Control Panel\PowerCfg\"
 
-Private Const strFilePathRelMSEdge            = "\Microsoft\Edge\Application\msedge.exe"
-Private Const strFilePathRelMSEdgeUpdatePart1 = "\Microsoft\EdgeUpdate\"
-Private Const strFilePathRelMSEdgeUpdatePart2 = "\MicrosoftEdgeUpdate.exe"
+Private Const strFilePathRelMSEdge             = "\Microsoft\Edge\Application\msedge.exe"
+Private Const strFilePathRelMSEdgeUpdatePart1  = "\Microsoft\EdgeUpdate\"
+Private Const strFilePathRelMSEdgeUpdatePart2  = "\MicrosoftEdgeUpdate.exe"
 
-Private Const strRegValVersion                = "Version"
-Private Const strRegValRelease                = "Release"
-Private Const strRegValDisplayVersion         = "DisplayVersion"
-Private Const strRegValUBR                    = "UBR"
-Private Const strRegValBuildLabEx             = "BuildLabEx"
-Private Const strRegValSHA2Support            = "SHA2-Codesigning-Support"
-Private Const strRegValSHA2Support2           = "SHA2-Core-Codesigning-Support"
-Private Const strRegValInstallationType       = "InstallationType"
-Private Const strRegValPShVersion             = "PowerShellVersion"
-Private Const strRegValAVSVersion             = "AVSignatureVersion"
-Private Const strRegValDisableAntiSpyware     = "DisableAntiSpyware"
-Private Const strRegValCurrentPowerPolicy     = "CurrentPowerPolicy"
-Private Const strRegKeyOfficePrefix_Mx86      = "HKLM\Software\Microsoft\Office\"
-Private Const strRegKeyOfficePrefix_Mx64      = "HKLM\Software\Wow6432Node\Microsoft\Office\"
-Private Const strRegKeyOfficePrefix_User      = "HKCU\Software\Microsoft\Office\"
-Private Const strRegKeyOfficeInfixes_Version  = "15.0,16.0"
-Private Const strRegKeyOfficeSuffix_InstRoot  = "\Common\InstallRoot\"
-Private Const strRegKeyOfficeSuffix_Language  = "\Common\LanguageResources\"
-Private Const strRegKeyOfficeSuffix_Outlook   = "\Outlook\"
-Private Const strRegValOfficePath             = "Path"
-Private Const strRegValOfficeLanguage_Inst    = "SKULanguage"
-Private Const strRegValOfficeLanguage_User    = "InstallLanguage"
-Private Const strRegValOfficeVersion          = "LastProduct"
-Private Const strRegValOfficeArchitecture     = "Bitness"
-Private Const strVersionSuffixes              = "MAJOR,MINOR,BUILD,REVIS"
-Private Const strOfficeNames                  = "o2k13,o2k16"
-Private Const strOfficeAppNames               = "Word,Excel,Outlook,Powerpoint,Access,FrontPage"
-Private Const strOfficeExeNames               = "WINWORD.EXE,EXCEL.EXE,OUTLOOK.EXE,POWERPNT.EXE,MSACCESS.EXE,FRONTPG.EXE"
-Private Const strBuildNumbers_o2k13           = "4420,4420,4420,4420,4420,4420;4569,4569,4569,4454,4569,4569"
-Private Const strBuildNumbers_o2k16           = "4266,4266,4266,4266,4266,4266"
-Private Const idxBuild                        = 2
+Private Const strRegValVersion                 = "Version"
+Private Const strRegValRelease                 = "Release"
+Private Const strRegValDisplayVersion          = "DisplayVersion"
+Private Const strRegValUBR                     = "UBR"
+Private Const strRegValBuildLabEx              = "BuildLabEx"
+Private Const strRegValSHA2Support             = "SHA2-Codesigning-Support"
+Private Const strRegValSHA2Support2            = "SHA2-Core-Codesigning-Support"
+Private Const strRegValInstallationType        = "InstallationType"
+Private Const strRegValPShVersion              = "PowerShellVersion"
+Private Const strRegValAVSVersion              = "AVSignatureVersion"
+Private Const strRegValDisableAntiSpyware      = "DisableAntiSpyware"
+Private Const strRegValCurrentPowerPolicy      = "CurrentPowerPolicy"
+Private Const strRegKeyOfficePrefix_Mx86       = "HKLM\Software\Microsoft\Office\"
+Private Const strRegKeyOfficePrefix_Mx64       = "HKLM\Software\Wow6432Node\Microsoft\Office\"
+Private Const strRegKeyOfficePrefix_User       = "HKCU\Software\Microsoft\Office\"
+Private Const strRegKeyOfficeInfixes_Version   = "15.0,16.0"
+Private Const strRegKeyOfficeSuffix_FilesPaths = "\Common\FilesPaths\"
+Private Const strRegKeyOfficeSuffix_InstRoot   = "\Common\InstallRoot\"
+Private Const strRegKeyOfficeSuffix_Language   = "\Common\LanguageResources\"
+Private Const strRegKeyOfficeSuffix_Outlook    = "\Outlook\"
+Private Const strRegValOfficePath              = "Path"
+Private Const strRegValOfficeMSOFilePath       = "mso.dll"
+Private Const strRegValOfficeLanguage_Inst     = "SKULanguage"
+Private Const strRegValOfficeLanguage_User     = "InstallLanguage"
+Private Const strRegValOfficeArchitecture      = "Bitness"
+Private Const strOfficeNames                   = "o2k13,o2k16"
+Private Const strBuildNumbers_o2k13            = "4420;4569"
+Private Const strBuildNumbers_o2k16            = "4266"
+Private Const strVersionSuffixes               = "MAJOR,MINOR,BUILD,REVIS"
+Private Const idxBuild                         = 2
 
-Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, arrayOfficeAppNames, arrayOfficeExeNames, MSIProducts
-Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strWSHFileName, strCmdFileName
-Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strMSIProductId, languageCode, i, j
+Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, MSIProducts
+Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strCmdFileName
+Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strMSOFilePath, strOfficeMSOVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
 
 Private Function RegExists(objShell, strName)
@@ -309,6 +308,22 @@ Private Function OfficeInstallPath(objShell, strVersionInfix)
   End If
 End Function
 
+Private Function OfficeMSOFilePath(objShell, strVersionInfix)
+  Dim strRegVal
+  
+  OfficeMSOFilePath = ""
+  strRegVal = RegRead(objShell, strRegKeyOfficePrefix_Mx86 & strVersionInfix & strRegKeyOfficeSuffix_FilesPaths & strRegValOfficeMSOFilePath)
+  If strRegVal <> "" Then
+    OfficeMSOFilePath = strRegVal
+    Exit Function
+  End If
+  strRegVal = RegRead(objShell, strRegKeyOfficePrefix_Mx64 & strVersionInfix & strRegKeyOfficeSuffix_FilesPaths & strRegValOfficeMSOFilePath)
+  If strRegVal <> "" Then
+    OfficeMSOFilePath = strRegVal
+    Exit Function
+  End If
+End Function
+
 Private Function OfficeLanguageCode(objShell, strVersionInfix)
   Dim strRegVal
   
@@ -348,10 +363,10 @@ Private Function OfficeArchitecture(objShell, strOSArch, strVersionInfix, strOff
   End If
 End Function
 
-Private Function OfficeSPVersion(strExeVersion, idxApp)
-  Dim arrayVersion, arraySPs, arrayBuilds, i
+Private Function OfficeSPVersion(strExeVersion)
+  Dim arrayVersion, arraySPs, i
   
-  OfficeSPVersion = 0
+  OfficeSPVersion = 65535 ' use this for "error" (e.g. build lower than first RTM build)
   arrayVersion = Split(strExeVersion, ".")
   Select Case CInt(arrayVersion(0))
     Case 15
@@ -359,17 +374,13 @@ Private Function OfficeSPVersion(strExeVersion, idxApp)
     Case 16
       arraySPs = Split(strBuildNumbers_o2k16, ";")
     Case Else
-      arraySPs = Split("0,0,0,0,0,0", ";")
+      Exit Function
   End Select
   If UBound(arrayVersion) < idxBuild Then
     Exit Function
   End If
   For i = 0 To UBound(arraySPs)
-    arrayBuilds = Split(arraySPs(i), ",")
-    If UBound(arrayBuilds) < idxApp Then
-      Exit Function
-    End If
-    If CInt(arrayVersion(idxBuild)) >= CInt(arrayBuilds(idxApp)) Then
+    If CInt(arrayVersion(idxBuild)) >= CInt(arraySPs(i)) Then
       OfficeSPVersion = i
     End If
   Next
@@ -479,8 +490,6 @@ strSystemFolder = wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\system32
 strTempFolder = wshShell.ExpandEnvironmentStrings("%TEMP%")
 strProfileFolder = wshShell.ExpandEnvironmentStrings("%USERPROFILE%")
 strWUAFileName = strSystemFolder & "\wuaueng.dll"
-strMSIFileName = strSystemFolder & "\msi.dll"
-strWSHFileName = strSystemFolder & "\vbscript.dll"
 If WScript.Arguments.Count = 0 Then
   strCmdFileName = strProfileFolder & "\Desktop\WOUSystemProperties.txt"
 Else
@@ -623,20 +632,6 @@ Else
   WriteVersionToFile objCmdFile, "WUA_VER", ""
 End If
 
-' Determine Microsoft Installer version
-If objFileSystem.FileExists(strMSIFileName) Then
-  WriteVersionToFile objCmdFile, "MSI_VER", GetFileVersion(objFileSystem, strMSIFileName)
-Else
-  WriteVersionToFile objCmdFile, "MSI_VER", ""
-End If
-
-' Determine Windows Script Host version
-If objFileSystem.FileExists(strWSHFileName) Then
-  WriteVersionToFile objCmdFile, "WSH_VER", GetFileVersion(objFileSystem, strWSHFileName)
-Else
-  WriteVersionToFile objCmdFile, "WSH_VER", ""
-End If
-
 ' Determine Internet Explorer version
 WriteVersionToFile objCmdFile, "IE_VER", RegRead(wshShell, strRegKeyIE & strRegValVersion)
 
@@ -733,17 +728,15 @@ End If
 ' Determine Office version
 arrayOfficeNames = Split(strOfficeNames, ",")
 arrayOfficeVersions = Split(strRegKeyOfficeInfixes_Version, ",")
-arrayOfficeAppNames = Split(strOfficeAppNames, ",")
-arrayOfficeExeNames = Split(strOfficeExeNames, ",")
 For i = 0 To UBound(arrayOfficeNames)
   strOfficeInstallPath = OfficeInstallPath(wshShell, arrayOfficeVersions(i))
   If strOfficeInstallPath <> "" Then
-    For j = 0 To UBound(arrayOfficeExeNames)
-      If objFileSystem.FileExists(strOfficeInstallPath & arrayOfficeExeNames(j)) Then
-        objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_VER_APP=" & arrayOfficeAppNames(j))
-        strOfficeExeVersion = GetFileVersion(objFileSystem, strOfficeInstallPath & arrayOfficeExeNames(j))
-        WriteVersionToFile objCmdFile, UCase(arrayOfficeNames(i)) & "_VER", strOfficeExeVersion
-        objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_SP_VER=" & OfficeSPVersion(strOfficeExeVersion, j))
+    strMSOFilePath = OfficeMSOFilePath(wshShell, arrayOfficeVersions(i))
+    If strMSOFilePath <> "" Then
+      If objFileSystem.FileExists(strMSOFilePath) Then
+        strOfficeMSOVersion = GetFileVersion(objFileSystem, OfficeMSOFilePath(wshShell, arrayOfficeVersions(i)))
+        WriteVersionToFile objCmdFile, UCase(arrayOfficeNames(i)) & "_VER", strOfficeMSOVersion
+        objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_SP_VER=" & OfficeSPVersion(strOfficeMSOVersion))
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_ARCH=" & OfficeArchitecture(wshShell, strOSArchitecture, arrayOfficeVersions(i), strOfficeInstallPath))
         languageCode = OfficeLanguageCode(wshShell, arrayOfficeVersions(i))
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_LANG_CODE=0x" & Hex(languageCode))
@@ -752,9 +745,8 @@ For i = 0 To UBound(arrayOfficeNames)
         Else
           WriteLanguageToFile objCmdFile, UCase(arrayOfficeNames(i)) & "_LANG", languageCode, False, False
         End If
-        Exit For
       End If
-    Next
+    End If
   End If
 Next
 

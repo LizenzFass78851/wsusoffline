@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.6.1 (b14)
+set WSUSOFFLINE_VERSION=12.6.1 (b15)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -191,8 +191,6 @@ if exist "%TEMP%\wou_slmgr.txt" (
 rem echo Found total physical memory: %OS_RAM_GB% GB
 rem echo Found Servicing Stack version: %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%
 rem echo Found Windows Update Agent version: %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%
-rem echo Found Windows Installer version: %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%
-rem echo Found Windows Script Host version: %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%
 rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%
 rem if "%MSEDGE_INSTALLED%"=="1" echo Found Edge (Chromium) version: %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%
 rem if "%MSEDGEUPDATE_INSTALLED%"=="1" echo Found Edge (Chromium) Updater version: %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%
@@ -202,10 +200,10 @@ rem echo Found Microsoft .NET Framework 4 version: %DOTNET4_VER_MAJOR%.%DOTNET4_
 rem echo Found Windows Management Framework version: %WMF_VER_MAJOR%.%WMF_VER_MINOR%.%WMF_VER_BUILD%.%WMF_VER_REVIS%
 rem echo Found Windows Defender definitions version: %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%
 if "%O2K13_VER_MAJOR%" NEQ "" (
-  echo Found Microsoft Office 2013 %O2K13_VER_APP% version: %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% ^(o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%^)
+  echo Found Microsoft Office 2013 version: %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% ^(o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%^)
 )
 if "%O2K16_VER_MAJOR%" NEQ "" (
-  echo Found Microsoft Office 2016 %O2K16_VER_APP% version: %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% ^(o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%^)
+  echo Found Microsoft Office 2016 version: %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% ^(o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%^)
 )
 call :Log "Info: Found Microsoft Windows version %OS_VER_MAJOR%.%OS_VER_MINOR%.%OS_VER_BUILD%.%OS_VER_REVIS% (%OS_NAME% %OS_ARCH% %OS_LANG%)"
 if exist "%TEMP%\wou_slmgr.txt" (
@@ -216,8 +214,6 @@ if exist "%TEMP%\wou_slmgr.txt" (
 call :Log "Info: Found total physical memory: %OS_RAM_GB% GB"
 call :Log "Info: Found Servicing Stack version %SERVICING_VER_MAJOR%.%SERVICING_VER_MINOR%.%SERVICING_VER_BUILD%.%SERVICING_VER_REVIS%"
 call :Log "Info: Found Windows Update Agent version %WUA_VER_MAJOR%.%WUA_VER_MINOR%.%WUA_VER_BUILD%.%WUA_VER_REVIS%"
-call :Log "Info: Found Windows Installer version %MSI_VER_MAJOR%.%MSI_VER_MINOR%.%MSI_VER_BUILD%.%MSI_VER_REVIS%"
-call :Log "Info: Found Windows Script Host version %WSH_VER_MAJOR%.%WSH_VER_MINOR%.%WSH_VER_BUILD%.%WSH_VER_REVIS%"
 call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_BUILD%.%IE_VER_REVIS%"
 if "%MSEDGE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) version %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%"
 if "%MSEDGEUPDATE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) Updater version %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%"
@@ -227,10 +223,10 @@ call :Log "Info: Found Microsoft .NET Framework 4 version %DOTNET4_VER_MAJOR%.%D
 call :Log "Info: Found Windows Management Framework version %WMF_VER_MAJOR%.%WMF_VER_MINOR%.%WMF_VER_BUILD%.%WMF_VER_REVIS%"
 call :Log "Info: Found Windows Defender definitions version %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%"
 if "%O2K13_VER_MAJOR%" NEQ "" (
-  call :Log "Info: Found Microsoft Office 2013 %O2K13_VER_APP% version %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% (o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%)"
+  call :Log "Info: Found Microsoft Office 2013 version %O2K13_VER_MAJOR%.%O2K13_VER_MINOR%.%O2K13_VER_BUILD%.%O2K13_VER_REVIS% (o2k13 %O2K13_ARCH% %O2K13_LANG% sp%O2K13_SP_VER%)"
 )
 if "%O2K16_VER_MAJOR%" NEQ "" (
-  call :Log "Info: Found Microsoft Office 2016 %O2K16_VER_APP% version %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% (o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%)"
+  call :Log "Info: Found Microsoft Office 2016 version %O2K16_VER_MAJOR%.%O2K16_VER_MINOR%.%O2K16_VER_BUILD%.%O2K16_VER_REVIS% (o2k16 %O2K16_ARCH% %O2K16_LANG% sp%O2K16_SP_VER%)"
 )
 
 rem ***  Check compatibility mode ***
@@ -1453,8 +1449,8 @@ if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 :SkipWuPre
 
-
 rem *** Feature upgrades via enablement package ***
+if "%JUST_OFFICE%"=="1" goto SkipBuildUpgrade
 rem supported on Windows 10 only
 if "%OS_VER_MAJOR%.%OS_VER_MINOR%" NEQ "10.0" goto SkipBuildUpgrade
 
