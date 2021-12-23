@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.6.1)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b16) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.6.1 (b17) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -92,6 +92,10 @@ Dim Const $path_rel_w100_18363_x86      = "\w100\glb\windows10.0-kb4517245-x86*.
 Dim Const $path_rel_w100_18363_x64      = "\w100-x64\glb\windows10.0-kb4517245-x64*.*"
 Dim Const $path_rel_w100_18363_x86_sub  = "\w100\glb\18362\windows10.0-kb4517245-x86*.*"
 Dim Const $path_rel_w100_18363_x64_sub  = "\w100-x64\glb\18362\windows10.0-kb4517245-x64*.*"
+Dim Const $path_rel_w100_19042_x86      = "\w100\glb\windows10.0-kb4562830-x86*.*"
+Dim Const $path_rel_w100_19042_x64      = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
+Dim Const $path_rel_w100_19042_x86_sub  = "\w100\glb\19041\windows10.0-kb4562830-x86*.*"
+Dim Const $path_rel_w100_19042_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
 Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
 Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
@@ -231,7 +235,7 @@ Dim $result
   Return $result
 EndFunc
 
-Func BuildUpgradeAvailable($basepath)
+Func BuildUpgradeAvailable($basepath, $enforcementmode)
   If (@OSVersion = "WIN_10") Then
     If (@OSBuild = "18362") Then
       If (@OSArch <> "X86") Then
@@ -242,9 +246,17 @@ Func BuildUpgradeAvailable($basepath)
     Else
       If ( (@OSBuild = "19041") OR (@OSBuild = "19042") ) Then
         If (@OSArch <> "X86") Then
-          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
+          If $enforcementmode > 0 Then
+            Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
+          Else
+            Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
+          EndIf
         Else
-          Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) )
+          If $enforcementmode > 0 Then
+            Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
+          Else
+            Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) )
+          EndIf
         EndIf
       Else
         Return 0
@@ -452,14 +464,14 @@ If $gergui Then
 Else
   $buildupgrade = GUICtrlCreateCheckbox("Feature Update via Enablement Package", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (BuildUpgradeEnforced() = 1) AND (BuildUpgradeAvailable($scriptdir)) ) Then
+If ( (BuildUpgradeEnforced() <= 1) AND (BuildUpgradeAvailable($scriptdir, 0)) ) Then
   If MyIniRead($ini_section_installation, $ini_value_buildupgrade, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
 Else
-  If ( BuildUpgradeEnforced() > 1 ) Then
+  If ( (BuildUpgradeEnforced() > 1 ) AND (BuildUpgradeAvailable($scriptdir, 1)) ) Then
     GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
@@ -768,7 +780,7 @@ If ( (@OSVersion = "WIN_2012") _
   EndIf
 EndIf
 If ( BuildUpgradeEnforced() > 0 ) Then
-  If BuildUpgradeAvailable($scriptdir) Then
+  If BuildUpgradeAvailable($scriptdir, 1) Then
     If $gergui Then
       MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package automatisch installiert, wenn Sie die Aktualisierung starten.")
     Else
