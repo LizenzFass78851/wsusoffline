@@ -1842,7 +1842,7 @@ Community Edition 12.6 -- 21.10.2021
 - Fix: TouchMSITree.cmd/InstallCustomSoftware.cmd could cause an endless loop of reboots (Thanks to "rbr555")
 - Fix: Edge Updater will be updated to the most recent version, too (Thanks to "aker")
 --------------------------------------------------------------------------------
-Community Edition 12.6.1 -- ??.12.2021
+Community Edition 12.6.1 -- 24.12.2021
 - NOTE: Support removed for Windows 10 version 2004 since Microsoft discontinued support for it on December 14th, 2021
 - Improved mechanism for enforced "feature upgrades via enablement package" mechanism (Thanks to "aker")
 - Improved reliability of DownloadUpdates.cmd in handling file names / URLs with spaces inside (Thanks to "aker")
@@ -1858,3 +1858,4 @@ Community Edition 12.6.1 -- ??.12.2021
 - Fix: Cosmetic issue enabling Build 20438 for x86 in UpdateGenerator (Thanks to "aker")
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
+--------------------------------------------------------------------------------
