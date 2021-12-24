@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 11.9.11
+WSUS Offline Update - Community Edition - 11.9.12
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1834,3 +1834,4 @@ Community Edition 11.9.11 -- 24.12.2021
 - Fix: DoUpdate.cmd will now show a warning, if Windows does not support SHA2 signed updates / catalog files (Thanks to "Davide Zanon")
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
 --------------------------------------------------------------------------------
+Community Edition 11.9.12 -- ??.??.????
