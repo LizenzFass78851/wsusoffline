@@ -1,5 +1,5 @@
 ................................................................................
-WSUS Offline Update - Community Edition - 12.6.1
+WSUS Offline Update - Community Edition - 12.7
 Author: Torsten Wittrock                      (mailto:twittrock@wsusoffline.net)
 Community Edition                             (https://gitlab.com/wsusoffline/)
 ................................................................................
@@ -1859,3 +1859,4 @@ Community Edition 12.6.1 -- 24.12.2021
 - Fix: Removed erroneously displayed error message(s) in DownloadUpdates.cmd (Thanks to "aker")
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
 --------------------------------------------------------------------------------
+Community Edition 12.7 -- ??.??.????
