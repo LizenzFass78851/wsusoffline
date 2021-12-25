@@ -14,18 +14,22 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b0)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b1)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
 Dim Const $runAllFile                   = "RunAll.cmd"
+Dim Const $win10_ver_inifilebody        = "Windows10Versions"
 Dim Const $win10_vmax                   = 6
 Dim Const $win10_versions               = "10240,14393,17763,18362,19041,20348"
 Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1/21H2,"
 Dim Const $win10_displayversions_x86    = ",,,,,"
 Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,,Server 2022"
 Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Disabled,Enabled,Enabled"
-Dim Const $win10_ver_inifilebody        = "Windows10Versions"
+Dim Const $win11_vmax                   = 1
+Dim Const $win11_versions               = "22000"
+Dim Const $win11_displayversions        = "21H2"
+Dim Const $win11_defaults               = "Enabled"
 
 ; Registry constants
 Dim Const $reg_key_hkcu_desktop         = "HKEY_CURRENT_USER\Control Panel\Desktop"
@@ -51,7 +55,8 @@ Dim Const $default_logpixels            = 96
 Dim Const $ini_section_w62_x64          = "Windows Server 2012"
 Dim Const $ini_section_w63              = "Windows 8.1"
 Dim Const $ini_section_w63_x64          = "Windows Server 2012 R2"
-Dim Const $ini_section_win10_ver        = "Platforms"
+Dim Const $ini_section_win10_ver        = "Windows 10"
+Dim Const $ini_section_win11_ver        = "Windows 11"
 Dim Const $ini_section_o2k13            = "Office 2013"
 Dim Const $ini_section_o2k16            = "Office 2016"
 Dim Const $ini_section_iso              = "ISO Images"
@@ -160,6 +165,10 @@ Dim $win10_dsp_x64_arr[$win10_vmax + 1] ; Windows 10 / Server 2016/2019
 Dim $win10_def_arr[$win10_vmax + 1]     ; Windows 10 / Server 2016/2019
 Dim $win10_checkboxes_x86[$win10_vmax]  ; Windows 10 x86
 Dim $win10_checkboxes_x64[$win10_vmax]  ; Windows 10 x64 / Server 2016/2019
+Dim $win11_ver_arr[$win11_vmax + 1]     ; Windows 11
+Dim $win11_dsp_arr[$win11_vmax + 1]     ; Windows 11
+Dim $win11_def_arr[$win11_vmax + 1]     ; Windows 11
+Dim $win11_checkboxes_x64[$win11_vmax]  ; Windows 11
 
 Dim $dlgheight, $groupwidth, $groupheight_lng, $groupheight_glb, $txtwidth, $txtheight, $slimheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $runany
 
@@ -412,6 +421,16 @@ Func IsWin10Checked($win10_checkboxes)
   Return False
 EndFunc
 
+; FIXME 12.7 (b1)
+Func IsWin11Checked($win11_checkboxes)
+  For $i = 0 To $win11_ver_arr[0] - 1
+    If IsCheckBoxChecked($win11_checkboxes[$i]) Then
+      Return True
+    EndIf
+  Next
+  Return False
+EndFunc
+
 Func IsLangOfficeChecked()
   Return (IsCheckBoxChecked($o2k13_enu) _
        OR IsCheckBoxChecked($o2k13_fra) _
@@ -441,6 +460,11 @@ EndFunc
 
 Func SwitchDownloadTargets($state)
 
+  For $i = 0 To $win11_ver_arr[0] - 1
+    If ( ($win11_dsp_arr[$i+1] = "") AND ($win11_dsp_x64_arr[$i+1] <> "") ) Then
+      GUICtrlSetState($win11_checkboxes_x64[$i], $state)
+    EndIf
+  Next
   For $i = 0 To $win10_ver_arr[0] - 1
     If ( ($win10_dsp_arr[$i+1] = "") AND ($win10_dsp_x86_arr[$i+1] <> "") ) Then
       GUICtrlSetState($win10_checkboxes_x86[$i], $state)
@@ -906,6 +930,11 @@ Func SaveWin10Settings()
       IniWrite($win10_ver_inifilename, $ini_section_win10_ver, $win10_ver_arr[$i+1] & "_x64", CheckBoxStateToString($win10_checkboxes_x64[$i]))
     EndIf
   Next
+  For $i = 0 To $win11_ver_arr[0] - 1
+    If ( $win11_dsp_arr[$i+1] <> "" ) Then
+      IniWrite($win10_ver_inifilename, $ini_section_win11_ver, $win11_ver_arr[$i+1] & "_x64", CheckBoxStateToString($win11_checkboxes_x64[$i]))
+    EndIf
+  Next
   Return 0
 EndFunc
 
@@ -1048,10 +1077,33 @@ $txtxpos = $txtxoffset
 $txtypos = $txtyoffset + $txtheight
 GuiCtrlCreateTab($txtxpos, $txtypos, $groupwidth + 2 * $txtxoffset, 3 * $groupheight_glb + 3.5 * $txtyoffset)
 
-;  Operating Systems' Tab
-$tabitemfocused = GuiCtrlCreateTabItem("Windows")
+;  Windows 11 Tab
+$tabitemfocused = GuiCtrlCreateTabItem("Windows 11")
 
-;  Windows 10 / Server 2016/2019 group
+;  Windows 11
+$win11_ver_arr = StringSplit($win11_versions, ",")
+$win11_dsp_arr = StringSplit($win11_displayversions, ",")
+$win11_def_arr = StringSplit($win11_defaults, ",")
+
+;  Windows 11 x64
+$txtxpos = 2 * $txtxoffset
+$txtypos = 3.5 * $txtyoffset + $txtheight
+GUICtrlCreateGroup("Windows 11 versions", $txtxpos, $txtypos, $groupwidth, 3 * $groupheight_glb)
+$txtypos = $txtypos + 1.5 * $txtyoffset
+$txtxpos = 3 * $txtxoffset
+For $i = 0 To $win11_ver_arr[0] - 1
+  $win11_checkboxes_x64[$i] = GUICtrlCreateCheckbox($win11_dsp_arr[$i+1], $txtxpos + Mod($i, 8) * ($groupwidth / 8 - $txtxoffset), $txtypos + BitShift($i, 3) * $txtheight, $groupwidth / 8 - $txtxoffset, $txtheight)
+  If IniRead($win10_ver_inifilename, $ini_section_win11_ver, $win11_ver_arr[$i+1] & "_x64", $win11_def_arr[$i+1]) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+Next
+
+;  Windows 10 Tab
+GuiCtrlCreateTabItem("Windows 10")
+
+;  Windows 10 / Server 2016/2019/2022 group
 $win10_ver_arr = StringSplit($win10_versions, ",")
 $win10_dsp_arr = StringSplit($win10_displayversions, ",")
 $win10_dsp_x86_arr = StringSplit($win10_displayversions_x86, ",")
@@ -1474,7 +1526,7 @@ If IniRead($inifilename, $ini_section_misc, $misc_token_skipdownload, $disabled)
   GUICtrlSetState(-1, $GUI_DISABLE)
 EndIf
 
-;  Include .NET Frameworks 3.5 SP1 and 4
+;  Include .NET Frameworks
 $txtxpos = 2 * $txtxoffset
 $txtypos = $txtypos + $txtheight
 If $gergui Then
@@ -1935,7 +1987,7 @@ While 1
           ContinueLoop
         EndIf
       EndIf
-      If IsWin10Checked($win10_checkboxes_x64) Then
+      If ( (IsWin10Checked($win10_checkboxes_x64)) OR (IsWin11Checked($win11_checkboxes_x64)) ) Then
         If RunScripts("w100-x64 glb", IsCheckBoxChecked($imageonly), DetermineDownloadSwitches($dotnet, $seconly, $wddefs, $verifydownloads, AuthProxy($proxy, $proxypwd), $wsus), IsCheckBoxChecked($cdiso), DetermineISOSwitches($dotnet, $wddefs, $usbclean), IsCheckBoxChecked($usbcopy), GUICtrlRead($usbpath)) <> 0 Then
           ContinueLoop
         EndIf

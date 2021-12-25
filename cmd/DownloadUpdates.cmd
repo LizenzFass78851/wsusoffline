@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b0)
+set WSUSOFFLINE_VERSION=12.7 (b1)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1387,7 +1387,7 @@ if "%TMP_PLATFORM:~-4%"=="-x64" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
-  set TMP_BUILDS_ALL=10240 14393 17763 18362 19041 20348
+  set TMP_BUILDS_ALL=10240 14393 17763 18362 19041 20348 22000
 
   if exist ..\Windows10Versions.ini (
     for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
@@ -1713,12 +1713,12 @@ if "%EXC_STATICS%"=="1" goto SkipStatics
 echo Determining static update urls for %1 %2...
 if exist ..\static\StaticDownloadLinks-%1-%2.txt copy /Y ..\static\StaticDownloadLinks-%1-%2.txt "%TEMP%\StaticDownloadLinks-%1-%2.txt" >nul
 if exist ..\static\StaticDownloadLinks-%1-%3-%2.txt copy /Y ..\static\StaticDownloadLinks-%1-%3-%2.txt "%TEMP%\StaticDownloadLinks-%1-%2.txt" >nul
-rem *** Windows 10 version specific static links ***
+rem *** Windows 10/11 version specific static links ***
 if "%TMP_PLATFORM%"=="w100" (
   if not "%TMP_BUILDS_ENABLED%"=="" (
     for %%i in (%TMP_BUILDS_ENABLED%) do (
-      if exist ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
-      if exist ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt type ..\static\custom\StaticDownloadLinks-w100-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
+      if exist ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%i-%3-%2.txt type ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
+      if exist ..\static\custom\StaticDownloadLinks-%TMP_PLATFORM%-%%i-%3-%2.txt type ..\static\custom\StaticDownloadLinks-%TMP_PLATFORM%-%%i-%3-%2.txt >>"%TEMP%\StaticDownloadLinks-%1-%2.txt"
     )
   )
 )
@@ -1936,8 +1936,8 @@ if "%TMP_PLATFORM%"=="w63" (
 if "%TMP_PLATFORM%"=="w100" (
   if not "%TMP_BUILDS_DISABLED%"=="" (
     for %%i in (%TMP_BUILDS_DISABLED%) do (
-      if exist ..\exclude\ExcludeList-w100-%%i.txt type ..\exclude\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
-      if exist ..\exclude\custom\ExcludeList-w100-%%i.txt type ..\exclude\custom\ExcludeList-w100-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+      if exist ..\exclude\ExcludeList-%TMP_PLATFORM%-%%i.txt type ..\exclude\ExcludeList-%TMP_PLATFORM%-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
+      if exist ..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%i.txt type ..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%i.txt >>"%TEMP%\ExcludeList-%1.txt"
     )
   )
 )
@@ -2019,21 +2019,21 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
     if "%TMP_PLATFORM%"=="w100" (
       if not "%TMP_BUILDS_ENABLED%"=="" (
         for %%f in (%TMP_BUILDS_ENABLED%) do (
-          if exist ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt (
-            type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+          if exist ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt (
+            type ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
             if not errorlevel 1 (
               if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
             ) else (
-              if exist ..\static\custom\StaticDownloadLinks-w100-%%f-%3-%2.txt (
-                type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+              if exist ..\static\custom\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt (
+                type ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
                 if not errorlevel 1 (
                   if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
                 )
               )
             )
           ) else (
-            if exist ..\static\custom\StaticDownloadLinks-w100-%%f-%3-%2.txt (
-              type ..\static\StaticDownloadLinks-w100-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
+            if exist ..\static\custom\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt (
+              type ..\static\StaticDownloadLinks-%TMP_PLATFORM%-%%f-%3-%2.txt | find /i "%%k" >nul 2>&1
               if not errorlevel 1 (
                 if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
               )
@@ -2122,16 +2122,16 @@ if "%WSUS_URL%"=="" (
     if "%TMP_PLATFORM%"=="w100" (
       if not "%TMP_BUILDS_ENABLED%"=="" (
         for %%f in (%TMP_BUILDS_ENABLED%) do (
-          if exist ..\exclude\ExcludeList-w100-%%f.txt (
-            for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+          if exist ..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+            for /f %%e in (..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
               echo %%~nxj | find /i "%%e" >nul 2>&1
               if not errorlevel 1 (
                 if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
               )
             )
           )
-          if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
-            for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+          if exist ..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+            for /f %%e in (..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
               echo %%~nxj | find /i "%%e" >nul 2>&1
               if not errorlevel 1 (
                 if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
@@ -2188,16 +2188,16 @@ if "%WSUS_URL%"=="" (
         if "%TMP_PLATFORM%"=="w100" (
           if not "%TMP_BUILDS_ENABLED%"=="" (
             for %%f in (%TMP_BUILDS_ENABLED%) do (
-              if exist ..\exclude\ExcludeList-w100-%%f.txt (
-                for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+              if exist ..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+                for /f %%e in (..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
                   echo %%~nxl | find /i "%%e" >nul 2>&1
                   if not errorlevel 1 (
                     if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
                   )
                 )
               )
-              if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
-                for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+              if exist ..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+                for /f %%e in (..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
                   echo %%~nxl | find /i "%%e" >nul 2>&1
                   if not errorlevel 1 (
                     if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
@@ -2245,16 +2245,16 @@ if "%WSUS_URL%"=="" (
         if "%TMP_PLATFORM%"=="w100" (
           if not "%TMP_BUILDS_ENABLED%"=="" (
             for %%f in (%TMP_BUILDS_ENABLED%) do (
-              if exist ..\exclude\ExcludeList-w100-%%f.txt (
-                for /f %%e in (..\exclude\ExcludeList-w100-%%f.txt) do (
+              if exist ..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+                for /f %%e in (..\exclude\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
                   echo %%k | find /i "%%e" >nul 2>&1
                   if not errorlevel 1 (
                     if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
                   )
                 )
               )
-              if exist ..\exclude\custom\ExcludeList-w100-%%f.txt (
-                for /f %%e in (..\exclude\custom\ExcludeList-w100-%%f.txt) do (
+              if exist ..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt (
+                for /f %%e in (..\exclude\custom\ExcludeList-%TMP_PLATFORM%-%%f.txt) do (
                   echo %%k | find /i "%%e" >nul 2>&1
                   if not errorlevel 1 (
                     if "!TARGET_PATH!"=="" (set TARGET_PATH=..\client\%1\%2\%%f) else (set TARGET_PATH=..\client\%1\%2)
