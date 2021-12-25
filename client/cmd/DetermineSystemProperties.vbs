@@ -32,7 +32,7 @@ Private Const strRegValSHA2Support2            = "SHA2-Core-Codesigning-Support"
 Private Const strRegValInstallationType        = "InstallationType"
 Private Const strRegValPShVersion              = "PowerShellVersion"
 Private Const strRegValAVSVersion              = "AVSignatureVersion"
-Private Const strRegValDisableAntiSpyware      = "DisableAntiSpyware"
+Private Const strRegValDisableAntiVirus        = "DisableAntiVirus"
 Private Const strRegValCurrentPowerPolicy      = "CurrentPowerPolicy"
 Private Const strRegKeyOfficePrefix_Mx86       = "HKLM\Software\Microsoft\Office\"
 Private Const strRegKeyOfficePrefix_Mx64       = "HKLM\Software\Wow6432Node\Microsoft\Office\"
@@ -51,6 +51,7 @@ Private Const strOfficeNames                   = "o2k13,o2k16"
 Private Const strBuildNumbers_o2k13            = "4420;4569"
 Private Const strBuildNumbers_o2k16            = "4266"
 Private Const strVersionSuffixes               = "MAJOR,MINOR,BUILD,REVIS"
+Private Const numBuildPSFSupport               = 21382
 Private Const idxBuild                         = 2
 
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, MSIProducts
@@ -572,6 +573,11 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
     ' Windows 10 / Windows Server 2016 / Windows Server 2019 have native SHA2-support
     objCmdFile.WriteLine("set OS_SHA2_SUPPORT=1")
   End If
+  If CInt(Split(objQueryItem.Version, ".")(2)) >= numBuildPSFSupport Then
+    objCmdFile.WriteLine("set OS_PSF_SUPPORT=1")
+  Else
+    objCmdFile.WriteLine("set OS_PSF_SUPPORT=0")
+  End If
   objCmdFile.WriteLine("set SystemDirectory=" & objQueryItem.SystemDirectory)
 Next
 ' Documentation: http://msdn.microsoft.com/en-us/library/aa394102(VS.85).aspx
@@ -708,8 +714,8 @@ Else
 End If
 
 ' Determine Windows Defender state
-If ( (RegRead(wshShell, strRegKeyWD & strRegValDisableAntiSpyware) = "1") _
-  Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiSpyware) = "1") ) Then
+If ( (RegRead(wshShell, strRegKeyWD & strRegValDisableAntiVirus) = "1") _
+  Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiVirus) = "1") ) Then
   objCmdFile.WriteLine("set WD_DISABLED=1")
 Else
   objCmdFile.WriteLine("set WD_DISABLED=0")

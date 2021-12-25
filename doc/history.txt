@@ -1861,3 +1861,4 @@ Community Edition 12.6.1 -- 24.12.2021
 --------------------------------------------------------------------------------
 Community Edition 12.7 -- ??.??.????
 - [work in progress] Support added for Windows 11
+- Fix: DetermineSystemsProperties.vbs might fail to determine Windows Defender state
