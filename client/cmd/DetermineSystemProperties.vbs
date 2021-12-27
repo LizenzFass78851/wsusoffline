@@ -715,8 +715,8 @@ Else
 End If
 
 ' Determine Windows Defender state
-If ( ((OSVer_Real_Build < 21382) And ((RegRead(wshShell, strRegKeyWD & strRegValDisableAntiSpyware) = "1") Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiSpyware) = "1")) _
-  Or ((OSVer_Real_Build >= 21382) And ((RegRead(wshShell, strRegKeyWD & strRegValDisableAntiVirus) = "1") Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiVirus) = "1"))) Then
+If ( ((OSVer_Real_Build < 21382) And ((RegRead(wshShell, strRegKeyWD & strRegValDisableAntiSpyware) = "1") Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiSpyware) = "1"))) _
+  Or ((OSVer_Real_Build >= 21382) And ((RegRead(wshShell, strRegKeyWD & strRegValDisableAntiVirus) = "1") Or (RegRead(wshShell, strRegKeyWDPolicy & strRegValDisableAntiVirus) = "1"))) ) Then
   objCmdFile.WriteLine("set WD_DISABLED=1")
 Else
   objCmdFile.WriteLine("set WD_DISABLED=0")
