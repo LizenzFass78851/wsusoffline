@@ -1835,3 +1835,4 @@ Community Edition 11.9.11 -- 24.12.2021
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
 --------------------------------------------------------------------------------
 Community Edition 11.9.12 -- ??.??.????
+- Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")

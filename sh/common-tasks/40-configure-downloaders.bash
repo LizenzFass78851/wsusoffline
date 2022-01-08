@@ -419,14 +419,7 @@ function download_static_files ()
 
     log_info_message "Downloading/validating ${number_of_links} link(s) from input file ${input_file##*/} ..."
 
-    # Setting IFS to a comma and space removes spurious spaces at the
-    # end of the line. These may be found in some files created by the
-    # Windows script AddCustomLanguageSupport.cmd:
-    #
-    # ../static/custom/StaticDownloadLinks-dotnet-x64-glb.txt
-    # ../static/custom/StaticDownloadLinks-dotnet-x86-glb.txt
-
-    while IFS=', ' read -r download_link local_filename skip_rest
+    while IFS=',' read -r download_link local_filename skip_rest
     do
         remote_filename="${download_link##*/}"
 

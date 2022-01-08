@@ -188,15 +188,9 @@ function cleanup_client_directory ()
             esac
 
             # Keep files, which are in the current download set
-            #
-            # Use percent-encoding for filenames with spaces, to compare
-            # them with the input files in the static directory. This
-            # is necessary for *.crt and *.crl files, because the input
-            # file StaticDownloadLinks-win-glb.txt uses percent encoding
-            # in the first place.
             if [[ -s "${valid_links}" ]]
             then
-                if grep -F -i -q "${filename// /%20}" "${valid_links}"
+                if grep -F -i -q "${filename}" "${valid_links}"
                 then
                     log_debug_message "Found file \"${filename}\""
                     continue
@@ -209,7 +203,7 @@ function cleanup_client_directory ()
             # "valid static files".
             if [[ "${keep_valid_static_files}" == "enabled" ]]
             then
-                if grep -F -i -q -r "${filename// /%20}" "../static"
+                if grep -F -i -q -r "${filename}" "../static"
                 then
                     log_info_message "Kept valid static file \"${filename}\""
                     continue
