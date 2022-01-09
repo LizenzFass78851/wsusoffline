@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b4)
+set WSUSOFFLINE_VERSION=12.7 (b5)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -335,8 +335,8 @@ if exist ..\client\static\StaticUpdateIds-ie9-w61.txt del ..\client\static\Stati
 if exist ..\client\static\StaticUpdateIds-w100-x86.txt del ..\client\static\StaticUpdateIds-w100-x86.txt
 if exist ..\client\static\StaticUpdateIds-w100-x64.txt del ..\client\static\StaticUpdateIds-w100-x64.txt
 if exist ..\opt\nul rd /S /Q ..\opt
-if exist ..\static\StaticDownloadFiles-w100-19041-x64-glb.txt.bak del ..\static\StaticDownloadFiles-StaticDownloadFiles-w100-19041-x64-glb.txt.bak
-if exist ..\static\StaticDownloadFiles-w100-19041-x86-glb.txt.bak del ..\static\StaticDownloadFiles-StaticDownloadFiles-w100-19041-x86-glb.txt.bak
+if exist ..\static\StaticDownloadFiles-w100-19041-x64-glb.txt.bak del ..\static\StaticDownloadFiles-w100-19041-x64-glb.txt.bak
+if exist ..\static\StaticDownloadFiles-w100-19041-x86-glb.txt.bak del ..\static\StaticDownloadFiles-w100-19041-x86-glb.txt.bak
 if exist ..\xslt\ExtractDownloadLinks-wua-x86.xsl del ..\xslt\ExtractDownloadLinks-wua-x86.xsl
 if exist ..\xslt\ExtractDownloadLinks-wua-x64.xsl del ..\xslt\ExtractDownloadLinks-wua-x64.xsl
 if exist ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl del ..\xslt\ExtractBundledUpdateRelationsAndFileIds.xsl
