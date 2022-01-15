@@ -55,7 +55,7 @@ Private Const idxBuild                         = 2
 
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, arrayOfficeNames, arrayOfficeVersions, MSIProducts
 Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strTSCFileName, strCmdFileName
-Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strOfficeExeVersion, strMSIProductId, languageCode, i, j
+Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strMSOFilePath, strOfficeMSOVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, ServicingStack_OSVer_Major, ServicingStack_OSVer_Minor, ServicingStack_OSVer_Build
 
 Private Function RegExists(objShell, strName)
@@ -700,7 +700,7 @@ For i = 0 To UBound(arrayOfficeNames)
     strMSOFilePath = OfficeMSOFilePath(wshShell, arrayOfficeVersions(i))
     If strMSOFilePath <> "" Then
       If objFileSystem.FileExists(strMSOFilePath) Then
-        strOfficeMSOVersion = GetFileVersion(objFileSystem, OfficeMSOFilePath(wshShell, arrayOfficeVersions(i)))
+        strOfficeMSOVersion = GetFileVersion(objFileSystem, strMSOFilePath)
         WriteVersionToFile objCmdFile, UCase(arrayOfficeNames(i)) & "_VER", strOfficeMSOVersion
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_SP_VER=" & OfficeSPVersion(strOfficeMSOVersion))
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_ARCH=" & OfficeArchitecture(wshShell, strOSArchitecture, arrayOfficeVersions(i), strOfficeInstallPath))
