@@ -1,3 +1,27 @@
+Linux download scripts, version 2.7
+
+   Release date: 2022-01-13
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.6.1 hotfix1
+
+   Bug fixes
+
+    * Better handling of filenames with spaces, thanks to mani
+
+   Internal Changes
+
+    * The files StaticUpdateIds-BuildUpgrades.txt and
+      StaticUpdateIds-BuildUpgradesForced.txt are used for the calculation
+      of superseded updates
+    * The files OptionList.txt and OptionList-wildcard.txt are updated
+      from GitLab
+    * Obsolete files from restructuring of C++ and .NET 5 updates
+      are removed
+    * Last traces of Silverlight are removed
+    * Cosmetics
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.6
 
    Release date: 2021-10-18

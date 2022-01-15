@@ -2,7 +2,7 @@
 #
 # Filename: 10-show-selection-dialogs-with-dialog.bash
 #
-# Copyright (C) 2018-2021 Hartmut Buhrmester
+# Copyright (C) 2018-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -58,7 +58,7 @@ show_w100_versions="disabled"
 
 # Define an indexed array of the keys only
 #
-# This list could also be extracted from the associative arrays below,
+# This list could also be extracted from the associative array below,
 # but then the keys would be listed in a seemingly random order. For
 # example, try:
 #

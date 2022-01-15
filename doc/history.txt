@@ -1860,5 +1860,6 @@ Community Edition 12.6.1 -- 24.12.2021
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
 --------------------------------------------------------------------------------
 Community Edition 12.7 -- ??.??.????
+- Included complete rewrite of the Linux scripts version CE-2.7 (Special thanks to H. Buhrmester)
 - [work in progress] Support added for Windows 11
 - Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")

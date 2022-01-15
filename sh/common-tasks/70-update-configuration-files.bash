@@ -2,7 +2,7 @@
 #
 # Filename: 70-update-configuration-files.bash
 #
-# Copyright (C) 2016-2021 Hartmut Buhrmester
+# Copyright (C) 2016-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -41,6 +41,9 @@ hidelist_seconly_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/maste
 static_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified.txt"
 exclude_downloadfiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified.txt"
 static_updatefiles_modified_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified.txt"
+# Introduced in Community Edition 12.6.1 (b8)
+option_list_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/OptionList.txt"
+option_list_wildcard_url="https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/OptionList-wildcard.txt"
 
 # ========== Functions ====================================================
 
@@ -123,6 +126,9 @@ function remove_obsolete_files ()
 {
     local -a file_list=()
     local current_file=""
+    local name=""
+    local arch=""
+    local type=""
 
     log_info_message "Removing obsolete files from previous versions of WSUS Offline Update..."
     # Only changes since WSUS Offline Update version 9.5.3 are considered.
@@ -136,13 +142,24 @@ function remove_obsolete_files ()
     then
         log_warning_message "Keeping dummy.txt files in development version..."
     else
-        find .. -type f -name dummy.txt -delete
+        file_list+=(
+            ./exclude/local/dummy.txt
+            ../log/dummy.txt
+            ../iso/dummy.txt
+            ../exclude/custom/dummy.txt
+            ../static/custom/dummy.txt
+            ../static/sdd/dummy.txt
+            ../client/exclude/custom/dummy.txt
+            ../client/static/custom/dummy.txt
+            ../client/software/msi/dummy.txt
+            ../client/UpdateTable/dummy.txt
+        )
     fi
 
     # *** Obsolete internal stuff ***
     file_list+=(
-        ../cmd/ExtractUniqueFromSorted.vbs
         ../cmd/CheckTRCerts.cmd
+        ../client/static/StaticUpdateIds-BuildUpgrades.txt.bak
         ../client/static/StaticUpdateIds-w100-x86.txt
         ../client/static/StaticUpdateIds-w100-x64.txt
     )
@@ -155,6 +172,9 @@ function remove_obsolete_files ()
         ../exclude/ExcludeList-SPs.txt
         ../client/opt/OptionList-Q.txt
     )
+
+    # Removed in Community Edition 12.6.1 (b8)
+    file_list+=( ../client/opt/OptionList-qn.txt )
 
     # Removed in the Community Editions 11.9.2-ESR and 12.1
     #
@@ -197,6 +217,12 @@ function remove_obsolete_files ()
     then
         rm -r ../opt
     fi
+
+    # Removed in the Community Edition 12.7
+    file_list+=(
+        ../static/StaticDownloadLinks-w100-19041-x64-glb.txt.bak
+        ../static/StaticDownloadLinks-w100-19041-x86-glb.txt.bak
+    )
 
     # *** Obsolete external stuff ***
     file_list+=(
@@ -398,6 +424,22 @@ function remove_obsolete_files ()
     )
     shopt -u nullglob
 
+    # *** CPP restructuring stuff ***
+    #
+    # Removed in Community Edition 12.6.1 (b8)
+    for name in cpp2005 cpp2008 cpp2010 cpp2012 cpp2013 cpp2015
+    do
+        for arch in x64 x86
+        do
+            for type in documented new old
+            do
+                file_list+=(
+                    "../client/static/StaticUpdateIds-${name}_${arch}_${type}.txt"
+                )
+            done
+        done
+    done
+
     # *** .NET restructuring stuff ***
     #
     # Removed in Community Editions 11.9.8-ESR and 12.3. The XSLT files
@@ -413,6 +455,23 @@ function remove_obsolete_files ()
         ../xslt/ExtractDownloadLinks-dotnet-x64-glb.xsl
     )
     shopt -u nullglob
+
+    # *** .NET 5 restructuring stuff ***
+    #
+    # Removed in Community Edition 12.6.1 (b8)
+    file_list+=( ../client/static/StaticUpdateIds-dotnet5_documented.txt )
+    for name in ASPNETRuntime DesktopRuntime Runtime
+    do
+        for arch in x64 x86
+        do
+            for type in new old
+            do
+                file_list+=(
+                    "../client/static/StaticUpdateIds-dotnet5_${name}_${arch}_${type}.txt"
+                )
+            done
+        done
+    done
 
     # *** Microsoft Security Essentials stuff ***
     #
@@ -493,7 +552,7 @@ function remove_obsolete_files ()
         do
             if [[ -f "${current_file}" ]]
             then
-                log_debug_message "Deleting ${current_file}"
+                #log_debug_message "Deleting ${current_file}"
                 rm "${current_file}"
             fi
         done
@@ -597,6 +656,14 @@ function update_configuration_files ()
 
     log_info_message "Checking directory wsusoffline/client/static ..."
     recursive_download "../client/static" "${static_updatefiles_modified_url}"
+    echo ""
+
+    # The files OptionList.txt and OptionList-wildcard.txt were introduced
+    # in Community Edition 12.6.1 (b8)
+    download_from_gitlab "../client/opt" "${option_list_url}"
+    echo ""
+
+    download_from_gitlab "../client/opt" "${option_list_wildcard_url}"
     #echo ""
 
     if same_error_count "${initial_errors}"
