@@ -740,7 +740,7 @@ For i = 0 To UBound(arrayOfficeNames)
     strMSOFilePath = OfficeMSOFilePath(wshShell, arrayOfficeVersions(i))
     If strMSOFilePath <> "" Then
       If objFileSystem.FileExists(strMSOFilePath) Then
-        strOfficeMSOVersion = GetFileVersion(objFileSystem, OfficeMSOFilePath(wshShell, arrayOfficeVersions(i)))
+        strOfficeMSOVersion = GetFileVersion(objFileSystem, strMSOFilePath)
         WriteVersionToFile objCmdFile, UCase(arrayOfficeNames(i)) & "_VER", strOfficeMSOVersion
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_SP_VER=" & OfficeSPVersion(strOfficeMSOVersion))
         objCmdFile.WriteLine("set " & UCase(arrayOfficeNames(i)) & "_ARCH=" & OfficeArchitecture(wshShell, strOSArchitecture, arrayOfficeVersions(i), strOfficeInstallPath))
