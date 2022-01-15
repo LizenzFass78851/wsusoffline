@@ -1862,4 +1862,5 @@ Community Edition 12.6.1 -- 24.12.2021
 Community Edition 12.7 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-2.7 (Special thanks to H. Buhrmester)
 - [work in progress] Support added for Windows 11
+- Included Download URLs for Windows 10 21H2
 - Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")
