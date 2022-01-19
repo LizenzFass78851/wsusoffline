@@ -96,10 +96,14 @@ Dim Const $path_rel_w100_19042_x86      = "\w100\glb\windows10.0-kb4562830-x86*.
 Dim Const $path_rel_w100_19042_x64      = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_w100_19042_x86_sub  = "\w100\glb\19041\windows10.0-kb4562830-x86*.*"
 Dim Const $path_rel_w100_19042_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb4562830-x64*.*"
-Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
-Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
-Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
-Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5000736-x64*.*"
+;Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
+;Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
+;Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
+;Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5000736-x64*.*"
+Dim Const $path_rel_w100_19044_x86      = "\w100\glb\windows10.0-kb5003791-x86*.*"
+Dim Const $path_rel_w100_19044_x64      = "\w100-x64\glb\windows10.0-kb5003791-x64*.*"
+Dim Const $path_rel_w100_19044_x86_sub  = "\w100\glb\19041\windows10.0-kb5003791-x86*.*"
+Dim Const $path_rel_w100_19044_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5003791-x64*.*"
 Dim Const $path_rel_msi_all             = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected        = "\Temp\wouselmsi.txt"
 
@@ -244,18 +248,18 @@ Func BuildUpgradeAvailable($basepath, $enforcementmode)
         Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
       EndIf
     Else
-      If ( (@OSBuild = "19041") OR (@OSBuild = "19042") ) Then
+      If ( (@OSBuild = "19041") OR (@OSBuild = "19042") OR (@OSBuild = "19043") ) Then
         If (@OSArch <> "X86") Then
           If $enforcementmode > 0 Then
             Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
           Else
-            Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) )
+            Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
           EndIf
         Else
           If $enforcementmode > 0 Then
             Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
           Else
-            Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) )
+            Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
           EndIf
         EndIf
       Else
