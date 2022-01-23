@@ -15,7 +15,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b10) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b11) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -96,10 +96,10 @@ Dim Const $path_rel_w100_19042_x86      = "\w100\glb\windows10.0-kb4562830-x86*.
 Dim Const $path_rel_w100_19042_x64      = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_w100_19042_x86_sub  = "\w100\glb\19041\windows10.0-kb4562830-x86*.*"
 Dim Const $path_rel_w100_19042_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb4562830-x64*.*"
-;Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
-;Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
-;Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
-;Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5000736-x64*.*"
+Dim Const $path_rel_w100_19043_x86      = "\w100\glb\windows10.0-kb5000736-x86*.*"
+Dim Const $path_rel_w100_19043_x64      = "\w100-x64\glb\windows10.0-kb5000736-x64*.*"
+Dim Const $path_rel_w100_19043_x86_sub  = "\w100\glb\19041\windows10.0-kb5000736-x86*.*"
+Dim Const $path_rel_w100_19043_x64_sub  = "\w100-x64\glb\19041\windows10.0-kb5000736-x64*.*"
 Dim Const $path_rel_w100_19044_x86      = "\w100\glb\windows10.0-kb5003791-x86*.*"
 Dim Const $path_rel_w100_19044_x64      = "\w100-x64\glb\windows10.0-kb5003791-x64*.*"
 Dim Const $path_rel_w100_19044_x86_sub  = "\w100\glb\19041\windows10.0-kb5003791-x86*.*"
@@ -241,31 +241,42 @@ EndFunc
 
 Func BuildUpgradeAvailable($basepath, $enforcementmode)
   If (@OSVersion = "WIN_10") Then
-    If (@OSBuild = "18362") Then
-      If (@OSArch <> "X86") Then
-        Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) OR (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
-      Else
-        Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
-      EndIf
-    Else
-      If ( (@OSBuild = "19041") OR (@OSBuild = "19042") OR (@OSBuild = "19043") ) Then
+    Switch @OSBuild
+	  Case "18362"
         If (@OSArch <> "X86") Then
-          If $enforcementmode > 0 Then
-            Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
-          Else
-            Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
-          EndIf
+          Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) OR (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
         Else
-          If $enforcementmode > 0 Then
-            Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
-          Else
-            Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
-          EndIf
+          Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
         EndIf
-      Else
-        Return 0
-      EndIf
-    EndIf
+	  Case "19041"
+          If (@OSArch <> "X86") Then
+            If $enforcementmode > 0 Then
+              Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
+            Else
+              Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+            EndIf
+          Else
+            If $enforcementmode > 0 Then
+              Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
+            Else
+              Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+            EndIf
+          EndIf
+	  Case "19042"
+        If (@OSArch <> "X86") Then
+          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+        Else
+          Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+        EndIf
+	  Case "19043"
+        If (@OSArch <> "X86") Then
+          Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+        Else
+          Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+        EndIf
+	  Case Else
+	    Return 0
+    EndSwitch
   Else
     Return 0
   EndIf
@@ -273,15 +284,14 @@ EndFunc
 
 Func BuildUpgradeEnforced()
   If (@OSVersion = "WIN_10") Then
-    If (@OSBuild = "18362") Then
-      Return 2
-    Else
-      If (@OSBuild = "19041") Then
-        Return 1
-      Else
+    Switch @OSBuild
+      Case "18362"
+        Return 2 ; Upgrade enforced, no optional available
+      Case "19041"
+        Return 1 ; Upgrade enforced, optional update(s) available
+      Case Else
         Return 0
-      EndIf
-    EndIf
+    EndSwitch
   Else
     Return 0
   EndIf
