@@ -65,3 +65,4 @@ kb5005627,September 2021 Security Only Quality Update for Windows 8.1 and Window
 kb5006729,October 2021 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
 kb5007255,November 2021 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
 kb5008285,December 2021 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
+kb5009595,January 2022 Security Only Quality Update for Windows 8.1 and Windows Server 2012 R2
