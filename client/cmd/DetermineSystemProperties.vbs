@@ -387,13 +387,13 @@ Private Function OfficeSPVersion(strExeVersion)
 End Function
 
 ' Quelle: https://stackoverflow.com/questions/854975/how-to-read-from-a-text-file-using-vbscript
-Private Function ReadStaticFile(strRelFileName)
+Private Function ReadTextFile(strRelFileName)
   Dim dict, file, line, row
   
   Set dict = CreateObject("Scripting.Dictionary")
   
-  If ((Not objFileSystem Is Nothing) And (objFileSystem.FileExists("..\static\" & strRelFileName) = True)) Then
-    Set file = objFileSystem.OpenTextFile ("..\static\" & strRelFileName)
+  If ((Not objFileSystem Is Nothing) And (objFileSystem.FileExists(strRelFileName) = True)) Then
+    Set file = objFileSystem.OpenTextFile (strRelFileName)
     row = 0
     Do Until file.AtEndOfStream
       line = file.Readline
@@ -404,7 +404,7 @@ Private Function ReadStaticFile(strRelFileName)
     file.Close
   End If
   
-  Set ReadStaticFile = dict
+  Set ReadTextFile = dict
 End Function
 
 Private Function CheckMSIProduct(strProductName)
@@ -421,8 +421,8 @@ Private Function CheckMSIProduct(strProductName)
   Dim MSIProduct_old_ids, MSIProduct_new_ids
   Dim strMSIProductProductBuffer, strMSIProductPatchBuffer, strMSIProductStaticId, strMSIProductStaticIdProductBuffer, strMSIProductStaticIdPatchBuffer
   
-  Set MSIProduct_old_ids = ReadStaticFile("StaticUpdateIds-MSIProducts-" & strProductName & "_old.txt")
-  Set MSIProduct_new_ids = ReadStaticFile("StaticUpdateIds-MSIProducts-" & strProductName & "_new.txt")
+  Set MSIProduct_old_ids = ReadTextFile("..\static\StaticUpdateIds-MSIProducts-" & strProductName & "_old.txt")
+  Set MSIProduct_new_ids = ReadTextFile("..\static\StaticUpdateIds-MSIProducts-" & strProductName & "_new.txt")
   
   Set objInstaller = CreateObject("WindowsInstaller.Installer")
   
@@ -717,7 +717,7 @@ For i = 0 To UBound(arrayOfficeNames)
 Next
 
 ' Determine installed products (for C++)
-Set MSIProducts = ReadStaticFile("StaticUpdateIds-MSIProducts.txt")
+Set MSIProducts = ReadTextFile("..\static\StaticUpdateIds-MSIProducts.txt")
 For Each strMSIProductId in MSIProducts.Items
   If CheckMSIProduct(Split(strMSIProductId, ",")(0)) = True Then objCmdFile.WriteLine("set " & UCase(Split(strMSIProductId, ",")(0)) & "=1")
 Next
