@@ -5,6 +5,8 @@
 ; ***    Dialog scaling added by Th. Baisch    ***
 
 #include <GUIConstants.au3>
+#include <MsgBoxConstants.au3>
+
 #pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Generator")
 #pragma compile(FileVersion, 11.9.12)
@@ -14,7 +16,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b10)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b12)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -659,18 +661,18 @@ Dim $result
   EndIf
   If @error <> 0 Then
     If $gergui Then
-      MsgBox(0x2030, "Warnung", "Die Versionsprüfung (CheckOUVersion.cmd) konnte nicht ausgeführt werden.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warnung", "Die Versionsprüfung (CheckOUVersion.cmd) konnte nicht ausgeführt werden.")
     Else
-      MsgBox(0x2030, "Warning", "The version check (CheckOUVersion.cmd) could not be executed.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warning", "The version check (CheckOUVersion.cmd) could not be executed.")
     EndIf
     Return 0
   EndIf
   If $result = 1 Then
     If $gergui Then
-      $result = MsgBox(0x2023, "Versionsprüfung", "Sie setzen " & $caption & " ein. Eine neuere Version ist verfügbar." _
+      $result = MsgBox(BitOr($MB_TASKMODAL, $MB_ICONQUESTION, $MB_YESNOCANCEL), "Versionsprüfung", "Sie setzen " & $caption & " ein. Eine neuere Version ist verfügbar." _
                        & @LF & "Möchten Sie WSUS Offline Update nun aktualisieren?")
     Else
-      $result = MsgBox(0x2023, "Version check", "You are using " & $caption & ". A newer version is available." _
+      $result = MsgBox(BitOr($MB_TASKMODAL, $MB_ICONQUESTION, $MB_YESNOCANCEL), "Version check", "You are using " & $caption & ". A newer version is available." _
                        & @LF & "Would you like to update WSUS Offline Update now?")
     EndIf
     Switch $result
@@ -706,9 +708,9 @@ Dim $result
     EndIf
     If $result = -1 Then
       If $gergui Then
-        MsgBox(0x2010, "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       Else
-        MsgBox(0x2010, "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       EndIf
       Return $result
     EndIf
@@ -744,12 +746,12 @@ Dim $result
   Else
     WinSetState($maindlg, $maindlg, @SW_RESTORE)
     If $gergui Then
-      If MsgBox(0x2014, "Fehler", "Fehler beim Herunterladen / Verifizieren der Updates für " & $stroptions & "." _
+      If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_YESNO), "Fehler", "Fehler beim Herunterladen / Verifizieren der Updates für " & $stroptions & "." _
                 & @LF & "Möchten Sie nun die Protokolldatei ansehen?") = $msgbox_btn_yes Then
         ShowLogFile()
       EndIf
     Else
-      If MsgBox(0x2014, "Error", "Error downloading / verifying updates for " & $stroptions & "." _
+      If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_YESNO), "Error", "Error downloading / verifying updates for " & $stroptions & "." _
                 & @LF & "Would you like to view the log file now?") = $msgbox_btn_yes Then
         ShowLogFile()
       EndIf
@@ -771,9 +773,9 @@ Dim $result
     EndIf
     If $result = -1 Then
       If $gergui Then
-        MsgBox(0x2010, "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       Else
-        MsgBox(0x2010, "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       EndIf
       Return $result
     EndIf
@@ -804,9 +806,9 @@ Dim $result
   Else
     WinSetState($maindlg, $maindlg, @SW_RESTORE)
     If $gergui Then
-      MsgBox(0x2010, "Fehler", "Fehler beim Erstellen des ISO-Images für " & $stroptions & ".")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler beim Erstellen des ISO-Images für " & $stroptions & ".")
     Else
-      MsgBox(0x2010, "Error", "Error creating ISO image for " & $stroptions & ".")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error creating ISO image for " & $stroptions & ".")
     EndIf
   EndIf
   WinSetTitle($maindlg, $maindlg, $title)
@@ -825,9 +827,9 @@ Dim $result
     EndIf
     If $result = -1 Then
       If $gergui Then
-        MsgBox(0x2010, "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler beim Öffnen der Datei " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       Else
-        MsgBox(0x2010, "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
+        MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error opening file " & @ScriptDir & "\cmd\custom\" & $runAllFile)
       EndIf
       Return $result
     EndIf
@@ -842,9 +844,9 @@ Dim $result
   $result = 0
   If NOT FileExists($strpath) Then
     If $gergui Then
-      MsgBox(0x2030, "Warnung", "Das Zielverzeichnis """ & $strpath & """ existiert nicht.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warnung", "Das Zielverzeichnis """ & $strpath & """ existiert nicht.")
     Else
-      MsgBox(0x2030, "Warning", "The target directory """ & $strpath & """ does not exist.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warning", "The target directory """ & $strpath & """ does not exist.")
     EndIf
     Return $result
   EndIf
@@ -867,9 +869,9 @@ Dim $result
   Else
     WinSetState($maindlg, $maindlg, @SW_RESTORE)
     If $gergui Then
-      MsgBox(0x2010, "Fehler", "Fehler beim Kopieren der Dateien für " & $stroptions & ".")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler beim Kopieren der Dateien für " & $stroptions & ".")
     Else
-      MsgBox(0x2010, "Error", "Error copying files for " & $stroptions & ".")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error copying files for " & $stroptions & ".")
     EndIf
   EndIf
   WinSetTitle($maindlg, $maindlg, $title)
@@ -1725,48 +1727,48 @@ GUICtrlSetResizing(-1, $GUI_DOCKRIGHT + $GUI_DOCKBOTTOM)
 GUISetState()
 If IsUNCPath(@ScriptDir) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Das Skript wurde von einem UNC-Pfad gestartet." _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Das Skript wurde von einem UNC-Pfad gestartet." _
                      & @LF & "Bitte weisen Sie der Netzwerkfreigabe einen Laufwerksbuchstaben zu.")
   Else
-    MsgBox(0x2010, "Error", "The script was startet from a UNC path." _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The script was startet from a UNC path." _
                     & @LF & "Please map a drive letter to the network share.")
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid(@ScriptDir) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(0x2010, "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid(@TempDir) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(0x2010, "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If StringRight(EnvGet("TEMP"), 1) = "\" Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\').")
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\').")
   Else
-    MsgBox(0x2010, "Error", "The %TEMP% path contains a trailing backslash ('\').")
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path contains a trailing backslash ('\').")
   EndIf
   Exit(1)
 EndIf
 If NOT DirectoryStructureExists() Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Die Verzeichnisstruktur ist unvollständig." _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Die Verzeichnisstruktur ist unvollständig." _
                      & @LF & "Bitte behalten Sie diese beim Entpacken des Zip-Archivs bei.")
   Else
-    MsgBox(0x2010, "Error", "The directory structure is incomplete." _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The directory structure is incomplete." _
                     & @LF & "Please keep it when you unpack the Zip archive.")
   EndIf
   Exit(1)
@@ -1784,13 +1786,13 @@ While 1
     Case $includesp         ; 'Include Service Packs' check box toggled
       If ( (NOT IsCheckBoxChecked($includesp)) AND (IniRead($inifilename, $ini_section_opts, $opts_token_cleanup, $enabled) = $enabled) ) Then
         If $gergui Then
-          If MsgBox(0x2134, "Warnung", "Durch die Option 'Service-Packs ausschließen' werden bereits" _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Service-Packs ausschließen' werden bereits" _
                                & @LF & "heruntergeladene Service Packs für die selektierten Produkte gelöscht." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($includesp, $GUI_CHECKED)
           EndIf
         Else
-          If MsgBox(0x2134, "Warning", "The option 'Exclude Service Packs' will delete" _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Exclude Service Packs' will delete" _
                                & @LF & "previously downloaded Service Packs for the selected products." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($includesp, $GUI_CHECKED)
@@ -1856,13 +1858,13 @@ While 1
     Case $usbclean          ; 'Clean up target directory' check box toggled
       If IsCheckBoxChecked($usbclean) Then
         If $gergui Then
-          If MsgBox(0x2134, "Warnung", "Durch die Option 'Zielverzeichnis bereinigen'" _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Zielverzeichnis bereinigen'" _
                                & @LF & "werden dort bereits existierende Dateien gelöscht." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($usbclean, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(0x2134, "Warning", "The option 'Clean up target directory'" _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Clean up target directory'" _
                                & @LF & "will delete existing files there." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($usbclean, $GUI_UNCHECKED)
@@ -1873,7 +1875,7 @@ While 1
     Case $imageonly         ; Image only checkbox toggled
       If IsCheckBoxChecked($imageonly) Then
         If $gergui Then
-          If MsgBox(0x2134, "Warnung", "Durch diese Option verhindern Sie das Herunterladen aktueller Updates." _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch diese Option verhindern Sie das Herunterladen aktueller Updates." _
                                & @LF & "Dies kann ein erhöhtes Sicherheitsrisiko für das Zielsystem bedeuten." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($imageonly, $GUI_UNCHECKED)
@@ -1883,7 +1885,7 @@ While 1
             GUICtrlSetState($shutdown, $GUI_UNCHECKED + $GUI_DISABLE)
           EndIf
         Else
-          If MsgBox(0x2134, "Warning", "This option prevents downloading of recent updates." _
+          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "This option prevents downloading of recent updates." _
                                & @LF & "This may increase security risks for the target system." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($imageonly, $GUI_UNCHECKED)
@@ -2326,12 +2328,12 @@ While 1
       If ($runany) Then
         If IsCheckBoxChecked($scripting) Then
           If $gergui Then
-            If MsgBox(0x2044, "Info", "Sammelskript " & @ScriptDir & "\cmd\custom\RunAll.cmd erstellt." _
+            If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_YESNO), "Info", "Sammelskript " & @ScriptDir & "\cmd\custom\RunAll.cmd erstellt." _
                       & @LF & "Möchten Sie das Skript nun prüfen?") = $msgbox_btn_yes Then
               ShowRunAll()
             EndIf
           Else
-            If MsgBox(0x2044, "Info", "Collection script " & @ScriptDir & "\cmd\custom\RunAll.cmd created." _
+            If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_YESNO), "Info", "Collection script " & @ScriptDir & "\cmd\custom\RunAll.cmd created." _
                       & @LF & "Would you like to check the script now?") = $msgbox_btn_yes Then
               ShowRunAll()
             EndIf
@@ -2343,18 +2345,18 @@ While 1
           EndIf
           If IsCheckBoxChecked($imageonly) Then
             If $gergui Then
-              MsgBox(0x2040, "Info", "Image-Erstellung / Kopieren erfolgreich.")
+              MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Info", "Image-Erstellung / Kopieren erfolgreich.")
             Else
-              MsgBox(0x2040, "Info", "Image creation / copying successful.")
+              MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Info", "Image creation / copying successful.")
             EndIf
           Else
             If $gergui Then
-              If MsgBox(0x2044, "Info", "Herunterladen / Image-Erstellung / Kopieren erfolgreich." _
+              If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_YESNO), "Info", "Herunterladen / Image-Erstellung / Kopieren erfolgreich." _
                         & @LF & "Möchten Sie nun die Protokolldatei auf mögliche Warnungen prüfen?") = $msgbox_btn_yes Then
                 ShowLogFile()
               EndIf
             Else
-              If MsgBox(0x2044, "Info", "Download / image creation / copying successful." _
+              If MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_YESNO), "Info", "Download / image creation / copying successful." _
                         & @LF & "Would you like to check the log file for possible warnings now?") = $msgbox_btn_yes Then
                 ShowLogFile()
               EndIf
@@ -2363,9 +2365,9 @@ While 1
         EndIf
       Else
         If $gergui Then
-          MsgBox(0x2040, "Info", "Nichts zu tun!")
+          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Info", "Nichts zu tun!")
         Else
-          MsgBox(0x2040, "Info", "Nothing to do!")
+          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Info", "Nothing to do!")
         EndIf
       EndIf
 
