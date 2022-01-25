@@ -4,7 +4,9 @@
 ; ***   Dialog scaling added by Th. Baisch   ***
 
 #include <GUIConstants.au3>
+#include <MsgBoxConstants.au3>
 #include <WinAPIError.au3>
+
 #RequireAdmin
 #pragma compile(CompanyName, "T. Wittrock - Community Edition")
 #pragma compile(FileDescription, "WSUS Offline Update Installer")
@@ -15,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b11) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b12) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -722,19 +724,19 @@ GUICtrlSetResizing (-1, $GUI_DOCKRIGHT + $GUI_DOCKBOTTOM)
 GUISetState()
 If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") ) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Nicht unterstütztes Betriebssystem: " & @OSVersion)
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Nicht unterstütztes Betriebssystem: " & @OSVersion)
   Else
-    MsgBox(0x2010, "Fehler", "Unsupported Operating System: " & @OSVersion)
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Unsupported Operating System: " & @OSVersion)
   EndIf
   Exit(1)
 EndIf
 If NOT WSHAvailable() Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der Windows Script Host ist deaktiviert. Bitte prüfen Sie die Registrierungswerte" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der Windows Script Host ist deaktiviert. Bitte prüfen Sie die Registrierungswerte" _
                      & @LF & "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings\Enabled und" _
                      & @LF & "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings\Enabled")
   Else
-    MsgBox(0x2010, "Error", "Windows Script Host is disabled on this machine. Please check registry values" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Windows Script Host is disabled on this machine. Please check registry values" _
                     & @LF & "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings\Enabled and" _
                     & @LF & "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings\Enabled")
   EndIf
@@ -742,40 +744,40 @@ If NOT WSHAvailable() Then
 EndIf
 If $scriptdir = "" Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Dem Skript-Pfad " & @ScriptDir _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Dem Skript-Pfad " & @ScriptDir _
                      & @LF & "konnte kein Laufwerksbuchstabe zugewiesen werden.")
   Else
-    MsgBox(0x2010, "Error", "Unable to assign a drive letter" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Unable to assign a drive letter" _
                     & @LF & "to the script path " & @ScriptDir)
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid($scriptdir) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(0x2010, "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid(@TempDir) Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(0x2010, "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If (StringRight(EnvGet("TEMP"), 1) = "\") OR (StringRight(EnvGet("TEMP"), 1) = ":") Then
   If $gergui Then
-    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\')" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\')" _
                      & @LF & "oder einen abschließenden Doppelpunkt (':').")
   Else
-    MsgBox(0x2010, "Error", "The %TEMP% path contains a trailing backslash ('\')" _
+    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path contains a trailing backslash ('\')" _
                     & @LF & "or a trailing colon (':').")
   EndIf
   Exit(1)
@@ -786,25 +788,25 @@ If ( (@OSVersion = "WIN_2012") _
  AND (DefaultIniRead($ini_section_installation, $ini_value_skipieinst, $disabled) = $disabled) _
  AND (DefaultIniRead($ini_section_messaging, $ini_value_showieinfo, $enabled) = $enabled) ) Then
   If $gergui Then
-     MsgBox(0x2040, "Information", "Auf diesem System wird die neueste Version des Internet Explorers (IE11)" _
+     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird die neueste Version des Internet Explorers (IE11)" _
                            & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
   Else
-     MsgBox(0x2040, "Information", "On this system, the most recent version of Internet Explorer (IE11)" _
+     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, the most recent version of Internet Explorer (IE11)" _
                            & @LF & "will be automatically installed, when you start the updating process.")
   EndIf
 EndIf
 If ( BuildUpgradeEnforced() > 0 ) Then
   If BuildUpgradeAvailable($scriptdir, 1) Then
     If $gergui Then
-      MsgBox(0x2040, "Information", "Auf diesem System wird das Feature Update über Enablement Package automatisch installiert, wenn Sie die Aktualisierung starten.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird das Feature Update über Enablement Package automatisch installiert, wenn Sie die Aktualisierung starten.")
     Else
-      MsgBox(0x2040, "Information", "On this system, the Feature Update via Enablement Package will be automatically installed, when you start the updating process.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, the Feature Update via Enablement Package will be automatically installed, when you start the updating process.")
     EndIf
   Else
     If $gergui Then
-      MsgBox(0x2030, "Warnung", "Auf diesem System wird eine nicht unterstützte Version von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann." & @LF & "Die Update-Ermittlung kann fehlende Updates für Windows melden.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warnung", "Auf diesem System wird eine nicht unterstützte Version von Windows 10 ausgeführt, welche nicht automatisch aktualisiert werden kann." & @LF & "Die Update-Ermittlung kann fehlende Updates für Windows melden.")
     Else
-      MsgBox(0x2030, "Warning", "This system is running a version of Windows 10, which cannot be automatically upgraded to a supported one." & @LF & "The dynamic update search might report missing updates for Windows.")
+      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONWARNING, $MB_OK), "Warning", "This system is running a version of Windows 10, which cannot be automatically upgraded to a supported one." & @LF & "The dynamic update search might report missing updates for Windows.")
     EndIf
   EndIf
 EndIf
@@ -836,13 +838,13 @@ While 1
     Case $autoreboot         ; Automatic reboot check box toggled
       If IsCheckBoxChecked($autoreboot) Then
         If $gergui Then
-          If MsgBox(0x2134, "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
                                & @LF & "temporär die Benutzerkontensteuerung (UAC), falls erforderlich." _
                                & @LF & "Möchten Sie fortsetzen?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(0x2134, "Warning", "The option 'Automatic reboot and recall' temporarily" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Automatic reboot and recall' temporarily" _
                                & @LF & "disables the User Account Control (UAC), if required." _
                                & @LF & "Do you wish to proceed?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
@@ -851,7 +853,7 @@ While 1
       EndIf
       If ( (IsCheckBoxChecked($autoreboot)) AND (DriveGetType($scriptdir) = "Network") ) Then
         If $gergui Then
-          If MsgBox(0x2134, "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
                                & @LF & "Die Option 'Automatisch neu starten und fortsetzen'" _
                                & @LF & "funktioniert nur dann ohne Benutzereingriff," _
                                & @LF & "wenn diese Freigabe anonymen Zugriff erlaubt." _
@@ -859,7 +861,7 @@ While 1
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(0x2134, "Warning", @ScriptName & " was started from a network share." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", @ScriptName & " was started from a network share." _
                                & @LF & "The option 'Automatic reboot and recall'" _
                                & @LF & "does only work without user interaction," _
                                & @LF & "if this share permits anonymous access." _
@@ -979,11 +981,11 @@ While 1
         $dllCallResult = DllCall("kernel32.dll", "bool", "Wow64DisableWow64FsRedirection", "ptr*", DllStructGetPtr($pRedirect))
         If (@error <> 0) OR (NOT $dllCallResult[0]) Then
           If $gergui Then
-            MsgBox(0x2010, "Fehler", "Fehler #" & @error & " (Rückgabewert: " & $dllCallResult[0] _
+            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " (Rückgabewert: " & $dllCallResult[0] _
                                    & ", API-Fehlercode: " & _WinAPI_GetLastError() & ")" _
                                    & " beim Aufruf von Wow64DisableWow64FsRedirection.")
           Else
-            MsgBox(0x2010, "Error", "Error #" & @error & " (Return value: " & $dllCallResult[0] _
+            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " (Return value: " & $dllCallResult[0] _
                                   & ", API error code: " & _WinAPI_GetLastError() & ")" _
                                   & " when calling Wow64DisableWow64FsRedirection.")
           EndIf
@@ -992,11 +994,11 @@ While 1
       EndIf
       If Run(@ComSpec & " /D /C Update.cmd" & $options, $scriptdir, @SW_HIDE) = 0 Then
         If $gergui Then
-          MsgBox(0x2010, "Fehler", "Fehler #" & @error & " beim Aufruf von" _
+          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " beim Aufruf von" _
                            & @LF & @ComSpec & " /D /C Update.cmd" & $options & " in" _
                            & @LF & $scriptdir & ".")
         Else
-          MsgBox(0x2010, "Error", "Error #" & @error & " when calling" _
+          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " when calling" _
                           & @LF & @ComSpec & " /D /C Update.cmd" & $options & " in" _
                           & @LF & $scriptdir & ".")
         EndIf
@@ -1006,10 +1008,10 @@ While 1
         DllCall("kernel32.dll", "bool", "Wow64RevertWow64FsRedirection", "ptr", $pRedirect)
         If (@error <> 0) OR (_WinAPI_GetLastError() <> 0) Then
           If $gergui Then
-            MsgBox(0x2010, "Fehler", "Fehler #" & @error & " (API-Fehlercode: " & _WinAPI_GetLastError() & ")" _
+            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " (API-Fehlercode: " & _WinAPI_GetLastError() & ")" _
                                    & " beim Aufruf von Wow64RevertWow64FsRedirection.")
           Else
-            MsgBox(0x2010, "Error", "Error #" & @error & " (API error code: " & _WinAPI_GetLastError() & ")" _
+            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " (API error code: " & _WinAPI_GetLastError() & ")" _
                                   & " when calling Wow64RevertWow64FsRedirection.")
           EndIf
         EndIf
