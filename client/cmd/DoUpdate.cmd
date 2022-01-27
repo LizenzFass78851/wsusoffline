@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b13)
+set WSUSOFFLINE_VERSION=12.7 (b14)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -544,30 +544,82 @@ rem supported on Windows 10 only
 if "%OS_VER_MAJOR%"=="" goto SkipBuildUpgrade
 if %OS_VER_MAJOR% LSS 10 goto SkipBuildUpgrade
 
-rem enforced Build upgrade (e.g. 1903 -> 1909)
+rem enforced Build upgrade (e.g. 19041 -> 19042)
 set WOU_BUILDUPGRADE_OLDBUILD=
 set WOU_BUILDUPGRADE_MINREVIS=
 set WOU_BUILDUPGRADE_PREUPD=
 set WOU_BUILDUPGRADE_NEWBUILD=
 set WOU_BUILDUPGRADE_EPKGID=
 if not exist ..\static\StaticUpdateIds-BuildUpgradesForced.txt goto SkipForcedBuildUpgrade
+set WOU_BUILDUPGRADE_FOUNDPREUPD=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
+if "%OS_ARCH%"=="x64" (set OS_SEARCH_DIR=%OS_NAME%-%OS_ARCH%) else (set OS_SEARCH_DIR=%OS_NAME%)
 for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgradesForced.txt) do (
   if "%OS_VER_BUILD%"=="%%a" (
     if "!WOU_BUILDUPGRADE_NEWBUILD!"=="" (
-      set WOU_BUILDUPGRADE_OLDBUILD=%%a
-      set WOU_BUILDUPGRADE_MINREVIS=%%b
-      set WOU_BUILDUPGRADE_PREUPD=%%c
-      set WOU_BUILDUPGRADE_NEWBUILD=%%d
-      set WOU_BUILDUPGRADE_EPKGID=%%e
+      set WOU_BUILDUPGRADE_FOUNDEPKG=0
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      set WOU_BUILDUPGRADE_FOUNDPREUPD=0
+      if %OS_VER_REVIS% GEQ %%b set WOU_BUILDUPGRADE_FOUNDPREUPD=1
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="1" (
+        if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="1" (
+          set WOU_BUILDUPGRADE_OLDBUILD=%%a
+          set WOU_BUILDUPGRADE_MINREVIS=%%b
+          set WOU_BUILDUPGRADE_PREUPD=%%c
+          set WOU_BUILDUPGRADE_NEWBUILD=%%d
+          set WOU_BUILDUPGRADE_EPKGID=%%e
+        )
+      )
     ) else if "%%d" GEQ "!WOU_BUILDUPGRADE_NEWBUILD!" (
-      set WOU_BUILDUPGRADE_OLDBUILD=%%a
-      set WOU_BUILDUPGRADE_MINREVIS=%%b
-      set WOU_BUILDUPGRADE_PREUPD=%%c
-      set WOU_BUILDUPGRADE_NEWBUILD=%%d
-      set WOU_BUILDUPGRADE_EPKGID=%%e
+      set WOU_BUILDUPGRADE_FOUNDEPKG=0
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      set WOU_BUILDUPGRADE_FOUNDPREUPD=0
+      if %OS_VER_REVIS% GEQ %%b set WOU_BUILDUPGRADE_FOUNDPREUPD=1
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="1" (
+        if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="1" (
+          set WOU_BUILDUPGRADE_OLDBUILD=%%a
+          set WOU_BUILDUPGRADE_MINREVIS=%%b
+          set WOU_BUILDUPGRADE_PREUPD=%%c
+          set WOU_BUILDUPGRADE_NEWBUILD=%%d
+          set WOU_BUILDUPGRADE_EPKGID=%%e
+        )
+      )
     )
   )
 )
+set OS_SEARCH_DIR=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
 if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipForcedBuildUpgrade
 if "%WOU_BUILDUPGRADE_MINREVIS%"=="" goto SkipForcedBuildUpgrade
 if "%WOU_BUILDUPGRADE_PREUPD%"=="" goto SkipForcedBuildUpgrade
@@ -576,7 +628,7 @@ if "%WOU_BUILDUPGRADE_EPKGID%"=="" goto SkipForcedBuildUpgrade
 
 call :Log "Info: A feature upgrade from build %WOU_BUILDUPGRADE_OLDBUILD% to %WOU_BUILDUPGRADE_NEWBUILD% is enforced"
 
-rem If "StaticUpdateIds-BuildUpgradesForced.txt" says "19041->19042" while "StaticUpdateIds-BuildUpgrades.txt" says "19041->19044" and the user wants a build upgrade, go straight to 19044
+rem If "StaticUpdateIds-BuildUpgradesForced.txt" says "19041 -> 19042" while "StaticUpdateIds-BuildUpgrades.txt" says "19041 -> 19044" and the user wants a build upgrade, go straight to 19044
 if "%DO_UPGRADES%"=="/upgradebuilds" (goto CheckBuildUpgradeOptional)
 rem otherwise go to 19042
 if %OS_VER_REVIS% GEQ %WOU_BUILDUPGRADE_MINREVIS% (goto PerformBuildUpgrade) else (goto PrepareBuildUpgrade)
@@ -593,23 +645,75 @@ set WOU_BUILDUPGRADE_EPKGID=
 echo Checking for feature upgrades via enablement package...
 :CheckBuildUpgradeOptional
 if not exist ..\static\StaticUpdateIds-BuildUpgrades.txt goto SkipBuildUpgrade
+set WOU_BUILDUPGRADE_FOUNDPREUPD=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
+if "%OS_ARCH%"=="x64" (set OS_SEARCH_DIR=%OS_NAME%-%OS_ARCH%) else (set OS_SEARCH_DIR=%OS_NAME%)
 for /F "tokens=1,2,3,4,5 delims=," %%a in (..\static\StaticUpdateIds-BuildUpgrades.txt) do (
   if "%OS_VER_BUILD%"=="%%a" (
     if "!WOU_BUILDUPGRADE_NEWBUILD!"=="" (
-      set WOU_BUILDUPGRADE_OLDBUILD=%%a
-      set WOU_BUILDUPGRADE_MINREVIS=%%b
-      set WOU_BUILDUPGRADE_PREUPD=%%c
-      set WOU_BUILDUPGRADE_NEWBUILD=%%d
-      set WOU_BUILDUPGRADE_EPKGID=%%e
+      set WOU_BUILDUPGRADE_FOUNDEPKG=0
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      set WOU_BUILDUPGRADE_FOUNDPREUPD=0
+      if %OS_VER_REVIS% GEQ %%b set WOU_BUILDUPGRADE_FOUNDPREUPD=1
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="1" (
+        if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="1" (
+          set WOU_BUILDUPGRADE_OLDBUILD=%%a
+          set WOU_BUILDUPGRADE_MINREVIS=%%b
+          set WOU_BUILDUPGRADE_PREUPD=%%c
+          set WOU_BUILDUPGRADE_NEWBUILD=%%d
+          set WOU_BUILDUPGRADE_EPKGID=%%e
+        )
+      )
     ) else if "%%d" GEQ "!WOU_BUILDUPGRADE_NEWBUILD!" (
-      set WOU_BUILDUPGRADE_OLDBUILD=%%a
-      set WOU_BUILDUPGRADE_MINREVIS=%%b
-      set WOU_BUILDUPGRADE_PREUPD=%%c
-      set WOU_BUILDUPGRADE_NEWBUILD=%%d
-      set WOU_BUILDUPGRADE_EPKGID=%%e
+      set WOU_BUILDUPGRADE_FOUNDEPKG=0
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%e*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDEPKG=1)
+      )
+      set WOU_BUILDUPGRADE_FOUNDPREUPD=0
+      if %OS_VER_REVIS% GEQ %%b set WOU_BUILDUPGRADE_FOUNDPREUPD=1
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="0" (
+        dir /b ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.cab ..\%OS_SEARCH_DIR%\glb\%OS_VER_BUILD_INTERNAL%\*%%c*.msu >nul 2>&1
+        if "!errorlevel!"=="0" (set WOU_BUILDUPGRADE_FOUNDPREUPD=1)
+      )
+      if "!WOU_BUILDUPGRADE_FOUNDEPKG!"=="1" (
+        if "!WOU_BUILDUPGRADE_FOUNDPREUPD!"=="1" (
+          set WOU_BUILDUPGRADE_OLDBUILD=%%a
+          set WOU_BUILDUPGRADE_MINREVIS=%%b
+          set WOU_BUILDUPGRADE_PREUPD=%%c
+          set WOU_BUILDUPGRADE_NEWBUILD=%%d
+          set WOU_BUILDUPGRADE_EPKGID=%%e
+        )
+      )
     )
   )
 )
+set OS_SEARCH_DIR=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
+set WOU_BUILDUPGRADE_FOUNDEPKG=
 if "%WOU_BUILDUPGRADE_OLDBUILD%"=="" goto SkipBuildUpgrade
 if "%WOU_BUILDUPGRADE_MINREVIS%"=="" goto SkipBuildUpgrade
 if "%WOU_BUILDUPGRADE_PREUPD%"=="" goto SkipBuildUpgrade

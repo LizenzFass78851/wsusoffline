@@ -1862,6 +1862,7 @@ Community Edition 12.6.1 -- 24.12.2021
 Community Edition 12.7 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-2.7 (Special thanks to H. Buhrmester)
 - [work in progress] Support added for Windows 11
+- "feature upgrades via enablement package" mechanism now allows updating to older, but still supported builds (Thanks to "aker")
 - Included Download URLs for Windows 10 21H2
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.30.30708.0 (Thanks to "harry" and "aker")
