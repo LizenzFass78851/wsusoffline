@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b15) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b16) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -814,13 +814,13 @@ While 1
     Case $msse                 ; Microsoft Security Essentials check box toggled
       If IsCheckBoxChecked($msse) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Bei der Installation der Microsoft Security Essentials wird eine" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Bei der Installation der Microsoft Security Essentials wird eine" _
                                & @LF & "obligate 'Windows Genuine Advantage' (WGA)-Prüfung durchgeführt." _
                                & @LF & "Möchten Sie fortsetzen?") = 7 Then
             GUICtrlSetState($msse, $GUI_UNCHECKED)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The installation of Microsoft Security Essentials performs" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The installation of Microsoft Security Essentials performs" _
                                & @LF & "a mandatory 'Windows Genuine Advantage' (WGA) check." _
                                & @LF & "Do you wish to proceed?") = 7 Then
             GUICtrlSetState($msse, $GUI_UNCHECKED)
@@ -834,13 +834,13 @@ While 1
           OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
           OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) ) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
                                & @LF & "temporär die Benutzerkontensteuerung (UAC), falls erforderlich." _
                                & @LF & "Möchten Sie fortsetzen?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Automatic reboot and recall' temporarily" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Automatic reboot and recall' temporarily" _
                                & @LF & "disables the User Account Control (UAC), if required." _
                                & @LF & "Do you wish to proceed?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
@@ -849,7 +849,7 @@ While 1
       EndIf
       If ( (IsCheckBoxChecked($autoreboot)) AND (DriveGetType($scriptdir) = "Network") ) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
                                & @LF & "Die Option 'Automatisch neu starten und fortsetzen'" _
                                & @LF & "funktioniert nur dann ohne Benutzereingriff," _
                                & @LF & "wenn diese Freigabe anonymen Zugriff erlaubt." _
@@ -857,7 +857,7 @@ While 1
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", @ScriptName & " was started from a network share." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", @ScriptName & " was started from a network share." _
                                & @LF & "The option 'Automatic reboot and recall'" _
                                & @LF & "does only work without user interaction," _
                                & @LF & "if this share permits anonymous access." _

@@ -16,7 +16,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b15)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b16)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -1786,13 +1786,13 @@ While 1
     Case $includesp         ; 'Include Service Packs' check box toggled
       If ( (NOT IsCheckBoxChecked($includesp)) AND (IniRead($inifilename, $ini_section_opts, $opts_token_cleanup, $enabled) = $enabled) ) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Service-Packs ausschließen' werden bereits" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Service-Packs ausschließen' werden bereits" _
                                & @LF & "heruntergeladene Service Packs für die selektierten Produkte gelöscht." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($includesp, $GUI_CHECKED)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Exclude Service Packs' will delete" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Exclude Service Packs' will delete" _
                                & @LF & "previously downloaded Service Packs for the selected products." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($includesp, $GUI_CHECKED)
@@ -1858,13 +1858,13 @@ While 1
     Case $usbclean          ; 'Clean up target directory' check box toggled
       If IsCheckBoxChecked($usbclean) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Zielverzeichnis bereinigen'" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch die Option 'Zielverzeichnis bereinigen'" _
                                & @LF & "werden dort bereits existierende Dateien gelöscht." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($usbclean, $GUI_UNCHECKED)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Clean up target directory'" _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Clean up target directory'" _
                                & @LF & "will delete existing files there." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($usbclean, $GUI_UNCHECKED)
@@ -1875,7 +1875,7 @@ While 1
     Case $imageonly         ; Image only checkbox toggled
       If IsCheckBoxChecked($imageonly) Then
         If $gergui Then
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch diese Option verhindern Sie das Herunterladen aktueller Updates." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Durch diese Option verhindern Sie das Herunterladen aktueller Updates." _
                                & @LF & "Dies kann ein erhöhtes Sicherheitsrisiko für das Zielsystem bedeuten." _
                                & @LF & "Möchten Sie fortsetzen?") = $msgbox_btn_no Then
             GUICtrlSetState($imageonly, $GUI_UNCHECKED)
@@ -1885,7 +1885,7 @@ While 1
             GUICtrlSetState($shutdown, $GUI_UNCHECKED + $GUI_DISABLE)
           EndIf
         Else
-          If BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "This option prevents downloading of recent updates." _
+          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "This option prevents downloading of recent updates." _
                                & @LF & "This may increase security risks for the target system." _
                                & @LF & "Do you wish to proceed?") = $msgbox_btn_no Then
             GUICtrlSetState($imageonly, $GUI_UNCHECKED)
