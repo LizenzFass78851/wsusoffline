@@ -1,3 +1,29 @@
+Linux download scripts, version 1.22-ESR
+
+   Release date: 2022-01-30
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.11 hotfix2
+
+   Bug fixes
+
+    * Better handling of filenames with spaces, thanks to mani
+    * Fixed a possible permission error with find, thanks to Steve A
+
+   Internal Changes
+
+    * OptionList.txt and OptionList-wildcard.txt are updated from GitLab
+    * Obsolete files from restructuring of C++ updates are removed
+    * Unified extract_ids_and_filenames and extract_ids_and_filenames_dos
+    * Simplified the creation of the selection dialogs
+    * Renamed function verify_embedded_checksums to verify_embedded_hashes
+    * Cosmetics
+
+   Removed Features
+
+    * Removed support for Silverlight
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 1.21-ESR
 
    Release date: 2021-07-24

@@ -2,7 +2,7 @@
 #
 # Filename: 40-included-downloads.bash
 #
-# Copyright (C) 2016-2021 Hartmut Buhrmester
+# Copyright (C) 2016-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -300,7 +300,7 @@ function calculate_static_downloads_dotnet ()
                 -e "NDP452-KB2901907-"     \
                 -e "NDP46-KB3045557-"      \
                 -e "NDP461-KB3102436-"     \
-                -e "NDP462-KB3151800-"     \
+                -e "ndp462-kb3151800-"     \
                 -e "NDP47-KB3186497-"      \
                 -e "NDP471-KB4033342-"     \
                 -e "NDP472-KB4054530-"     \

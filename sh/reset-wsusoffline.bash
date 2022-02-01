@@ -2,8 +2,8 @@
 
 # Filename: reset-wsusoffline.bash
 #
-# Copyright (C) 2021 Hartmut Buhrmester
-#                    <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
+# Copyright (C) 2021-2022 Hartmut Buhrmester
+#                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
 #

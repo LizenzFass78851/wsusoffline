@@ -2,7 +2,7 @@
 #
 # Filename: rebuild-integrity-database.bash
 #
-# Copyright (C) 2018-2021 Hartmut Buhrmester
+# Copyright (C) 2018-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -160,7 +160,7 @@ function parse_directories ()
         then
             log_info_message "Found directory ${download_directory}"
             create_integrity_database "${download_directory}" "${hashes_file}"
-            verify_embedded_checksums "${download_directory}" "${hashes_file}"
+            verify_embedded_hashes "${download_directory}" "${hashes_file}"
             echo ""
         else
             log_debug_message "Directory ${download_directory} was not found"

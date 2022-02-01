@@ -2,8 +2,8 @@
 
 # Filename: open-support-pages.bash
 #
-# Copyright (C) 2019-2021 Hartmut Buhrmester
-#                    <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
+# Copyright (C) 2019-2022 Hartmut Buhrmester
+#                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
 #

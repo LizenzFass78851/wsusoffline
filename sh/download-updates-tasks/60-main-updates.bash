@@ -2,7 +2,7 @@
 #
 # Filename: 60-main-updates.bash
 #
-# Copyright (C) 2016-2021 Hartmut Buhrmester
+# Copyright (C) 2016-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -225,7 +225,7 @@ function process_main_update ()
         cleanup_client_directory "${download_dir}" "${valid_links}" "${valid_static_links}" "${valid_dynamic_links}"
         verify_digital_file_signatures "${download_dir}"
         create_integrity_database "${hashed_dir}" "${hashes_file}"
-        verify_embedded_checksums "${hashed_dir}" "${hashes_file}"
+        verify_embedded_hashes "${hashed_dir}" "${hashes_file}"
 
         if same_error_count "${initial_errors}"
         then
@@ -320,8 +320,8 @@ function calculate_static_updates ()
         # - Internet Explorer 11 on Windows Server 2012
         if [[ -s "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" ]]
         then
-            filter_default_languages \
-                "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt" \
+            filter_default_languages                                              \
+                "${current_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"  \
                 >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
         fi
     done
@@ -364,7 +364,7 @@ function calculate_static_updates ()
                 if [[ -s "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" ]]
                 then
                     cat_dos "../static/StaticDownloadLinks-ie11-w62-${arch}-${current_lang}.txt" \
-                        >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
+                         >> "${temp_dir}/StaticDownloadLinks-${name}-${arch}-${lang}.txt"
                 fi
             done
         ;;
@@ -503,7 +503,7 @@ function calculate_dynamic_updates ()
             # /usr/share/i18n/locales (Debian 10 Buster)
             #
             # TODO: This should be an associative array (map in Python),
-            # but it ws implemented like that for compatibility with
+            # but it was implemented like that for compatibility with
             # the ancient bash 3.x in Mac OS X.
             case "${lang}" in
                 deu) locale="de-de";;
@@ -562,7 +562,7 @@ function calculate_dynamic_updates ()
     # the UpdateIds (in form of UUIDs) to the file names.
     log_info_message "Creating file 7, UpdateTable-${name}-${lang}.csv ..."
     mkdir -p "../client/UpdateTable"
-    extract_ids_and_filenames_dos                                  \
+    extract_ids_and_filenames                                      \
         "${temp_dir}/update-ids-and-locations-${name}-${lang}.txt" \
         "../client/UpdateTable/UpdateTable-${name}-${lang}.csv"
 

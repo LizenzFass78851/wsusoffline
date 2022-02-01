@@ -2,7 +2,7 @@
 #
 # Filename: 10-show-selection-dialogs-with-dialog.bash
 #
-# Copyright (C) 2018-2021 Hartmut Buhrmester
+# Copyright (C) 2018-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -53,8 +53,104 @@
 
 settings_file="update-generator.ini"
 
+# Define an indexed array of the keys only
+#
+# This list could also be extracted from the associative array below,
+# but then the keys would be listed in a seemingly random order. For
+# example, try:
+#
+#   declare -p all_values
+#   printf '%s\n' "${!all_values[@]}"
+#
+# To write the settings file in a recognizable order, the list of all
+# keys must be created manually.
+
+
+# Separating the keys simplifies the generation of the selection dialogs
+update_keys=(
+    w60 w60-x64 w61 w61-x64
+    w62-x64 w63 w63-x64 w100 w100-x64
+    o2k13 o2k13-x64 o2k16 o2k16-x64
+    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
+    all-ofc-x86
+)
+
+language_keys=(
+    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
+    plk ptg ptb rus esn sve trk
+)
+
+option_keys=(
+    sp cpp dotnet wddefs
+    msse wddefs8
+)
+
+# Combining the keys to a single list simplifies the handling of the
+# settings file
+all_keys=(
+    "${update_keys[@]}"
+    "${language_keys[@]}"
+    "${option_keys[@]}"
+)
+
+declare -A all_labels=(
+    [w60]="Windows Server 2008, 32-bit"
+    [w60-x64]="Windows Server 2008, 64-bit"
+    [w61]="Windows 7, 32-bit"
+    [w61-x64]="Windows 7 / Server 2008 R2, 64-bit"
+    [w62-x64]="Windows Server 2012, 64-bit             (deprecated)"
+    [w63]="Windows 8.1, 32-bit                     (deprecated)"
+    [w63-x64]="Windows 8.1 / Server 2012 R2, 64-bit    (deprecated)"
+    [w100]="Windows 10, 32-bit                      (deprecated)"
+    [w100-x64]="Windows 10 / Server 2016/2019, 64-bit   (deprecated)"
+    [o2k13]="Office 2013, 32-bit                     (deprecated)"
+    [o2k13-x64]="Office 2013, 32-bit and 64-bit          (deprecated)"
+    [o2k16]="Office 2016, 32-bit                     (deprecated)"
+    [o2k16-x64]="Office 2016, 32-bit and 64-bit          (deprecated)"
+    [all]="All Windows and Office updt, 32/64-bit  (deprecated)"
+    [all-x86]="All Windows and Office updates, 32-bit  (deprecated)"
+    [all-x64]="All Windows and Office updates, 64-bit  (deprecated)"
+    [all-win]="All Windows updates, 32-bit and 64-bit  (deprecated)"
+    [all-win-x86]="All Windows updates, 32-bit             (deprecated)"
+    [all-win-x64]="All Windows updates, 64-bit             (deprecated)"
+    [all-ofc]="All Office updates, 32-bit and 64-bit   (deprecated)"
+    [all-ofc-x86]="All Office updates, 32-bit              (deprecated)"
+    [deu]="German"
+    [enu]="English"
+    [ara]="Arabic"
+    [chs]="Chinese (Simplified)"
+    [cht]="Chinese (Traditional)"
+    [csy]="Czech"
+    [dan]="Danish"
+    [nld]="Dutch"
+    [fin]="Finnish"
+    [fra]="French"
+    [ell]="Greek"
+    [heb]="Hebrew"
+    [hun]="Hungarian"
+    [ita]="Italian"
+    [jpn]="Japanese"
+    [kor]="Korean"
+    [nor]="Norwegian"
+    [plk]="Polish"
+    [ptg]="Portuguese"
+    [ptb]="Portuguese (Brazil)"
+    [rus]="Russian"
+    [esn]="Spanish"
+    [sve]="Swedish"
+    [trk]="Turkish"
+    [sp]="Service Packs"
+    [cpp]="Visual C++ Runtime Libraries"
+    [dotnet]=".NET Frameworks"
+    [wddefs]="Windows Defender updates for Windows Vista and 7"
+    [msse]="Microsoft Security Essentials"
+    [wddefs8]="Windows Defender updates for Windows 8, 8.1 and 10"
+)
+
+
 # The associative array "all_values" is used to hold all values throughout
 # the script. The meaning of the values changes three times:
+#
 # - The array is set to the DEFAULT values at this point.
 # - The LAST USED settings are read from an ini file, if existing.
 # - After displaying the selections dialogs with the utility "dialog",
@@ -115,29 +211,6 @@ declare -A all_values=(
     [wddefs8]="off"
 )
 
-# Define an indexed array of the keys only
-#
-# This list could also be extracted from the associative array above,
-# but then the keys would be listed in a seemingly random order. For
-# example, try:
-#
-# declare -p all_values
-# printf '%s\n' "${!all_values[@]}"
-#
-# So, to write the settings file in a recognizable order, the list of
-# all keys must be created manually.
-
-all_keys=(
-    w60 w60-x64 w61 w61-x64
-    w62-x64 w63 w63-x64 w100 w100-x64
-    o2k13 o2k13-x64 o2k16 o2k16-x64
-    all all-x86 all-x64 all-win all-win-x86 all-win-x64 all-ofc
-    all-ofc-x86
-    deu enu ara chs cht csy dan nld fin fra ell heb hun ita jpn kor nor
-    plk ptg ptb rus esn sve trk
-    sp cpp dotnet wddefs
-    msse wddefs8
-)
 
 download_parameters=()
 
@@ -231,6 +304,9 @@ function check_dialog_result_code ()
 function show_selection_dialogs_with_dialog ()
 {
     local key=""
+    local -a updates_dialog=()
+    local -a languages_dialog=()
+    local -a options_dialog=()
     local update_list=""
     local update_list_csv=""
     local language_list=""
@@ -239,67 +315,28 @@ function show_selection_dialogs_with_dialog ()
     local next_option=""
     local confirmation=""
 
-    # The three selection dialogs must be defined locally to have the
-    # values evaluated at runtime.
-    local -a updates_dialog=(
-        w60           "Windows Server 2008, 32-bit"                           "${all_values[w60]}"
-        w60-x64       "Windows Server 2008, 64-bit"                           "${all_values[w60-x64]}"
-        w61           "Windows 7, 32-bit"                                     "${all_values[w61]}"
-        w61-x64       "Windows 7 / Server 2008 R2, 64-bit"                    "${all_values[w61-x64]}"
-        w62-x64       "Windows Server 2012, 64-bit             (deprecated)"  "${all_values[w62-x64]}"
-        w63           "Windows 8.1, 32-bit                     (deprecated)"  "${all_values[w63]}"
-        w63-x64       "Windows 8.1 / Server 2012 R2, 64-bit    (deprecated)"  "${all_values[w63-x64]}"
-        w100          "Windows 10, 32-bit                      (deprecated)"  "${all_values[w100]}"
-        w100-x64      "Windows 10 / Server 2016/2019, 64-bit   (deprecated)"  "${all_values[w100-x64]}"
-        o2k13         "Office 2013, 32-bit                     (deprecated)"  "${all_values[o2k13]}"
-        o2k13-x64     "Office 2013, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k13-x64]}"
-        o2k16         "Office 2016, 32-bit                     (deprecated)"  "${all_values[o2k16]}"
-        o2k16-x64     "Office 2016, 32-bit and 64-bit          (deprecated)"  "${all_values[o2k16-x64]}"
-        all           "All Windows and Office updt, 32/64-bit  (deprecated)"  "${all_values[all]}"
-        all-x86       "All Windows and Office updates, 32-bit  (deprecated)"  "${all_values[all-x86]}"
-        all-x64       "All Windows and Office updates, 64-bit  (deprecated)"  "${all_values[all-x64]}"
-        all-win       "All Windows updates, 32-bit and 64-bit  (deprecated)"  "${all_values[all-win]}"
-        all-win-x86   "All Windows updates, 32-bit             (deprecated)"  "${all_values[all-win-x86]}"
-        all-win-x64   "All Windows updates, 64-bit             (deprecated)"  "${all_values[all-win-x64]}"
-        all-ofc       "All Office updates, 32-bit and 64-bit   (deprecated)"  "${all_values[all-ofc]}"
-        all-ofc-x86   "All Office updates, 32-bit              (deprecated)"  "${all_values[all-ofc-x86]}"
-    )
+    # The selection dialogs must be defined locally to have the values
+    # evaluated at runtime.
+    for key in "${update_keys[@]}"
+    do
+        updates_dialog+=( "${key}"
+                          "${all_labels[${key}]}"
+                          "${all_values[${key}]}" )
+    done
 
-    local -a languages_dialog=(
-        deu   "German"                  "${all_values[deu]}"
-        enu   "English"                 "${all_values[enu]}"
-        ara   "Arabic"                  "${all_values[ara]}"
-        chs   "Chinese (Simplified)"    "${all_values[chs]}"
-        cht   "Chinese (Traditional)"   "${all_values[cht]}"
-        csy   "Czech"                   "${all_values[csy]}"
-        dan   "Danish"                  "${all_values[dan]}"
-        nld   "Dutch"                   "${all_values[nld]}"
-        fin   "Finnish"                 "${all_values[fin]}"
-        fra   "French"                  "${all_values[fra]}"
-        ell   "Greek"                   "${all_values[ell]}"
-        heb   "Hebrew"                  "${all_values[heb]}"
-        hun   "Hungarian"               "${all_values[hun]}"
-        ita   "Italian"                 "${all_values[ita]}"
-        jpn   "Japanese"                "${all_values[jpn]}"
-        kor   "Korean"                  "${all_values[kor]}"
-        nor   "Norwegian"               "${all_values[nor]}"
-        plk   "Polish"                  "${all_values[plk]}"
-        ptg   "Portuguese"              "${all_values[ptg]}"
-        ptb   "Portuguese (Brazil)"     "${all_values[ptb]}"
-        rus   "Russian"                 "${all_values[rus]}"
-        esn   "Spanish"                 "${all_values[esn]}"
-        sve   "Swedish"                 "${all_values[sve]}"
-        trk   "Turkish"                 "${all_values[trk]}"
-    )
+    for key in "${language_keys[@]}"
+    do
+        languages_dialog+=( "${key}"
+                            "${all_labels[${key}]}"
+                            "${all_values[${key}]}" )
+    done
 
-    local -a options_dialog=(
-        sp        "Service Packs"                                        "${all_values[sp]}"
-        cpp       "Visual C++ Runtime Libraries"                         "${all_values[cpp]}"
-        dotnet    ".NET Frameworks"                                      "${all_values[dotnet]}"
-        wddefs    "Windows Defender updates for Windows Vista and 7"     "${all_values[wddefs]}"
-        msse      "Microsoft Security Essentials"                        "${all_values[msse]}"
-        wddefs8   "Windows Defender updates for Windows 8, 8.1 and 10"   "${all_values[wddefs8]}"
-    )
+    for key in "${option_keys[@]}"
+    do
+        options_dialog+=( "${key}"
+                          "${all_labels[${key}]}"
+                          "${all_values[${key}]}" )
+    done
 
     # Update selection: On the first run, there are no updates
     # preselected. The selection dialog must be repeated, until a
@@ -313,11 +350,12 @@ function show_selection_dialogs_with_dialog ()
         #
         # For some reason, the negation with "!" does not seem to work
         # in this case.
-        if update_list="$(dialog \
-            --title "Update selection" \
-            --stdout \
-            --checklist "Please select your updates:" 0 0 0 \
-                        "${updates_dialog[@]}" \
+        if update_list="$( dialog                      \
+            --title "Update selection"                 \
+            --stdout                                   \
+            --checklist "Please select your updates:"  \
+                         0 0 0                         \
+                        "${updates_dialog[@]}"         \
             )"
         then
             :
@@ -331,11 +369,12 @@ function show_selection_dialogs_with_dialog ()
     # but at least one language must be returned.
     while [[ -z "${language_list}" ]]
     do
-        if language_list="$(dialog \
-            --title "Language selection" \
-            --stdout \
-            --checklist "Please select your languages:" 0 0 0 \
-                        "${languages_dialog[@]}" \
+        if language_list="$( dialog                      \
+            --title "Language selection"                 \
+            --stdout                                     \
+            --checklist "Please select your languages:"  \
+                         0 0 0                           \
+                        "${languages_dialog[@]}"         \
             )"
         then
             :
@@ -347,11 +386,12 @@ function show_selection_dialogs_with_dialog ()
     # Optional downloads: Service packs are selected on the first run,
     # but they can be unchecked. The list of optional downloads may be
     # empty, if none is selected.
-    if option_list="$(dialog \
-        --title "Optional downloads" \
-        --stdout \
-        --checklist "Please select the downloads to include:" 0 0 0 \
-                    "${options_dialog[@]}" \
+    if option_list="$( dialog                                  \
+        --title "Optional downloads"                           \
+        --stdout                                               \
+        --checklist "Please select the downloads to include:"  \
+                     0 0 0                                     \
+                    "${options_dialog[@]}"                     \
         )"
     then
         :

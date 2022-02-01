@@ -1,3 +1,60 @@
+NEWS for the Linux download scripts, version 1.22-ESR
+
+   Release date: 2022-01-30
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.11 hotfix2
+
+   Bug fixes
+
+    * Better handling of filenames with spaces, thanks to mani
+
+      The URLs in the file ../static/StaticDownloadLinks-win-glb.txt used
+      to be percent-encoded, e.g. spaces in the filename were replaced
+      with %20. This was changed in Community Edition 11.9.11, and now
+      spaces are used literally.
+
+      The necessary changes for the Linux scripts are already included
+      in Community Edition 11.9.11 hotfix1.
+
+    * Fixed a possible permission error with find, thanks to Steve A
+
+      A permission error may occur, if the command "find" tries to
+      parse the lost+found directory, which is found at the root level
+      of partitions.
+
+      Replacing find with a list of known dummy files should fix this.
+
+
+   Internal Changes
+
+    * The files OptionList.txt and OptionList-wildcard.txt are updated
+      from GitLab
+
+    * Obsolete files from restructuring of C++ updates are removed
+
+    * Unified the functions extract_ids_and_filenames and
+      extract_ids_and_filenames_dos, as in the master development branch
+
+    * Simplified the creation of the selection dialogs
+
+    * Renamed function verify_embedded_checksums to verify_embedded_hashes
+
+    * Cosmetics
+
+
+   Removed Features
+
+    * Removed support for Silverlight
+
+      Microsoft discontinued support for Silverlight on October 12th,
+      2021.
+
+      References for Silverlight were removed from the files
+      ExcludeListISO-*.txt and  ExcludeListUSB-*.txt in the
+      wsusoffline/sh/exclude directory.
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 1.21-ESR
 
    Release date: 2021-07-24

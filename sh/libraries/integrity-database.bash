@@ -2,7 +2,7 @@
 #
 # Filename: integrity-database.bash
 #
-# Copyright (C) 2016-2021 Hartmut Buhrmester
+# Copyright (C) 2016-2022 Hartmut Buhrmester
 #                         <wsusoffline-scripts-xxyh@hartmut-buhrmester.de>
 #
 # License
@@ -224,7 +224,7 @@ function create_integrity_database ()
 }
 
 
-# function verify_embedded_checksums
+# function verify_embedded_hashes
 #
 # This function checks the integrity of the downloaded files by comparing
 # the SHA-1 hashes, which are embedded into the filenames of most security
@@ -260,11 +260,11 @@ function create_integrity_database ()
 # Note: The file format could also be detected from the hashes files
 # themselves, by examining the fields in the second line. But this doesn't
 # seem to be necessary, because the functions create_integrity_database
-# and verify_embedded_checksums are run in turn: First a new hashdeep file
+# and verify_embedded_hashes are run in turn: First a new hashdeep file
 # is created, and then the embedded hashes in that file are verified. Then
 # both functions will use the same setting for the fast_mode.
 
-function verify_embedded_checksums ()
+function verify_embedded_hashes ()
 {
     local hashed_dir="$1"
     local hashes_pathname="$2"

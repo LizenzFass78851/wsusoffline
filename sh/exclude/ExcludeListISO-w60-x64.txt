@@ -35,10 +35,6 @@ w100-x64
 # Exclude 32-bit subdirectories of msse and wddefs
 x86-glb
 
-# Windows Server 2008, 64-bit, needs the 32-bit version of Silverlight
-# -- https://forums.wsusoffline.net/viewtopic.php?f=5&t=8258#p26844
-Silverlight_x64.exe
-
 # Exclude .NET Framework 4.8
 NDP48-*
 ndp48-*
