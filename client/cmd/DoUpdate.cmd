@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b16)
+set WSUSOFFLINE_VERSION=11.9.12 (b17)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -804,7 +804,7 @@ if "%ERR_LEVEL%"=="3010" (
   set REBOOT_REQUIRED=1
 ) else if "%ERR_LEVEL%"=="3011" (
   set RECALL_REQUIRED=1
-) else if "%ERR_LEVEL% NEQ "0" (
+) else if "%ERR_LEVEL%" NEQ "0" (
   if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
   echo. >%SystemRoot%\Temp\wou_ie_tried.txt
   goto IEInstalled
