@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b13)
+set WSUSOFFLINE_VERSION=11.9.12 (b15)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -514,6 +514,14 @@ goto SkipSPInst
 :SPw110
 goto SkipSPInst
 :SPInstalled
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipSPInst
@@ -618,6 +626,14 @@ call :Log "Info: Updated Servicing Stack to %SERVICING_VER_NEW%"
 set SERVICING_VER=%SERVICING_VER_NEW%
 goto CheckServicingStack
 :ServicingStackInstalled
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipServicingStack
@@ -1000,6 +1016,14 @@ goto IEInstalled
 :IEw100
 :IEInstalled
 set IE_FILENAME=
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipIEInst
@@ -1289,6 +1313,14 @@ if "%ERR_LEVEL%"=="3010" (
   goto InstError
 )
 :SkipDotNet4CustomInst
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 
@@ -1511,6 +1543,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 rem FIXME 11.9.8 (b69)
 set RECALL_REQUIRED=1
 :SkipTSCInst
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 if "%RECALL_REQUIRED%"=="1" goto Installed
 
@@ -1838,6 +1878,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
 )
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 
@@ -2045,6 +2093,14 @@ set NISDEFS_VER_TARGET_MINOR=
 set NISDEFS_VER_TARGET_BUILD=
 set NISDEFS_VER_TARGET_REVIS=
 
+if "%BOOT_MODE%"=="/autoreboot" (
+  if "%REBOOT_REQUIRED%"=="1" (
+    if "%RECALL_REQUIRED%"=="0" (
+      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+      set RECALL_REQUIRED=1
+    )
+  )
+)
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 goto NoUpdates
