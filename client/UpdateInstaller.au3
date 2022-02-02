@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b18) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b19) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -90,6 +90,7 @@ Dim Const $path_rel_hashes            = "\md\"
 Dim Const $path_rel_autologon         = "\bin\Autologon.exe"
 Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
+Dim Const $path_rel_instdotnet35      = "\dotnet\dotnetfx35.exe"
 Dim Const $path_rel_instdotnet46      = "\dotnet\ndp462-kb3151800-x86-x64-allos-*.exe"
 Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48-x86-x64-allos-*.exe"
 Dim Const $path_rel_msse_x86          = "\msse\x86-glb\MSEInstall-x86-*.exe"
@@ -328,6 +329,10 @@ Func CPPPresent($basepath)
   Return FileExists($basepath & $path_rel_cpp)
 EndFunc
 
+Func DotNet35InstPresent($basepath)
+  Return FileExists($basepath & $path_rel_instdotnet35)
+EndFunc
+
 Func DotNet4InstPresent($basepath)
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
     Return FileExists($basepath & $path_rel_instdotnet46)
@@ -459,7 +464,8 @@ Else
   $dotnet35 = GUICtrlCreateCheckbox("Install .NET Framework 3.5", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
 If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
-  OR (DotNet35Version() = $target_version_dotnet35) ) Then
+  OR (DotNet35Version() = $target_version_dotnet35) _
+  OR (((@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008")) AND (NOT DotNet35InstPresent($scriptdir))) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_dotnet35, $disabled) = $enabled Then
