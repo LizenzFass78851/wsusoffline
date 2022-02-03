@@ -1870,3 +1870,4 @@ Community Edition 12.7 -- ??.??.????
 - January 2022 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 / 2022 (x86/x64) systems
 - Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")
 - Fix: DoUpdate.cmd fails to recall the update when autoreboot is enabled, if an update requests a reboot instead of a recall (Thanks to "rbronca")
+- Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")
