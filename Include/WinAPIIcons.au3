@@ -7,7 +7,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIIcons.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -18,6 +18,32 @@
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
+Global Const $IDC_UNKNOWN = 0 ; Unknown cursor
+Global Const $IDC_APPSTARTING = 32650 ; Standard arrow and small hourglass
+Global Const $IDC_ARROW = 32512 ; Standard arrow
+Global Const $IDC_CROSS = 32515 ; Crosshair
+Global Const $IDC_HAND = 32649 ; Hand cursor
+Global Const $IDC_HELP = 32651 ; Arrow and question mark
+Global Const $IDC_IBEAM = 32513 ; I-beam
+Global Const $IDC_NO = 32648 ; Slashed circle
+Global Const $IDC_SIZEALL = 32646 ; Four-pointed arrow pointing N, S, E, and W
+Global Const $IDC_SIZENESW = 32643 ; Double-pointed arrow pointing NE and SW
+Global Const $IDC_SIZENS = 32645 ; Double-pointed arrow pointing N and S
+Global Const $IDC_SIZENWSE = 32642 ; Double-pointed arrow pointing NW and SE
+Global Const $IDC_SIZEWE = 32644 ; Double-pointed arrow pointing W and E
+Global Const $IDC_UPARROW = 32516 ; Vertical arrow
+Global Const $IDC_WAIT = 32514 ; Hourglass
+
+Global Const $IDI_APPLICATION = 32512 ; Application icon
+Global Const $IDI_ASTERISK = 32516 ; Asterisk icon
+Global Const $IDI_EXCLAMATION = 32515 ; Exclamation point icon
+Global Const $IDI_HAND = 32513 ; Stop sign icon
+Global Const $IDI_QUESTION = 32514 ; Question-mark icon
+Global Const $IDI_WINLOGO = 32517 ; Windows logo icon. Windows XP: Application icon
+Global Const $IDI_SHIELD = 32518
+Global Const $IDI_ERROR = $IDI_HAND
+Global Const $IDI_INFORMATION = $IDI_ASTERISK
+Global Const $IDI_WARNING = $IDI_EXCLAMATION
 ; ===============================================================================================================================
 
 #EndRegion Global Variables and Constants
@@ -78,8 +104,8 @@ Func _WinAPI_AddIconTransparency($hIcon, $iPercent = 50, $bDelete = False)
 	Local $ahBitmap[2]
 
 	Local $tICONINFO = DllStructCreate($tagICONINFO)
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	For $i = 0 To 1
 		$ahBitmap[$i] = DllStructGetData($tICONINFO, $i + 4)
@@ -96,13 +122,13 @@ Func _WinAPI_AddIconTransparency($hIcon, $iPercent = 50, $bDelete = False)
 			$iError = 21
 			ExitLoop
 		EndIf
-		$aRet = DllCall('user32.dll', 'lresult', 'CallWindowProc', 'PTR', __TransparencyProc(), 'hwnd', 0, _
+		$aCall = DllCall('user32.dll', 'lresult', 'CallWindowProc', 'PTR', __TransparencyProc(), 'hwnd', 0, _
 				'uint', $iPercent, 'wparam', DllStructGetPtr($tBITMAP), 'lparam', 0)
-		If @error Or Not $aRet[0] Then
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 30
 			ExitLoop
 		EndIf
-		If $aRet[0] = -1 Then
+		If $aCall[0] = -1 Then
 			$hResult = _WinAPI_CreateEmptyIcon(DllStructGetData($tBITMAP, 'bmWidth'), DllStructGetData($tBITMAP, 'bmHeight'))
 		Else
 			$hResult = _WinAPI_CreateIconIndirect($hDib, $ahBitmap[0])
@@ -131,10 +157,10 @@ EndFunc   ;==>_WinAPI_AddIconTransparency
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_CopyIcon($hIcon)
-	Local $aResult = DllCall("user32.dll", "handle", "CopyIcon", "handle", $hIcon)
+	Local $aCall = DllCall("user32.dll", "handle", "CopyIcon", "handle", $hIcon)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CopyIcon
 
 ; #FUNCTION# ====================================================================================================================
@@ -146,9 +172,8 @@ Func _WinAPI_Create32BitHICON($hIcon, $bDelete = False)
 	Local $aDIB[2][2] = [[0, 0], [0, 0]]
 
 	Local $tICONINFO = DllStructCreate($tagICONINFO)
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
-	If @error Then Return SetError(@error, @extended, 0)
-	If Not $aRet[0] Then Return SetError(10, 0, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	For $i = 0 To 1
 		$ahBitmap[$i] = DllStructGetData($tICONINFO, $i + 4)
@@ -178,9 +203,9 @@ Func _WinAPI_Create32BitHICON($hIcon, $bDelete = False)
 		Next
 		_WinAPI_DeleteDC($hSrcDC)
 		_WinAPI_DeleteDC($hDstDC)
-		$aRet = DllCall('user32.dll', 'lresult', 'CallWindowProc', 'ptr', __XORProc(), 'ptr', 0, _
+		$aCall = DllCall('user32.dll', 'lresult', 'CallWindowProc', 'ptr', __XORProc(), 'ptr', 0, _
 				'uint', $aSize[0] * $aSize[1] * 4, 'wparam', $aDIB[0][1], 'lparam', $aDIB[1][1])
-		If Not @error And $aRet[0] Then
+		If Not @error And $aCall[0] Then
 			$hResult = _WinAPI_CreateIconIndirect($aDIB[1][0], $ahBitmap[0])
 		EndIf
 	EndIf
@@ -232,12 +257,12 @@ EndFunc   ;==>_WinAPI_CreateEmptyIcon
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateIcon($hInstance, $iWidth, $iHeight, $iPlanes, $iBitsPixel, $pANDBits, $pXORBits)
-	Local $aRet = DllCall('user32.dll', 'handle', 'CreateIcon', 'handle', $hInstance, 'int', $iWidth, 'int', $iHeight, _
+	Local $aCall = DllCall('user32.dll', 'handle', 'CreateIcon', 'handle', $hInstance, 'int', $iWidth, 'int', $iHeight, _
 			'byte', $iPlanes, 'byte', $iBitsPixel, 'struct*', $pANDBits, 'struct*', $pXORBits)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateIcon
 
 ; #FUNCTION# ====================================================================================================================
@@ -245,12 +270,12 @@ EndFunc   ;==>_WinAPI_CreateIcon
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateIconFromResourceEx($pData, $iSize, $bIcon = True, $iXDesiredPixels = 0, $iYDesiredPixels = 0, $iFlags = 0)
-	Local $aRet = DllCall('user32.dll', 'handle', 'CreateIconFromResourceEx', 'ptr', $pData, 'dword', $iSize, 'bool', $bIcon, _
+	Local $aCall = DllCall('user32.dll', 'handle', 'CreateIconFromResourceEx', 'ptr', $pData, 'dword', $iSize, 'bool', $bIcon, _
 			'dword', 0x00030000, 'int', $iXDesiredPixels, 'int', $iYDesiredPixels, 'uint', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateIconFromResourceEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -265,11 +290,11 @@ Func _WinAPI_CreateIconIndirect($hBitmap, $hMask, $iXHotspot = 0, $iYHotspot = 0
 	DllStructSetData($tICONINFO, 4, $hMask)
 	DllStructSetData($tICONINFO, 5, $hBitmap)
 
-	Local $aRet = DllCall('user32.dll', 'handle', 'CreateIconIndirect', 'struct*', $tICONINFO)
+	Local $aCall = DllCall('user32.dll', 'handle', 'CreateIconIndirect', 'struct*', $tICONINFO)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateIconIndirect
 
 ; #FUNCTION# ====================================================================================================================
@@ -277,10 +302,10 @@ EndFunc   ;==>_WinAPI_CreateIconIndirect
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_DestroyIcon($hIcon)
-	Local $aResult = DllCall("user32.dll", "bool", "DestroyIcon", "handle", $hIcon)
+	Local $aCall = DllCall("user32.dll", "bool", "DestroyIcon", "handle", $hIcon)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DestroyIcon
 
 ; #FUNCTION# ====================================================================================================================
@@ -299,7 +324,7 @@ Func _WinAPI_ExtractIcon($sIcon, $iIndex, $bSmall = False)
 
 	DllCall('shell32.dll', 'uint', 'ExtractIconExW', 'wstr', $sIcon, 'int', $iIndex, 'ptr', $pLarge, 'ptr', $pSmall, 'uint', 1)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
 	Return DllStructGetData($tPtr, 1)
 EndFunc   ;==>_WinAPI_ExtractIcon
@@ -309,11 +334,11 @@ EndFunc   ;==>_WinAPI_ExtractIcon
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_ExtractIconEx($sFilePath, $iIndex, $paLarge, $paSmall, $iIcons)
-	Local $aResult = DllCall("shell32.dll", "uint", "ExtractIconExW", "wstr", $sFilePath, "int", $iIndex, "struct*", $paLarge, _
+	Local $aCall = DllCall("shell32.dll", "uint", "ExtractIconExW", "wstr", $sFilePath, "int", $iIndex, "struct*", $paLarge, _
 			"struct*", $paSmall, "uint", $iIcons)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ExtractIconEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -321,9 +346,9 @@ EndFunc   ;==>_WinAPI_ExtractIconEx
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FileIconInit($bRestore = True)
-	Local $aRet = DllCall('shell32.dll', 'int', 660, 'int', $bRestore)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('shell32.dll', 'int', 660, 'int', $bRestore)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_FileIconInit
@@ -334,8 +359,8 @@ EndFunc   ;==>_WinAPI_FileIconInit
 ; ===============================================================================================================================
 Func _WinAPI_GetIconDimension($hIcon)
 	Local $tICONINFO = DllStructCreate($tagICONINFO)
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetIconInfo', 'handle', $hIcon, 'struct*', $tICONINFO)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Local $tSIZE = _WinAPI_GetBitmapDimension(DllStructGetData($tICONINFO, 5))
 	For $i = 4 To 5
@@ -352,8 +377,8 @@ EndFunc   ;==>_WinAPI_GetIconDimension
 ; ===============================================================================================================================
 Func _WinAPI_GetIconInfo($hIcon)
 	Local $tInfo = DllStructCreate($tagICONINFO)
-	Local $aRet = DllCall("user32.dll", "bool", "GetIconInfo", "handle", $hIcon, "struct*", $tInfo)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "bool", "GetIconInfo", "handle", $hIcon, "struct*", $tInfo)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Local $aIcon[6]
 	$aIcon[0] = True
@@ -374,14 +399,14 @@ Func _WinAPI_GetIconInfoEx($hIcon)
 	;	Local $tIIEX = DllStructCreate($tagICONINFOEX)
 	DllStructSetData($tIIEX, 1, DllStructGetSize($tIIEX))
 
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetIconInfoExW', 'handle', $hIcon, 'struct*', $tIIEX)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetIconInfoExW', 'handle', $hIcon, 'struct*', $tIIEX)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aResult[8]
+	Local $aRet[8]
 	For $i = 0 To 7
-		$aResult[$i] = DllStructGetData($tIIEX, $i + 2)
+		$aRet[$i] = DllStructGetData($tIIEX, $i + 2)
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetIconInfoEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -394,11 +419,11 @@ Func _WinAPI_LoadIcon($hInstance, $sName)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('user32.dll', 'handle', 'LoadIconW', 'handle', $hInstance, $sTypeOfName, $sName)
+	Local $aCall = DllCall('user32.dll', 'handle', 'LoadIconW', 'handle', $hInstance, $sTypeOfName, $sName)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadIcon
 
 ; #FUNCTION# ====================================================================================================================
@@ -411,11 +436,11 @@ Func _WinAPI_LoadIconMetric($hInstance, $sName, $iMetric)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('comctl32.dll', 'long', 'LoadIconMetric', 'handle', $hInstance, $sTypeOfName, $sName, 'int', $iMetric, 'handle*', 0)
+	Local $aCall = DllCall('comctl32.dll', 'long', 'LoadIconMetric', 'handle', $hInstance, $sTypeOfName, $sName, 'int', $iMetric, 'handle*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Return $aRet[4]
+	Return $aCall[4]
 EndFunc   ;==>_WinAPI_LoadIconMetric
 
 ; #FUNCTION# ====================================================================================================================
@@ -428,12 +453,12 @@ Func _WinAPI_LoadIconWithScaleDown($hInstance, $sName, $iWidth, $iHeight)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('comctl32.dll', 'long', 'LoadIconWithScaleDown', 'handle', $hInstance, $sTypeOfName, $sName, _
+	Local $aCall = DllCall('comctl32.dll', 'long', 'LoadIconWithScaleDown', 'handle', $hInstance, $sTypeOfName, $sName, _
 			'int', $iWidth, 'int', $iHeight, 'handle*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Return $aRet[5]
+	Return $aCall[5]
 EndFunc   ;==>_WinAPI_LoadIconWithScaleDown
 
 ; #FUNCTION# ====================================================================================================================
@@ -454,12 +479,12 @@ EndFunc   ;==>_WinAPI_LoadShell32Icon
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_LookupIconIdFromDirectoryEx($pData, $bIcon = True, $iXDesiredPixels = 0, $iYDesiredPixels = 0, $iFlags = 0)
-	Local $aRet = DllCall('user32.dll', 'int', 'LookupIconIdFromDirectoryEx', 'ptr', $pData, 'bool', $bIcon, _
+	Local $aCall = DllCall('user32.dll', 'int', 'LookupIconIdFromDirectoryEx', 'ptr', $pData, 'bool', $bIcon, _
 			'int', $iXDesiredPixels, 'int', $iYDesiredPixels, 'uint', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LookupIconIdFromDirectoryEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -471,8 +496,8 @@ Func _WinAPI_MirrorIcon($hIcon, $bDelete = False)
 		$hIcon = _WinAPI_CopyIcon($hIcon)
 	EndIf
 
-	Local $aRet = DllCall('comctl32.dll', 'int', 414, 'ptr', 0, 'ptr*', $hIcon)
-	If @error Or Not $aRet[0] Then
+	Local $aCall = DllCall('comctl32.dll', 'int', 414, 'ptr', 0, 'ptr*', $hIcon)
+	If @error Or Not $aCall[0] Then
 		Local $iError = @error + 10
 		If $hIcon And Not $bDelete Then
 			_WinAPI_DestroyIcon($hIcon)
@@ -480,7 +505,7 @@ Func _WinAPI_MirrorIcon($hIcon, $bDelete = False)
 		Return SetError($iError, 0, 0)
 	EndIf
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_MirrorIcon
 
 #EndRegion Public Functions

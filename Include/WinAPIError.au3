@@ -5,7 +5,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Windows API
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Windows API calls that have been translated to AutoIt functions.
 ; Author(s) .....: Paul Campbell (PaulIA)
 ; Dll ...........: kernel32.dll
@@ -44,10 +44,10 @@ Global Const $FORMAT_MESSAGE_ARGUMENT_ARRAY = 0x00002000
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_Beep($iFreq = 500, $iDuration = 1000)
-	Local $aResult = DllCall("kernel32.dll", "bool", "Beep", "dword", $iFreq, "dword", $iDuration)
+	Local $aCall = DllCall("kernel32.dll", "bool", "Beep", "dword", $iFreq, "dword", $iDuration)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_Beep
 
 ; #FUNCTION# ====================================================================================================================
@@ -57,45 +57,46 @@ EndFunc   ;==>_WinAPI_Beep
 Func _WinAPI_FormatMessage($iFlags, $pSource, $iMessageID, $iLanguageID, ByRef $pBuffer, $iSize, $vArguments)
 	Local $sBufferType = "struct*"
 	If IsString($pBuffer) Then $sBufferType = "wstr"
-	Local $aResult = DllCall("kernel32.dll", "dword", "FormatMessageW", "dword", $iFlags, "struct*", $pSource, "dword", $iMessageID, _
+	Local $aCall = DllCall("kernel32.dll", "dword", "FormatMessageW", "dword", $iFlags, "struct*", $pSource, "dword", $iMessageID, _
 			"dword", $iLanguageID, $sBufferType, $pBuffer, "dword", $iSize, "ptr", $vArguments)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Then Return SetError(@error, @extended, 0)
+	If Not $aCall[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
 
-	If $sBufferType = "wstr" Then $pBuffer = $aResult[5]
-	Return $aResult[0]
+	If $sBufferType = "wstr" Then $pBuffer = $aCall[5]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FormatMessage
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetErrorMessage($iCode, $iLanguage = 0, Const $_iCurrentError = @error, Const $_iCurrentExtended = @extended)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'FormatMessageW', 'dword', 0x1000, 'ptr', 0, 'dword', $iCode, _
+Func _WinAPI_GetErrorMessage($iCode, $iLanguage = 0, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'FormatMessageW', 'dword', BitOR($FORMAT_MESSAGE_FROM_SYSTEM, $FORMAT_MESSAGE_IGNORE_INSERTS), 'ptr', 0, 'dword', $iCode, _
 			'dword', $iLanguage, 'wstr', '', 'dword', 4096, 'ptr', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, '')
-	; If Not $aRet[0] Then Return SetError(1000, 0, '')
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
+	; If Not $aCall[0] Then Return SetError(1000, 0, '')
 
-	Return SetError($_iCurrentError, $_iCurrentExtended, StringRegExpReplace($aRet[5], '[' & @LF & ',' & @CR & ']*\Z', ''))
+	Return SetError($_iCallerError, $_iCallerExtended, StringRegExpReplace($aCall[5], '[' & @LF & ',' & @CR & ']*\Z', ''))
 EndFunc   ;==>_WinAPI_GetErrorMessage
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _WinAPI_GetLastError(Const $_iCurrentError = @error, Const $_iCurrentExtended = @extended)
-	Local $aResult = DllCall("kernel32.dll", "dword", "GetLastError")
-	Return SetError($_iCurrentError, $_iCurrentExtended, $aResult[0])
+Func _WinAPI_GetLastError(Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
+	Local $aCall = DllCall("kernel32.dll", "dword", "GetLastError")
+	Return SetError($_iCallerError, $_iCallerExtended, $aCall[0])
 EndFunc   ;==>_WinAPI_GetLastError
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: jpm, danielkza, Valik
 ; ===============================================================================================================================
-Func _WinAPI_GetLastErrorMessage(Const $_iCurrentError = @error, Const $_iCurrentExtended = @extended)
+Func _WinAPI_GetLastErrorMessage(Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
 	Local $iLastError = _WinAPI_GetLastError()
 	Local $tBufferPtr = DllStructCreate("ptr")
 
-	Local $nCount = _WinAPI_FormatMessage(BitOR($FORMAT_MESSAGE_ALLOCATE_BUFFER, $FORMAT_MESSAGE_FROM_SYSTEM), _
+	Local $nCount = _WinAPI_FormatMessage(BitOR($FORMAT_MESSAGE_ALLOCATE_BUFFER, $FORMAT_MESSAGE_FROM_SYSTEM, $FORMAT_MESSAGE_IGNORE_INSERTS), _
 			0, $iLastError, 0, $tBufferPtr, 0, 0)
 	If @error Then Return SetError(-@error, @extended, "")
 
@@ -111,7 +112,7 @@ Func _WinAPI_GetLastErrorMessage(Const $_iCurrentError = @error, Const $_iCurren
 		DllCall("kernel32.dll", "handle", "LocalFree", "handle", $pBuffer)
 	EndIf
 
-	Return SetError($_iCurrentError, $_iCurrentExtended, $sText)
+	Return SetError($_iCallerError, $_iCallerExtended, $sText)
 EndFunc   ;==>_WinAPI_GetLastErrorMessage
 
 ; #FUNCTION# ====================================================================================================================
@@ -135,10 +136,10 @@ Func _WinAPI_MessageBeep($iType = 1)
 			$iSound = -1
 	EndSwitch
 
-	Local $aResult = DllCall("user32.dll", "bool", "MessageBeep", "uint", $iSound)
+	Local $aCall = DllCall("user32.dll", "bool", "MessageBeep", "uint", $iSound)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MessageBeep
 
 ; #FUNCTION# ====================================================================================================================
@@ -154,9 +155,9 @@ EndFunc   ;==>_WinAPI_MsgBox
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _WinAPI_SetLastError($iErrorCode, Const $_iCurrentError = @error, Const $_iCurrentExtended = @extended)
+Func _WinAPI_SetLastError($iErrorCode, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
 	DllCall("kernel32.dll", "none", "SetLastError", "dword", $iErrorCode)
-	Return SetError($_iCurrentError, $_iCurrentExtended, Null)
+	Return SetError($_iCallerError, $_iCallerExtended, Null)
 EndFunc   ;==>_WinAPI_SetLastError
 
 ; #FUNCTION# ====================================================================================================================
@@ -173,7 +174,7 @@ EndFunc   ;==>_WinAPI_ShowError
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_ShowLastError($sText = '', $bAbort = False, $iLanguage = 0, Const $_iCurrentError = @error, Const $_iCurrentExtended = @extended)
+Func _WinAPI_ShowLastError($sText = '', $bAbort = False, $iLanguage = 0, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
 	Local $sError
 
 	Local $iLastError = _WinAPI_GetLastError()
@@ -198,7 +199,7 @@ Func _WinAPI_ShowLastError($sText = '', $bAbort = False, $iLanguage = 0, Const $
 		EndIf
 	EndIf
 
-	Return SetError($_iCurrentError, $_iCurrentExtended, 1)
+	Return SetError($_iCallerError, $_iCallerExtended, 1)
 EndFunc   ;==>_WinAPI_ShowLastError
 
 ; #FUNCTION# ====================================================================================================================

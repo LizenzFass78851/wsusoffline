@@ -4,7 +4,7 @@
 #include "GuiStatusBar.au3"
 #include "Memory.au3"
 #include "SendMessage.au3"
-#include "ToolTipConstants.au3" ; for _GUICtrlEdit_ShowBalloonTip()
+#include "ToolTipConstants.au3" ; For _GUICtrlEdit_ShowBalloonTip()
 #include "UDFGlobalID.au3"
 #include "WinAPIConv.au3"
 #include "WinAPIHObj.au3"
@@ -12,7 +12,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Edit
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Edit control management.
 ;                  An edit control is a rectangular control window typically used in a dialog box to permit the user to enter
@@ -20,7 +20,6 @@
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-Global $__g_hEditLastWnd
 
 ; ===============================================================================================================================
 
@@ -98,6 +97,7 @@ Global Const $__EDITCONSTANT_SB_SCROLLCARET = 4
 ; _GUICtrlEdit_SetLimitText
 ; _GUICtrlEdit_SetMargins
 ; _GUICtrlEdit_SetModify
+; _GUICtrlEdit_SetPadding
 ; _GUICtrlEdit_SetPasswordChar
 ; _GUICtrlEdit_SetReadOnly
 ; _GUICtrlEdit_SetRECT
@@ -171,12 +171,12 @@ EndFunc   ;==>_GUICtrlEdit_CanUndo
 Func _GUICtrlEdit_CharFromPos($hWnd, $iX, $iY)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Local $aReturn[2]
+	Local $aRet[2]
 
 	Local $iRet = _SendMessage($hWnd, $EM_CHARFROMPOS, 0, _WinAPI_MakeLong($iX, $iY))
-	$aReturn[0] = _WinAPI_LoWord($iRet)
-	$aReturn[1] = _WinAPI_HiWord($iRet)
-	Return $aReturn
+	$aRet[0] = _WinAPI_LoWord($iRet)
+	$aRet[1] = _WinAPI_HiWord($iRet)
+	Return $aRet
 EndFunc   ;==>_GUICtrlEdit_CharFromPos
 
 ; #FUNCTION# ====================================================================================================================
@@ -218,7 +218,7 @@ Func _GUICtrlEdit_Destroy(ByRef $hWnd)
 
 	Local $iDestroyed = 0
 	If IsHWnd($hWnd) Then
-		If _WinAPI_InProcess($hWnd, $__g_hEditLastWnd) Then
+		If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
 			Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 			Local $hParent = _WinAPI_GetParent($hWnd)
 			$iDestroyed = _WinAPI_DestroyWindow($hWnd)
@@ -376,7 +376,7 @@ Func _GUICtrlEdit_GetCueBanner($hWnd)
 
 	Local $tText = DllStructCreate("wchar[4096]")
 	If _SendMessage($hWnd, $EM_GETCUEBANNER, $tText, 4096, 0, "struct*") <> 1 Then Return SetError(-1, 0, "")
-	Return _WinAPI_WideCharToMultiByte($tText)
+	Return DllStructGetData($tText, 1)
 EndFunc   ;==>_GUICtrlEdit_GetCueBanner
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -897,6 +897,21 @@ Func _GUICtrlEdit_SetModify($hWnd, $bModified)
 EndFunc   ;==>_GUICtrlEdit_SetModify
 
 ; #FUNCTION# ====================================================================================================================
+; Author ........: Danyfirex
+; Modified.......: mLipok, Zedna
+; ===============================================================================================================================
+Func _GUICtrlEdit_SetPadding($hWnd, $iCX, $iCY)
+    Local $tRect = DllStructCreate($tagRECT)
+    If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
+    _SendMessage($hWnd, $EM_GETRECT, 0, $tRect, 0, "wparam", "struct*")
+    $tRect.left += $iCX
+    $tRect.right -= $iCX
+    $tRect.top += $iCY
+    $tRect.bottom -= $iCY
+    Return _SendMessage($hWnd, $EM_SETRECT, 0, $tRect, 0, "wparam", "struct*")
+EndFunc   ;==>_GUICtrlEdit_SetPadding
+
+; #FUNCTION# ====================================================================================================================
 ; Author ........: Gary Frost
 ; Modified.......:
 ; ===============================================================================================================================
@@ -1038,13 +1053,15 @@ EndFunc   ;==>_GUICtrlEdit_SetWordBreakProc
 Func _GUICtrlEdit_ShowBalloonTip($hWnd, $sTitle, $sText, $iIcon)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Local $tTitle = _WinAPI_MultiByteToWideChar($sTitle)
-	Local $tText = _WinAPI_MultiByteToWideChar($sText)
+	Local $tBuffer = DllStructCreate('wchar Title[' & StringLen($sTitle) + 1 & '];wchar Text[' & StringLen($sText) + 1 & ']')
+	DllStructSetData($tBuffer, 'Title', $sTitle)
+	DllStructSetData($tBuffer, 'Text', $sText)
+
 	Local $tTT = DllStructCreate($__tagEDITBALLOONTIP)
-	DllStructSetData($tTT, "Size", DllStructGetSize($tTT))
-	DllStructSetData($tTT, "Title", DllStructGetPtr($tTitle))
-	DllStructSetData($tTT, "Text", DllStructGetPtr($tText))
-	DllStructSetData($tTT, "Icon", $iIcon)
+	DllStructSetData($tTT, 'Size', DllStructGetSize($tTT))
+	DllStructSetData($tTT, 'Title', DllStructGetPtr($tBuffer, 'Title'))
+	DllStructSetData($tTT, 'Text', DllStructGetPtr($tBuffer, 'Text'))
+	DllStructSetData($tTT, 'Icon', $iIcon)
 	Return _SendMessage($hWnd, $EM_SHOWBALLOONTIP, 0, $tTT, 0, "wparam", "struct*") <> 0
 EndFunc   ;==>_GUICtrlEdit_ShowBalloonTip
 

@@ -12,7 +12,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIDiag.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -92,9 +92,9 @@ Func _WinAPI_DisplayStruct($tStruct, $sStruct = '', $sTitle = '', $iItem = 0, $i
 		$iStyle = BitOR($iStyle, 0x00000008)
 	EndIf
 	$__g_hFRDlg = GUICreate($sTitle, 570, 620, -1, -1, 0x80C70000, $iStyle, $hParent)
-	Local $idLV = GUICtrlCreateListView('#|Member|Offset|Type|Size|Value', 0, 0, 570, 620, 0x0000800D, (($__WINVER < 0x0600) ? 0x00010031 : 0x00010030))
+	Local $idLV = GUICtrlCreateListView('#|Member|Offset|Type|Size|Value', 0, 0, 570, 620, 0x0000800D, ((_WinAPI_GetVersion() < 6.0) ? 0x00010031 : 0x00010030))
 	Local $hLV = GUICtrlGetHandle($idLV)
-	If $__WINVER >= 0x0600 Then
+	If _WinAPI_GetVersion() >= 6.0 Then
 		_WinAPI_SetWindowTheme($hLV, 'Explorer')
 	EndIf
 	GUICtrlSetResizing(-1, 0x0066)
@@ -374,18 +374,18 @@ Func _WinAPI_EnumDllProc($sFilePath, $sMask = '', $iFlags = 0)
 
 	$__g_vEnum = 0
 
-	Local $iPE, $aRet, $iError = 0, $hLibrary = 0, $vWOW64 = Default
+	Local $iPE, $aCall, $iError = 0, $hLibrary = 0, $vWOW64 = Default
 	If _WinAPI_IsWow64Process() Then
-		$aRet = DllCall('kernel32.dll', 'bool', 'Wow64DisableWow64FsRedirection', 'ptr*', 0)
-		If Not @error And $aRet[0] Then $vWOW64 = $aRet[1]
+		$aCall = DllCall('kernel32.dll', 'bool', 'Wow64DisableWow64FsRedirection', 'ptr*', 0)
+		If Not @error And $aCall[0] Then $vWOW64 = $aCall[1]
 	EndIf
 	Do
-		$aRet = DllCall('kernel32.dll', 'dword', 'SearchPathW', 'ptr', 0, 'wstr', $sFilePath, 'ptr', 0, 'dword', 4096, 'wstr', '', 'ptr', 0)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall('kernel32.dll', 'dword', 'SearchPathW', 'ptr', 0, 'wstr', $sFilePath, 'ptr', 0, 'dword', 4096, 'wstr', '', 'ptr', 0)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 10
 			ExitLoop
 		EndIf
-		$__g_vExt = $aRet[5]
+		$__g_vExt = $aCall[5]
 		$iPE = _WinAPI_GetPEType($__g_vExt)
 		Switch $iPE
 			Case 0x014C
@@ -396,7 +396,7 @@ Func _WinAPI_EnumDllProc($sFilePath, $sMask = '', $iFlags = 0)
 				$iError = @error + 20
 				ExitLoop
 		EndSwitch
-		$hLibrary = _WinAPI_LoadLibraryEx($__g_vExt, 0x00000003)
+		$hLibrary = _WinAPI_LoadLibraryEx($__g_vExt, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 		If Not $hLibrary Then
 			$iError = @error + 30
 			ExitLoop
@@ -428,26 +428,26 @@ EndFunc   ;==>_WinAPI_EnumDllProc
 Func _WinAPI_GetApplicationRestartSettings($iPID = 0)
 	If Not $iPID Then $iPID = @AutoItPID
 
-	Local $hProcess = DllCall('kernel32.dll', 'handle', 'OpenProcess', 'dword', (($__WINVER < 0x0600) ? 0x00000410 : 0x00001010), _
+	Local $hProcess = DllCall('kernel32.dll', 'handle', 'OpenProcess', 'dword', ((_WinAPI_GetVersion() < 6.0) ? 0x00000410 : 0x00001010), _
 			'bool', 0, 'dword', $iPID)
 	If @error Or Not $hProcess[0] Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'uint', 'GetApplicationRestartSettings', 'handle', $hProcess[0], 'wstr', '', _
+	Local $aCall = DllCall('kernel32.dll', 'uint', 'GetApplicationRestartSettings', 'handle', $hProcess[0], 'wstr', '', _
 			'dword*', 4096, 'dword*', 0)
 	Local $iError, $iExtended = @extended
 	If @error Then
 		$iError = @error
-	ElseIf $aRet[0] Then
+	ElseIf $aCall[0] Then
 		$iError = 10
-		$iExtended = $aRet[0]
+		$iExtended = $aCall[0]
 	EndIf
 	DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hProcess[0])
 	If $iError Then Return SetError($iError, $iExtended, 0)
 
-	Local $aResult[2]
-	$aResult[0] = $aRet[2]
-	$aResult[1] = $aRet[4]
-	Return $aResult
+	Local $aRet[2]
+	$aRet[0] = $aCall[2]
+	$aRet[1] = $aCall[4]
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetApplicationRestartSettings
 
 ; #FUNCTION# ====================================================================================================================
@@ -455,11 +455,11 @@ EndFunc   ;==>_WinAPI_GetApplicationRestartSettings
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetErrorMode()
-	Local $aRet = DllCall('kernel32.dll', 'uint', 'GetErrorMode')
+	Local $aCall = DllCall('kernel32.dll', 'uint', 'GetErrorMode')
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetErrorMode
 
 ; #FUNCTION# ====================================================================================================================
@@ -478,13 +478,13 @@ EndFunc   ;==>_WinAPI_FatalExit
 Func _WinAPI_IsInternetConnected()
 	If Not __DLL('connect.dll') Then Return SetError(103, 0, 0)
 
-	Local $aRet = DllCall('connect.dll', 'long', 'IsInternetConnected')
+	Local $aCall = DllCall('connect.dll', 'long', 'IsInternetConnected')
 	If @error Then Return SetError(@error, @extended, 0)
-	If Not ($aRet[0] = 0 Or $aRet[0] = 1) Then ; not S_OK nor S_FALSE
-		Return SetError(10, $aRet[0], False)
+	If Not ($aCall[0] = 0 Or $aCall[0] = 1) Then ; not S_OK nor S_FALSE
+		Return SetError(10, $aCall[0], False)
 	EndIf
 
-	Return Not $aRet[0]
+	Return Not $aCall[0]
 EndFunc   ;==>_WinAPI_IsInternetConnected
 
 ; #FUNCTION# ====================================================================================================================
@@ -494,13 +494,13 @@ EndFunc   ;==>_WinAPI_IsInternetConnected
 Func _WinAPI_IsNetworkAlive()
 	If Not __DLL('sensapi.dll') Then Return SetError(103, 0, 0)
 
-	Local $aRet = DllCall('sensapi.dll', 'bool', 'IsNetworkAlive', 'int*', 0)
+	Local $aCall = DllCall('sensapi.dll', 'bool', 'IsNetworkAlive', 'int*', 0)
 	Local $iLastError = _WinAPI_GetLastError()
 	If $iLastError Then Return SetError(1, $iLastError, 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, $iLastError, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, $iLastError, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[1]
+	Return $aCall[1]
 EndFunc   ;==>_WinAPI_IsNetworkAlive
 
 ; #FUNCTION# ====================================================================================================================
@@ -508,10 +508,10 @@ EndFunc   ;==>_WinAPI_IsNetworkAlive
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_NtStatusToDosError($iStatus)
-	Local $aRet = DllCall('ntdll.dll', 'ulong', 'RtlNtStatusToDosError', 'long', $iStatus)
+	Local $aCall = DllCall('ntdll.dll', 'ulong', 'RtlNtStatusToDosError', 'long', $iStatus)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_NtStatusToDosError
 
 ; #FUNCTION# ====================================================================================================================
@@ -519,9 +519,9 @@ EndFunc   ;==>_WinAPI_NtStatusToDosError
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_RegisterApplicationRestart($iFlags = 0, $sCmd = '')
-	Local $aRet = DllCall('kernel32.dll', 'long', 'RegisterApplicationRestart', 'wstr', $sCmd, 'dword', $iFlags)
+	Local $aCall = DllCall('kernel32.dll', 'long', 'RegisterApplicationRestart', 'wstr', $sCmd, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_RegisterApplicationRestart
@@ -531,10 +531,10 @@ EndFunc   ;==>_WinAPI_RegisterApplicationRestart
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetErrorMode($iMode)
-	Local $aRet = DllCall('kernel32.dll', 'uint', 'SetErrorMode', 'uint', $iMode)
+	Local $aCall = DllCall('kernel32.dll', 'uint', 'SetErrorMode', 'uint', $iMode)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetErrorMode
 
 ; #FUNCTION# ====================================================================================================================
@@ -632,9 +632,9 @@ EndFunc   ;==>_WinAPI_UniqueHardwareID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UnregisterApplicationRestart()
-	Local $aRet = DllCall('kernel32.dll', 'long', 'UnregisterApplicationRestart')
+	Local $aCall = DllCall('kernel32.dll', 'long', 'UnregisterApplicationRestart')
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_UnregisterApplicationRestart
@@ -674,42 +674,38 @@ EndFunc   ;==>__DlgSubclassProc
 
 Func __EnumDllProcA($hLibrary, $sMask, $iFlags)
 	Local $hProcess, $pAddress = 0, $iInit = 0, $vOpts = Default, $iError = 0
-	Local $sTypeOfMask = 'str'
 	$__g_vEnum = 0
 	Do
-		Local $aRet = DllCall('dbghelp.dll', 'dword', 'SymGetOptions')
+		Local $aCall = DllCall('dbghelp.dll', 'dword', 'SymGetOptions')
 		If @error Then
 			$iError = @error + 10
 			ExitLoop
 		EndIf
-		$vOpts = $aRet[0]
-		$aRet = DllCall('dbghelp.dll', 'dword', 'SymSetOptions', 'dword', BitOR(BitAND($iFlags, 0x00000003), 0x00000204))
-		If @error Or Not $aRet[0] Then
+		$vOpts = $aCall[0]
+		$aCall = DllCall('dbghelp.dll', 'dword', 'SymSetOptions', 'dword', BitOR(BitAND($iFlags, 0x00000003), 0x00000204))
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 20
 			ExitLoop
 		EndIf
 		$hProcess = _WinAPI_GetCurrentProcess()
-		$aRet = DllCall('dbghelp.dll', 'int', 'SymInitialize', 'handle', $hProcess, 'ptr', 0, 'int', 1)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall('dbghelp.dll', 'int', 'SymInitialize', 'handle', $hProcess, 'ptr', 0, 'int', 1)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 30
 			ExitLoop
 		EndIf
 		$iInit = 1
-		$aRet = DllCall('dbghelp.dll', 'uint64', 'SymLoadModule64', 'handle', $hProcess, 'ptr', 0, 'str', $__g_vExt, 'ptr', 0, 'uint64', $hLibrary, 'dword', 0)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall('dbghelp.dll', 'uint64', 'SymLoadModule64', 'handle', $hProcess, 'ptr', 0, 'str', $__g_vExt, 'ptr', 0, 'uint64', $hLibrary, 'dword', 0)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 40
 			ExitLoop
 		EndIf
-		$pAddress = $aRet[0]
+		$pAddress = $aCall[0]
 		Dim $__g_vEnum[501][2] = [[0]]
 		Local $hEnumProc = DllCallbackRegister('__EnumSymbolsProcA', 'int', 'ptr;ulong;lparam')
 		Local $pEnumProc = DllCallbackGetPtr($hEnumProc)
-		If Not StringStripWS($sMask, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$sTypeOfMask = 'ptr'
-			$sMask = 0
-		EndIf
-		$aRet = DllCall('dbghelp.dll', 'int', 'SymEnumSymbols', 'handle', $hProcess, 'uint64', $pAddress, $sTypeOfMask, $sMask, 'ptr', $pEnumProc, 'lparam', 0)
-		If @error Or Not $aRet[0] Or (Not $__g_vEnum[0][0]) Then
+		If Not StringStripWS($sMask, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sMask = Null
+		$aCall = DllCall('dbghelp.dll', 'int', 'SymEnumSymbols', 'handle', $hProcess, 'uint64', $pAddress, 'str', $sMask, 'ptr', $pEnumProc, 'lparam', 0)
+		If @error Or Not $aCall[0] Or (Not $__g_vEnum[0][0]) Then
 			$iError = @error + 50
 			$__g_vEnum = 0
 		EndIf
@@ -734,42 +730,38 @@ EndFunc   ;==>__EnumDllProcA
 
 Func __EnumDllProcW($hLibrary, $sMask, $iFlags)
 	Local $hProcess, $pAddress = 0, $iInit = 0, $vOpts = Default, $iError = 0
-	Local $sTypeOfMask = 'wstr'
 	$__g_vEnum = 0
 	Do
-		Local $aRet = DllCall('dbghelp.dll', 'dword', 'SymGetOptions')
+		Local $aCall = DllCall('dbghelp.dll', 'dword', 'SymGetOptions')
 		If @error Then
 			$iError = @error + 10
 			ExitLoop
 		EndIf
-		$vOpts = $aRet[0]
-		$aRet = DllCall('dbghelp.dll', 'dword', 'SymSetOptions', 'dword', BitOR(BitAND($iFlags, 0x00000003), 0x00000204))
-		If @error Or Not $aRet[0] Then
+		$vOpts = $aCall[0]
+		$aCall = DllCall('dbghelp.dll', 'dword', 'SymSetOptions', 'dword', BitOR(BitAND($iFlags, 0x00000003), 0x00000204))
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 20
 			ExitLoop
 		EndIf
 		$hProcess = _WinAPI_GetCurrentProcess()
-		$aRet = DllCall('dbghelp.dll', 'int', 'SymInitializeW', 'handle', $hProcess, 'ptr', 0, 'int', 1)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall('dbghelp.dll', 'int', 'SymInitializeW', 'handle', $hProcess, 'ptr', 0, 'int', 1)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 30
 			ExitLoop
 		EndIf
 		$iInit = 1
-		$aRet = DllCall('dbghelp.dll', 'uint64', 'SymLoadModuleExW', 'handle', $hProcess, 'ptr', 0, 'wstr', $__g_vExt, 'ptr', 0, 'uint64', $hLibrary, 'dword', 0, 'ptr', 0, 'dword', 0)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall('dbghelp.dll', 'uint64', 'SymLoadModuleExW', 'handle', $hProcess, 'ptr', 0, 'wstr', $__g_vExt, 'ptr', 0, 'uint64', $hLibrary, 'dword', 0, 'ptr', 0, 'dword', 0)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 40
 			ExitLoop
 		EndIf
-		$pAddress = $aRet[0]
+		$pAddress = $aCall[0]
 		Dim $__g_vEnum[501][2] = [[0]]
 		Local $hEnumProc = DllCallbackRegister('__EnumSymbolsProcW', 'int', 'ptr;ulong;lparam')
 		Local $pEnumProc = DllCallbackGetPtr($hEnumProc)
-		If Not StringStripWS($sMask, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$sTypeOfMask = 'ptr'
-			$sMask = 0
-		EndIf
-		$aRet = DllCall('dbghelp.dll', 'int', 'SymEnumSymbolsW', 'handle', $hProcess, 'uint64', $pAddress, $sTypeOfMask, $sMask, 'ptr', $pEnumProc, 'lparam', 0)
-		If @error Or Not $aRet[0] Or Not $__g_vEnum[0][0] Then
+		If Not StringStripWS($sMask, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sMask = Null
+		$aCall = DllCall('dbghelp.dll', 'int', 'SymEnumSymbolsW', 'handle', $hProcess, 'uint64', $pAddress, 'wstr', $sMask, 'ptr', $pEnumProc, 'lparam', 0)
+		If @error Or Not $aCall[0] Or Not $__g_vEnum[0][0] Then
 			$iError = @error + 50
 			$__g_vEnum = 0
 		EndIf
@@ -862,16 +854,16 @@ Func __WinAPIDiag_MD5($sData)
 		$hHash = $hHash[5]
 		Local $tData = DllStructCreate('byte[' & BinaryLen($sData) & ']')
 		DllStructSetData($tData, 1, $sData)
-		Local $aRet = DllCall('advapi32.dll', 'int', 'CryptHashData', 'handle', $hHash, 'struct*', $tData, _
+		Local $aCall = DllCall('advapi32.dll', 'int', 'CryptHashData', 'handle', $hHash, 'struct*', $tData, _
 				'dword', DllStructGetSize($tData), 'dword', 1)
-		If @error Or Not $aRet[0] Then
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 30
 			ExitLoop
 		EndIf
 		$tData = DllStructCreate('byte[16]')
-		$aRet = DllCall('advapi32.dll', 'int', 'CryptGetHashParam', 'handle', $hHash, 'dword', 2, 'struct*', $tData, 'dword*', 16, _
+		$aCall = DllCall('advapi32.dll', 'int', 'CryptGetHashParam', 'handle', $hHash, 'dword', 2, 'struct*', $tData, 'dword*', 16, _
 				'dword', 0)
-		If @error Or Not $aRet[0] Then
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 40
 			ExitLoop
 		EndIf

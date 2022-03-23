@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: File
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with files and directories.
 ; Author(s) .....: Brian Keene, Michael Michta, erifash, Jon, JdeB, Jeremy Landes, MrCreatoR, cdkid, Valik, Erik Pilsits, Kurt, Dale, guinness, DXRW4E, Melba23
@@ -298,8 +298,8 @@ Func _FileListToArrayRec($sFilePath, $sMask = "*", $iReturn = $FLTAR_FILESFOLDER
 				EndIf
 				; Extract data
 				$sName = DllStructGetData($tFile_Data, "FileName")
-				; Check for .. return - only returned by the DllCall
-				If $sName = ".." Then
+				; Check for .. or . filename and skip
+				If $sName = ".." Or $sName = "." Then
 					ContinueLoop
 				EndIf
 				$iAttribs = DllStructGetData($tFile_Data, "FileAttributes")
@@ -324,6 +324,10 @@ Func _FileListToArrayRec($sFilePath, $sMask = "*", $iReturn = $FLTAR_FILESFOLDER
 				; Check for end of folder
 				If @error Then
 					ExitLoop
+				EndIf
+				; Check for .. or . filename and skip
+				If $sName = ".." Or $sName = "." Then
+					ContinueLoop
 				EndIf
 				$sAttribs = @extended
 				; Check for folder
@@ -780,7 +784,8 @@ Func _FileWriteLog($sLogPath, $sLogMsg, $iFlag = -1)
 
 	; Close file only if specified by a string path
 	If IsString($sLogPath) Then $iReturn = FileClose($hFileOpen)
-	If $iReturn <= 0 Then Return SetError(2, $iReturn, 0)
+	If $iFlag <> -1 And Not IsString($sLogPath) Then SetExtended(1)
+	If $iReturn = 0 Then Return SetError(2, 0, 0)
 
 	Return $iReturn
 EndFunc   ;==>_FileWriteLog

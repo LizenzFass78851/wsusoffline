@@ -6,68 +6,12 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Internet Explorer Automation UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: A collection of functions for creating, attaching to, reading from and manipulating Internet Explorer.
 ; Author(s) .....: DaleHohm, big_daddy, jpm
 ; Dll ...........: user32.dll, ole32.dll, oleacc.dll
 ; ===============================================================================================================================
-
-#Region Header
-#cs
-	Title:   Internet Explorer Automation UDF Library for AutoIt3
-	Filename:  IE.au3
-	Description: A collection of functions for creating, attaching to, reading from and manipulating Internet Explorer
-	Author:   DaleHohm
-	Modified: jpm, Jon
-	Version:  T3.0-2
-	Last Update: 14/08/19
-	Requirements: AutoIt3 3.3.9 or higher
-
-	Update History:
-	===================================================
-	T3.0-2 14/8/19
-
-	Enhancements
-	- Updated  __IEErrorHandlerRegister to work with or without COM errors being fatal
-
-	T3.0-1 13/6/2
-
-	Enhancements
-	- Fixed _IE_Introduction, _IE_Examples generate HTML5
-	- Added check in __IEComErrorUnrecoverable for COM error -2147023174, "RPC server not accessible."
-	- Fixed check in __IEComErrorUnrecoverable for COM error -2147024891, "Access is denied."
-	- Fixed check in __IEComErrorUnrecoverable for COM error  -2147352567, "an exception has occurred."
-	- Fixed __IEIsObjType() not restoring _IEErrorNotify()
-	- Fixed $b_mustUnlock on Error in _IECreate()
-	- Fixed no timeout cheking if error in _IELoadWait()
-	- Fixed HTML5 support in _IEImgClick(), _IEFormImageClick()
-	- Fixed _IEHeadInsertEventScript() COM error return
-	- Updated _IEErrorNotify() default keyword support
-	- Updated rename __IENotify() to __IEConsoleWriteError() and restore calling  @error
-	- Removed __IEInternalErrorHandler() (not used any more)
-	- Updated Function Headers
-	- Updated doc and splitting and checking examples
-
-	T3.0-0 12/9/3
-
-	Fixes
-	- Removed _IEErrorHandlerRegister() and all internal calls to it.  Unneeded as COM errors are no longer fatal
-	- Removed code deprecated in V2
-	- Fixed _IELoadWait check for unrecoverable COM errors
-	- Removed Vcard support from _IEPropertyGet (IE removed support in IE7)
-	- Code cleanup with #AutoIt3Wrapper_Au3Check_Parameters=-d -w 1 -w 2 -w 3 -w- 4 -w 5 -w 6
-
-	New Features
-	- Added "scrollIntoView" to _IEAction
-
-	Enhancements
-	- Added check in __IEComErrorUnrecoverable for COM error -2147023179, "The interface is unknown."
-	- Added "Trap COM error, report and return" to functions that perform blind method calls (those without return values)
-
-	===================================================
-#ce
-#EndRegion Header
 
 ; #VARIABLES# ===================================================================================================================
 #Region Global Variables
@@ -80,12 +24,12 @@ Global $__g_oIEErrorHandler, $__g_sIEUserErrorHandler
 
 ; #CONSTANTS# ===================================================================================================================
 #Region Global Constants
-Global Const $__gaIEAU3VersionInfo[6] = ["T", 3, 0, 2, "20140819", "T3.0-2"]
+Global Const $__gaIEAU3VersionInfo[6] = ["V", 3, 1, 0, "20200518", "V3.1-0"]
 Global Const $LSFW_LOCK = 1, $LSFW_UNLOCK = 2
 ;
 ; Enums
 ;
-Global Enum _; Error Status Types
+Global Enum _ ; Error Status Types
 		$_IESTATUS_Success = 0, _
 		$_IESTATUS_GeneralError, _
 		$_IESTATUS_ComError, _
@@ -196,12 +140,12 @@ Global Enum _; Error Status Types
 #Region Core functions
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Dale Hohm
-; Modified ......: jpm
+; Modified ......: jpm, mLipok
 ; ===============================================================================================================================
 Func _IECreate($sUrl = "about:blank", $iTryAttach = 0, $iVisible = 1, $iWait = 1, $iTakeFocus = 1)
 	If Not $iVisible Then $iTakeFocus = 0 ; Force takeFocus to 0 for hidden window
 
-	If $iTryAttach Then
+	If $iTryAttach And $sUrl <> "" Then
 		Local $oResult = _IEAttach($sUrl, "url")
 		If IsObj($oResult) Then
 			If $iTakeFocus Then WinActivate(HWnd($oResult.hWnd))
@@ -324,7 +268,7 @@ Func _IEAttach($sString, $sMode = "title", $iInstance = 1)
 	EndIf
 
 	Local $oShell = ObjCreate("Shell.Application")
-	Local $oShellWindows = $oShell.Windows(); collection of all ShellWindows (IE and File Explorer)
+	Local $oShellWindows = $oShell.Windows() ; collection of all ShellWindows (IE and File Explorer)
 	Local $iTmp = 1
 	Local $iNotifyStatus, $bIsBrowser, $sTmp
 	Local $bStatus
@@ -467,7 +411,7 @@ Func _IELoadWait(ByRef $oObject, $iDelay = 0, $iTimeout = -1)
 	If $iTimeout = -1 Then $iTimeout = $__g_iIELoadWaitTimeout
 
 	Select
-		Case __IEIsObjType($oObject, "browser", False); Internet Explorer
+		Case __IEIsObjType($oObject, "browser", False) ; Internet Explorer
 			While Not (String($oObject.readyState) = "complete" Or $oObject.readyState = 4 Or $bAbort)
 				; Trap unrecoverable COM errors
 				If @error Then
@@ -1034,8 +978,7 @@ Func _IEFormElementGetValue(ByRef $oObject)
 		__IEConsoleWriteError("Error", "_IEFormElementGetValue", "$_IESTATUS_COMError", @error)
 		Return SetError($_IESTATUS_ComError, @error, 0)
 	EndIf
-	SetError($_IESTATUS_Success)
-	Return $sReturn
+	Return SetError($_IESTATUS_Success,0,$sReturn)
 EndFunc   ;==>_IEFormElementGetValue
 
 ; #FUNCTION# ====================================================================================================================
@@ -1074,134 +1017,134 @@ EndFunc   ;==>_IEFormElementSetValue
 ; Modified ......: benners
 ; ===============================================================================================================================
 Func _IEFormElementOptionSelect(ByRef $oObject, $sString, $iSelect = 1, $sMode = "byValue", $iFireEvent = 1)
-    If Not IsObj($oObject) Then
-        __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidDataType")
-        Return SetError($_IESTATUS_InvalidDataType, 1, 0)
-    EndIf
-    ;
-    If Not __IEIsObjType($oObject, "formselectelement") Then
-        __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidObjectType")
-        Return SetError($_IESTATUS_InvalidObjectType, 1, 0)
-    EndIf
-    ;
-    Local $oItem, $oItems = $oObject.options, $iNumItems = $oObject.options.length, $bIsMultiple = $oObject.multiple
+	If Not IsObj($oObject) Then
+		__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidDataType")
+		Return SetError($_IESTATUS_InvalidDataType, 1, 0)
+	EndIf
+	;
+	If Not __IEIsObjType($oObject, "formselectelement") Then
+		__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidObjectType")
+		Return SetError($_IESTATUS_InvalidObjectType, 1, 0)
+	EndIf
+	;
+	Local $oItem, $oItems = $oObject.options, $iNumItems = $oObject.options.length, $bIsMultiple = $oObject.multiple
 
-    Switch $sMode
-        Case "byValue"
-            For $oItem In $oItems
-                If $oItem.value = $sString Then
-                    Switch $iSelect
-                        Case -1
-                            Return SetError($_IESTATUS_Success, 0, $oItem.selected)
-                        Case 0
-                            If Not $bIsMultiple Then
-                                __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
-                                        "$iSelect=0 only valid for type=select multiple")
-                                Return SetError($_IESTATUS_InvalidValue, 3)
-                            EndIf
-                            If $oItem.selected Then
-                                $oItem.selected = False
-                                If $iFireEvent Then
-                                    $oObject.fireEvent("onChange")
-                                    $oObject.fireEvent("OnClick")
-                                EndIf
-                            EndIf
-                            Return SetError($_IESTATUS_Success, 0, 1)
-                        Case 1
-                            If Not $oItem.selected Then
-                                $oItem.selected = True
-                                If $iFireEvent Then
-                                    $oObject.fireEvent("onChange")
-                                    $oObject.fireEvent("OnClick")
-                                EndIf
-                            EndIf
-                            Return SetError($_IESTATUS_Success, 0, 1)
-                        Case Else
-                            __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
-                            Return SetError($_IESTATUS_InvalidValue, 3, 0)
-                    EndSwitch
-                EndIf
-            Next
-            __IEConsoleWriteError("Warning", "_IEFormElementOptionSelect", "$_IESTATUS_NoMatch", "Value not matched")
-            Return SetError($_IESTATUS_NoMatch, 2, 0)
-        Case "byText"
-            For $oItem In $oItems
-                If String($oItem.text) = $sString Then
-                    Switch $iSelect
-                        Case -1
-                            Return SetError($_IESTATUS_Success, 0, $oItem.selected)
-                        Case 0
-                            If Not $bIsMultiple Then
-                                __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
-                                        "$iSelect=0 only valid for type=select multiple")
-                                Return SetError($_IESTATUS_InvalidValue, 3)
-                            EndIf
-                            If $oItem.selected Then
-                                $oItem.selected = False
-                                If $iFireEvent Then
-                                    $oObject.fireEvent("onChange")
-                                    $oObject.fireEvent("OnClick")
-                                EndIf
-                            EndIf
-                            Return SetError($_IESTATUS_Success, 0, 1)
-                        Case 1
-                            If Not $oItem.selected Then
-                                $oItem.selected = True
-                                If $iFireEvent Then
-                                    $oObject.fireEvent("onChange")
-                                    $oObject.fireEvent("OnClick")
-                                EndIf
-                            EndIf
-                            Return SetError($_IESTATUS_Success, 0, 1)
-                        Case Else
-                            __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
-                            Return SetError($_IESTATUS_InvalidValue, 3, 0)
-                    EndSwitch
-                EndIf
-            Next
-            __IEConsoleWriteError("Warning", "_IEFormElementOptionSelect", "$_IESTATUS_NoMatch", "Text not matched")
-            Return SetError($_IESTATUS_NoMatch, 2, 0)
-        Case "byIndex"
-            Local $iIndex = Number($sString)
-            If $iIndex < 0 Or $iIndex >= $iNumItems Then
-                __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid index value, " & $iIndex)
-                Return SetError($_IESTATUS_InvalidValue, 2, 0)
-            EndIf
-            $oItem = $oItems.item($iIndex)
-            Switch $iSelect
-                Case -1
-                    Return SetError($_IESTATUS_Success, 0, $oItems.item($iIndex).selected)
-                Case 0
-                    If Not $bIsMultiple Then
-                        __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
-                                "$iSelect=0 only valid for type=select multiple")
-                        Return SetError($_IESTATUS_InvalidValue, 3)
-                    EndIf
-                    If $oItem.selected Then
-                        $oItems.item($iIndex).selected = False
-                        If $iFireEvent Then
-                            $oObject.fireEvent("onChange")
-                            $oObject.fireEvent("OnClick")
-                        EndIf
-                    EndIf
-                    Return SetError($_IESTATUS_Success, 0, 1)
-                Case 1
-                    If Not $oItem.selected Then
-                        $oItems.item($iIndex).selected = True
-                        If $iFireEvent Then
-                            $oObject.fireEvent("onChange")
-                            $oObject.fireEvent("OnClick")
-                        EndIf
-                    EndIf
-                    Return SetError($_IESTATUS_Success, 0, 1)
-                Case Else
-                    __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
-                    Return SetError($_IESTATUS_InvalidValue, 3, 0)
-            EndSwitch
-        Case Else
-            __IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid Mode")
-            Return SetError($_IESTATUS_InvalidValue, 4, 0)
-    EndSwitch
+	Switch $sMode
+		Case "byValue"
+			For $oItem In $oItems
+				If $oItem.value = $sString Then
+					Switch $iSelect
+						Case -1
+							Return SetError($_IESTATUS_Success, 0, $oItem.selected)
+						Case 0
+							If Not $bIsMultiple Then
+								__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
+										"$iSelect=0 only valid for type=select multiple")
+								Return SetError($_IESTATUS_InvalidValue, 3)
+							EndIf
+							If $oItem.selected Then
+								$oItem.selected = False
+								If $iFireEvent Then
+									$oObject.fireEvent("onChange")
+									$oObject.fireEvent("OnClick")
+								EndIf
+							EndIf
+							Return SetError($_IESTATUS_Success, 0, 1)
+						Case 1
+							If Not $oItem.selected Then
+								$oItem.selected = True
+								If $iFireEvent Then
+									$oObject.fireEvent("onChange")
+									$oObject.fireEvent("OnClick")
+								EndIf
+							EndIf
+							Return SetError($_IESTATUS_Success, 0, 1)
+						Case Else
+							__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
+							Return SetError($_IESTATUS_InvalidValue, 3, 0)
+					EndSwitch
+				EndIf
+			Next
+			__IEConsoleWriteError("Warning", "_IEFormElementOptionSelect", "$_IESTATUS_NoMatch", "Value not matched")
+			Return SetError($_IESTATUS_NoMatch, 2, 0)
+		Case "byText"
+			For $oItem In $oItems
+				If String($oItem.text) = $sString Then
+					Switch $iSelect
+						Case -1
+							Return SetError($_IESTATUS_Success, 0, $oItem.selected)
+						Case 0
+							If Not $bIsMultiple Then
+								__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
+										"$iSelect=0 only valid for type=select multiple")
+								Return SetError($_IESTATUS_InvalidValue, 3)
+							EndIf
+							If $oItem.selected Then
+								$oItem.selected = False
+								If $iFireEvent Then
+									$oObject.fireEvent("onChange")
+									$oObject.fireEvent("OnClick")
+								EndIf
+							EndIf
+							Return SetError($_IESTATUS_Success, 0, 1)
+						Case 1
+							If Not $oItem.selected Then
+								$oItem.selected = True
+								If $iFireEvent Then
+									$oObject.fireEvent("onChange")
+									$oObject.fireEvent("OnClick")
+								EndIf
+							EndIf
+							Return SetError($_IESTATUS_Success, 0, 1)
+						Case Else
+							__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
+							Return SetError($_IESTATUS_InvalidValue, 3, 0)
+					EndSwitch
+				EndIf
+			Next
+			__IEConsoleWriteError("Warning", "_IEFormElementOptionSelect", "$_IESTATUS_NoMatch", "Text not matched")
+			Return SetError($_IESTATUS_NoMatch, 2, 0)
+		Case "byIndex"
+			Local $iIndex = Number($sString)
+			If $iIndex < 0 Or $iIndex >= $iNumItems Then
+				__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid index value, " & $iIndex)
+				Return SetError($_IESTATUS_InvalidValue, 2, 0)
+			EndIf
+			$oItem = $oItems.item($iIndex)
+			Switch $iSelect
+				Case -1
+					Return SetError($_IESTATUS_Success, 0, $oItems.item($iIndex).selected)
+				Case 0
+					If Not $bIsMultiple Then
+						__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", _
+								"$iSelect=0 only valid for type=select multiple")
+						Return SetError($_IESTATUS_InvalidValue, 3)
+					EndIf
+					If $oItem.selected Then
+						$oItems.item($iIndex).selected = False
+						If $iFireEvent Then
+							$oObject.fireEvent("onChange")
+							$oObject.fireEvent("OnClick")
+						EndIf
+					EndIf
+					Return SetError($_IESTATUS_Success, 0, 1)
+				Case 1
+					If Not $oItem.selected Then
+						$oItems.item($iIndex).selected = True
+						If $iFireEvent Then
+							$oObject.fireEvent("onChange")
+							$oObject.fireEvent("OnClick")
+						EndIf
+					EndIf
+					Return SetError($_IESTATUS_Success, 0, 1)
+				Case Else
+					__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid $iSelect value")
+					Return SetError($_IESTATUS_InvalidValue, 3, 0)
+			EndSwitch
+		Case Else
+			__IEConsoleWriteError("Error", "_IEFormElementOptionSelect", "$_IESTATUS_InvalidValue", "Invalid Mode")
+			Return SetError($_IESTATUS_InvalidValue, 4, 0)
+	EndSwitch
 EndFunc   ;==>_IEFormElementOptionSelect
 
 ; #FUNCTION# ====================================================================================================================
@@ -2527,7 +2470,7 @@ Func _IEErrorHandlerRegister($sFunctionName = "__IEInternalErrorHandler")
 		$__g_oIEErrorHandler = ""
 		__IEConsoleWriteError("Error", "_IEErrorHandlerRegister", "$_IEStatus_GeneralError", _
 				"Error Handler Not Registered - Check existance of error function")
-		Return SetError($_IEStatus_GeneralError, 1, 0)
+		Return SetError($_IESTATUS_GeneralError, 1, 0)
 	EndIf
 EndFunc   ;==>_IEErrorHandlerRegister
 
@@ -2555,14 +2498,14 @@ Func __IEInternalErrorHandlerRegister()
 	Local $sCurrentErrorHandler = ObjEvent("AutoIt.Error")
 	If $sCurrentErrorHandler <> "" And Not IsObj($__g_oIEErrorHandler) Then
 		; We've got trouble... User COM Error handler assigned without using _IEUserErrorHandlerRegister
-		Return SetError($_IEStatus_GeneralError, 0, False)
+		Return SetError($_IESTATUS_GeneralError, 0, False)
 	EndIf
 	$__g_oIEErrorHandler = ObjEvent("AutoIt.Error", "__IEInternalErrorHandler")
 	If IsObj($__g_oIEErrorHandler) Then
 		Return SetError($_IESTATUS_Success, 0, True)
 	Else
 		$__g_oIEErrorHandler = ""
-		Return SetError($_IEStatus_GeneralError, 0, False)
+		Return SetError($_IESTATUS_GeneralError, 0, False)
 	EndIf
 EndFunc   ;==>__IEInternalErrorHandlerRegister
 
@@ -2582,8 +2525,7 @@ EndFunc   ;==>__IEInternalErrorHandlerDeRegister
 ; ===============================================================================================================================
 Func __IEInternalErrorHandler($oCOMError)
 	If $__g_bIEErrorNotify Or $__g_bIEAU3Debug Then ConsoleWrite("--> " & __COMErrorFormating($oCOMError, "----> $IEComError") & @CRLF)
-	SetError($_IEStatus_ComError)
-	Return
+	Return SetError($_IESTATUS_ComError)
 EndFunc   ;==>__IEInternalErrorHandler
 
 ; #FUNCTION# ====================================================================================================================
@@ -3016,9 +2958,9 @@ EndFunc   ;==>_IE_VersionInfo
 ; Author ........: Valik
 ; ===============================================================================================================================
 Func __IELockSetForegroundWindow($iLockCode)
-	Local $aRet = DllCall("user32.dll", "bool", "LockSetForegroundWindow", "uint", $iLockCode)
-	If @error Or Not $aRet[0] Then Return SetError(1, _WinAPI_GetLastError(), 0)
-	Return $aRet[0]
+	Local $aCall = DllCall("user32.dll", "bool", "LockSetForegroundWindow", "uint", $iLockCode)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, _WinAPI_GetLastError(), 0)
+	Return $aCall[0]
 EndFunc   ;==>__IELockSetForegroundWindow
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -3029,6 +2971,7 @@ EndFunc   ;==>__IELockSetForegroundWindow
 ; Return values .: On Success 	- Returns DOM Window object
 ;                   On Failure 	- 0  and sets @error = 1
 ; Author ........: Larry with thanks to Valik
+; Modified ......: mLipok
 ; Remarks .......:
 ; ===============================================================================================================================
 Func __IEControlGetObjFromHWND(ByRef $hWin)
@@ -3056,16 +2999,19 @@ Func __IEControlGetObjFromHWND(ByRef $hWin)
 	DllStructSetData($tUUID, 4, 0x26, 7)
 	DllStructSetData($tUUID, 4, 0x37, 8)
 
-	Local $aRet = DllCall("oleacc.dll", "long", "ObjectFromLresult", "lresult", $iResult, "struct*", $tUUID, _
+	Local $aCall = DllCall("oleacc.dll", "long", "ObjectFromLresult", "lresult", $iResult, "struct*", $tUUID, _
 			"wparam", 0, "idispatch*", 0)
 	If @error Then Return SetError(3, @error, 0)
 
-	If IsObj($aRet[4]) Then
-		Local $oIE = $aRet[4].Script()
+	If IsObj($aCall[4]) Then
+		Local $oIE = $aCall[4].Script()
 		; $oIE is now a valid IDispatch object
-		Return $oIE.Document.parentwindow
+		If ObjName($oIE, $OBJ_NAME) = 'HTMLWindow2' Then Return $oIE
+		Local $oDocument = _IEDocGetObj($oIE)
+		If @error Then Return SetError(@error, @extended, 0)
+		Return $oDocument.parentWindow
 	Else
-		Return SetError(1, $aRet[0], 0)
+		Return SetError(1, $aCall[0], 0)
 	EndIf
 EndFunc   ;==>__IEControlGetObjFromHWND
 
@@ -3075,10 +3021,9 @@ EndFunc   ;==>__IEControlGetObjFromHWND
 ; Author ........: Larry with thanks to Valik
 ; ===============================================================================================================================
 Func __IERegisterWindowMessage($sMsg)
-	Local $aRet = DllCall("user32.dll", "uint", "RegisterWindowMessageW", "wstr", $sMsg)
-	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] = 0 Then Return SetError(10, _WinAPI_GetLastError(), 0)
-	Return $aRet[0]
+	Local $aCall = DllCall("user32.dll", "uint", "RegisterWindowMessageW", "wstr", $sMsg)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, _WinAPI_GetLastError(), 0)
+	Return $aCall[0]
 EndFunc   ;==>__IERegisterWindowMessage
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -3087,15 +3032,15 @@ EndFunc   ;==>__IERegisterWindowMessage
 ; Author ........: Larry with thanks to Valik
 ; ===============================================================================================================================
 Func __IESendMessageTimeout($hWnd, $iMsg, $wParam, $lParam, $iFlags, $iTimeout, ByRef $vOut, $r = 0, $sT1 = "int", $sT2 = "int")
-	Local $aRet = DllCall("user32.dll", "lresult", "SendMessageTimeout", "hwnd", $hWnd, "uint", $iMsg, $sT1, $wParam, _
+	Local $aCall = DllCall("user32.dll", "lresult", "SendMessageTimeout", "hwnd", $hWnd, "uint", $iMsg, $sT1, $wParam, _
 			$sT2, $lParam, "uint", $iFlags, "uint", $iTimeout, "dword_ptr*", "")
-	If @error Or $aRet[0] = 0 Then
+	If @error Or Not $aCall[0] Then
 		$vOut = 0
-		Return SetError(1, _WinAPI_GetLastError(), 0)
+		Return SetError(@error + 10, _WinAPI_GetLastError(), 0)
 	EndIf
-	$vOut = $aRet[7]
-	If $r >= 0 And $r <= 4 Then Return $aRet[$r]
-	Return $aRet
+	$vOut = $aCall[7]
+	If $r >= 0 And $r <= 4 Then Return $aCall[$r]
+	Return $aCall
 EndFunc   ;==>__IESendMessageTimeout
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -3289,7 +3234,7 @@ Func __IENavigate(ByRef $oObject, $sUrl, $iWait = 1, $iFags = 0, $sTarget = "", 
 EndFunc   ;==>__IENavigate
 
 #cs
-	#include <IE.au3>
+	#include "IE.au3"
 	; Simulates the submission of the form from the page:
 	;
 	;    http://www.autoitscript.com/forum/index.php?act=Search

@@ -1,12 +1,12 @@
 #include-once
 
 #include "FileConstants.au3"
-#include "File.au3"		; Using: _PathSplit
+#include "File.au3" ; Using : _PathSplit
 #include "StringConstants.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Sound
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Sound management.
 ; Author(s) .....: RazerM, Melba23, Simucal, PsaltyDS
@@ -384,10 +384,10 @@ EndFunc   ;==>__SoundChkSndID
 ; Example .......:
 ; ===============================================================================================================================
 Func __SoundMciSendString($sString, $iLen = 0)
-	Local $aRet = DllCall("winmm.dll", "dword", "mciSendStringW", "wstr", $sString, "wstr", "", "uint", $iLen, "ptr", 0)
+	Local $aCall = DllCall("winmm.dll", "dword", "mciSendStringW", "wstr", $sString, "wstr", "", "uint", $iLen, "ptr", 0)
 	If @error Then Return SetError(@error, @extended, "")
-	If $aRet[0] Then Return SetError(10, $aRet[0], $aRet[2])
-	Return $aRet[2]
+	If $aCall[0] Then Return SetError(10, $aCall[0], $aCall[2])
+	Return $aCall[2]
 EndFunc   ;==>__SoundMciSendString
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -452,7 +452,7 @@ Func __SoundReadXingFromMP3($sTag)
 	If BitAND($iFlags, 1) = 1 Then
 		$iFrames = Number("0x" & StringMid($sTag, $iXingPos + 16, 8))
 	Else
-		Return SetError(1, 0, 0); No frames field
+		Return SetError(1, 0, 0) ; No frames field
 	EndIf
 
 	; Now to find Samples per frame & Sampling rate

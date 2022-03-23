@@ -1,5 +1,6 @@
 .git\
 Aut2Exe.exe
+Aut2exe_x64.exe
 upx.exe
 StaticUpdateIds-MSIProducts-dotnet5_documented.txt
 StaticUpdateIds-MSIProducts-dotnet6_documented.txt

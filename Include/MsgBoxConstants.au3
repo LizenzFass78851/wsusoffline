@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: MsgBox_Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt v3 script when using function MsgBox.
 ; Author(s) .....: guinness, jpm
@@ -21,6 +21,7 @@ Global Const $MB_CANCELTRYCONTINUE = 6 ; Three buttons: Cancel, Try Again and Co
 Global Const $MB_HELP = 0x4000 ; Adds a Help button to the message box. When the user clicks the Help button or presses F1, the system sends a WM_HELP message to the owner.
 
 ; Displays an icon in the message box
+Global Const $MB_ICONNONE = 0 ; Stop-sign icon
 Global Const $MB_ICONSTOP = 16 ; Stop-sign icon
 Global Const $MB_ICONERROR = 16 ; Stop-sign icon
 Global Const $MB_ICONHAND = 16 ; Stop-sign icon

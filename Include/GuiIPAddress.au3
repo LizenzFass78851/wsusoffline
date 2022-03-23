@@ -1,5 +1,6 @@
 #include-once
 
+#include "GUICtrlInternals.au3"
 #include "IPAddressConstants.au3"
 #include "Memory.au3"
 #include "SendMessage.au3"
@@ -12,14 +13,13 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: IPAddress
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with IPAddress control management.
 ; Author(s) .....: Gary Frost (gafrost)
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-Global $__g_hIPLastWnd
 
 ; ===============================================================================================================================
 
@@ -91,7 +91,7 @@ Func _GUICtrlIpAddress_Destroy($hWnd)
 	If Not _WinAPI_IsClassName($hWnd, $__IPADDRESSCONSTANT_ClassName) Then Return SetError(2, 2, False)
 
 	Local $iDestroyed = 0
-	If _WinAPI_InProcess($hWnd, $__g_hIPLastWnd) Then
+	If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
 		Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 		Local $hParent = _WinAPI_GetParent($hWnd)
 		$iDestroyed = _WinAPI_DestroyWindow($hWnd)
@@ -137,21 +137,11 @@ EndFunc   ;==>_GUICtrlIpAddress_GetArray
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Gary Frost (gafrost)
-; Modified.......:
+; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _GUICtrlIpAddress_GetEx($hWnd)
 	Local $tIP = DllStructCreate($tagGETIPAddress)
-	If @error Then Return SetError(1, 1, "")
-	If _WinAPI_InProcess($hWnd, $__g_hIPLastWnd) Then
-		_SendMessage($hWnd, $IPM_GETADDRESS, 0, $tIP, 0, "wparam", "struct*")
-	Else
-		Local $iIP = DllStructGetSize($tIP)
-		Local $tMemMap
-		Local $pMemory = _MemInit($hWnd, $iIP, $tMemMap)
-		_SendMessage($hWnd, $IPM_GETADDRESS, 0, $pMemory, 0, "wparam", "ptr")
-		_MemRead($tMemMap, $pMemory, $tIP, $iIP)
-		_MemFree($tMemMap)
-	EndIf
+	__GUICtrl_SendMsg($hWnd, $IPM_GETADDRESS, 0, $tIP, 0, True)
 	Return $tIP
 EndFunc   ;==>_GUICtrlIpAddress_GetEx
 

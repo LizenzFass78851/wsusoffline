@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b23) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b24) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -214,7 +214,7 @@ Dim $ini_src, $ini_dest, $i
 EndFunc
 
 Func PathValid($path)
-Dim $result, $arr_invalid, $i
+  Dim $result, $arr_invalid, $i
 
   If StringLen($path) > $path_max_length Then
     $result = False
@@ -232,7 +232,7 @@ Dim $result, $arr_invalid, $i
 EndFunc
 
 Func MediumBuildDate($basepath)
-Dim $result
+  Dim $result
 
   $result = FileReadLine($basepath & $path_rel_builddate)
   If @error Then
@@ -242,65 +242,71 @@ Dim $result
 EndFunc
 
 Func BuildUpgradeAvailable($basepath, $enforcementmode)
-  If (@OSVersion = "WIN_10") Then
-    Switch @OSBuild
-	  Case "18362"
-        If (@OSArch <> "X86") Then
-          Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) OR (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
-        Else
-          Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
-        EndIf
-	  Case "19041"
+  Switch @OSVersion
+    Case "WIN_10"
+      Switch @OSBuild
+	    Case "18362"
           If (@OSArch <> "X86") Then
-            If $enforcementmode > 0 Then
-              Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
-            Else
-              Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
-            EndIf
+            Return ( (FileExists($basepath & $path_rel_w100_18363_x64)) OR (FileExists($basepath & $path_rel_w100_18363_x64_sub)) )
           Else
-            If $enforcementmode > 0 Then
-              Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
-            Else
-              Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
-            EndIf
+            Return ( (FileExists($basepath & $path_rel_w100_18363_x86)) OR (FileExists($basepath & $path_rel_w100_18363_x86_sub)) )
           EndIf
-	  Case "19042"
-        If (@OSArch <> "X86") Then
-          Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
-        Else
-          Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
-        EndIf
-	  Case "19043"
-        If (@OSArch <> "X86") Then
-          Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
-        Else
-          Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
-        EndIf
-	  Case Else
-	    Return 0
-    EndSwitch
-  Else
-    Return 0
-  EndIf
+	    Case "19041"
+            If (@OSArch <> "X86") Then
+              If $enforcementmode > 0 Then
+                Return ( (FileExists($basepath & $path_rel_w100_19042_x64)) OR (FileExists($basepath & $path_rel_w100_19042_x64_sub)) )
+              Else
+                Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+              EndIf
+            Else
+              If $enforcementmode > 0 Then
+                Return ( (FileExists($basepath & $path_rel_w100_19042_x86)) OR (FileExists($basepath & $path_rel_w100_19042_x86_sub)) )
+              Else
+                Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+              EndIf
+            EndIf
+	    Case "19042"
+          If (@OSArch <> "X86") Then
+            Return ( (FileExists($basepath & $path_rel_w100_19043_x64)) OR (FileExists($basepath & $path_rel_w100_19043_x64_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+          Else
+            Return ( (FileExists($basepath & $path_rel_w100_19043_x86)) OR (FileExists($basepath & $path_rel_w100_19043_x86_sub)) OR (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+          EndIf
+	    Case "19043"
+          If (@OSArch <> "X86") Then
+            Return ( (FileExists($basepath & $path_rel_w100_19044_x64)) OR (FileExists($basepath & $path_rel_w100_19044_x64_sub)) )
+          Else
+            Return ( (FileExists($basepath & $path_rel_w100_19044_x86)) OR (FileExists($basepath & $path_rel_w100_19044_x86_sub)) )
+          EndIf
+	    Case Else
+	      Return 0
+      EndSwitch
+	Case "WIN_11"
+      Return 0
+	Case Else
+      Return 0
+  EndSwitch
 EndFunc
 
 Func BuildUpgradeEnforced()
-  If (@OSVersion = "WIN_10") Then
-    Switch @OSBuild
-      Case "18362"
-        Return 2 ; Upgrade enforced, no optional available
-      Case "19041"
-        Return 1 ; Upgrade enforced, optional update(s) available
-      Case Else
-        Return 0
-    EndSwitch
-  Else
-    Return 0
-  EndIf
+  Switch @OSVersion
+    Case "WIN_10"
+      Switch @OSBuild
+        Case "18362"
+          Return 2 ; Upgrade enforced, no optional available
+        Case "19041"
+          Return 1 ; Upgrade enforced, optional update(s) available
+        Case Else
+          Return 0
+      EndSwitch
+	Case "WIN_11"
+      Return 0
+	Case Else
+      Return 0
+  EndSwitch
 EndFunc
 
 Func WSHAvailable()
-Dim $reg_val
+  Dim $reg_val
 
   If (@OSArch <> "X86") Then
     $reg_val = RegRead($reg_key_wsh_hklm64, $reg_val_enabled)
@@ -395,7 +401,7 @@ Func CalcGUISize()
   Dim $reg_val
 
   If ( (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) Then
+    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
     DllCall("user32.dll", "int", "SetProcessDPIAware")
   EndIf
   $reg_val = RegRead($reg_key_hkcu_winmetrics, $reg_val_applieddpi)
@@ -550,7 +556,7 @@ If $gergui Then
 Else
   $wmf = GUICtrlCreateCheckbox("Install Management Framework " & WMFTargetVersion(), $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") _
+If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") _
   OR ( (DotNet4MainVersion() <> "4.5") AND (DotNet4MainVersion() <> "4.6") AND (DotNet4MainVersion() <> "4.7") AND (DotNet4MainVersion() <> "4.8") AND (NOT IsCheckBoxChecked($dotnet4)) ) _
   OR (WMFMainVersion() = WMFTargetVersion()) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
@@ -627,7 +633,7 @@ If $gergui Then
 Else
   $autoreboot = GUICtrlCreateCheckbox("Automatic reboot and recall", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (NOT AutologonPresent($scriptdir)) ) Then
+If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") OR (NOT AutologonPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_control, $ini_value_autoreboot, $disabled) = $enabled Then
@@ -828,7 +834,7 @@ While 1
 
     Case $dotnet4              ; .NET 4 check box toggled
       If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") OR (DotNet4MainVersion() = "4.7") OR (DotNet4MainVersion() = "4.8") ) _
-       AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") _
+       AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") _
        AND (WMFMainVersion() <> WMFTargetVersion()) ) Then
         GUICtrlSetState($wmf, $GUI_ENABLE)
       Else

@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Microsoft Word Function Library (MS Word 2003 and later)
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: A collection of functions for accessing and manipulating Microsoft Word documents
 ; Author(s) .....: Bob Anthony, rewritten by water
@@ -354,7 +354,7 @@ Func _Word_DocOpen($oAppl, $sFilePath, $bConfirmConversions = Default, $iFormat 
 	If $sOpenPassword = Default Then $sOpenPassword = ""
 	If $sWritePassword = Default Then $sWritePassword = ""
 	If Not IsObj($oAppl) Then Return SetError(1, 0, 0)
-	If Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
+	If StringLeft($sFilePath, "HTTP") = 0 And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
 	If StringInStr($sFilePath, "\") = 0 Then $sFilePath = @ScriptDir & "\" & $sFilePath
 	Local $oDoc = $oAppl.Documents.Open($sFilePath, $bConfirmConversions, $bReadOnly, $bAddToRecentFiles, _
 			$sOpenPassword, "", $bRevert, $sWritePassword, "", $iFormat)
@@ -514,8 +514,8 @@ Func _Word_DocSaveAs($oDoc, $sFileName = Default, $iFileFormat = Default, $bRead
 	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
 	#forceref $oError
 
-	If $sFileName = Default Then $sFileName = ""
-	If $iFileFormat = Default Then $iFileFormat = $WdFormatDocument
+;	If $sFileName = Default Then $sFileName = "" ; Fixing Bug #3325
+;	If $iFileFormat = Default Then $iFileFormat = $WdFormatDocument ; Fixing Bug #3325
 	If $bReadOnlyRecommended = Default Then $bReadOnlyRecommended = False
 	If $bAddToRecentFiles = Default Then $bAddToRecentFiles = 0
 	If $sPassword = Default Then $sPassword = ""

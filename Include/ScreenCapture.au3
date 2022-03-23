@@ -8,7 +8,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: ScreenCapture
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Screen Capture management.
 ;                  This module allows you to copy the screen or a region of the screen and save it to file. Depending on the type
@@ -67,7 +67,7 @@ Func _ScreenCapture_Capture($sFileName = "", $iLeft = 0, $iTop = 0, $iRight = -1
 			Local $aIcon = _WinAPI_GetIconInfo($hIcon)
 			If Not @error Then
 				_WinAPI_DeleteObject($aIcon[4]) ; delete bitmap mask return by _WinAPI_GetIconInfo()
-				If $aIcon[5] <> 0 Then _WinAPI_DeleteObject($aIcon[5]); delete bitmap hbmColor return by _WinAPI_GetIconInfo()
+				If $aIcon[5] <> 0 Then _WinAPI_DeleteObject($aIcon[5]) ; delete bitmap hbmColor return by _WinAPI_GetIconInfo()
 				_WinAPI_DrawIcon($hCDC, $aCursor[3] - $aIcon[2] - $iLeft, $aCursor[4] - $aIcon[3] - $iTop, $hIcon)
 			EndIf
 			_WinAPI_DestroyIcon($hIcon)

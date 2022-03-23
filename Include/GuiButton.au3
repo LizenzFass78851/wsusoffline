@@ -10,7 +10,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Button
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Button control management.
 ;                  A button is a control the user can click to provide input to an application.
@@ -246,7 +246,7 @@ Func _GUICtrlButton_GetNote($hWnd)
 	Local $tLen = DllStructCreate("dword")
 	DllStructSetData($tLen, 1, $iLen)
 	If Not _SendMessage($hWnd, $BCM_GETNOTE, $tLen, $tNote, 0, "struct*", "struct*") Then Return SetError(-1, 0, "")
-	Return _WinAPI_WideCharToMultiByte($tNote)
+	Return DllStructGetData($tNote, 1)
 EndFunc   ;==>_GUICtrlButton_GetNote
 
 ; #FUNCTION# ====================================================================================================================

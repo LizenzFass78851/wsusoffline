@@ -7,7 +7,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Array
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions for manipulating arrays.
 ; Author(s) .....: JdeB, Erik Pilsits, Ultima, Dale (Klaatu) Thompson, Cephas,randallc, Gary Frost, GEOSoft,
@@ -26,6 +26,7 @@
 ; _ArrayDisplay
 ; _ArrayExtract
 ; _ArrayFindAll
+; _ArrayFromString
 ; _ArrayInsert
 ; _ArrayMax
 ; _ArrayMaxIndex
@@ -45,6 +46,7 @@
 ; _ArrayTrim
 ; _ArrayUnique
 ; _Array1DToHistogram
+; _Array2DCreate
 ; ===============================================================================================================================
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -424,6 +426,10 @@ Func _ArrayDelete(ByRef $aArray, $vRange)
 		Next
 		$vRange = StringSplit(StringTrimRight($vRange, 1), ";")
 	EndIf
+	; Force to number format
+	For $i = 1 To $vRange[0]
+		$vRange[$i] = Number($vRange[$i])
+	Next
 	If $vRange[1] < 0 Or $vRange[$vRange[0]] > $iDim_1 Then Return SetError(5, 0, -1)
 	; Remove rows
 	Local $iCopyTo_Index = 0
@@ -565,6 +571,34 @@ Func _ArrayFindAll(Const ByRef $aArray, $vValue, $iStart = 0, $iEnd = 0, $iCase 
 EndFunc   ;==>_ArrayFindAll
 
 ; #FUNCTION# ====================================================================================================================
+; Author ........: argumentum
+; Modified.......:
+; ===============================================================================================================================
+Func _ArrayFromString($sArrayStr, $sDelim_Col = "|", $sDelim_Row = @CRLF, $bForce2D = False, $iStripWS = $STR_STRIPLEADING + $STR_STRIPTRAILING)
+	If $sDelim_Col = Default Then $sDelim_Col = "|"
+	If $sDelim_Row = Default Then $sDelim_Row = @CRLF
+	If $bForce2D = Default Then $bForce2D = False
+	If $iStripWS = Default Then $iStripWS = $STR_STRIPLEADING + $STR_STRIPTRAILING
+	Local $aRow, $aCol = StringSplit($sArrayStr, $sDelim_Row, $STR_ENTIRESPLIT + $STR_NOCOUNT)
+	$aRow = StringSplit($aCol[0], $sDelim_Col, $STR_ENTIRESPLIT + $STR_NOCOUNT)
+	If UBound($aCol) = 1 And Not $bForce2D Then
+		For $m = 0 To UBound($aRow) - 1
+			$aRow[$m] = ($iStripWS ? StringStripWS($aRow[$m], $iStripWS) : $aRow[$m])
+		Next
+		Return $aRow
+	EndIf
+	Local $aRet[UBound($aCol)][UBound($aRow)]
+	For $n = 0 To UBound($aCol) - 1
+		$aRow = StringSplit($aCol[$n], $sDelim_Col, $STR_ENTIRESPLIT + $STR_NOCOUNT)
+		If UBound($aRow) > UBound($aRet, 2) Then Return SetError(1)
+		For $m = 0 To UBound($aRow) - 1
+			$aRet[$n][$m] = ($iStripWS ? StringStripWS($aRow[$m], $iStripWS) : $aRow[$m])
+		Next
+	Next
+	Return $aRet
+EndFunc   ;==>_ArrayFromString
+
+; #FUNCTION# ====================================================================================================================
 ; Author ........: Jos
 ; Modified.......: Ultima - code cleanup; Melba23 - element position check, 2D support & multiple insertions
 ; ===============================================================================================================================
@@ -618,6 +652,10 @@ Func _ArrayInsert(ByRef $aArray, $vRange, $vValue = "", $iStart = 0, $sDelim_Ite
 		Next
 		$vRange = StringSplit(StringTrimRight($vRange, 1), ";")
 	EndIf
+	; Force to number format
+	For $i = 1 To $vRange[0]
+		$vRange[$i] = Number($vRange[$i])
+	Next
 	If $vRange[1] < 0 Or $vRange[$vRange[0]] > $iDim_1 Then Return SetError(5, 0, -1)
 	For $i = 2 To $vRange[0]
 		If $vRange[$i] < $vRange[$i - 1] Then Return SetError(3, 0, -1)
@@ -1093,7 +1131,7 @@ EndFunc   ;==>_ArraySearch
 ; ===============================================================================================================================
 Func _ArrayShuffle(ByRef $aArray, $iStart_Row = 0, $iEnd_Row = 0, $iCol = -1)
 
-	; Fisher–Yates algorithm
+	; Fisher-Yates algorithm
 
 	If $iStart_Row = Default Then $iStart_Row = 0
 	If $iEnd_Row = Default Then $iEnd_Row = 0
@@ -1144,7 +1182,7 @@ EndFunc   ;==>_ArrayShuffle
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Jos
-; Modified.......: LazyCoder - added $iSubItem option; Tylo - implemented stable QuickSort algo; Jos - changed logic to correctly Sort arrays with mixed Values and Strings; Melba23 - implemented stable pivot algo
+; Modified.......: LazyCoder - added $iSubItem option; Tylo - implemented QuickSort algo; Jos - changed logic to correctly Sort arrays with mixed Values and Strings; Melba23 - implemented pivot algo
 ; ===============================================================================================================================
 Func _ArraySort(ByRef $aArray, $iDescending = 0, $iStart = 0, $iEnd = 0, $iSubItem = 0, $iPivot = 0)
 
@@ -1638,7 +1676,7 @@ EndFunc   ;==>_ArrayToClip
 ; Author ........: Brian Keene <brian_keene at yahoo dot com>, Valik - rewritten
 ; Modified.......: Ultima - code cleanup; Melba23 - added support for empty and 2D arrays
 ; ===============================================================================================================================
-Func _ArrayToString(Const ByRef $aArray, $sDelim_Col = "|", $iStart_Row = -1, $iEnd_Row = -1, $sDelim_Row = @CRLF, $iStart_Col = -1, $iEnd_Col = -1)
+Func _ArrayToString(Const ByRef $aArray, $sDelim_Col = "|", $iStart_Row = Default, $iEnd_Row = Default, $sDelim_Row = @CRLF, $iStart_Col = Default, $iEnd_Col = Default)
 
 	If $sDelim_Col = Default Then $sDelim_Col = "|"
 	If $sDelim_Row = Default Then $sDelim_Row = @CRLF
@@ -1648,6 +1686,7 @@ Func _ArrayToString(Const ByRef $aArray, $sDelim_Col = "|", $iStart_Row = -1, $i
 	If $iEnd_Col = Default Then $iEnd_Col = -1
 	If Not IsArray($aArray) Then Return SetError(1, 0, -1)
 	Local $iDim_1 = UBound($aArray, $UBOUND_ROWS) - 1
+	If $iDim_1 = -1 Then Return "" ; Empty row dimension
 	If $iStart_Row = -1 Then $iStart_Row = 0
 	If $iEnd_Row = -1 Then $iEnd_Row = $iDim_1
 	If $iStart_Row < -1 Or $iEnd_Row < -1 Then Return SetError(3, 0, -1)
@@ -1662,16 +1701,18 @@ Func _ArrayToString(Const ByRef $aArray, $sDelim_Col = "|", $iStart_Row = -1, $i
 			Return StringTrimRight($sRet, StringLen($sDelim_Col))
 		Case 2
 			Local $iDim_2 = UBound($aArray, $UBOUND_COLUMNS) - 1
+			If $iDim_2 = -1 Then Return "" ; Empty col dimension
 			If $iStart_Col = -1 Then $iStart_Col = 0
 			If $iEnd_Col = -1 Then $iEnd_Col = $iDim_2
 			If $iStart_Col < -1 Or $iEnd_Col < -1 Then Return SetError(5, 0, -1)
 			If $iStart_Col > $iDim_2 Or $iEnd_Col > $iDim_2 Then Return SetError(5, 0, -1)
 			If $iStart_Col > $iEnd_Col Then Return SetError(6, 0, -1)
+			Local $iDelimColLen = StringLen($sDelim_Col)
 			For $i = $iStart_Row To $iEnd_Row
 				For $j = $iStart_Col To $iEnd_Col
 					$sRet &= $aArray[$i][$j] & $sDelim_Col
 				Next
-				$sRet = StringTrimRight($sRet, StringLen($sDelim_Col)) & $sDelim_Row
+				$sRet = StringTrimRight($sRet, $iDelimColLen) & $sDelim_Row
 			Next
 			Return StringTrimRight($sRet, StringLen($sDelim_Row))
 		Case Else
@@ -1685,7 +1726,16 @@ EndFunc   ;==>_ArrayToString
 ; Author ........: jchd
 ; Modified.......: jpm, czardas
 ; ===============================================================================================================================
-Func _ArrayTranspose(ByRef $aArray)
+Func _ArrayTranspose(ByRef $aArray, $bForce1D = False)
+	Local $aTemp
+	Switch $bForce1D
+		Case Default
+			$bForce1D = False
+		Case True, False
+			; Valid
+		Case Else
+			Return SetError(3, 0, 0)
+	EndSwitch
 	Switch UBound($aArray, 0)
 		Case 0
 			Return SetError(2, 0, 0)
@@ -1705,7 +1755,7 @@ Func _ArrayTranspose(ByRef $aArray)
 					Next
 				Next
 				$aArray = $aTemp
-			Else ; optimimal method for a square grid
+			Else ; Optimimal method for a square grid
 				Local $vElement
 				For $i = 0 To $iDim_1 - 1
 					For $j = $i + 1 To $iDim_2 - 1
@@ -1713,6 +1763,13 @@ Func _ArrayTranspose(ByRef $aArray)
 						$aArray[$i][$j] = $aArray[$j][$i]
 						$aArray[$j][$i] = $vElement
 					Next
+				Next
+			EndIf
+			If $bForce1D = True And UBound($aArray, 2) = 1 Then
+				$aTemp = $aArray
+				ReDim $aArray[UBound($aTemp)]
+				For $i = 0 To UBound($aTemp) - 1
+					$aArray[$i] = $aTemp[$i][0]
 				Next
 			EndIf
 		Case Else
@@ -1780,6 +1837,7 @@ Func _ArrayUnique(Const ByRef $aArray, $iColumn = 0, $iBase = 0, $iCase = 0, $iC
 	If $iBase = Default Then $iBase = 0
 	If $iCase = Default Then $iCase = 0
 	If $iCount = Default Then $iCount = $ARRAYUNIQUE_COUNT
+	If $iIntType = Default Then $iIntType = $ARRAYUNIQUE_AUTO
 	; Check array
 	If UBound($aArray, $UBOUND_ROWS) = 0 Then Return SetError(1, 0, 0)
 	Local $iDims = UBound($aArray, $UBOUND_DIMENSIONS), $iNumColumns = UBound($aArray, $UBOUND_COLUMNS)
@@ -1932,6 +1990,22 @@ Func _Array1DToHistogram($aArray, $iSizing = 100)
 
 	Return $aArray
 EndFunc   ;==>_Array1DToHistogram
+
+; #FUNCTION# ====================================================================================================================
+; Author ........: jpm
+; Modified.......:
+; ===============================================================================================================================
+Func _Array2DCreate($aCol0, $aCol1)
+	If (UBound($aCol0, 0) <> 1) Or (UBound($aCol1, 0) <> 1) Then Return SetError(1, 0, "")
+	Local $nRows = UBound($aCol0)
+	If $nRows <> UBound($aCol1) Then Return SetError(2, 0, "")
+	Local $aTmp[$nRows][2]
+	For $i = 0 To $nRows - 1
+		$aTmp[$i][0] = $aCol0[$i]
+		$aTmp[$i][1] = $aCol1[$i]
+	Next
+	Return $aTmp
+EndFunc   ;==>_Array2DCreate
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: __Array_StringRepeat

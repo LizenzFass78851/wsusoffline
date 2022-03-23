@@ -9,7 +9,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIRes.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -77,11 +77,11 @@ Global Const $tagVS_FIXEDFILEINFO = 'dword Signature;dword StrucVersion;dword Fi
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_BeginUpdateResource($sFilePath, $bDelete = False)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'BeginUpdateResourceW', 'wstr', $sFilePath, 'bool', $bDelete)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'BeginUpdateResourceW', 'wstr', $sFilePath, 'bool', $bDelete)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BeginUpdateResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -89,11 +89,11 @@ EndFunc   ;==>_WinAPI_BeginUpdateResource
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_ClipCursor($tRECT)
-	Local $aRet = DllCall('user32.dll', 'bool', 'ClipCursor', 'struct*', $tRECT)
+	Local $aCall = DllCall('user32.dll', 'bool', 'ClipCursor', 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ClipCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -109,11 +109,11 @@ EndFunc   ;==>_WinAPI_CopyCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateCaret($hWnd, $hBitmap, $iWidth = 0, $iHeight = 0)
-	Local $aRet = DllCall('user32.dll', 'bool', 'CreateCaret', 'hwnd', $hWnd, 'handle', $hBitmap, 'int', $iWidth, 'int', $iHeight)
+	Local $aCall = DllCall('user32.dll', 'bool', 'CreateCaret', 'hwnd', $hWnd, 'handle', $hBitmap, 'int', $iWidth, 'int', $iHeight)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateCaret
 
 ; #FUNCTION# ====================================================================================================================
@@ -121,11 +121,11 @@ EndFunc   ;==>_WinAPI_CreateCaret
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DestroyCaret()
-	Local $aRet = DllCall('user32.dll', 'bool', 'DestroyCaret')
+	Local $aCall = DllCall('user32.dll', 'bool', 'DestroyCaret')
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DestroyCaret
 
 ; #FUNCTION# ====================================================================================================================
@@ -133,11 +133,11 @@ EndFunc   ;==>_WinAPI_DestroyCaret
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DestroyCursor($hCursor)
-	Local $aRet = DllCall('user32.dll', 'bool', 'DestroyCursor', 'handle', $hCursor)
+	Local $aCall = DllCall('user32.dll', 'bool', 'DestroyCursor', 'handle', $hCursor)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DestroyCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -145,11 +145,11 @@ EndFunc   ;==>_WinAPI_DestroyCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_EndUpdateResource($hUpdate, $bDiscard = False)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'EndUpdateResourceW', 'handle', $hUpdate, 'bool', $bDiscard)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'EndUpdateResourceW', 'handle', $hUpdate, 'bool', $bDiscard)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_EndUpdateResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -161,7 +161,7 @@ Func _WinAPI_EnumResourceLanguages($hModule, $sType, $sName)
 
 	If IsString($hModule) Then
 		If StringStripWS($hModule, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$hModule = _WinAPI_LoadLibraryEx($hModule, 0x00000003)
+			$hModule = _WinAPI_LoadLibraryEx($hModule, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 			If Not $hModule Then Return SetError(1, 0, 0)
 			$iLibrary = 1
 		Else
@@ -176,9 +176,9 @@ Func _WinAPI_EnumResourceLanguages($hModule, $sType, $sName)
 	EndIf
 	Dim $__g_vEnum[101] = [0]
 	Local $hEnumProc = DllCallbackRegister('__EnumResLanguagesProc', 'bool', 'handle;ptr;ptr;word;long_ptr')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'EnumResourceLanguagesW', 'handle', $hModule, $sTypeOfType, $sType, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumResourceLanguagesW', 'handle', $hModule, $sTypeOfType, $sType, _
 			$sTypeOfName, $sName, 'ptr', DllCallbackGetPtr($hEnumProc), 'long_ptr', 0)
-	If @error Or Not $aRet[0] Or Not $__g_vEnum[0] Then
+	If @error Or Not $aCall[0] Or Not $__g_vEnum[0] Then
 		$__g_vEnum = @error + 10
 	EndIf
 	If $iLibrary Then
@@ -196,11 +196,11 @@ EndFunc   ;==>_WinAPI_EnumResourceLanguages
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_EnumResourceNames($hModule, $sType)
-	Local $aRet, $hEnumProc, $iLibrary = 0, $sTypeOfType = 'int'
+	Local $aCall, $hEnumProc, $iLibrary = 0, $sTypeOfType = 'int'
 
 	If IsString($hModule) Then
 		If StringStripWS($hModule, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$hModule = _WinAPI_LoadLibraryEx($hModule, 0x00000003)
+			$hModule = _WinAPI_LoadLibraryEx($hModule, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 			If Not $hModule Then Return SetError(1, 0, 0)
 			$iLibrary = 1
 		Else
@@ -212,9 +212,9 @@ Func _WinAPI_EnumResourceNames($hModule, $sType)
 	EndIf
 	Dim $__g_vEnum[101] = [0]
 	$hEnumProc = DllCallbackRegister('__EnumResNamesProc', 'bool', 'handle;ptr;ptr;long_ptr')
-	$aRet = DllCall('kernel32.dll', 'bool', 'EnumResourceNamesW', 'handle', $hModule, $sTypeOfType, $sType, _
+	$aCall = DllCall('kernel32.dll', 'bool', 'EnumResourceNamesW', 'handle', $hModule, $sTypeOfType, $sType, _
 			'ptr', DllCallbackGetPtr($hEnumProc), 'long_ptr', 0)
-	If @error Or Not $aRet[0] Or (Not $__g_vEnum[0]) Then
+	If @error Or Not $aCall[0] Or (Not $__g_vEnum[0]) Then
 		$__g_vEnum = @error + 10
 	EndIf
 	If $iLibrary Then
@@ -235,7 +235,7 @@ Func _WinAPI_EnumResourceTypes($hModule)
 	Local $iLibrary = 0
 	If IsString($hModule) Then
 		If StringStripWS($hModule, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$hModule = _WinAPI_LoadLibraryEx($hModule, 0x00000003)
+			$hModule = _WinAPI_LoadLibraryEx($hModule, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 			If Not $hModule Then Return SetError(1, 0, 0)
 			$iLibrary = 1
 		Else
@@ -244,9 +244,9 @@ Func _WinAPI_EnumResourceTypes($hModule)
 	EndIf
 	Dim $__g_vEnum[101] = [0]
 	Local $hEnumProc = DllCallbackRegister('__EnumResTypesProc', 'bool', 'handle;ptr;long_ptr')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'EnumResourceTypesW', 'handle', $hModule, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumResourceTypesW', 'handle', $hModule, _
 			'ptr', DllCallbackGetPtr($hEnumProc), 'long_ptr', 0)
-	If @error Or Not $aRet[0] Or (Not $__g_vEnum[0]) Then
+	If @error Or Not $aCall[0] Or (Not $__g_vEnum[0]) Then
 		$__g_vEnum = @error + 10
 	EndIf
 	If $iLibrary Then
@@ -272,11 +272,11 @@ Func _WinAPI_FindResource($hInstance, $sType, $sName)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindResourceW', 'handle', $hInstance, $sTypeOfName, $sName, $sTypeOfType, $sType)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindResourceW', 'handle', $hInstance, $sTypeOfName, $sName, $sTypeOfType, $sType)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -292,12 +292,12 @@ Func _WinAPI_FindResourceEx($hInstance, $sType, $sName, $iLanguage)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindResourceExW', 'handle', $hInstance, $sTypeOfType, $sType, _
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindResourceExW', 'handle', $hInstance, $sTypeOfType, $sType, _
 			$sTypeOfName, $sName, 'ushort', $iLanguage)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindResourceEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -305,11 +305,11 @@ EndFunc   ;==>_WinAPI_FindResourceEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_FreeResource($hData)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FreeResource', 'handle', $hData)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FreeResource', 'handle', $hData)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FreeResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -317,11 +317,11 @@ EndFunc   ;==>_WinAPI_FreeResource
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCaretBlinkTime()
-	Local $aRet = DllCall('user32.dll', 'uint', 'GetCaretBlinkTime')
+	Local $aCall = DllCall('user32.dll', 'uint', 'GetCaretBlinkTime')
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetCaretBlinkTime
 
 ; #FUNCTION# ====================================================================================================================
@@ -330,14 +330,15 @@ EndFunc   ;==>_WinAPI_GetCaretBlinkTime
 ; ===============================================================================================================================
 Func _WinAPI_GetCaretPos()
 	Local $tPOINT = DllStructCreate($tagPOINT)
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetCaretPos', 'struct*', $tagPOINT)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetCaretPos', 'struct*', $tPOINT)
+	If @error Then Return SetError(@error, @extended, 0)
+	If Not $aCall[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
 
-	Local $aResult[2]
+	Local $aRet[2]
 	For $i = 0 To 1
-		$aResult[$i] = DllStructGetData($tPOINT, $i + 1)
+		$aRet[$i] = DllStructGetData($tPOINT, $i + 1)
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetCaretPos
 
 ; #FUNCTION# ====================================================================================================================
@@ -346,9 +347,9 @@ EndFunc   ;==>_WinAPI_GetCaretPos
 ; ===============================================================================================================================
 Func _WinAPI_GetClipCursor()
 	Local $tRECT = DllStructCreate($tagRECT)
-	Local $aRet = DllCall('user32.dll', 'bool', 'GetClipCursor', 'struct*', $tRECT)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'GetClipCursor', 'struct*', $tRECT)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
 	Return $tRECT
 EndFunc   ;==>_WinAPI_GetClipCursor
@@ -358,10 +359,10 @@ EndFunc   ;==>_WinAPI_GetClipCursor
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCursor()
-	Local $aRet = DllCall('user32.dll', 'handle', 'GetCursor')
+	Local $aCall = DllCall('user32.dll', 'handle', 'GetCursor')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -369,26 +370,26 @@ EndFunc   ;==>_WinAPI_GetCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFileVersionInfo($sFilePath, ByRef $pBuffer, $iFlags = 0)
-	Local $aRet
-	If $__WINVER >= 0x0600 Then
-		$aRet = DllCall('version.dll', 'dword', 'GetFileVersionInfoSizeExW', 'dword', BitAND($iFlags, 0x03), 'wstr', $sFilePath, _
+	Local $aCall
+	If _WinAPI_GetVersion() >= 6.0 Then
+		$aCall = DllCall('version.dll', 'dword', 'GetFileVersionInfoSizeExW', 'dword', BitAND($iFlags, 0x03), 'wstr', $sFilePath, _
 				'ptr', 0)
 	Else
-		$aRet = DllCall('version.dll', 'dword', 'GetFileVersionInfoSizeW', 'wstr', $sFilePath, 'ptr', 0)
+		$aCall = DllCall('version.dll', 'dword', 'GetFileVersionInfoSizeW', 'wstr', $sFilePath, 'ptr', 0)
 	EndIf
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
-	$pBuffer = __HeapReAlloc($pBuffer, $aRet[0], 1)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	$pBuffer = __HeapReAlloc($pBuffer, $aCall[0], 1)
 	If @error Then Return SetError(@error + 100, @extended, 0)
-	Local $iNbByte = $aRet[0]
-	If $__WINVER >= 0x0600 Then
-		$aRet = DllCall('version.dll', 'bool', 'GetFileVersionInfoExW', 'dword', BitAND($iFlags, 0x07), 'wstr', $sFilePath, _
+	Local $iNbByte = $aCall[0]
+	If _WinAPI_GetVersion() >= 6.0 Then
+		$aCall = DllCall('version.dll', 'bool', 'GetFileVersionInfoExW', 'dword', BitAND($iFlags, 0x07), 'wstr', $sFilePath, _
 				'dword', 0, 'dword', $iNbByte, 'ptr', $pBuffer)
 	Else
-		$aRet = DllCall('version.dll', 'bool', 'GetFileVersionInfoW', 'wstr', $sFilePath, _
+		$aCall = DllCall('version.dll', 'bool', 'GetFileVersionInfoW', 'wstr', $sFilePath, _
 				'dword', 0, 'dword', $iNbByte, 'ptr', $pBuffer)
 	EndIf
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Return $iNbByte
 EndFunc   ;==>_WinAPI_GetFileVersionInfo
@@ -398,11 +399,11 @@ EndFunc   ;==>_WinAPI_GetFileVersionInfo
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_HideCaret($hWnd)
-	Local $aRet = DllCall('user32.dll', 'int', 'HideCaret', 'hwnd', $hWnd)
+	Local $aCall = DllCall('user32.dll', 'int', 'HideCaret', 'hwnd', $hWnd)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_HideCaret
 
 ; #FUNCTION# ====================================================================================================================
@@ -412,10 +413,10 @@ EndFunc   ;==>_WinAPI_HideCaret
 Func _WinAPI_LoadBitmap($hInstance, $sBitmap)
 	Local $sBitmapType = "int"
 	If IsString($sBitmap) Then $sBitmapType = "wstr"
-	Local $aResult = DllCall("user32.dll", "handle", "LoadBitmapW", "handle", $hInstance, $sBitmapType, $sBitmap)
+	Local $aCall = DllCall("user32.dll", "handle", "LoadBitmapW", "handle", $hInstance, $sBitmapType, $sBitmap)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadBitmap
 
 ; #FUNCTION# ====================================================================================================================
@@ -428,11 +429,11 @@ Func _WinAPI_LoadCursor($hInstance, $sName)
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('user32.dll', 'handle', 'LoadCursorW', 'handle', $hInstance, $sTypeOfName, $sName)
+	Local $aCall = DllCall('user32.dll', 'handle', 'LoadCursorW', 'handle', $hInstance, $sTypeOfName, $sName)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -440,11 +441,11 @@ EndFunc   ;==>_WinAPI_LoadCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_LoadCursorFromFile($sFilePath)
-	Local $aRet = DllCall('user32.dll', 'handle', 'LoadCursorFromFileW', 'wstr', $sFilePath)
+	Local $aCall = DllCall('user32.dll', 'handle', 'LoadCursorFromFileW', 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadCursorFromFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -452,11 +453,11 @@ EndFunc   ;==>_WinAPI_LoadCursorFromFile
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_LoadIndirectString($sStrIn)
-	Local $aRet = DllCall('shlwapi.dll', 'uint', 'SHLoadIndirectString', 'wstr', $sStrIn, 'wstr', '', 'uint', 4096, 'ptr*', 0)
+	Local $aCall = DllCall('shlwapi.dll', 'uint', 'SHLoadIndirectString', 'wstr', $sStrIn, 'wstr', '', 'uint', 4096, 'ptr*', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aRet[0] Then Return SetError(10, $aRet[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_LoadIndirectString
 
 ; #FUNCTION# ====================================================================================================================
@@ -464,10 +465,10 @@ EndFunc   ;==>_WinAPI_LoadIndirectString
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_LoadString($hInstance, $iStringID)
-	Local $aResult = DllCall("user32.dll", "int", "LoadStringW", "handle", $hInstance, "uint", $iStringID, "wstr", "", "int", 4096)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, "")
+	Local $aCall = DllCall("user32.dll", "int", "LoadStringW", "handle", $hInstance, "uint", $iStringID, "wstr", "", "int", 4096)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, "")
 
-	Return SetExtended($aResult[0], $aResult[3])
+	Return SetExtended($aCall[0], $aCall[3])
 EndFunc   ;==>_WinAPI_LoadString
 
 ; #FUNCTION# ====================================================================================================================
@@ -475,10 +476,10 @@ EndFunc   ;==>_WinAPI_LoadString
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_LoadLibraryEx($sFileName, $iFlags = 0)
-	Local $aResult = DllCall("kernel32.dll", "handle", "LoadLibraryExW", "wstr", $sFileName, "ptr", 0, "dword", $iFlags)
+	Local $aCall = DllCall("kernel32.dll", "handle", "LoadLibraryExW", "wstr", $sFileName, "ptr", 0, "dword", $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadLibraryEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -486,11 +487,11 @@ EndFunc   ;==>_WinAPI_LoadLibraryEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_LoadResource($hInstance, $hResource)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'LoadResource', 'handle', $hInstance, 'handle', $hResource)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'LoadResource', 'handle', $hInstance, 'handle', $hResource)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -501,7 +502,7 @@ Func _WinAPI_LoadStringEx($hModule, $iID, $iLanguage = $LOCALE_USER_DEFAULT)
 	Local $iLibrary = 0
 	If IsString($hModule) Then
 		If StringStripWS($hModule, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$hModule = _WinAPI_LoadLibraryEx($hModule, 0x00000003)
+			$hModule = _WinAPI_LoadLibraryEx($hModule, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 			If Not $hModule Then Return SetError(@error + 20, @extended, '')
 			$iLibrary = 1
 		Else
@@ -532,11 +533,11 @@ EndFunc   ;==>_WinAPI_LoadStringEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_LockResource($hData)
-	Local $aRet = DllCall('kernel32.dll', 'ptr', 'LockResource', 'handle', $hData)
+	Local $aCall = DllCall('kernel32.dll', 'ptr', 'LockResource', 'handle', $hData)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LockResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -547,8 +548,8 @@ Func _WinAPI_SetCaretBlinkTime($iDuration)
 	Local $iPrev = _WinAPI_GetCaretBlinkTime()
 	If Not $iPrev Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('user32.dll', 'bool', 'SetCaretBlinkTime', 'uint', $iDuration)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('user32.dll', 'bool', 'SetCaretBlinkTime', 'uint', $iDuration)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Return $iPrev
 EndFunc   ;==>_WinAPI_SetCaretBlinkTime
@@ -558,11 +559,11 @@ EndFunc   ;==>_WinAPI_SetCaretBlinkTime
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetCaretPos($iX, $iY)
-	Local $aRet = DllCall('user32.dll', 'int', 'SetCaretPos', 'int', $iX, 'int', $iY)
+	Local $aCall = DllCall('user32.dll', 'int', 'SetCaretPos', 'int', $iX, 'int', $iY)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetCaretPos
 
 ; #FUNCTION# ====================================================================================================================
@@ -570,10 +571,10 @@ EndFunc   ;==>_WinAPI_SetCaretPos
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetCursor($hCursor)
-	Local $aResult = DllCall("user32.dll", "handle", "SetCursor", "handle", $hCursor)
+	Local $aCall = DllCall("user32.dll", "handle", "SetCursor", "handle", $hCursor)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -585,11 +586,11 @@ Func _WinAPI_SetSystemCursor($hCursor, $iID, $bCopy = False)
 		$hCursor = _WinAPI_CopyCursor($hCursor)
 	EndIf
 
-	Local $aRet = DllCall('user32.dll', 'bool', 'SetSystemCursor', 'handle', $hCursor, 'dword', $iID)
+	Local $aCall = DllCall('user32.dll', 'bool', 'SetSystemCursor', 'handle', $hCursor, 'dword', $iID)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetSystemCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -597,11 +598,11 @@ EndFunc   ;==>_WinAPI_SetSystemCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_ShowCaret($hWnd)
-	Local $aRet = DllCall('user32.dll', 'bool', 'ShowCaret', 'hwnd', $hWnd)
+	Local $aCall = DllCall('user32.dll', 'bool', 'ShowCaret', 'hwnd', $hWnd)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ShowCaret
 
 ; #FUNCTION# ====================================================================================================================
@@ -609,10 +610,10 @@ EndFunc   ;==>_WinAPI_ShowCaret
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_ShowCursor($bShow)
-	Local $aResult = DllCall("user32.dll", "int", "ShowCursor", "bool", $bShow)
+	Local $aCall = DllCall("user32.dll", "int", "ShowCursor", "bool", $bShow)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ShowCursor
 
 ; #FUNCTION# ====================================================================================================================
@@ -620,11 +621,11 @@ EndFunc   ;==>_WinAPI_ShowCursor
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SizeOfResource($hInstance, $hResource)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'SizeofResource', 'handle', $hInstance, 'handle', $hResource)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'SizeofResource', 'handle', $hInstance, 'handle', $hResource)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SizeOfResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -640,12 +641,12 @@ Func _WinAPI_UpdateResource($hUpdate, $sType, $sName, $iLanguage, $pData, $iSize
 		$sTypeOfName = 'wstr'
 	EndIf
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'UpdateResourceW', 'handle', $hUpdate, $sTypeOfType, $sType, $sTypeOfName, $sName, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'UpdateResourceW', 'handle', $hUpdate, $sTypeOfType, $sType, $sTypeOfName, $sName, _
 			'word', $iLanguage, 'ptr', $pData, 'dword', $iSize)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_UpdateResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -653,11 +654,11 @@ EndFunc   ;==>_WinAPI_UpdateResource
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_VerQueryRoot($pData)
-	Local $aRet = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\', 'ptr*', 0, 'uint*', 0)
-	If @error Or Not $aRet[0] Or Not $aRet[4] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\', 'ptr*', 0, 'uint*', 0)
+	If @error Or Not $aCall[0] Or Not $aCall[4] Then Return SetError(@error + 10, @extended, 0)
 
 	Local $tVFFI = DllStructCreate($tagVS_FIXEDFILEINFO)
-	If Not _WinAPI_MoveMemory($tVFFI, $aRet[3], $aRet[4]) Then Return SetError(@error + 20, @extended, 0)
+	If Not _WinAPI_MoveMemory($tVFFI, $aCall[3], $aCall[4]) Then Return SetError(@error + 20, @extended, 0)
 
 	Return $tVFFI
 EndFunc   ;==>_WinAPI_VerQueryRoot
@@ -672,12 +673,12 @@ Func _WinAPI_VerQueryValue($pData, $sValues = '')
 		$sValues = 'Comments|CompanyName|FileDescription|FileVersion|InternalName|LegalCopyright|LegalTrademarks|OriginalFilename|ProductName|ProductVersion|PrivateBuild|SpecialBuild'
 	EndIf
 	$sValues = StringSplit($sValues, '|', $STR_NOCOUNT)
-	Local $aRet = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\VarFileInfo\Translation', 'ptr*', 0, _
+	Local $aCall = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\VarFileInfo\Translation', 'ptr*', 0, _
 			'uint*', 0)
-	If @error Or Not $aRet[0] Or Not $aRet[4] Then Return SetError(@error + 10, 0, 0)
+	If @error Or Not $aCall[0] Or Not $aCall[4] Then Return SetError(@error + 10, 0, 0)
 
-	Local $iLength = Floor($aRet[4] / 4)
-	Local $tLang = DllStructCreate('dword[' & $iLength & ']', $aRet[3])
+	Local $iLength = Floor($aCall[4] / 4)
+	Local $tLang = DllStructCreate('dword[' & $iLength & ']', $aCall[3])
 	If @error Then Return SetError(@error + 20, 0, 0)
 
 	Local $sCP, $aInfo[101][UBound($sValues) + 1] = [[0]]
@@ -686,10 +687,10 @@ Func _WinAPI_VerQueryValue($pData, $sValues = '')
 		$aInfo[$aInfo[0][0]][0] = _WinAPI_LoWord(DllStructGetData($tLang, 1, $i))
 		$sCP = Hex(_WinAPI_MakeLong(_WinAPI_HiWord(DllStructGetData($tLang, 1, $i)), _WinAPI_LoWord(DllStructGetData($tLang, 1, $i))), 8)
 		For $j = 0 To UBound($sValues) - 1
-			$aRet = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\StringFileInfo\' & $sCP & '\' & $sValues[$j], _
+			$aCall = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\StringFileInfo\' & $sCP & '\' & $sValues[$j], _
 					'ptr*', 0, 'uint*', 0)
-			If Not @error And $aRet[0] And $aRet[4] Then
-				$aInfo[$aInfo[0][0]][$j + 1] = DllStructGetData(DllStructCreate('wchar[' & $aRet[4] & ']', $aRet[3]), 1)
+			If Not @error And $aCall[0] And $aCall[4] Then
+				$aInfo[$aInfo[0][0]][$j + 1] = DllStructGetData(DllStructCreate('wchar[' & $aCall[4] & ']', $aCall[3]), 1)
 			Else
 				$aInfo[$aInfo[0][0]][$j + 1] = ''
 			EndIf
@@ -713,7 +714,7 @@ Func _WinAPI_VerQueryValueEx($hModule, $sValues = '', $iLanguage = 0x0400)
 	Local $iLibrary = 0
 	If IsString($hModule) Then
 		If StringStripWS($hModule, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-			$hModule = _WinAPI_LoadLibraryEx($hModule, 0x00000003)
+			$hModule = _WinAPI_LoadLibraryEx($hModule, BitOR($DONT_RESOLVE_DLL_REFERENCES, $LOAD_LIBRARY_AS_DATAFILE))
 			If Not $hModule Then
 				Return SetError(@error + 10, @extended, 0)
 			EndIf
@@ -724,13 +725,13 @@ Func _WinAPI_VerQueryValueEx($hModule, $sValues = '', $iLanguage = 0x0400)
 	EndIf
 	Dim $__g_vEnum[101][$__g_vVal[0] + 1] = [[0]]
 	Local $hEnumProc = DllCallbackRegister('__EnumVerValuesProc', 'bool', 'ptr;ptr;ptr;word;long_ptr')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'EnumResourceLanguagesW', 'handle', $hModule, 'int', 16, 'int', 1, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumResourceLanguagesW', 'handle', $hModule, 'int', 16, 'int', 1, _
 			'ptr', DllCallbackGetPtr($hEnumProc), 'long_ptr', $iLanguage)
 	Do
 		If @error Then
 			$__g_vEnum = @error + 20
 		Else
-			If Not $aRet[0] Then
+			If Not $aCall[0] Then
 				Switch _WinAPI_GetLastError()
 					Case 0, 15106 ; ERROR_SUCCESS, ERROR_RESOURCE_ENUM_USER_STOP
 						ExitLoop
@@ -792,7 +793,7 @@ Func __EnumResTypesProc($hModule, $iType, $lParam)
 EndFunc   ;==>__EnumResTypesProc
 
 Func __EnumVerValuesProc($hModule, $iType, $iName, $iLanguage, $iDefault)
-	Local $aRet, $iEnum = 1, $iError = 0
+	Local $aCall, $iEnum = 1, $iError = 0
 
 	Switch $iDefault
 		Case -1
@@ -812,12 +813,12 @@ Func __EnumVerValuesProc($hModule, $iType, $iName, $iLanguage, $iDefault)
 			$iError = @error + 10
 			ExitLoop
 		EndIf
-		$aRet = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\VarFileInfo\Translation', 'ptr*', 0, 'uint*', 0)
-		If @error Or Not $aRet[0] Or Not $aRet[4] Then
+		$aCall = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\VarFileInfo\Translation', 'ptr*', 0, 'uint*', 0)
+		If @error Or Not $aCall[0] Or Not $aCall[4] Then
 			$iError = @error + 20
 			ExitLoop
 		EndIf
-		Local $tData = DllStructCreate('ushort;ushort', $aRet[3])
+		Local $tData = DllStructCreate('ushort;ushort', $aCall[3])
 		If @error Then
 			$iError = @error + 30
 			ExitLoop
@@ -828,10 +829,10 @@ Func __EnumVerValuesProc($hModule, $iType, $iName, $iLanguage, $iDefault)
 		$__g_vEnum[$__g_vEnum[0][0]][0] = DllStructGetData($tData, 1)
 		Local $sCP = Hex(_WinAPI_MakeLong(DllStructGetData($tData, 2), DllStructGetData($tData, 1)), 8)
 		For $i = 1 To $__g_vVal[0]
-			$aRet = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\StringFileInfo\' & $sCP & '\' & $__g_vVal[$i], _
+			$aCall = DllCall('version.dll', 'bool', 'VerQueryValueW', 'ptr', $pData, 'wstr', '\StringFileInfo\' & $sCP & '\' & $__g_vVal[$i], _
 					'ptr*', 0, 'uint*', 0)
-			If Not @error And $aRet[0] And $aRet[4] Then
-				$__g_vEnum[$__g_vEnum[0][0]][$i] = DllStructGetData(DllStructCreate('wchar[' & $aRet[4] & ']', $aRet[3]), 1)
+			If Not @error And $aCall[0] And $aCall[4] Then
+				$__g_vEnum[$__g_vEnum[0][0]][$i] = DllStructGetData(DllStructCreate('wchar[' & $aCall[4] & ']', $aCall[3]), 1)
 			Else
 				$__g_vEnum[$__g_vEnum[0][0]][$i] = ''
 			EndIf

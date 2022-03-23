@@ -7,7 +7,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Edit Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Internet.
 ; Author(s) .....: Larry, Ezzetabi, Jarvis Stubblefield, Wes Wolfe-Wolvereness, Wouter, Walkabout, Florian Fida, guinness
@@ -56,15 +56,15 @@ Func _GetIP()
 		http://www.trackip.net/ip
 	#ce
 	Local $aGetIPURL = ["https://api.ipify.org", "http://checkip.dyndns.org", "http://www.myexternalip.com/raw", "http://bot.whatismyipaddress.com"], _
-			$aReturn = 0, _
+			$aRet = 0, _
 			$sReturn = ""
 
 	For $i = 0 To UBound($aGetIPURL) - 1
 		$sReturn = InetRead($aGetIPURL[$i])
 		If @error Or $sReturn == "" Then ContinueLoop
-		$aReturn = StringRegExp(BinaryToString($sReturn), "((?:\d{1,3}\.){3}\d{1,3})", $STR_REGEXPARRAYGLOBALMATCH) ; [\d\.]{7,15}
+		$aRet = StringRegExp(BinaryToString($sReturn), "((?:\d{1,3}\.){3}\d{1,3})", $STR_REGEXPARRAYGLOBALMATCH) ; [\d\.]{7,15}
 		If Not @error Then
-			$sReturn = $aReturn[0]
+			$sReturn = $aRet[0]
 			ExitLoop
 		EndIf
 		$sReturn = ""
@@ -125,7 +125,7 @@ EndFunc   ;==>_INetMail
 ; Author ........: Asimzameer, Walkabout
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _INetSmtpMail($sSMTPServer, $sFromName, $sFromAddress, $sToAddress, $sSubject = "", $aBody = "", $sEHLO = "", $sFirst = "", $bTrace = 0)
+Func _INetSmtpMail($sSMTPServer, $sFromName, $sFromAddress, $sToAddress, $sSubject = "", $aBody = "", $sEHLO = "", $sFirst = " ", $bTrace = 0)
 	If $sSMTPServer = "" Or $sFromAddress = "" Or $sToAddress = "" Or $sFromName = "" Or StringLen($sFromName) > 256 Then Return SetError(1, 0, 0)
 	If $sEHLO = "" Then $sEHLO = @ComputerName
 
@@ -159,11 +159,16 @@ Func _INetSmtpMail($sSMTPServer, $sFromName, $sFromAddress, $sToAddress, $sSubje
 	$aSend[3] = "DATA" & @CRLF
 	$aReplyCode[3] = "354"
 
-	Local $aResult = _Date_Time_GetTimeZoneInformation()
-	Local $iBias = -$aResult[1] / 60
-	Local $iBiasH = Int($iBias)
-	Local $iBiasM = 0
-	If $iBiasH <> $iBias Then $iBiasM = Abs($iBias - $iBiasH) * 60
+	Local $aInfo = _Date_Time_GetTimeZoneInformation()
+	If @error Then
+		TCPShutdown()
+		Return SetError(5, 0, 0)
+	EndIf
+	Local $iBias = $aInfo[1]
+	If $aInfo[0] = 2 Then $iBias += $aInfo[7]
+	$iBias *= -1
+	Local $iBiasH = Int($iBias / 60, 1)
+	Local $iBiasM = Mod($iBias, 60)
 	$iBias = StringFormat(" (%+.2d%.2d)", $iBiasH, $iBiasM)
 
 	$aSend[4] = "From:" & $sFromName & "<" & $sFromAddress & ">" & @CRLF & _
@@ -241,7 +246,7 @@ Func __SmtpSend($vSocket, $sSend, $sReplyCode, $bTrace, $sIntReply = "", $sFirst
 			If TCPSend($vSocket, $sFirst) = 0 Then
 				TCPCloseSocket($vSocket)
 				TCPShutdown()
-				Return 1; cannot send
+				Return 1 ; cannot send
 			EndIf
 		EndIf
 
@@ -258,7 +263,7 @@ Func __SmtpSend($vSocket, $sSend, $sReplyCode, $bTrace, $sIntReply = "", $sFirst
 	If TCPSend($vSocket, $sSend) = 0 Then
 		TCPCloseSocket($vSocket)
 		TCPShutdown()
-		Return 1; cannot send
+		Return 1 ; cannot send
 	EndIf
 
 	$hTimer = TimerInit()
@@ -278,7 +283,7 @@ Func __SmtpSend($vSocket, $sSend, $sReplyCode, $bTrace, $sIntReply = "", $sFirst
 			TCPCloseSocket($vSocket)
 			TCPShutdown()
 			If $bTrace Then __SmtpTrace("<-> " & $sReplyCode, 5)
-			Return 2; bad receive code
+			Return 2 ; bad receive code
 		EndIf
 	EndIf
 

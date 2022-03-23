@@ -4,7 +4,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: String
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Functions that assist with String management.
 ; Author(s) .....: Jarvis Stubblefield, SmOke_N, Valik, Wes Wolfe-Wolvereness, WeaponX, Louis Horvath, JdeB, Jeremy Landes, Jon, jchd, BrewManNH, guinness
 ; ===============================================================================================================================
@@ -54,9 +54,9 @@ Func _StringBetween($sString, $sStart, $sEnd, $iMode = $STR_ENDISSTART, $bCase =
 		$bCase = False
 	EndIf
 
-	Local $aReturn = StringRegExp($sString, "(?s" & (Not $bCase ? "i" : "") & ")" & $sStart & "(.*?)" & $sEnd, $STR_REGEXPARRAYGLOBALMATCH)
+	Local $aRet = StringRegExp($sString, "(?s" & (Not $bCase ? "i" : "") & ")" & $sStart & "(.*?)" & $sEnd, $STR_REGEXPARRAYGLOBALMATCH)
 	If @error Then Return SetError(1, 0, 0)
-	Return $aReturn
+	Return $aRet
 EndFunc   ;==>_StringBetween
 
 ; #FUNCTION# ====================================================================================================================
@@ -81,7 +81,7 @@ Func _StringExplode($sString, $sDelimiter, $iLimit = 0)
 			$sString = StringLeft($sString, $iIndex - 1)
 		EndIf
 	EndIf
-	Return StringSplit($sString, $sDelimiter, BItOR($STR_ENTIRESPLIT, $STR_NOCOUNT))
+	Return StringSplit($sString, $sDelimiter, BitOR($STR_ENTIRESPLIT, $STR_NOCOUNT))
 EndFunc   ;==>_StringExplode
 
 ; #FUNCTION# ====================================================================================================================
@@ -107,15 +107,16 @@ EndFunc   ;==>_StringInsert
 ; ===============================================================================================================================
 Func _StringProper($sString)
 	Local $bCapNext = True, $sChr = "", $sReturn = ""
+	Local $sPattern = '[a-zA-ZÀ-ÿšœžŸ]'
 	For $i = 1 To StringLen($sString)
 		$sChr = StringMid($sString, $i, 1)
 		Select
 			Case $bCapNext = True
-				If StringRegExp($sChr, '[a-zA-ZÀ-ÿšœžŸ]') Then
+				If StringRegExp($sChr, $sPattern) Then
 					$sChr = StringUpper($sChr)
 					$bCapNext = False
 				EndIf
-			Case Not StringRegExp($sChr, '[a-zA-ZÀ-ÿšœžŸ]')
+			Case Not StringRegExp($sChr, $sPattern)
 				$bCapNext = True
 			Case Else
 				$sChr = StringLower($sChr)

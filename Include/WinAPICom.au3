@@ -5,7 +5,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPICom.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -45,14 +45,14 @@ Global Const $__tagWinAPICom_GUID = "struct;ulong Data1;ushort Data2;ushort Data
 ; ===============================================================================================================================
 Func _WinAPI_CLSIDFromProgID($sProgID)
 	Local $tGUID = DllStructCreate($__tagWinAPICom_GUID)
-	Local $aReturn = DllCall('ole32.dll', 'long', 'CLSIDFromProgID', 'wstr', $sProgID, 'struct*', $tGUID)
+	Local $aCall = DllCall('ole32.dll', 'long', 'CLSIDFromProgID', 'wstr', $sProgID, 'struct*', $tGUID)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
-	$aReturn = DllCall('ole32.dll', 'int', 'StringFromGUID2', 'struct*', $tGUID, 'wstr', '', 'int', 39)
-	If @error Or Not $aReturn[0] Then Return SetError(@error + 20, @extended, '')
+	$aCall = DllCall('ole32.dll', 'int', 'StringFromGUID2', 'struct*', $tGUID, 'wstr', '', 'int', 39)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, '')
 
-	Return $aReturn[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_CLSIDFromProgID
 
 ; #FUNCTION# ====================================================================================================================
@@ -60,9 +60,9 @@ EndFunc   ;==>_WinAPI_CLSIDFromProgID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_CoInitialize($iFlags = 0)
-	Local $aReturn = DllCall('ole32.dll', 'long', 'CoInitializeEx', 'ptr', 0, 'dword', $iFlags)
+	Local $aCall = DllCall('ole32.dll', 'long', 'CoInitializeEx', 'ptr', 0, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_CoInitialize
@@ -72,11 +72,11 @@ EndFunc   ;==>_WinAPI_CoInitialize
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CoTaskMemAlloc($iSize)
-	Local $aReturn = DllCall('ole32.dll', 'ptr', 'CoTaskMemAlloc', 'uint_ptr', $iSize)
+	Local $aCall = DllCall('ole32.dll', 'ptr', 'CoTaskMemAlloc', 'uint_ptr', $iSize)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aReturn[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aReturn[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CoTaskMemAlloc
 
 ; #FUNCTION# ====================================================================================================================
@@ -95,11 +95,11 @@ EndFunc   ;==>_WinAPI_CoTaskMemFree
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CoTaskMemRealloc($pMemory, $iSize)
-	Local $aReturn = DllCall('ole32.dll', 'ptr', 'CoTaskMemRealloc', 'ptr', $pMemory, 'ulong_ptr', $iSize)
+	Local $aCall = DllCall('ole32.dll', 'ptr', 'CoTaskMemRealloc', 'ptr', $pMemory, 'ulong_ptr', $iSize)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aReturn[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aReturn[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CoTaskMemRealloc
 
 ; #FUNCTION# ====================================================================================================================
@@ -119,14 +119,14 @@ EndFunc   ;==>_WinAPI_CoUninitialize
 ; ===============================================================================================================================
 Func _WinAPI_CreateGUID()
 	Local $tGUID = DllStructCreate($__tagWinAPICom_GUID)
-	Local $aReturn = DllCall('ole32.dll', 'long', 'CoCreateGuid', 'struct*', $tGUID)
+	Local $aCall = DllCall('ole32.dll', 'long', 'CoCreateGuid', 'struct*', $tGUID)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
-	$aReturn = DllCall('ole32.dll', 'int', 'StringFromGUID2', 'struct*', $tGUID, 'wstr', '', 'int', 65536)
-	If @error Or Not $aReturn[0] Then Return SetError(@error + 20, @extended, '')
+	$aCall = DllCall('ole32.dll', 'int', 'StringFromGUID2', 'struct*', $tGUID, 'wstr', '', 'int', 65536)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, '')
 
-	Return $aReturn[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_CreateGUID
 
 ; #FUNCTION# ====================================================================================================================
@@ -134,11 +134,11 @@ EndFunc   ;==>_WinAPI_CreateGUID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateStreamOnHGlobal($hGlobal = 0, $bDeleteOnRelease = True)
-	Local $aReturn = DllCall('ole32.dll', 'long', 'CreateStreamOnHGlobal', 'handle', $hGlobal, 'bool', $bDeleteOnRelease, 'ptr*', 0)
+	Local $aCall = DllCall('ole32.dll', 'long', 'CreateStreamOnHGlobal', 'handle', $hGlobal, 'bool', $bDeleteOnRelease, 'ptr*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Return $aReturn[3]
+	Return $aCall[3]
 EndFunc   ;==>_WinAPI_CreateStreamOnHGlobal
 
 ; #FUNCTION# ====================================================================================================================
@@ -146,11 +146,11 @@ EndFunc   ;==>_WinAPI_CreateStreamOnHGlobal
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetHGlobalFromStream($pStream)
-	Local $aReturn = DllCall('ole32.dll', 'uint', 'GetHGlobalFromStream', 'ptr', $pStream, 'ptr*', 0)
+	Local $aCall = DllCall('ole32.dll', 'uint', 'GetHGlobalFromStream', 'ptr', $pStream, 'ptr*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Return $aReturn[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_GetHGlobalFromStream
 
 ; #FUNCTION# ====================================================================================================================
@@ -159,14 +159,14 @@ EndFunc   ;==>_WinAPI_GetHGlobalFromStream
 ; ===============================================================================================================================
 Func _WinAPI_ProgIDFromCLSID($sCLSID)
 	Local $tGUID = DllStructCreate($__tagWinAPICom_GUID)
-	Local $aReturn = DllCall('ole32.dll', 'uint', 'CLSIDFromString', 'wstr', $sCLSID, 'struct*', $tGUID)
-	If @error Or $aReturn[0] Then Return SetError(@error + 20, @extended, '')
-	$aReturn = DllCall('ole32.dll', 'uint', 'ProgIDFromCLSID', 'struct*', $tGUID, 'ptr*', 0)
+	Local $aCall = DllCall('ole32.dll', 'uint', 'CLSIDFromString', 'wstr', $sCLSID, 'struct*', $tGUID)
+	If @error Or $aCall[0] Then Return SetError(@error + 20, @extended, '')
+	$aCall = DllCall('ole32.dll', 'uint', 'ProgIDFromCLSID', 'struct*', $tGUID, 'ptr*', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
-	Local $sID = _WinAPI_GetString($aReturn[2])
-	_WinAPI_CoTaskMemFree($aReturn[2])
+	Local $sID = _WinAPI_GetString($aCall[2])
+	_WinAPI_CoTaskMemFree($aCall[2])
 	Return $sID
 EndFunc   ;==>_WinAPI_ProgIDFromCLSID
 
@@ -175,10 +175,10 @@ EndFunc   ;==>_WinAPI_ProgIDFromCLSID
 ; Modified.......: Yashied, jpm
 ; ===============================================================================================================================
 Func _WinAPI_ReleaseStream($pStream)
-	Local $aReturn = DllCall('oleaut32.dll', 'long', 'DispCallFunc', 'ptr', $pStream, 'ulong_ptr', 8 * (1 + @AutoItX64), 'uint', 4, _
+	Local $aCall = DllCall('oleaut32.dll', 'long', 'DispCallFunc', 'ptr', $pStream, 'ulong_ptr', 8 * (1 + @AutoItX64), 'uint', 4, _
 			'ushort', 23, 'uint', 0, 'ptr', 0, 'ptr', 0, 'str', '')
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aReturn[0] Then Return SetError(10, $aReturn[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_ReleaseStream
