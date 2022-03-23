@@ -68,3 +68,4 @@ kb5007233,November 2021 Security Only Quality Update for Windows 7 SP1 and Windo
 kb5008282,December 2021 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5009621,January 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5010422,February 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5011529,March 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
