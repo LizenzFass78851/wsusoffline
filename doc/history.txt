@@ -1845,6 +1845,7 @@ Community Edition 11.9.12 -- ??.??.????
 - Replaced superseded April 2021 Servicing stack update (kb5001399) by March 2022 Servicing stack update (kb5011569) for Windows 10 Version 1507 (Thanks to "aker")
 - Replaced superseded September 2021 Servicing stack update (kb5005698) by March 2022 Servicing stack update (kb5011570) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
+- AutoIt script compiler updated to version 3.3.16.0 (Thanks to "harry")
 - Fix: DoUpdate.cmd fails to recall the update when autoreboot is enabled, if an update requests a reboot instead of a recall (Thanks to "rbronca")
 - Fix: Syntax error in DoUpdate.cmd when installing the Internet Explorer 9 (Thanks to "rbronka")
 - Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")

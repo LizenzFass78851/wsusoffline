@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: API Constants UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants for locale functions.
 ; Author(s) .....: Yashied, Jpm
@@ -32,7 +32,7 @@ Global Const $LANG_ESTONIAN = 0x25
 Global Const $LANG_FAEROESE = 0x38
 Global Const $LANG_FARSI = 0x29
 Global Const $LANG_FINNISH = 0x0B
-Global Const $LANG_FRENCH = 0x9C
+Global Const $LANG_FRENCH = 0x0C
 Global Const $LANG_GEORGIAN = 0x37
 Global Const $LANG_GERMAN = 0x07
 Global Const $LANG_GREEK = 0x08

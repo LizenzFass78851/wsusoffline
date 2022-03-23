@@ -8,7 +8,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIMisc.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -175,12 +175,12 @@ Func _WinAPI_GetMousePos($bToClient = False, $hWnd = 0)
 	Local $aPos = MouseGetPos()
 	Opt("MouseCoordMode", $iMode)
 
-	Local $tPoint = DllStructCreate($tagPOINT)
-	DllStructSetData($tPoint, "X", $aPos[0])
-	DllStructSetData($tPoint, "Y", $aPos[1])
-	If $bToClient And Not _WinAPI_ScreenToClient($hWnd, $tPoint) Then Return SetError(@error + 20, @extended, 0)
+	Local $tPOINT = DllStructCreate($tagPOINT)
+	DllStructSetData($tPOINT, "X", $aPos[0])
+	DllStructSetData($tPOINT, "Y", $aPos[1])
+	If $bToClient And Not _WinAPI_ScreenToClient($hWnd, $tPOINT) Then Return SetError(@error + 20, @extended, 0)
 
-	Return $tPoint
+	Return $tPOINT
 EndFunc   ;==>_WinAPI_GetMousePos
 
 ; #FUNCTION# ====================================================================================================================
@@ -188,10 +188,10 @@ EndFunc   ;==>_WinAPI_GetMousePos
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetMousePosX($bToClient = False, $hWnd = 0)
-	Local $tPoint = _WinAPI_GetMousePos($bToClient, $hWnd)
+	Local $tPOINT = _WinAPI_GetMousePos($bToClient, $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return DllStructGetData($tPoint, "X")
+	Return DllStructGetData($tPOINT, "X")
 EndFunc   ;==>_WinAPI_GetMousePosX
 
 ; #FUNCTION# ====================================================================================================================
@@ -199,10 +199,10 @@ EndFunc   ;==>_WinAPI_GetMousePosX
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetMousePosY($bToClient = False, $hWnd = 0)
-	Local $tPoint = _WinAPI_GetMousePos($bToClient, $hWnd)
+	Local $tPOINT = _WinAPI_GetMousePos($bToClient, $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return DllStructGetData($tPoint, "Y")
+	Return DllStructGetData($tPOINT, "Y")
 EndFunc   ;==>_WinAPI_GetMousePosY
 
 ; #FUNCTION# ====================================================================================================================
@@ -210,10 +210,10 @@ EndFunc   ;==>_WinAPI_GetMousePosY
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_MulDiv($iNumber, $iNumerator, $iDenominator)
-	Local $aResult = DllCall("kernel32.dll", "int", "MulDiv", "int", $iNumber, "int", $iNumerator, "int", $iDenominator)
+	Local $aCall = DllCall("kernel32.dll", "int", "MulDiv", "int", $iNumber, "int", $iNumerator, "int", $iDenominator)
 	If @error Then Return SetError(@error, @extended, -1)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MulDiv
 
 ; #FUNCTION# ====================================================================================================================
@@ -231,11 +231,11 @@ Func _WinAPI_PlaySound($sSound, $iFlags = $SND_SYSTEM_NOSTOP, $hInstance = 0)
 		$iFlags = 0
 	EndIf
 
-	Local $aRet = DllCall('winmm.dll', 'bool', 'PlaySoundW', $sTypeOfSound, $sSound, 'handle', $hInstance, 'dword', $iFlags)
+	Local $aCall = DllCall('winmm.dll', 'bool', 'PlaySoundW', $sTypeOfSound, $sSound, 'handle', $hInstance, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_PlaySound
 
 ; #FUNCTION# ====================================================================================================================
@@ -243,10 +243,10 @@ EndFunc   ;==>_WinAPI_PlaySound
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_StringLenA(Const ByRef $tString)
-	Local $aResult = DllCall("kernel32.dll", "int", "lstrlenA", "struct*", $tString)
+	Local $aCall = DllCall("kernel32.dll", "int", "lstrlenA", "struct*", $tString)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_StringLenA
 
 ; #FUNCTION# ====================================================================================================================
@@ -254,10 +254,10 @@ EndFunc   ;==>_WinAPI_StringLenA
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_StringLenW(Const ByRef $tString)
-	Local $aResult = DllCall("kernel32.dll", "int", "lstrlenW", "struct*", $tString)
+	Local $aCall = DllCall("kernel32.dll", "int", "lstrlenW", "struct*", $tString)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_StringLenW
 
 ; #FUNCTION# ====================================================================================================================
@@ -271,7 +271,7 @@ Func _WinAPI_StructToArray(ByRef $tStruct, $iItems = 0)
 	If Not $iSize Or Not $pStruct Then Return SetError(1, 0, 0)
 
 	Local $tData, $iLength, $iOffset = 0
-	Local $aResult[101] = [0]
+	Local $aRet[101] = [0]
 
 	While 1
 		$iLength = _WinAPI_StrLen($pStruct + $iOffset)
@@ -281,18 +281,18 @@ Func _WinAPI_StructToArray(ByRef $tStruct, $iItems = 0)
 		If 2 * (1 + $iLength) + $iOffset > $iSize Then Return SetError(3, 0, 0)
 		$tData = DllStructCreate('wchar[' & (1 + $iLength) & ']', $pStruct + $iOffset)
 		If @error Then Return SetError(@error + 10, 0, 0)
-		__Inc($aResult)
-		$aResult[$aResult[0]] = DllStructGetData($tData, 1)
-		If $aResult[0] = $iItems Then
+		__Inc($aRet)
+		$aRet[$aRet[0]] = DllStructGetData($tData, 1)
+		If $aRet[0] = $iItems Then
 			ExitLoop
 		EndIf
 		$iOffset += 2 * (1 + $iLength)
 		If $iOffset >= $iSize Then Return SetError(3, 0, 0)
 	WEnd
-	If Not $aResult[0] Then Return SetError(2, 0, 0)
+	If Not $aRet[0] Then Return SetError(2, 0, 0)
 
-	__Inc($aResult, -1)
-	Return $aResult
+	__Inc($aRet, -1)
+	Return $aRet
 EndFunc   ;==>_WinAPI_StructToArray
 
 ; #FUNCTION# ====================================================================================================================

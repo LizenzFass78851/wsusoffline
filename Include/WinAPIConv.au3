@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIConv.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -76,10 +76,16 @@
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_CharToOem($sStr)
-	Local $aRet = DllCall('user32.dll', 'bool', 'CharToOemW', 'wstr', $sStr, 'wstr', '')
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall, $sRetStr = "", $nLen = StringLen($sStr) + 1, $iStart = 1
 
-	Return $aRet[2]
+	While $iStart < $nLen
+		$aCall = DllCall('user32.dll', 'bool', 'CharToOemW', 'wstr', StringMid($sStr, $iStart, 65536), 'wstr', '')
+		If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+		$iStart += 65536
+		$sRetStr &= $aCall[2]
+	WEnd
+
+	Return $sRetStr
 EndFunc   ;==>_WinAPI_CharToOem
 
 ; #FUNCTION# ====================================================================================================================
@@ -87,8 +93,8 @@ EndFunc   ;==>_WinAPI_CharToOem
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_ClientToScreen($hWnd, ByRef $tPoint)
-	Local $aRet = DllCall("user32.dll", "bool", "ClientToScreen", "hwnd", $hWnd, "struct*", $tPoint)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "bool", "ClientToScreen", "hwnd", $hWnd, "struct*", $tPoint)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Return $tPoint
 EndFunc   ;==>_WinAPI_ClientToScreen
@@ -155,9 +161,7 @@ EndFunc   ;==>_WinAPI_GetXYFromPoint
 ; ===============================================================================================================================
 Func _WinAPI_GUIDFromString($sGUID)
 	Local $tGUID = DllStructCreate($tagGUID)
-	_WinAPI_GUIDFromStringEx($sGUID, $tGUID)
-	If @error Then Return SetError(@error + 10, @extended, 0)
-	; If Not _WinAPI_GUIDFromStringEx($sGUID, $tGUID) Then Return SetError(@error + 10, @extended, 0)
+	If Not _WinAPI_GUIDFromStringEx($sGUID, $tGUID) Then Return SetError(@error, @extended, 0)
 
 	Return $tGUID
 EndFunc   ;==>_WinAPI_GUIDFromString
@@ -167,10 +171,11 @@ EndFunc   ;==>_WinAPI_GUIDFromString
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GUIDFromStringEx($sGUID, $tGUID)
-	Local $aResult = DllCall("ole32.dll", "long", "CLSIDFromString", "wstr", $sGUID, "struct*", $tGUID)
+	Local $aCall = DllCall("ole32.dll", "long", "CLSIDFromString", "wstr", $sGUID, "struct*", $tGUID)
 	If @error Then Return SetError(@error, @extended, False)
+	If $aCall[0] Then Return SetError(10, $aCall[0], False)
 
-	Return $aResult[0]
+	Return True
 EndFunc   ;==>_WinAPI_GUIDFromStringEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -182,9 +187,9 @@ Func _WinAPI_HashData($pMemory, $iSize, $iLength = 32)
 
 	Local $tData = DllStructCreate('byte[' & $iLength & ']')
 
-	Local $aRet = DllCall('shlwapi.dll', 'uint', 'HashData', 'struct*', $pMemory, 'dword', $iSize, 'struct*', $tData, 'dword', $iLength)
+	Local $aCall = DllCall('shlwapi.dll', 'uint', 'HashData', 'struct*', $pMemory, 'dword', $iSize, 'struct*', $tData, 'dword', $iLength)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return DllStructGetData($tData, 1)
 EndFunc   ;==>_WinAPI_HashData
@@ -350,21 +355,23 @@ EndFunc   ;==>_WinAPI_MakeWord
 ; Modified.......: JPM, Alexander Samuelsson (AdmiralAlkex)
 ; ===============================================================================================================================
 Func _WinAPI_MultiByteToWideChar($vText, $iCodePage = 0, $iFlags = 0, $bRetString = False)
-	Local $sTextType = "str"
-	If Not IsString($vText) Then $sTextType = "struct*"
+	Local $sTextType = ""
+	If IsString($vText) Then $sTextType = "str"
+	If (IsDllStruct($vText) Or IsPtr($vText)) Then $sTextType = "struct*"
+	If $sTextType = "" Then Return SetError(1, 0, 0) ; invalid input parameter type
 
 	; compute size for the output WideChar
-	Local $aResult = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, _
+	Local $aCall = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, _
 			$sTextType, $vText, "int", -1, "ptr", 0, "int", 0)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	; allocate space for output WideChar
-	Local $iOut = $aResult[0]
+	Local $iOut = $aCall[0]
 	Local $tOut = DllStructCreate("wchar[" & $iOut & "]")
 
-	$aResult = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, $sTextType, $vText, _
+	$aCall = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, $sTextType, $vText, _
 			"int", -1, "struct*", $tOut, "int", $iOut)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 20, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, 0)
 
 	If $bRetString Then Return DllStructGetData($tOut, 1)
 	Return $tOut
@@ -375,22 +382,28 @@ EndFunc   ;==>_WinAPI_MultiByteToWideChar
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_MultiByteToWideCharEx($sText, $pText, $iCodePage = 0, $iFlags = 0)
-	Local $aResult = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, "STR", $sText, _
+	Local $aCall = DllCall("kernel32.dll", "int", "MultiByteToWideChar", "uint", $iCodePage, "dword", $iFlags, "STR", $sText, _
 			"int", -1, "struct*", $pText, "int", (StringLen($sText) + 1) * 2)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MultiByteToWideCharEx
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
-; Modified.......: jpm
+; Modified.......: jpm, argumentum
 ; ===============================================================================================================================
 Func _WinAPI_OemToChar($sStr)
-	Local $aRet = DllCall('user32.dll', 'bool', 'OemToChar', 'str', $sStr, 'str', '')
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall, $sRetStr = "", $nLen = StringLen($sStr) + 1, $iStart = 1
 
-	Return $aRet[2]
+	While $iStart < $nLen
+		$aCall = DllCall('user32.dll', 'bool', 'OemToCharA', 'str', StringMid($sStr, $iStart, 65536), 'str', '')
+		If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+		$sRetStr &= $aCall[2]
+		$iStart += 65536
+	WEnd
+
+	Return $sRetStr
 EndFunc   ;==>_WinAPI_OemToChar
 
 ; #FUNCTION# ====================================================================================================================
@@ -425,10 +438,10 @@ EndFunc   ;==>_WinAPI_PrimaryLangId
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_ScreenToClient($hWnd, ByRef $tPoint)
-	Local $aResult = DllCall("user32.dll", "bool", "ScreenToClient", "hwnd", $hWnd, "struct*", $tPoint)
+	Local $aCall = DllCall("user32.dll", "bool", "ScreenToClient", "hwnd", $hWnd, "struct*", $tPoint)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ScreenToClient
 
 ; #FUNCTION# ====================================================================================================================
@@ -444,10 +457,10 @@ EndFunc   ;==>_WinAPI_ShortToWord
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_StrFormatByteSize($iSize)
-	Local $aRet = DllCall('shlwapi.dll', 'ptr', 'StrFormatByteSizeW', 'int64', $iSize, 'wstr', '', 'uint', 1024)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'StrFormatByteSizeW', 'int64', $iSize, 'wstr', '', 'uint', 1024)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_StrFormatByteSize
 
 ; #FUNCTION# ====================================================================================================================
@@ -469,10 +482,10 @@ EndFunc   ;==>_WinAPI_StrFormatByteSizeEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_StrFormatKBSize($iSize)
-	Local $aRet = DllCall('shlwapi.dll', 'ptr', 'StrFormatKBSizeW', 'int64', $iSize, 'wstr', '', 'uint', 1024)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'StrFormatKBSizeW', 'int64', $iSize, 'wstr', '', 'uint', 1024)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_StrFormatKBSize
 
 ; #FUNCTION# ====================================================================================================================
@@ -480,11 +493,11 @@ EndFunc   ;==>_WinAPI_StrFormatKBSize
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_StrFromTimeInterval($iTime, $iDigits = 7)
-	Local $aRet = DllCall('shlwapi.dll', 'int', 'StrFromTimeIntervalW', 'wstr', '', 'uint', 1024, 'dword', $iTime, _
+	Local $aCall = DllCall('shlwapi.dll', 'int', 'StrFromTimeIntervalW', 'wstr', '', 'uint', 1024, 'dword', $iTime, _
 			'int', $iDigits)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return StringStripWS($aRet[1], $STR_STRIPLEADING + $STR_STRIPTRAILING)
+	Return StringStripWS($aCall[1], $STR_STRIPLEADING + $STR_STRIPTRAILING)
 EndFunc   ;==>_WinAPI_StrFromTimeInterval
 
 ; #FUNCTION# ====================================================================================================================
@@ -492,10 +505,10 @@ EndFunc   ;==>_WinAPI_StrFromTimeInterval
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_StringFromGUID($tGUID)
-	Local $aResult = DllCall("ole32.dll", "int", "StringFromGUID2", "struct*", $tGUID, "wstr", "", "int", 40)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, "")
+	Local $aCall = DllCall("ole32.dll", "int", "StringFromGUID2", "struct*", $tGUID, "wstr", "", "int", 40)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, "")
 
-	Return SetExtended($aResult[0], $aResult[2])
+	Return SetExtended($aCall[0], $aCall[2])
 EndFunc   ;==>_WinAPI_StringFromGUID
 
 ; #FUNCTION# ====================================================================================================================
@@ -558,15 +571,15 @@ EndFunc   ;==>_WinAPI_SwapWord
 Func _WinAPI_WideCharToMultiByte($vUnicode, $iCodePage = 0, $bRetNoStruct = True, $bRetBinary = False)
 	Local $sUnicodeType = "wstr"
 	If Not IsString($vUnicode) Then $sUnicodeType = "struct*"
-	Local $aResult = DllCall("kernel32.dll", "int", "WideCharToMultiByte", "uint", $iCodePage, "dword", 0, $sUnicodeType, $vUnicode, "int", -1, _
+	Local $aCall = DllCall("kernel32.dll", "int", "WideCharToMultiByte", "uint", $iCodePage, "dword", 0, $sUnicodeType, $vUnicode, "int", -1, _
 			"ptr", 0, "int", 0, "ptr", 0, "ptr", 0)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 20, @extended, "")
+	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, "")
 
-	Local $tMultiByte = DllStructCreate((($bRetBinary) ? ("byte") : ("char")) & "[" & $aResult[0] & "]")
+	Local $tMultiByte = DllStructCreate((($bRetBinary) ? ("byte") : ("char")) & "[" & $aCall[0] & "]")
 
-	$aResult = DllCall("kernel32.dll", "int", "WideCharToMultiByte", "uint", $iCodePage, "dword", 0, $sUnicodeType, $vUnicode, _
-			"int", -1, "struct*", $tMultiByte, "int", $aResult[0], "ptr", 0, "ptr", 0)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, "")
+	$aCall = DllCall("kernel32.dll", "int", "WideCharToMultiByte", "uint", $iCodePage, "dword", 0, $sUnicodeType, $vUnicode, _
+			"int", -1, "struct*", $tMultiByte, "int", $aCall[0], "ptr", 0, "ptr", 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, "")
 
 	If $bRetNoStruct Then Return DllStructGetData($tMultiByte, 1)
 	Return $tMultiByte

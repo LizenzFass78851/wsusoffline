@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b23) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b24r2) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -299,7 +299,7 @@ EndFunc
 
 Func WMFTargetVersion()
   If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_2012") _
-    OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) Then
+    OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
     Return "5.1"
   Else
     Return "3.0"
@@ -360,7 +360,7 @@ Func CalcGUISize()
 
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
     OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) Then
+    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
     DllCall("user32.dll", "int", "SetProcessDPIAware")
   EndIf
   $reg_val = RegRead($reg_key_hkcu_winmetrics, $reg_val_applieddpi)
@@ -500,7 +500,7 @@ If $gergui Then
 Else
   $wmf = GUICtrlCreateCheckbox("Install Management Framework " & WMFTargetVersion(), $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") _
+If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") _
   OR ( ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") ) AND (WMFMainVersion() = "3.0") ) _
   OR ( (DotNet4MainVersion() <> "4.5") AND (DotNet4MainVersion() <> "4.6") AND (DotNet4MainVersion() <> "4.7") AND (DotNet4MainVersion() <> "4.8") AND (NOT IsCheckBoxChecked($dotnet4)) ) _
   OR (WMFMainVersion() = WMFTargetVersion()) ) Then
@@ -548,7 +548,7 @@ Else
   EndIf
 EndIf
 If ( (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") _
-  OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (NOT MSSEPresent($scriptdir)) ) Then
+  OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") OR (NOT MSSEPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_msse, $disabled) = $enabled Then
@@ -566,7 +566,7 @@ Else
   $tsc = GUICtrlCreateCheckbox("Update Remote Desktop Client", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
 If ( (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") _
-  OR (@OSVersion = "WIN_81")  OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) Then
+  OR (@OSVersion = "WIN_81")  OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_tsc, $disabled) = $enabled Then
@@ -610,7 +610,7 @@ If $gergui Then
 Else
   $autoreboot = GUICtrlCreateCheckbox("Automatic reboot and recall", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (NOT AutologonPresent($scriptdir)) ) Then
+If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") OR (NOT AutologonPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_control, $ini_value_autoreboot, $disabled) = $enabled Then
@@ -809,7 +809,7 @@ While 1
 
     Case $dotnet4              ; .NET 4 check box toggled
       If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") OR (DotNet4MainVersion() = "4.7") OR (DotNet4MainVersion() = "4.8") ) _
-       AND (@OSVersion <> "WIN_VISTA") AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") _
+       AND (@OSVersion <> "WIN_VISTA") AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") AND (@OSVersion <> "WIN_2019") AND (@OSVersion <> "WIN_2022") AND (@OSVersion <> "WIN_11") _
        AND ( ( (@OSVersion <> "WIN_7") AND (@OSVersion <> "WIN_2008R2") ) OR (WMFMainVersion() <> "3.0") ) _
        AND (WMFMainVersion() <> WMFTargetVersion()) ) Then
         GUICtrlSetState($wmf, $GUI_ENABLE)
@@ -838,7 +838,7 @@ While 1
       If ( (IsCheckBoxChecked($autoreboot)) _
        AND ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
           OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-          OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) ) Then
+          OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) ) Then
         If $gergui Then
           If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
                                & @LF & "temporär die Benutzerkontensteuerung (UAC), falls erforderlich." _

@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: File_Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt v3 script when using File functions.
 ; Author(s) .....: Valik, Gary Frost, ...
@@ -22,6 +22,8 @@ Global Const $FT_ACCESSED = 2 ; Date and time file was last accessed
 ; FileGetTime Constants
 Global Const $FT_ARRAY = 0
 Global Const $FT_STRING = 1
+Global Const $FT_MSEC = 2
+Global Const $FT_UTC = 4
 
 ; FileSelectFolder Constants
 Global Const $FSF_CREATEBUTTON = 1

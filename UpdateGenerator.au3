@@ -16,7 +16,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b23)"
+Dim Const $caption                  = "WSUS Offline Update - Community Edition - 11.9.12 (b24r2)"
 Dim Const $title                    = $caption & " - Generator"
 Dim Const $downloadURL              = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile          = "download.log"
@@ -971,7 +971,7 @@ Func CalcGUISize()
 
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
     OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") ) Then
+    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
     DllCall("user32.dll", "int", "SetProcessDPIAware")
   EndIf
   $reg_val = RegRead($reg_key_hkcu_winmetrics, $reg_val_applieddpi)

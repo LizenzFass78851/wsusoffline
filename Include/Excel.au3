@@ -4,7 +4,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Microsoft Excel Function Library
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: A collection of functions for accessing and manipulating Microsoft Excel files
 ; Author(s) .....: SEO (Locodarwin), DaLiMan, Stanley Lim, MikeOsdx, MRDev, big_daddy, PsaltyDS, litlmike, water, spiff59, golfinhu, bowmore, GMX, Andreu, danwilli
@@ -225,11 +225,12 @@ Func _Excel_BookOpen($oExcel, $sFilePath, $bReadOnly = Default, $bVisible = Defa
 	Local $oError = ObjEvent("AutoIt.Error", "__Excel_COMErrFunc")
 	#forceref $oError
 	If Not IsObj($oExcel) Or ObjName($oExcel, 1) <> "_Application" Then Return SetError(1, @error, 0)
-	If StringLeft($sFilePath, "HTTP") = 0 And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
+	If StringLeft($sFilePath, 4) <> "HTTP" And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
 	If $bReadOnly = Default Then $bReadOnly = False
 	If $bVisible = Default Then $bVisible = True
 	Local $oWorkbook = $oExcel.Workbooks.Open($sFilePath, $bUpdateLinks, $bReadOnly, Default, $sPassword, $sWritePassword)
 	If @error Then Return SetError(3, @error, 0)
+	If Not IsObj($oWorkbook) Then Return SetError(4, @error, 0)
 	Local $oWindow = $oExcel.Windows($oWorkbook.Name)
 	If IsObj($oWindow) Then $oWindow.Visible = $bVisible
 	; If a read-write workbook was opened read-only then set @extended = 1
@@ -247,7 +248,7 @@ Func _Excel_BookOpenText($oExcel, $sFilePath, $iStartRow = Default, $iDataType =
 	#forceref $oError
 	Local $bTab = False, $bSemicolon = False, $bComma = False, $bSpace = False, $aDelimiter[1], $bOther = False, $sOtherChar
 	If Not IsObj($oExcel) Or ObjName($oExcel, 1) <> "_Application" Then Return SetError(1, @error, 0)
-	If StringLeft($sFilePath, "HTTP") = 0 And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
+	If StringLeft($sFilePath, 4) <> "HTTP" And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
 	If $iStartRow = Default Then $iStartRow = 1
 	If $sTextQualifier = Default Then $sTextQualifier = $xlTextQualifierDoubleQuote
 	If $bConsecutiveDelimiter = Default Then $bConsecutiveDelimiter = False
@@ -655,23 +656,23 @@ Func _Excel_RangeFind($oWorkbook, $sSearch, $vRange = Default, $iLookIn = Defaul
 		$vRange = $oWorkbook.Activesheet.Range($vRange)
 		If @error Then Return SetError(3, @error, 0)
 	EndIf
-	Local $aResult[100][6], $iIndex = 0, $iIndexSheets = 1, $oTemp
+	Local $aRet[100][6], $iIndex = 0, $iIndexSheets = 1, $oTemp
 	While 1
 		$oMatch = $vRange.Find($sSearch, Default, $iLookIn, $iLookAt, Default, Default, $bMatchcase)
 		If @error Then Return SetError(4, @error, 0)
 		If IsObj($oMatch) Then
 			$sFirst = $oMatch.Address
 			While 1
-				$aResult[$iIndex][0] = $oMatch.Worksheet.Name
+				$aRet[$iIndex][0] = $oMatch.Worksheet.Name
 				$oTemp = $oMatch.Name
-				If Not @error Then $aResult[$iIndex][1] = $oTemp.Name
-				$aResult[$iIndex][2] = $oMatch.Address
-				$aResult[$iIndex][3] = $oMatch.Value
-				$aResult[$iIndex][4] = $oMatch.Formula
+				If Not @error Then $aRet[$iIndex][1] = $oTemp.Name
+				$aRet[$iIndex][2] = $oMatch.Address
+				$aRet[$iIndex][3] = $oMatch.Value
+				$aRet[$iIndex][4] = $oMatch.Formula
 				$oTemp = $oMatch.Comment
-				If IsObj($oTemp) Then $aResult[$iIndex][5] = $oTemp.Text
+				If IsObj($oTemp) Then $aRet[$iIndex][5] = $oTemp.Text
 				$iIndex = $iIndex + 1
-				If Mod($iIndex, 100) = 0 Then ReDim $aResult[UBound($aResult, 1) + 100][6]
+				If Mod($iIndex, 100) = 0 Then ReDim $aRet[UBound($aRet, 1) + 100][6]
 				$oMatch = $vRange.Findnext($oMatch)
 				If Not IsObj($oMatch) Or $sFirst = $oMatch.Address Then ExitLoop
 			WEnd
@@ -683,8 +684,8 @@ Func _Excel_RangeFind($oWorkbook, $sSearch, $vRange = Default, $iLookIn = Defaul
 		If @error Then ExitLoop
 		$vRange = $oSheet.UsedRange
 	WEnd
-	ReDim $aResult[$iIndex][6]
-	Return $aResult
+	ReDim $aRet[$iIndex][6]
+	Return $aRet
 EndFunc   ;==>_Excel_RangeFind
 
 ; #FUNCTION# ====================================================================================================================

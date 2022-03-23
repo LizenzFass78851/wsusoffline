@@ -9,7 +9,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Event_Log
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist Windows System logs.
 ; Description ...: When an error occurs, the system administrator or support technicians must determine what  caused  the  error,
@@ -38,9 +38,6 @@ Global Const $EVENTLOG_SEEK_READ = 0x00000002
 Global Const $EVENTLOG_FORWARDS_READ = 0x00000004
 Global Const $EVENTLOG_BACKWARDS_READ = 0x00000008
 
-Global Const $__EVENTLOG_LOAD_LIBRARY_AS_DATAFILE = 0x00000002
-Global Const $__EVENTLOG_FORMAT_MESSAGE_FROM_HMODULE = 0x00000800
-Global Const $__EVENTLOG_FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -78,9 +75,9 @@ Global Const $__EVENTLOG_FORMAT_MESSAGE_IGNORE_INSERTS = 0x00000200
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__Backup($hEventLog, $sFileName)
-	Local $aResult = DllCall("advapi32.dll", "bool", "BackupEventLogW", "handle", $hEventLog, "wstr", $sFileName)
+	Local $aCall = DllCall("advapi32.dll", "bool", "BackupEventLogW", "handle", $hEventLog, "wstr", $sFileName)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__Backup
 
 ; #FUNCTION# ====================================================================================================================
@@ -93,10 +90,10 @@ Func _EventLog__Clear($hEventLog, $sFileName)
 		$sFileName = @TempDir & "\_EventLog_tempbackup.bak"
 		$bTemp = True
 	EndIf
-	Local $aResult = DllCall("advapi32.dll", "bool", "ClearEventLogW", "handle", $hEventLog, "wstr", $sFileName)
+	Local $aCall = DllCall("advapi32.dll", "bool", "ClearEventLogW", "handle", $hEventLog, "wstr", $sFileName)
 	If @error Then Return SetError(@error, @extended, False)
 	If $bTemp Then FileDelete($sFileName)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__Clear
 
 ; #FUNCTION# ====================================================================================================================
@@ -104,9 +101,9 @@ EndFunc   ;==>_EventLog__Clear
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__Close($hEventLog)
-	Local $aResult = DllCall("advapi32.dll", "bool", "CloseEventLog", "handle", $hEventLog)
+	Local $aCall = DllCall("advapi32.dll", "bool", "CloseEventLog", "handle", $hEventLog)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__Close
 
 ; #FUNCTION# ====================================================================================================================
@@ -114,10 +111,10 @@ EndFunc   ;==>_EventLog__Close
 ; Modified.......:
 ; ===============================================================================================================================
 Func _EventLog__Count($hEventLog)
-	Local $aResult = DllCall("advapi32.dll", "bool", "GetNumberOfEventLogRecords", "handle", $hEventLog, "dword*", 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "GetNumberOfEventLogRecords", "handle", $hEventLog, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, -1)
-	If $aResult[0] = 0 Then Return -1
-	Return $aResult[2]
+	If $aCall[0] = 0 Then Return -1
+	Return $aCall[2]
 EndFunc   ;==>_EventLog__Count
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -237,51 +234,51 @@ EndFunc   ;==>__EventLog_DecodeDate
 ; Example .......:
 ; ===============================================================================================================================
 Func __EventLog_DecodeDesc($tEventLog)
-    Local $aStrings = __EventLog_DecodeStrings($tEventLog)
-    Local $sSource = __EventLog_DecodeSource($tEventLog)
-    Local $iEventID = DllStructGetData($tEventLog, "EventID")
-    Local $sKey = "HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\" & $__g_sSourceName_Event & "\" & $sSource
-    Local $aMsgDLL = StringSplit(_WinAPI_ExpandEnvironmentStrings(RegRead($sKey, "EventMessageFile")), ";")
+	Local $aStrings = __EventLog_DecodeStrings($tEventLog)
+	Local $sSource = __EventLog_DecodeSource($tEventLog)
+	Local $iEventID = DllStructGetData($tEventLog, "EventID")
+	Local $sKey = "HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\" & $__g_sSourceName_Event & "\" & $sSource
+	Local $aMsgDLL = StringSplit(_WinAPI_ExpandEnvironmentStrings(RegRead($sKey, "EventMessageFile")), ";")
 
-    Local $iFlags = BitOR($__EVENTLOG_FORMAT_MESSAGE_FROM_HMODULE, $__EVENTLOG_FORMAT_MESSAGE_IGNORE_INSERTS)
-    Local $sDesc = ""
-    Local $tBuffer = 0
+	Local $iFlags = BitOR($FORMAT_MESSAGE_FROM_HMODULE, $FORMAT_MESSAGE_IGNORE_INSERTS)
+	Local $sDesc = ""
+	Local $tBuffer = 0
 	For $iI = 1 To $aMsgDLL[0]
-        Local $hDLL = _WinAPI_LoadLibraryEx($aMsgDLL[$iI], $__EVENTLOG_LOAD_LIBRARY_AS_DATAFILE)
-        If $hDLL = 0 Then ContinueLoop
-        $tBuffer = DllStructCreate("wchar Text[4096]")
-        _WinAPI_FormatMessage($iFlags, $hDLL, $iEventID, 0, $tBuffer, 4096, 0)
-        _WinAPI_FreeLibrary($hDLL)
-        $sDesc &= DllStructGetData($tBuffer, "Text")
-    Next
-    $sKey = "HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\" & $__g_sSourceName_Event & "\" & $__g_sSourceName_Event
-    $aMsgDLL = StringSplit(_WinAPI_ExpandEnvironmentStrings(RegRead($sKey, "ParameterMessageFile")), ";")
+		Local $hDLL = _WinAPI_LoadLibraryEx($aMsgDLL[$iI], $LOAD_LIBRARY_AS_DATAFILE)
+		If $hDLL = 0 Then ContinueLoop
+		$tBuffer = DllStructCreate("wchar Text[4096]")
+		_WinAPI_FormatMessage($iFlags, $hDLL, $iEventID, 0, $tBuffer, 4096, 0)
+		_WinAPI_FreeLibrary($hDLL)
+		$sDesc &= DllStructGetData($tBuffer, "Text")
+	Next
+	$sKey = "HKLM\SYSTEM\CurrentControlSet\Services\Eventlog\" & $__g_sSourceName_Event & "\" & $__g_sSourceName_Event
+	$aMsgDLL = StringSplit(_WinAPI_ExpandEnvironmentStrings(RegRead($sKey, "ParameterMessageFile")), ";")
 
-    For $iI = 1 To $aMsgDLL[0]
-        $hDLL = _WinAPI_LoadLibraryEx($aMsgDLL[$iI], $__EVENTLOG_LOAD_LIBRARY_AS_DATAFILE)
-        If $hDLL <> 0 Then
-            For $iJ = 1 To $aStrings[0] ;Added to parse secondary replacements
-                $tBuffer = DllStructCreate("wchar Text[4096]")
-                If StringLeft($aStrings[$iJ], 2) == "%%" Then
-                    _WinAPI_FormatMessage($iFlags, $hDLL, Int(StringTrimLeft($aStrings[$iJ], 2)), 0, $tBuffer, 4096, 0)
-                    If Not @error Then
-                        $aStrings[$iJ] = DllStructGetData($tBuffer, "Text")
-                    EndIf
-                EndIf
-            Next
-            _WinAPI_FreeLibrary($hDLL)
-        EndIf
-    Next
-    If $sDesc = "" Then
-        For $iI = 1 To $aStrings[0]
-            $sDesc &= $aStrings[$iI]
-        Next
-    Else
-        For $iI = 1 To $aStrings[0]
-            $sDesc = StringRegExpReplace($sDesc, ("(%" & $iI & ")(\R|\Z)"), StringReplace($aStrings[$iI], "\", "\\") & "$2")
-        Next
-    EndIf
-    Return StringStripWS($sDesc, $STR_STRIPLEADING + $STR_STRIPTRAILING)
+	For $iI = 1 To $aMsgDLL[0]
+		$hDLL = _WinAPI_LoadLibraryEx($aMsgDLL[$iI], $LOAD_LIBRARY_AS_DATAFILE)
+		If $hDLL <> 0 Then
+			For $iJ = 1 To $aStrings[0] ;Added to parse secondary replacements
+				$tBuffer = DllStructCreate("wchar Text[4096]")
+				If StringLeft($aStrings[$iJ], 2) == "%%" Then
+					_WinAPI_FormatMessage($iFlags, $hDLL, Int(StringTrimLeft($aStrings[$iJ], 2)), 0, $tBuffer, 4096, 0)
+					If Not @error Then
+						$aStrings[$iJ] = DllStructGetData($tBuffer, "Text")
+					EndIf
+				EndIf
+			Next
+			_WinAPI_FreeLibrary($hDLL)
+		EndIf
+	Next
+	If $sDesc = "" Then
+		For $iI = 1 To $aStrings[0]
+			$sDesc &= $aStrings[$iI]
+		Next
+	Else
+		For $iI = $aStrings[0] To 1 Step -1
+			$sDesc = StringReplace($sDesc, "%" & $iI, $aStrings[$iI])
+		Next
+	EndIf
+	Return StringStripWS($sDesc, $STR_STRIPLEADING + $STR_STRIPTRAILING)
 EndFunc   ;==>__EventLog_DecodeDesc
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -460,9 +457,9 @@ EndFunc   ;==>__EventLog_DecodeUserName
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__DeregisterSource($hEventLog)
-	Local $aResult = DllCall("advapi32.dll", "bool", "DeregisterEventSource", "handle", $hEventLog)
+	Local $aCall = DllCall("advapi32.dll", "bool", "DeregisterEventSource", "handle", $hEventLog)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__DeregisterSource
 
 ; #FUNCTION# ====================================================================================================================
@@ -470,9 +467,9 @@ EndFunc   ;==>_EventLog__DeregisterSource
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__Full($hEventLog)
-	Local $aResult = DllCall("advapi32.dll", "bool", "GetEventLogInformation", "handle", $hEventLog, "dword", 0, "dword*", 0, "dword", 4, "dword*", 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "GetEventLogInformation", "handle", $hEventLog, "dword", 0, "dword*", 0, "dword", 4, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[3] <> 0
+	Return $aCall[3] <> 0
 EndFunc   ;==>_EventLog__Full
 
 ; #FUNCTION# ====================================================================================================================
@@ -480,9 +477,9 @@ EndFunc   ;==>_EventLog__Full
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__Notify($hEventLog, $hEvent)
-	Local $aResult = DllCall("advapi32.dll", "bool", "NotifyChangeEventLog", "handle", $hEventLog, "handle", $hEvent)
+	Local $aCall = DllCall("advapi32.dll", "bool", "NotifyChangeEventLog", "handle", $hEventLog, "handle", $hEvent)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__Notify
 
 ; #FUNCTION# ====================================================================================================================
@@ -490,9 +487,9 @@ EndFunc   ;==>_EventLog__Notify
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__Oldest($hEventLog)
-	Local $aResult = DllCall("advapi32.dll", "bool", "GetOldestEventLogRecord", "handle", $hEventLog, "dword*", 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "GetOldestEventLogRecord", "handle", $hEventLog, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aResult[2]
+	Return $aCall[2]
 EndFunc   ;==>_EventLog__Oldest
 
 ; #FUNCTION# ====================================================================================================================
@@ -501,9 +498,9 @@ EndFunc   ;==>_EventLog__Oldest
 ; ===============================================================================================================================
 Func _EventLog__Open($sServerName, $sSourceName)
 	$__g_sSourceName_Event = $sSourceName
-	Local $aResult = DllCall("advapi32.dll", "handle", "OpenEventLogW", "wstr", $sServerName, "wstr", $sSourceName)
+	Local $aCall = DllCall("advapi32.dll", "handle", "OpenEventLogW", "wstr", $sServerName, "wstr", $sSourceName)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_EventLog__Open
 
 ; #FUNCTION# ====================================================================================================================
@@ -511,9 +508,9 @@ EndFunc   ;==>_EventLog__Open
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _EventLog__OpenBackup($sServerName, $sFileName)
-	Local $aResult = DllCall("advapi32.dll", "handle", "OpenBackupEventLogW", "wstr", $sServerName, "wstr", $sFileName)
+	Local $aCall = DllCall("advapi32.dll", "handle", "OpenBackupEventLogW", "wstr", $sServerName, "wstr", $sFileName)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_EventLog__OpenBackup
 
 ; #FUNCTION# ====================================================================================================================
@@ -522,7 +519,7 @@ EndFunc   ;==>_EventLog__OpenBackup
 ; ===============================================================================================================================
 Func _EventLog__Read($hEventLog, $bRead = True, $bForward = True, $iOffset = 0)
 	Local $iReadFlags, $aEvent[15]
-	$aEvent[0] = False; in cas of error
+	$aEvent[0] = False ; in cas of error
 
 	If $bRead Then
 		$iReadFlags = $EVENTLOG_SEQUENTIAL_READ
@@ -538,16 +535,16 @@ Func _EventLog__Read($hEventLog, $bRead = True, $bForward = True, $iOffset = 0)
 	; First call gets the size for the buffer.  A fake buffer is passed because
 	; the function demands the buffer be non-NULL even when requesting the size.
 	Local $tBuffer = DllStructCreate("wchar[1]")
-	Local $aResult = DllCall("advapi32.dll", "bool", "ReadEventLogW", "handle", $hEventLog, "dword", $iReadFlags, "dword", $iOffset, _
+	Local $aCall = DllCall("advapi32.dll", "bool", "ReadEventLogW", "handle", $hEventLog, "dword", $iReadFlags, "dword", $iOffset, _
 			"struct*", $tBuffer, "dword", 0, "dword*", 0, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, $aEvent)
 
 	; Allocate the buffer and repeat the call obtaining the information.
-	Local $iBytesMin = $aResult[7]
+	Local $iBytesMin = $aCall[7]
 	$tBuffer = DllStructCreate("wchar[" & $iBytesMin + 1 & "]")
-	$aResult = DllCall("advapi32.dll", "bool", "ReadEventLogW", "handle", $hEventLog, "dword", $iReadFlags, "dword", $iOffset, _
+	$aCall = DllCall("advapi32.dll", "bool", "ReadEventLogW", "handle", $hEventLog, "dword", $iReadFlags, "dword", $iOffset, _
 			"struct*", $tBuffer, "dword", $iBytesMin, "dword*", 0, "dword*", 0)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, $aEvent)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, $aEvent)
 
 	Local $tEventLog = DllStructCreate($tagEVENTLOGRECORD, DllStructGetPtr($tBuffer))
 	$aEvent[0] = True
@@ -574,9 +571,9 @@ EndFunc   ;==>_EventLog__Read
 ; ===============================================================================================================================
 Func _EventLog__RegisterSource($sServerName, $sSourceName)
 	$__g_sSourceName_Event = $sSourceName
-	Local $aResult = DllCall("advapi32.dll", "handle", "RegisterEventSourceW", "wstr", $sServerName, "wstr", $sSourceName)
+	Local $aCall = DllCall("advapi32.dll", "handle", "RegisterEventSourceW", "wstr", $sServerName, "wstr", $sSourceName)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_EventLog__RegisterSource
 
 ; #FUNCTION# ====================================================================================================================
@@ -600,8 +597,8 @@ Func _EventLog__Report($hEventLog, $iType, $iCategory, $iEventID, $sUserName, $s
 	For $iI = 1 To $iData
 		DllStructSetData($tData, 1, $aData[$iI], $iI)
 	Next
-	Local $aResult = DllCall("advapi32.dll", "bool", "ReportEventW", "handle", $hEventLog, "word", $iType, "word", $iCategory, _
+	Local $aCall = DllCall("advapi32.dll", "bool", "ReportEventW", "handle", $hEventLog, "word", $iType, "word", $iCategory, _
 			"dword", $iEventID, "struct*", $tSID, "word", 1, "dword", $iData, "struct*", $tPtr, "struct*", $tData)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>_EventLog__Report

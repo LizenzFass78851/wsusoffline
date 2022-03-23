@@ -1,12 +1,13 @@
 #include-once
 
+#include "AutoItConstants.au3" ; For $UBOUND_ *
 #include "FontConstants.au3"
 #include "StructureConstants.au3"
 #include "WinAPIError.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Misc
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with Common Dialogs.
 ; Author(s) .....: Gary Frost, Florian Fida (Piccaso), Dale (Klaatu) Thompson, Valik, ezzetabi, Jon, Paul Campbell (PaulIA)
@@ -154,17 +155,61 @@ Global Const $tagCHOOSEFONT = "dword Size;hwnd hWndOwner;handle hDC;ptr LogFont;
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Gary Frost (gafrost)
-; Modified.......:
+; Modified.......: argumentum
 ; ===============================================================================================================================
-Func _ChooseColor($iReturnType = 0, $iColorRef = 0, $iRefType = 0, $hWndOwnder = 0)
+Func _ChooseColor($vReturnType = 0, $iColorRef = 0, $iRefType = 0, $hWndOwnder = 0)
 	Local $tagCustcolors = "dword[16]"
 
 	Local $tChoose = DllStructCreate($tagCHOOSECOLOR)
-	Local $tCc = DllStructCreate($tagCustcolors)
 
-	If $iRefType = 1 Then ; BGR hex color to colorref
+	Local Static $tCc = DllStructCreate($tagCustcolors) ; keep the colors
+	Local $iReturnType, $vReturn
+
+	If $vReturnType = -9 Or $vReturnType = -10 Then
+		; get $tagCustcolors as array
+		Local $a_tCc = __ChooseColor_StructToArray($tCc)
+		$a_tCc[0] = -1
+		If $vReturnType = -10 Then $tCc = DllStructCreate($tagCustcolors)
+		Return $a_tCc
+	ElseIf $vReturnType > 9 Then
+		; re-init./clear $tCc, and continue on a clean slate, just "10 + ReturnType"
+		$tCc = DllStructCreate($tagCustcolors) ; ( maybe unnecessary but the user may want to )
+		$iReturnType = $vReturnType - 10
+	ElseIf IsArray($vReturnType) Then
+		; user declared Custcolors array
+		If UBound($vReturnType, $UBOUND_ROWS) = 17 And UBound($vReturnType, $UBOUND_DIMENSIONS) = 1 Then
+			For $n = 1 To 16
+				DllStructSetData($tCc, 1, $vReturnType[$n], $n)
+			Next
+			If $vReturnType[0] = -9 Then
+				; ..consistent with "-9 = return $tagCustcolors as array"
+				$vReturnType[0] = 0 ; set back to default "ReturnType"
+				Return $vReturnType
+			EndIf
+			If $vReturnType[0] > 9 Then $vReturnType[0] -= 10 ; just in case the user mistakenly think it needs to
+			$iReturnType = $vReturnType[0]
+		Else
+			; unexpected array format
+			Return SetError(-5, 0, -1)
+		EndIf
+	Else
+		$iReturnType = $vReturnType
+	EndIf
+
+	If $iReturnType < 0 Or $iReturnType > 2 Then
+		; unexpected ReturnType
+		If IsArray($vReturnType) Then
+			$vReturnType[0] = -1
+			Return SetError(-4, 0, $vReturnType)
+		EndIf
+		Return SetError(-4, 0, -1)
+	EndIf
+
+	If $iRefType = 1 Then
+		; BGR hex color to colorref
 		$iColorRef = Int($iColorRef)
-	ElseIf $iRefType = 2 Then ; RGB hex color to colorref
+	ElseIf $iRefType = 2 Then
+		; RGB hex color to colorref
 		$iColorRef = Hex(String($iColorRef), 6)
 		$iColorRef = '0x' & StringMid($iColorRef, 5, 2) & StringMid($iColorRef, 3, 2) & StringMid($iColorRef, 1, 2)
 	EndIf
@@ -176,22 +221,62 @@ Func _ChooseColor($iReturnType = 0, $iColorRef = 0, $iRefType = 0, $hWndOwnder =
 	DllStructSetData($tChoose, "Flags", BitOR($__MISCCONSTANT_CC_ANYCOLOR, $__MISCCONSTANT_CC_FULLOPEN, $__MISCCONSTANT_CC_RGBINIT))
 
 	Local $aResult = DllCall("comdlg32.dll", "bool", "ChooseColor", "struct*", $tChoose)
-	If @error Then Return SetError(@error, @extended, -1)
-	If $aResult[0] = 0 Then Return SetError(-3, -3, -1) ; user selected cancel or struct settings incorrect
+	Local $iError = @error
+	If @error Then
+		Local $iExtended = @extended
+		If IsArray($vReturnType) Then
+			$vReturnType[0] = -1
+			Return SetError($iError, $iExtended, $vReturnType)
+		EndIf
+		Return SetError($iError, $iExtended, -1)
+	EndIf
+
+	If $aResult[0] = 0 Then
+		; user selected cancel or struct settings incorrect
+		If IsArray($vReturnType) Then
+			$vReturnType[0] = -1
+			Return SetError(-3, 0, $vReturnType)
+		EndIf
+		Return SetError(-3, 0, -1)
+	EndIf
 
 	Local $sColor_picked = DllStructGetData($tChoose, "rgbResult")
 
-	If $iReturnType = 1 Then ; return Hex BGR Color
-		Return '0x' & Hex(String($sColor_picked), 6)
-	ElseIf $iReturnType = 2 Then ; return Hex RGB Color
+	If $iReturnType = 1 Then
+		; return Hex BGR Color
+		$vReturn = '0x' & Hex(String($sColor_picked), 6)
+	ElseIf $iReturnType = 2 Then
+		; return Hex RGB Color
 		$sColor_picked = Hex(String($sColor_picked), 6)
-		Return '0x' & StringMid($sColor_picked, 5, 2) & StringMid($sColor_picked, 3, 2) & StringMid($sColor_picked, 1, 2)
-	ElseIf $iReturnType = 0 Then ; return RGB COLORREF
-		Return $sColor_picked
+		$vReturn = '0x' & StringMid($sColor_picked, 5, 2) & StringMid($sColor_picked, 3, 2) & StringMid($sColor_picked, 1, 2)
 	Else
-		Return SetError(-4, -4, -1)
+		; return RGB COLORREF
+		$vReturn = $sColor_picked
 	EndIf
+	If IsArray($vReturnType) Then
+		$vReturnType = __ChooseColor_StructToArray($tCc)
+		$vReturnType[0] = $vReturn
+		Return $vReturnType
+	EndIf
+	Return $vReturn
 EndFunc   ;==>_ChooseColor
+
+; #INTERNAL_USE_ONLY# ===========================================================================================================
+; Name...........: __ChooseColor_StructToArray
+; Description ...: Retrieves Custom Colors Array from the DllStruct
+; Syntax.........: __ChooseColor_StructToArray ( $tStruct )
+; Parameters ....: $tStruct        - DllStruct
+; Return values .: an Array containg th Custom Colors
+; Author ........: argumentum
+; Modified.......:
+; ===============================================================================================================================
+Func __ChooseColor_StructToArray(ByRef $tStruct)
+	Local $aArray[17]
+	For $n = 1 To 16
+		$aArray[$n] = DllStructGetData($tStruct, 1, $n)
+	Next
+	Return $aArray
+EndFunc   ;==>__ChooseColor_StructToArray
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Gary Frost (gafrost)
@@ -223,9 +308,9 @@ Func _ChooseFont($sFontName = "Courier New", $iPointSize = 10, $iFontColorRef = 
 	DllStructSetData($tLogFont, "Strikeout", $bStrikethru)
 	DllStructSetData($tLogFont, "FaceName", $sFontName)
 
-	Local $aResult = DllCall("comdlg32.dll", "bool", "ChooseFontW", "struct*", $tChooseFont)
+	Local $aCall = DllCall("comdlg32.dll", "bool", "ChooseFontW", "struct*", $tChooseFont)
 	If @error Then Return SetError(@error, @extended, -1)
-	If $aResult[0] = 0 Then Return SetError(-3, -3, -1) ; user selected cancel or struct settings incorrect
+	If $aCall[0] = 0 Then Return SetError(-3, -3, -1) ; user selected cancel or struct settings incorrect
 
 	Local $sFaceName = DllStructGetData($tLogFont, "FaceName")
 	If StringLen($sFaceName) = 0 And StringLen($sFontName) > 0 Then $sFaceName = $sFontName
@@ -254,28 +339,28 @@ Func _ClipPutFile($sFilePath, $sDelimiter = "|")
 	$sFilePath &= $sDelimiter & $sDelimiter
 	Local $nGlobMemSize = 2 * (StringLen($sFilePath) + 20)
 
-	Local $aResult = DllCall("user32.dll", "bool", "OpenClipboard", "hwnd", 0)
-	If @error Or $aResult[0] = 0 Then Return SetError(1, _WinAPI_GetLastError(), False)
+	Local $aCall = DllCall("user32.dll", "bool", "OpenClipboard", "hwnd", 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, _WinAPI_GetLastError(), False)
 	Local $iError = 0, $iLastError = 0
-	$aResult = DllCall("user32.dll", "bool", "EmptyClipboard")
-	If @error Or Not $aResult[0] Then
-		$iError = 2
+	$aCall = DllCall("user32.dll", "bool", "EmptyClipboard")
+	If @error Or Not $aCall[0] Then
+		$iError = @error + 20
 		$iLastError = _WinAPI_GetLastError()
 	Else
-		$aResult = DllCall("kernel32.dll", "handle", "GlobalAlloc", "uint", $GMEM_MOVEABLE, "ulong_ptr", $nGlobMemSize)
-		If @error Or Not $aResult[0] Then
-			$iError = 3
+		$aCall = DllCall("kernel32.dll", "handle", "GlobalAlloc", "uint", $GMEM_MOVEABLE, "ulong_ptr", $nGlobMemSize)
+		If @error Or Not $aCall[0] Then
+			$iError = @error + 30
 			$iLastError = _WinAPI_GetLastError()
 		Else
-			Local $hGlobal = $aResult[0]
-			$aResult = DllCall("kernel32.dll", "ptr", "GlobalLock", "handle", $hGlobal)
-			If @error Or Not $aResult[0] Then
-				$iError = 4
+			Local $hGlobal = $aCall[0]
+			$aCall = DllCall("kernel32.dll", "ptr", "GlobalLock", "handle", $hGlobal)
+			If @error Or Not $aCall[0] Then
+				$iError = @error + 40
 				$iLastError = _WinAPI_GetLastError()
 			Else
-				Local $hLock = $aResult[0]
+				Local $hLock = $aCall[0]
 				Local $tDROPFILES = DllStructCreate("dword pFiles;" & $tagPOINT & ";bool fNC;bool fWide;wchar[" & StringLen($sFilePath) + 1 & "]", $hLock)
-				If @error Then Return SetError(5, 6, False)
+				If @error Then Return SetError(@error + 50, 6, False)
 
 				Local $tStruct = DllStructCreate("dword;long;long;bool;bool")
 
@@ -289,27 +374,27 @@ Func _ClipPutFile($sFilePath, $sDelimiter = "|")
 					If DllStructGetData($tDROPFILES, 6, $i) = $sDelimiter Then DllStructSetData($tDROPFILES, 6, Chr(0), $i)
 				Next
 
-				$aResult = DllCall("user32.dll", "handle", "SetClipboardData", "uint", $CF_HDROP, "handle", $hGlobal)
-				If @error Or Not $aResult[0] Then
-					$iError = 6
+				$aCall = DllCall("user32.dll", "handle", "SetClipboardData", "uint", $CF_HDROP, "handle", $hGlobal)
+				If @error Or Not $aCall[0] Then
+					$iError = @error + 60
 					$iLastError = _WinAPI_GetLastError()
 				EndIf
 
-				$aResult = DllCall("kernel32.dll", "bool", "GlobalUnlock", "handle", $hGlobal)
-				If (@error Or Not $aResult[0]) And Not $iError And _WinAPI_GetLastError() Then
-					$iError = 8
+				$aCall = DllCall("kernel32.dll", "bool", "GlobalUnlock", "handle", $hGlobal)
+				If (@error Or Not $aCall[0]) And Not $iError And _WinAPI_GetLastError() Then
+					$iError = @error + 80
 					$iLastError = _WinAPI_GetLastError()
 				EndIf
 			EndIf
-			$aResult = DllCall("kernel32.dll", "ptr", "GlobalFree", "handle", $hGlobal)
-			If (@error Or $aResult[0]) And Not $iError Then
-				$iError = 9
+			$aCall = DllCall("kernel32.dll", "ptr", "GlobalFree", "handle", $hGlobal)
+			If (@error Or $aCall[0]) And Not $iError Then
+				$iError = @error + 90
 				$iLastError = _WinAPI_GetLastError()
 			EndIf
 		EndIf
 	EndIf
-	$aResult = DllCall("user32.dll", "bool", "CloseClipboard")
-	If (@error Or Not $aResult[0]) And Not $iError Then Return SetError(7, _WinAPI_GetLastError(), False)
+	$aCall = DllCall("user32.dll", "bool", "CloseClipboard")
+	If (@error Or Not $aCall[0]) And Not $iError Then Return SetError(@error + 70, _WinAPI_GetLastError(), False)
 	If $iError Then Return SetError($iError, $iLastError, False)
 	Return True
 EndFunc   ;==>_ClipPutFile
@@ -319,14 +404,14 @@ EndFunc   ;==>_ClipPutFile
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MouseTrap($iLeft = 0, $iTop = 0, $iRight = 0, $iBottom = 0)
-	Local $aReturn = 0
+	Local $aCall
 	If $iLeft = Default Then $iLeft = 0
 	If $iTop = Default Then $iTop = 0
 	If $iRight = Default Then $iRight = 0
 	If $iBottom = Default Then $iBottom = 0
 	If @NumParams = 0 Then
-		$aReturn = DllCall("user32.dll", "bool", "ClipCursor", "ptr", 0)
-		If @error Or Not $aReturn[0] Then Return SetError(1, _WinAPI_GetLastError(), False)
+		$aCall = DllCall("user32.dll", "bool", "ClipCursor", "ptr", 0)
+		If @error Or Not $aCall[0] Then Return SetError(1, _WinAPI_GetLastError(), False)
 	Else
 		If @NumParams = 2 Then
 			$iRight = $iLeft + 1
@@ -337,8 +422,8 @@ Func _MouseTrap($iLeft = 0, $iTop = 0, $iRight = 0, $iBottom = 0)
 		DllStructSetData($tRECT, "Top", $iTop)
 		DllStructSetData($tRECT, "Right", $iRight)
 		DllStructSetData($tRECT, "Bottom", $iBottom)
-		$aReturn = DllCall("user32.dll", "bool", "ClipCursor", "struct*", $tRECT)
-		If @error Or Not $aReturn[0] Then Return SetError(2, _WinAPI_GetLastError(), False)
+		$aCall = DllCall("user32.dll", "bool", "ClipCursor", "struct*", $tRECT)
+		If @error Or Not $aCall[0] Then Return SetError(2, _WinAPI_GetLastError(), False)
 	EndIf
 	Return True
 EndFunc   ;==>_MouseTrap
@@ -359,15 +444,15 @@ Func _Singleton($sOccurrenceName, $iFlag = 0)
 		; the members are, just that the total size is correct.
 		Local $tSecurityDescriptor = DllStructCreate("byte;byte;word;ptr[4]")
 		; Initialize the security descriptor.
-		Local $aRet = DllCall("advapi32.dll", "bool", "InitializeSecurityDescriptor", _
+		Local $aCall = DllCall("advapi32.dll", "bool", "InitializeSecurityDescriptor", _
 				"struct*", $tSecurityDescriptor, "dword", $SECURITY_DESCRIPTOR_REVISION)
 		If @error Then Return SetError(@error, @extended, 0)
-		If $aRet[0] Then
+		If $aCall[0] Then
 			; Add the NULL DACL specifying access to everybody.
-			$aRet = DllCall("advapi32.dll", "bool", "SetSecurityDescriptorDacl", _
+			$aCall = DllCall("advapi32.dll", "bool", "SetSecurityDescriptorDacl", _
 					"struct*", $tSecurityDescriptor, "bool", 1, "ptr", 0, "bool", 0)
 			If @error Then Return SetError(@error, @extended, 0)
-			If $aRet[0] Then
+			If $aCall[0] Then
 				; Create a SECURITY_ATTRIBUTES structure.
 				$tSecurityAttributes = DllStructCreate($tagSECURITY_ATTRIBUTES)
 				; Assign the members.
@@ -399,9 +484,9 @@ EndFunc   ;==>_Singleton
 ; Modified.......:
 ; ===============================================================================================================================
 Func _IsPressed($sHexKey, $vDLL = "user32.dll")
-	Local $aReturn = DllCall($vDLL, "short", "GetAsyncKeyState", "int", "0x" & $sHexKey)
+	Local $aCall = DllCall($vDLL, "short", "GetAsyncKeyState", "int", "0x" & $sHexKey)
 	If @error Then Return SetError(@error, @extended, False)
-	Return BitAND($aReturn[0], 0x8000) <> 0
+	Return BitAND($aCall[0], 0x8000) <> 0
 EndFunc   ;==>_IsPressed
 
 ; #FUNCTION# ====================================================================================================================
@@ -480,9 +565,9 @@ EndFunc   ;==>_VersionCompare
 ; Example .......:
 ; ===============================================================================================================================
 Func __MISC_GetDC($hWnd)
-	Local $aResult = DllCall("user32.dll", "handle", "GetDC", "hwnd", $hWnd)
-	If @error Or Not $aResult[0] Then Return SetError(1, _WinAPI_GetLastError(), 0)
-	Return $aResult[0]
+	Local $aCall = DllCall("user32.dll", "handle", "GetDC", "hwnd", $hWnd)
+	If @error Or Not $aCall[0] Then Return SetError(1, _WinAPI_GetLastError(), 0)
+	Return $aCall[0]
 EndFunc   ;==>__MISC_GetDC
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -500,9 +585,9 @@ EndFunc   ;==>__MISC_GetDC
 ; Example .......:
 ; ===============================================================================================================================
 Func __MISC_GetDeviceCaps($hDC, $iIndex)
-	Local $aResult = DllCall("gdi32.dll", "int", "GetDeviceCaps", "handle", $hDC, "int", $iIndex)
+	Local $aCall = DllCall("gdi32.dll", "int", "GetDeviceCaps", "handle", $hDC, "int", $iIndex)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>__MISC_GetDeviceCaps
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -522,7 +607,7 @@ EndFunc   ;==>__MISC_GetDeviceCaps
 ; Example .......:
 ; ===============================================================================================================================
 Func __MISC_ReleaseDC($hWnd, $hDC)
-	Local $aResult = DllCall("user32.dll", "int", "ReleaseDC", "hwnd", $hWnd, "handle", $hDC)
+	Local $aCall = DllCall("user32.dll", "int", "ReleaseDC", "hwnd", $hWnd, "handle", $hDC)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aResult[0] <> 0
+	Return $aCall[0] <> 0
 EndFunc   ;==>__MISC_ReleaseDC

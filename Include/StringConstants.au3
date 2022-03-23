@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: String_Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt v3 script when using String functions.
 ; Author(s) .....: guinness, jpm
@@ -44,7 +44,7 @@ Global Const $SB_UTF16LE = 2
 Global Const $SB_UTF16BE = 3
 Global Const $SB_UTF8 = 4
 
-; StringFromASCIIArray constants
+; StringFromASCIIArray, StringToASCIIArray constants
 Global Const $SE_UTF16 = 0
 Global Const $SE_ANSI = 1
 Global Const $SE_UTF8 = 2

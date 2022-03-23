@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: RichEdit_Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: <a href="../appendix/GUIStyles.htm#Edit">GUI control Edit/Input styles</a> and much more constants.
 ; Author(s) .....: Gary Frost, ...
@@ -106,6 +106,7 @@ Global Const $EN_SELCHANGE = 0X702
 Global Const $EN_STOPNOUNDO = 0X706
 
 ; Event Mask Flags
+Global Const $ENM_NONE = 0x0
 Global Const $ENM_CHANGE = 0x1
 Global Const $ENM_CORRECTTEXT = 0x400000
 Global Const $ENM_DRAGDROPDONE = 0x10

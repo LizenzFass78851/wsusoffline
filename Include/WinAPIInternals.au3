@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIxxx.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -43,7 +43,6 @@ Global Const $LR_COPYFROMRESOURCE = 0x4000
 Global Const $LR_SHARED = 0x8000
 
 Global Const $__tagCURSORINFO = "dword Size;dword Flags;handle hCursor;" & "struct;long X;long Y;endstruct" ; $tagPOINT
-Global Const $__WINVER = __WINVER()
 ; ===============================================================================================================================
 
 #EndRegion Global Variables and Constants
@@ -79,6 +78,7 @@ Global Const $__WINVER = __WINVER()
 ;
 ; Doc in WinAPISys
 ; _WinAPI_GetModuleHandle
+; _WinAPI_GetVersion
 ;
 ; ===============================================================================================================================
 
@@ -91,7 +91,6 @@ Global Const $__WINVER = __WINVER()
 ; __FatalExit
 ; __Inc
 ; __RGB
-; __WINVER()
 ; ===============================================================================================================================
 
 #EndRegion Functions list
@@ -131,11 +130,11 @@ Func _WinAPI_CreateFile($sFileName, $iCreation, $iAccess = 4, $iShare = 0, $iAtt
 	If BitAND($iAttributes, 4) <> 0 Then $iFA = BitOR($iFA, $FILE_ATTRIBUTE_READONLY)
 	If BitAND($iAttributes, 8) <> 0 Then $iFA = BitOR($iFA, $FILE_ATTRIBUTE_SYSTEM)
 
-	Local $aResult = DllCall("kernel32.dll", "handle", "CreateFileW", "wstr", $sFileName, "dword", $iDA, "dword", $iSM, _
+	Local $aCall = DllCall("kernel32.dll", "handle", "CreateFileW", "wstr", $sFileName, "dword", $iDA, "dword", $iSM, _
 			"struct*", $tSecurity, "dword", $iCD, "dword", $iFA, "ptr", 0)
-	If @error Or ($aResult[0] = Ptr(-1)) Then Return SetError(@error, @extended, 0) ; $INVALID_HANDLE_VALUE
+	If @error Or ($aCall[0] = Ptr(-1)) Then Return SetError(@error, @extended, 0) ; $INVALID_HANDLE_VALUE
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -143,10 +142,10 @@ EndFunc   ;==>_WinAPI_CreateFile
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FreeLibrary($hModule)
-	Local $aResult = DllCall("kernel32.dll", "bool", "FreeLibrary", "handle", $hModule)
+	Local $aCall = DllCall("kernel32.dll", "bool", "FreeLibrary", "handle", $hModule)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FreeLibrary
 
 ; #FUNCTION# ====================================================================================================================
@@ -157,8 +156,8 @@ Func _WinAPI_GetCursorInfo()
 	Local $tCursor = DllStructCreate($__tagCURSORINFO)
 	Local $iCursor = DllStructGetSize($tCursor)
 	DllStructSetData($tCursor, "Size", $iCursor)
-	Local $aRet = DllCall("user32.dll", "bool", "GetCursorInfo", "struct*", $tCursor)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "bool", "GetCursorInfo", "struct*", $tCursor)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Local $aCursor[5]
 	$aCursor[0] = True
@@ -174,10 +173,10 @@ EndFunc   ;==>_WinAPI_GetCursorInfo
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetDlgCtrlID($hWnd)
-	Local $aResult = DllCall("user32.dll", "int", "GetDlgCtrlID", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "int", "GetDlgCtrlID", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetDlgCtrlID
 
 ; #FUNCTION# ====================================================================================================================
@@ -185,16 +184,12 @@ EndFunc   ;==>_WinAPI_GetDlgCtrlID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetModuleHandle($sModuleName)
-	Local $sModuleNameType = "wstr"
-	If $sModuleName = "" Then
-		$sModuleName = 0
-		$sModuleNameType = "ptr"
-	EndIf
+	If $sModuleName = "" Then $sModuleName = Null
 
-	Local $aResult = DllCall("kernel32.dll", "handle", "GetModuleHandleW", $sModuleNameType, $sModuleName)
+	Local $aCall = DllCall("kernel32.dll", "handle", "GetModuleHandleW", "wstr", $sModuleName)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetModuleHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -213,19 +208,33 @@ EndFunc   ;==>_WinAPI_GetString
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
+; Modified.......:
+; ===============================================================================================================================
+Func _WinAPI_GetVersion()
+	Local $tOSVI = DllStructCreate($tagOSVERSIONINFO)
+	DllStructSetData($tOSVI, 1, DllStructGetSize($tOSVI))
+
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetVersionExW', 'struct*', $tOSVI)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+
+	Return Number(DllStructGetData($tOSVI, 2) & "." & DllStructGetData($tOSVI, 3), $NUMBER_DOUBLE)
+EndFunc   ;==>_WinAPI_GetVersion
+
+; #FUNCTION# ====================================================================================================================
+; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_IsWow64Process($iPID = 0)
 	If Not $iPID Then $iPID = @AutoItPID
 
-	Local $hProcess = DllCall('kernel32.dll', 'handle', 'OpenProcess', 'dword', ($__WINVER < 0x0600 ? 0x00000400 : 0x00001000), _
+	Local $hProcess = DllCall('kernel32.dll', 'handle', 'OpenProcess', 'dword', (_WinAPI_GetVersion() < 6.0 ? 0x00000400 : 0x00001000), _
 			'bool', 0, 'dword', $iPID)
 	If @error Or Not $hProcess[0] Then Return SetError(@error + 20, @extended, False)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'IsWow64Process', 'handle', $hProcess[0], 'bool*', 0)
-	If __CheckErrorCloseHandle($aRet, $hProcess[0]) Then Return SetError(@error, @extended, False)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'IsWow64Process', 'handle', $hProcess[0], 'bool*', 0)
+	If __CheckErrorCloseHandle($aCall, $hProcess[0]) Then Return SetError(@error, @extended, False)
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_IsWow64Process
 
 ; #FUNCTION# ====================================================================================================================
@@ -233,13 +242,13 @@ EndFunc   ;==>_WinAPI_IsWow64Process
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_LoadImage($hInstance, $sImage, $iType, $iXDesired, $iYDesired, $iLoad)
-	Local $aResult, $sImageType = "int"
+	Local $aCall, $sImageType = "int"
 	If IsString($sImage) Then $sImageType = "wstr"
-	$aResult = DllCall("user32.dll", "handle", "LoadImageW", "handle", $hInstance, $sImageType, $sImage, "uint", $iType, _
+	$aCall = DllCall("user32.dll", "handle", "LoadImageW", "handle", $hInstance, $sImageType, $sImage, "uint", $iType, _
 			"int", $iXDesired, "int", $iYDesired, "uint", $iLoad)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadImage
 
 ; #FUNCTION# ====================================================================================================================
@@ -247,10 +256,10 @@ EndFunc   ;==>_WinAPI_LoadImage
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_LoadLibrary($sFileName)
-	Local $aResult = DllCall("kernel32.dll", "handle", "LoadLibraryW", "wstr", $sFileName)
+	Local $aCall = DllCall("kernel32.dll", "handle", "LoadLibraryW", "wstr", $sFileName)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadLibrary
 
 ; #FUNCTION# ====================================================================================================================
@@ -258,10 +267,10 @@ EndFunc   ;==>_WinAPI_LoadLibrary
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathIsDirectory($sFilePath)
-	Local $aRet = DllCall('shlwapi.dll', 'bool', 'PathIsDirectoryW', 'wstr', $sFilePath)
+	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsDirectoryW', 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_PathIsDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -269,12 +278,12 @@ EndFunc   ;==>_WinAPI_PathIsDirectory
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_ReadFile($hFile, $pBuffer, $iToRead, ByRef $iRead, $tOverlapped = 0)
-	Local $aResult = DllCall("kernel32.dll", "bool", "ReadFile", "handle", $hFile, "struct*", $pBuffer, "dword", $iToRead, _
+	Local $aCall = DllCall("kernel32.dll", "bool", "ReadFile", "handle", $hFile, "struct*", $pBuffer, "dword", $iToRead, _
 			"dword*", 0, "struct*", $tOverlapped)
 	If @error Then Return SetError(@error, @extended, False)
 
-	$iRead = $aResult[4]
-	Return $aResult[0]
+	$iRead = $aCall[4]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ReadFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -285,10 +294,10 @@ Func _WinAPI_StrLen($pString, $bUnicode = True)
 	Local $W = ''
 	If $bUnicode Then $W = 'W'
 
-	Local $aRet = DllCall('kernel32.dll', 'int', 'lstrlen' & $W, 'struct*', $pString)
+	Local $aCall = DllCall('kernel32.dll', 'int', 'lstrlen' & $W, 'struct*', $pString)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_StrLen
 
 ; #FUNCTION# ====================================================================================================================
@@ -305,12 +314,12 @@ EndFunc   ;==>_WinAPI_SwitchColor
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_WriteFile($hFile, $pBuffer, $iToWrite, ByRef $iWritten, $tOverlapped = 0)
-	Local $aResult = DllCall("kernel32.dll", "bool", "WriteFile", "handle", $hFile, "struct*", $pBuffer, "dword", $iToWrite, _
+	Local $aCall = DllCall("kernel32.dll", "bool", "WriteFile", "handle", $hFile, "struct*", $pBuffer, "dword", $iToWrite, _
 			"dword*", 0, "struct*", $tOverlapped)
 	If @error Then Return SetError(@error, @extended, False)
 
-	$iWritten = $aResult[4]
-	Return $aResult[0]
+	$iWritten = $aCall[4]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_WriteFile
 
 #EndRegion Public Functions
@@ -332,8 +341,8 @@ Func __CheckErrorArrayBounds(Const ByRef $aData, ByRef $iStart, ByRef $iEnd, $nD
 	Return 0
 EndFunc   ;==>__CheckErrorArrayBounds
 
-Func __CheckErrorCloseHandle($aRet, $hFile, $bLastError = False, $iCurErr = @error, $iCurExt = @extended)
-	If Not $iCurErr And Not $aRet[0] Then $iCurErr = 10
+Func __CheckErrorCloseHandle($aCall, $hFile, $bLastError = False, $iCurErr = @error, $iCurExt = @extended)
+	If Not $iCurErr And Not $aCall[0] Then $iCurErr = 10
 	Local $aLastError = DllCall("kernel32.dll", "dword", "GetLastError") ; _WinAPI_GetLastError()
 	DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hFile)
 	If $iCurErr Then DllCall("kernel32.dll", "none", "SetLastError", "dword", $aLastError[0]) ; _WinAPI_SetLastError($iLastError)
@@ -342,26 +351,26 @@ Func __CheckErrorCloseHandle($aRet, $hFile, $bLastError = False, $iCurErr = @err
 EndFunc   ;==>__CheckErrorCloseHandle
 
 Func __DLL($sPath, $bPin = False)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetModuleHandleExW', 'dword', ($bPin ? 0x0001 : 0x0002), "wstr", $sPath, 'ptr*', 0)
-	If Not $aRet[3] Then
-		Local $aResult = DllCall("kernel32.dll", "handle", "LoadLibraryW", "wstr", $sPath)
-		If Not $aResult[0] Then Return 0
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetModuleHandleExW', 'dword', ($bPin ? 0x0001 : 0x0002), "wstr", $sPath, 'ptr*', 0)
+	If Not $aCall[3] Then
+		$aCall = DllCall("kernel32.dll", "handle", "LoadLibraryW", "wstr", $sPath)
+		If @error Or Not $aCall[0] Then Return 0
 	EndIf
 	Return 1
 EndFunc   ;==>__DLL
 
 Func __EnumWindowsProc($hWnd, $bVisible)
-	Local $aResult
+	Local $aCall
 	If $bVisible Then
-		$aResult = DllCall("user32.dll", "bool", "IsWindowVisible", "hwnd", $hWnd)
-		If Not $aResult[0] Then
+		$aCall = DllCall("user32.dll", "bool", "IsWindowVisible", "hwnd", $hWnd)
+		If Not $aCall[0] Then
 			Return 1
 		EndIf
 	EndIf
 	__Inc($__g_vEnum)
 	$__g_vEnum[$__g_vEnum[0][0]][0] = $hWnd
-	$aResult = DllCall("user32.dll", "int", "GetClassNameW", "hwnd", $hWnd, "wstr", "", "int", 4096)
-	$__g_vEnum[$__g_vEnum[0][0]][1] = $aResult[2]
+	$aCall = DllCall("user32.dll", "int", "GetClassNameW", "hwnd", $hWnd, "wstr", "", "int", 4096)
+	$__g_vEnum[$__g_vEnum[0][0]][1] = $aCall[2]
 	Return 1
 EndFunc   ;==>__EnumWindowsProc
 
@@ -402,33 +411,5 @@ Func __RGB($iColor)
 	EndIf
 	Return $iColor
 EndFunc   ;==>__RGB
-
-; #INTERNAL_USE_ONLY# ===========================================================================================================
-; Name...........: __WINVER
-; Description ...: Retrieves version of the current operating system
-; Syntax.........: __WINVER ( )
-; Parameters ....: none
-; Return values .: Returns the binary version of the current OS.
-;                            0x0603 - Windows 8.1
-;                            0x0602 - Windows 8 / Windows Server 2012
-;                            0x0601 - Windows 7 / Windows Server 2008 R2
-;                            0x0600 - Windows Vista / Windows Server 2008
-;                            0x0502 - Windows XP 64-Bit Edition / Windows Server 2003 / Windows Server 2003 R2
-;                            0x0501 - Windows XP
-; Author ........: Yashield
-; Modified.......:
-; Remarks .......: For Internal Use Only
-; Related .......:
-; Link ..........:
-; Example .......: No
-; ===============================================================================================================================
-Func __WINVER()
-	Local $tOSVI = DllStructCreate($tagOSVERSIONINFO)
-	DllStructSetData($tOSVI, 1, DllStructGetSize($tOSVI))
-
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetVersionExW', 'struct*', $tOSVI)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, 0)
-	Return BitOR(BitShift(DllStructGetData($tOSVI, 2), -8), DllStructGetData($tOSVI, 3))
-EndFunc   ;==>__WINVER
 
 #EndRegion Internal Functions

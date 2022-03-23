@@ -2,6 +2,7 @@
 
 #include "APIFilesConstants.au3"
 #include "FileConstants.au3"
+#include "MemoryConstants.au3" ; For $PAGE_ * constants
 #include "WinAPIConv.au3"
 #include "WinAPIError.au3"
 #include "WinAPIMem.au3"
@@ -10,7 +11,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIFiles.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -149,14 +150,14 @@ Global Const $tagWIN32_STREAM_ID = 'dword StreamId;dword StreamAttributes;int64 
 Func _WinAPI_BackupRead($hFile, $pBuffer, $iLength, ByRef $iBytes, ByRef $pContext, $bSecurity = False)
 	$iBytes = 0
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'BackupRead', 'handle', $hFile, 'struct*', $pBuffer, 'dword', $iLength, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'BackupRead', 'handle', $hFile, 'struct*', $pBuffer, 'dword', $iLength, _
 			'dword*', 0, 'bool', 0, 'bool', $bSecurity, 'ptr*', $pContext)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	$iBytes = $aRet[4]
-	$pContext = $aRet[7]
-	Return $aRet[0]
+	$iBytes = $aCall[4]
+	$pContext = $aCall[7]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BackupRead
 
 ; #FUNCTION# ====================================================================================================================
@@ -164,13 +165,13 @@ EndFunc   ;==>_WinAPI_BackupRead
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_BackupReadAbort(ByRef $pContext)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'BackupRead', 'handle', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'bool', 1, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'BackupRead', 'handle', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'bool', 1, _
 			'bool', 0, 'ptr*', $pContext)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	$pContext = $aRet[7]
-	Return $aRet[0]
+	$pContext = $aCall[7]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BackupReadAbort
 
 ; #FUNCTION# ====================================================================================================================
@@ -180,14 +181,14 @@ EndFunc   ;==>_WinAPI_BackupReadAbort
 Func _WinAPI_BackupSeek($hFile, $iSeek, ByRef $iBytes, ByRef $pContext)
 	$iBytes = 0
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'BackupSeek', 'handle', $hFile, 'dword', _WinAPI_LoDWord($iSeek), _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'BackupSeek', 'handle', $hFile, 'dword', _WinAPI_LoDWord($iSeek), _
 			'dword', _WinAPI_HiDWord($iSeek), 'dword*', 0, 'dword*', 0, 'ptr*', $pContext)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	$iBytes = __WinAPI_MakeQWord($aRet[4], $aRet[5])
-	$pContext = $aRet[6]
-	Return $aRet[0]
+	$iBytes = __WinAPI_MakeQWord($aCall[4], $aCall[5])
+	$pContext = $aCall[6]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BackupSeek
 
 ; #FUNCTION# ====================================================================================================================
@@ -197,14 +198,14 @@ EndFunc   ;==>_WinAPI_BackupSeek
 Func _WinAPI_BackupWrite($hFile, $pBuffer, $iLength, ByRef $iBytes, ByRef $pContext, $bSecurity = False)
 	$iBytes = 0
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'BackupWrite', 'handle', $hFile, 'struct*', $pBuffer, 'dword', $iLength, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'BackupWrite', 'handle', $hFile, 'struct*', $pBuffer, 'dword', $iLength, _
 			'dword*', 0, 'bool', 0, 'bool', $bSecurity, 'ptr*', $pContext)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	$iBytes = $aRet[4]
-	$pContext = $aRet[7]
-	Return $aRet[0]
+	$iBytes = $aCall[4]
+	$pContext = $aCall[7]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BackupWrite
 
 ; #FUNCTION# ====================================================================================================================
@@ -212,13 +213,13 @@ EndFunc   ;==>_WinAPI_BackupWrite
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_BackupWriteAbort(ByRef $pContext)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'BackupWrite', 'handle', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'bool', 1, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'BackupWrite', 'handle', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'bool', 1, _
 			'bool', 0, 'ptr*', $pContext)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	$pContext = $aRet[7]
-	Return $aRet[0]
+	$pContext = $aCall[7]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_BackupWriteAbort
 
 ; #FUNCTION# ====================================================================================================================
@@ -226,12 +227,12 @@ EndFunc   ;==>_WinAPI_BackupWriteAbort
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CopyFileEx($sExistingFile, $sNewFile, $iFlags = 0, $pProgressProc = 0, $pData = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'CopyFileExW', 'wstr', $sExistingFile, 'wstr', $sNewFile, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'CopyFileExW', 'wstr', $sExistingFile, 'wstr', $sNewFile, _
 			'ptr', $pProgressProc, 'struct*', $pData, 'bool*', 0, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CopyFileEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -239,11 +240,11 @@ EndFunc   ;==>_WinAPI_CopyFileEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateDirectory($sDir, $tSecurity = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'CreateDirectoryW', 'wstr', $sDir, 'struct*', $tSecurity)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'CreateDirectoryW', 'wstr', $sDir, 'struct*', $tSecurity)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -251,11 +252,11 @@ EndFunc   ;==>_WinAPI_CreateDirectory
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateDirectoryEx($sNewDir, $sTemplateDir, $tSecurity = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'CreateDirectoryExW', 'wstr', $sTemplateDir, 'wstr', $sNewDir, 'struct*', $tSecurity)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'CreateDirectoryExW', 'wstr', $sTemplateDir, 'wstr', $sNewDir, 'struct*', $tSecurity)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateDirectoryEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -263,12 +264,12 @@ EndFunc   ;==>_WinAPI_CreateDirectoryEx
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateFileEx($sFilePath, $iCreation, $iAccess = 0, $iShare = 0, $iFlagsAndAttributes = 0, $tSecurity = 0, $hTemplate = 0)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'CreateFileW', 'wstr', $sFilePath, 'dword', $iAccess, 'dword', $iShare, _
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'CreateFileW', 'wstr', $sFilePath, 'dword', $iAccess, 'dword', $iShare, _
 			'struct*', $tSecurity, 'dword', $iCreation, 'dword', $iFlagsAndAttributes, 'handle', $hTemplate)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0) ; $INVALID_HANDLE_VALUE
+	If $aCall[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0) ; $INVALID_HANDLE_VALUE
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateFileEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -276,19 +277,15 @@ EndFunc   ;==>_WinAPI_CreateFileEx
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_CreateFileMapping($hFile, $iSize = 0, $sName = '', $iProtect = 0x0004, $tSecurity = 0)
-	Local $sTypeOfName = 'wstr'
-	If Not StringStripWS($sName, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfName = 'ptr'
-		$sName = 0
-	EndIf
+	If Not StringStripWS($sName, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sName = Null
 
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'CreateFileMappingW', 'handle', $hFile, 'struct*', $tSecurity, _
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'CreateFileMappingW', 'handle', $hFile, 'struct*', $tSecurity, _
 			'dword', $iProtect, 'dword', _WinAPI_HiDWord($iSize), 'dword', _WinAPI_LoDWord($iSize), _
-			$sTypeOfName, $sName)
+			'wstr', $sName)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return SetExtended(_WinAPI_GetLastError(), $aRet[0]) ; ERROR_ALREADY_EXISTS
+	Return SetExtended(_WinAPI_GetLastError(), $aCall[0]) ; ERROR_ALREADY_EXISTS
 EndFunc   ;==>_WinAPI_CreateFileMapping
 
 ; #FUNCTION# ====================================================================================================================
@@ -296,11 +293,11 @@ EndFunc   ;==>_WinAPI_CreateFileMapping
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_CreateHardLink($sNewFile, $sExistingFile)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'CreateHardLinkW', 'wstr', $sNewFile, 'wstr', $sExistingFile, 'ptr', 0)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'CreateHardLinkW', 'wstr', $sNewFile, 'wstr', $sExistingFile, 'ptr', 0)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateHardLink
 
 ; #FUNCTION# ====================================================================================================================
@@ -313,9 +310,9 @@ Func _WinAPI_CreateObjectID($sFilePath)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
 	Local $tFOID = DllStructCreate('byte[16];byte[48]')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000900C0, 'ptr', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000900C0, 'ptr', 0, _
 			'dword', 0, 'struct*', $tFOID, 'dword', DllStructGetSize($tFOID), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Local $tGUID = DllStructCreate($tagGUID)
 	_WinAPI_MoveMemory($tGUID, $tFOID, 16)
@@ -333,11 +330,11 @@ Func _WinAPI_CreateSymbolicLink($sSymlink, $sTarget, $bDirectory = False)
 		$bDirectory = 1
 	EndIf
 
-	Local $aRet = DllCall('kernel32.dll', 'boolean', 'CreateSymbolicLinkW', 'wstr', $sSymlink, 'wstr', $sTarget, 'dword', $bDirectory)
+	Local $aCall = DllCall('kernel32.dll', 'boolean', 'CreateSymbolicLinkW', 'wstr', $sSymlink, 'wstr', $sTarget, 'dword', $bDirectory)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateSymbolicLink
 
 ; #FUNCTION# ====================================================================================================================
@@ -345,11 +342,11 @@ EndFunc   ;==>_WinAPI_CreateSymbolicLink
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DecryptFile($sFilePath)
-	Local $aRet = DllCall('advapi32.dll', 'bool', 'DecryptFileW', 'wstr', $sFilePath, 'dword', 0)
+	Local $aCall = DllCall('advapi32.dll', 'bool', 'DecryptFileW', 'wstr', $sFilePath, 'dword', 0)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DecryptFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -357,17 +354,13 @@ EndFunc   ;==>_WinAPI_DecryptFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DefineDosDevice($sDevice, $iFlags, $sFilePath = '')
-	Local $sTypeOfPath = 'wstr'
-	If Not StringStripWS($sFilePath, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfPath = 'ptr'
-		$sFilePath = 0
-	EndIf
+	If Not StringStripWS($sFilePath, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sFilePath = Null
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DefineDosDeviceW', 'dword', $iFlags, 'wstr', $sDevice, $sTypeOfPath, $sFilePath)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DefineDosDeviceW', 'dword', $iFlags, 'wstr', $sDevice, 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DefineDosDevice
 
 ; #FUNCTION# ====================================================================================================================
@@ -375,11 +368,11 @@ EndFunc   ;==>_WinAPI_DefineDosDevice
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DeleteFile($sFilePath)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeleteFileW', 'wstr', $sFilePath)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeleteFileW', 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DeleteFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -391,9 +384,9 @@ Func _WinAPI_DeleteObjectID($sFilePath)
 	Local $hFile = _WinAPI_CreateFileEx($sFilePath, $OPEN_EXISTING, $GENERIC_WRITE, $FILE_SHARE_READWRITE, $FILE_FLAG_BACKUP_SEMANTICS)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000900A0, 'ptr', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000900A0, 'ptr', 0, _
 			'dword', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DeleteObjectID
@@ -403,11 +396,11 @@ EndFunc   ;==>_WinAPI_DeleteObjectID
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DeleteVolumeMountPoint($sMountedPath)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeleteVolumeMountPointW', 'wstr', $sMountedPath)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeleteVolumeMountPointW', 'wstr', $sMountedPath)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DeleteVolumeMountPoint
 
 ; #FUNCTION# ====================================================================================================================
@@ -415,13 +408,13 @@ EndFunc   ;==>_WinAPI_DeleteVolumeMountPoint
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_DeviceIoControl($hDevice, $iControlCode, $pInBuffer = 0, $iInBufferSize = 0, $pOutBuffer = 0, $iOutBufferSize = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hDevice, 'dword', $iControlCode, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hDevice, 'dword', $iControlCode, _
 			'struct*', $pInBuffer, 'dword', $iInBufferSize, 'struct*', $pOutBuffer, 'dword', $iOutBufferSize, _
 			'dword*', 0, 'ptr', 0)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return SetExtended($aRet[7], $aRet[0])
+	Return SetExtended($aCall[7], $aCall[0])
 EndFunc   ;==>_WinAPI_DeviceIoControl
 
 ; #FUNCTION# ====================================================================================================================
@@ -429,10 +422,10 @@ EndFunc   ;==>_WinAPI_DeviceIoControl
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_DuplicateEncryptionInfoFile($sSrcFilePath, $sDestFilePath, $iCreation = 2, $iAttributes = 0, $tSecurity = 0)
-	Local $aRet = DllCall('advapi32.dll', 'dword', 'DuplicateEncryptionInfoFile', 'wstr', $sSrcFilePath, 'wstr', $sDestFilePath, _
+	Local $aCall = DllCall('advapi32.dll', 'dword', 'DuplicateEncryptionInfoFile', 'wstr', $sSrcFilePath, 'wstr', $sDestFilePath, _
 			'dword', $iCreation, 'dword', $iAttributes, 'struct*', $tSecurity)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DuplicateEncryptionInfoFile
@@ -445,9 +438,9 @@ Func _WinAPI_EjectMedia($sDrive)
 	Local $hFile = _WinAPI_CreateFileEx('\\.\' & $sDrive, $OPEN_EXISTING, $GENERIC_READ, $FILE_SHARE_READWRITE)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D4808, 'ptr', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D4808, 'ptr', 0, _
 			'dword', 0, 'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_EjectMedia
@@ -457,11 +450,11 @@ EndFunc   ;==>_WinAPI_EjectMedia
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_EncryptFile($sFilePath)
-	Local $aRet = DllCall('advapi32.dll', 'bool', 'EncryptFileW', 'wstr', $sFilePath)
+	Local $aCall = DllCall('advapi32.dll', 'bool', 'EncryptFileW', 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_EncryptFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -469,11 +462,11 @@ EndFunc   ;==>_WinAPI_EncryptFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_EncryptionDisable($sDir, $bDisable)
-	Local $aRet = DllCall('advapi32.dll', 'bool', 'EncryptionDisable', 'wstr', $sDir, 'bool', $bDisable)
+	Local $aCall = DllCall('advapi32.dll', 'bool', 'EncryptionDisable', 'wstr', $sDir, 'bool', $bDisable)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_EncryptionDisable
 
 ; #FUNCTION# ====================================================================================================================
@@ -481,7 +474,7 @@ EndFunc   ;==>_WinAPI_EncryptionDisable
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_EnumFiles($sDir, $iFlag = 0, $sTemplate = '', $bExclude = False)
-	Local $aRet = 0, $iError = 0
+	Local $aCall, $iError = 0
 	Local $aData[501][7] = [[0]]
 
 	; Local Const $FILE_FLAG_BACKUP_SEMANTICS = 0x02000000
@@ -493,17 +486,17 @@ Func _WinAPI_EnumFiles($sDir, $iFlag = 0, $sTemplate = '', $bExclude = False)
 		$iError = @error
 	Else
 		Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-		$aRet = DllCall('ntdll.dll', 'uint', 'ZwQueryDirectoryFile', 'handle', $hDir, 'ptr', 0, 'ptr', 0, 'ptr', 0, _
+		$aCall = DllCall('ntdll.dll', 'uint', 'ZwQueryDirectoryFile', 'handle', $hDir, 'ptr', 0, 'ptr', 0, 'ptr', 0, _
 				'struct*', $tIOSB, 'struct*', $pBuffer, 'ulong', 8388608, 'uint', 1, 'boolean', 0, 'ptr', 0, 'boolean', 1)
-		If @error Or $aRet[0] Then
+		If @error Or $aCall[0] Then
 			$iError = @error + 40
 		EndIf
 	EndIf
 	DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hDir)
 	If $iError Then
 		__HeapFree($pBuffer, 1)
-		If IsArray($aRet) Then
-			Return SetError(10, $aRet[0], 0)
+		If IsArray($aCall) Then
+			Return SetError(10, $aCall[0], 0)
 		Else
 			Return SetError($iError, 0, 0)
 		EndIf
@@ -533,8 +526,8 @@ Func _WinAPI_EnumFiles($sDir, $iFlag = 0, $sTemplate = '', $bExclude = False)
 						EndIf
 				EndSwitch
 				If $sTemplate Then
-					$aRet = DllCall('shlwapi.dll', 'int', 'PathMatchSpecW', 'wstr', $sTarget, 'wstr', $sTemplate)
-					If @error Or ($aRet[0] And $bExclude) Or (Not $aRet[0] And Not $bExclude) Then
+					$aCall = DllCall('shlwapi.dll', 'int', 'PathMatchSpecW', 'wstr', $sTarget, 'wstr', $sTemplate)
+					If @error Or ($aCall[0] And $bExclude) Or (Not $aCall[0] And Not $bExclude) Then
 						ContinueLoop
 					EndIf
 				EndIf
@@ -568,12 +561,12 @@ Func _WinAPI_EnumFileStreams($sFilePath)
 
 	Local $iError = 0
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'ptr', $pData, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'ptr', $pData, _
 			'ulong', 32768, 'uint', 22)
 	If @error Then $iError = @error
 	DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hFile)
 	If $iError Then Return SetError($iError, 0, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Local $tFSI, $iLength = 0, $iOffset = 0
 	Do
@@ -601,13 +594,13 @@ Func _WinAPI_EnumHardLinks($sFilePath)
 
 	Local $iError = 0
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'ptr', $pData, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'ptr', $pData, _
 			'ulong', 32768, 'uint', 46)
-	If @error Or $aRet[0] Then
+	If @error Or $aCall[0] Then
 		$iError = @error + 10
 		DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hFile)
-		If $aRet Then Return SetError($iError, 0, 0)
-		If $aRet[0] Then Return SetError(10, $iError, 0)
+		If $aCall Then Return SetError($iError, 0, 0)
+		If $aCall[0] Then Return SetError(10, $iError, 0)
 	EndIf
 
 	Local $iCount = DllStructGetData(DllStructCreate('ulong;ulong', $pData), 2)
@@ -647,10 +640,10 @@ EndFunc   ;==>_WinAPI_EnumHardLinks
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FileEncryptionStatus($sFilePath)
-	Local $aRet = DllCall('advapi32.dll', 'bool', 'FileEncryptionStatusW', 'wstr', $sFilePath, 'dword*', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, -1)
+	Local $aCall = DllCall('advapi32.dll', 'bool', 'FileEncryptionStatusW', 'wstr', $sFilePath, 'dword*', 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, -1)
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_FileEncryptionStatus
 
 ; #FUNCTION# ====================================================================================================================
@@ -683,11 +676,11 @@ EndFunc   ;==>_WinAPI_FileInUse
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindClose($hSearch)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindClose', 'handle', $hSearch)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindClose', 'handle', $hSearch)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindClose
 
 ; #FUNCTION# ====================================================================================================================
@@ -695,11 +688,11 @@ EndFunc   ;==>_WinAPI_FindClose
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindCloseChangeNotification($hChange)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindCloseChangeNotification', 'handle', $hChange)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindCloseChangeNotification', 'handle', $hChange)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindCloseChangeNotification
 
 ; #FUNCTION# ====================================================================================================================
@@ -707,11 +700,11 @@ EndFunc   ;==>_WinAPI_FindCloseChangeNotification
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindFirstChangeNotification($sDirectory, $iFlags, $bSubtree = False)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindFirstChangeNotificationW', 'wstr', $sDirectory, 'bool', $bSubtree, _
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindFirstChangeNotificationW', 'wstr', $sDirectory, 'bool', $bSubtree, _
 			'dword', $iFlags)
-	If @error Or ($aRet[0] = Ptr(-1)) Then Return SetError(@error + 10, @extended, 0) ; $INVALID_HANDLE_VALUE
+	If @error Or ($aCall[0] = Ptr(-1)) Then Return SetError(@error + 10, @extended, 0) ; $INVALID_HANDLE_VALUE
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindFirstChangeNotification
 
 ; #FUNCTION# ====================================================================================================================
@@ -719,11 +712,11 @@ EndFunc   ;==>_WinAPI_FindFirstChangeNotification
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindFirstFile($sFilePath, $tData)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindFirstFileW', 'wstr', $sFilePath, 'struct*', $tData)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindFirstFileW', 'wstr', $sFilePath, 'struct*', $tData)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0); $INVALID_HANDLE_VALUE
+	If $aCall[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0) ; $INVALID_HANDLE_VALUE
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindFirstFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -733,11 +726,11 @@ EndFunc   ;==>_WinAPI_FindFirstFile
 Func _WinAPI_FindFirstFileName($sFilePath, ByRef $sLink)
 	$sLink = ''
 
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindFirstFileNameW', 'wstr', $sFilePath, 'dword', 0, 'dword*', 4096, 'wstr', '')
-	If @error Or ($aRet[0] = Ptr(-1)) Then Return SetError(@error + 10, @extended, 0) ; $INVALID_HANDLE_VALUE
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindFirstFileNameW', 'wstr', $sFilePath, 'dword', 0, 'dword*', 4096, 'wstr', '')
+	If @error Or ($aCall[0] = Ptr(-1)) Then Return SetError(@error + 10, @extended, 0) ; $INVALID_HANDLE_VALUE
 
-	$sLink = $aRet[4]
-	Return $aRet[0]
+	$sLink = $aCall[4]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindFirstFileName
 
 ; #FUNCTION# ====================================================================================================================
@@ -745,11 +738,11 @@ EndFunc   ;==>_WinAPI_FindFirstFileName
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindFirstStream($sFilePath, $tData)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'FindFirstStreamW', 'wstr', $sFilePath, 'uint', 0, 'struct*', $tData, 'dword', 0)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'FindFirstStreamW', 'wstr', $sFilePath, 'uint', 0, 'struct*', $tData, 'dword', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0) ; $INVALID_HANDLE_VALUE
+	If $aCall[0] = Ptr(-1) Then Return SetError(10, _WinAPI_GetLastError(), 0) ; $INVALID_HANDLE_VALUE
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindFirstStream
 
 ; #FUNCTION# ====================================================================================================================
@@ -757,11 +750,11 @@ EndFunc   ;==>_WinAPI_FindFirstStream
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindNextChangeNotification($hChange)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindNextChangeNotification', 'handle', $hChange)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindNextChangeNotification', 'handle', $hChange)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindNextChangeNotification
 
 ; #FUNCTION# ====================================================================================================================
@@ -769,11 +762,11 @@ EndFunc   ;==>_WinAPI_FindNextChangeNotification
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindNextFile($hSearch, $tData)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindNextFileW', 'handle', $hSearch, 'struct*', $tData)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindNextFileW', 'handle', $hSearch, 'struct*', $tData)
 	If @error Then Return SetError(@error, @extended, False)
-	If Not $aRet[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
+	If Not $aCall[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindNextFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -783,12 +776,12 @@ EndFunc   ;==>_WinAPI_FindNextFile
 Func _WinAPI_FindNextFileName($hSearch, ByRef $sLink)
 	$sLink = ''
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindNextFileNameW', 'handle', $hSearch, 'dword*', 4096, 'wstr', '')
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindNextFileNameW', 'handle', $hSearch, 'dword*', 4096, 'wstr', '')
 	If @error Then Return SetError(@error, @extended, False)
-	If Not $aRet[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
+	If Not $aCall[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
 
-	$sLink = $aRet[3]
-	Return $aRet[0]
+	$sLink = $aCall[3]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindNextFileName
 
 ; #FUNCTION# ====================================================================================================================
@@ -796,11 +789,11 @@ EndFunc   ;==>_WinAPI_FindNextFileName
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_FindNextStream($hSearch, $tData)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FindNextStreamW', 'handle', $hSearch, 'struct*', $tData)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FindNextStreamW', 'handle', $hSearch, 'struct*', $tData)
 	If @error Then Return SetError(@error, @extended, False)
-	If Not $aRet[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
+	If Not $aCall[0] Then Return SetError(10, _WinAPI_GetLastError(), 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FindNextStream
 
 ; #FUNCTION# ====================================================================================================================
@@ -808,10 +801,10 @@ EndFunc   ;==>_WinAPI_FindNextStream
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_FlushFileBuffers($hFile)
-	Local $aResult = DllCall("kernel32.dll", "bool", "FlushFileBuffers", "handle", $hFile)
+	Local $aCall = DllCall("kernel32.dll", "bool", "FlushFileBuffers", "handle", $hFile)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FlushFileBuffers
 
 ; #FUNCTION# ====================================================================================================================
@@ -819,11 +812,11 @@ EndFunc   ;==>_WinAPI_FlushFileBuffers
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_FlushViewOfFile($pAddress, $iBytes = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'FlushViewOfFile', 'struct*', $pAddress, 'dword', $iBytes)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'FlushViewOfFile', 'struct*', $pAddress, 'dword', $iBytes)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_FlushViewOfFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -831,11 +824,11 @@ EndFunc   ;==>_WinAPI_FlushViewOfFile
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetBinaryType($sFilePath)
-	Local $aRet = DllCall('kernel32.dll', 'int', 'GetBinaryTypeW', 'wstr', $sFilePath, 'dword*', 0)
+	Local $aCall = DllCall('kernel32.dll', 'int', 'GetBinaryTypeW', 'wstr', $sFilePath, 'dword*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If Not $aRet[0] Then $aRet[2] = 0
+	If Not $aCall[0] Then $aCall[2] = 0
 
-	Return SetExtended($aRet[2], $aRet[0])
+	Return SetExtended($aCall[2], $aCall[0])
 EndFunc   ;==>_WinAPI_GetBinaryType
 
 ; #FUNCTION# ====================================================================================================================
@@ -875,9 +868,9 @@ Func _WinAPI_GetCDType($sDrive)
 	DllStructSetData($tCDB, 7, 0, 1)
 	DllStructSetData($tCDB, 7, 0, 2)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0004D004, 'struct*', $tSPT, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0004D004, 'struct*', $tSPT, _
 			'dword', $iSize, 'struct*', $tSPT, 'dword', DllStructGetSize($tSPT), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Return BitOR(BitShift(DllStructGetData($tHDR, 4, 1), -8), DllStructGetData($tHDR, 4, 2))
 EndFunc   ;==>_WinAPI_GetCDType
@@ -887,15 +880,15 @@ EndFunc   ;==>_WinAPI_GetCDType
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCompressedFileSize($sFilePath)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetCompressedFileSizeW', 'wstr', $sFilePath, 'dword*', 0)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetCompressedFileSizeW', 'wstr', $sFilePath, 'dword*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] = -1 Then
+	If $aCall[0] = -1 Then
 		Local $iLastError = _WinAPI_GetLastError()
-		If $aRet[2] = 0 Then Return SetError(10, $iLastError, 0)
+		If $aCall[2] = 0 Then Return SetError(10, $iLastError, 0)
 		If $iLastError Then Return SetError(11, $iLastError, 0)
 	EndIf
 
-	Return __WinAPI_MakeQWord($aRet[0], $aRet[2])
+	Return __WinAPI_MakeQWord($aCall[0], $aCall[2])
 EndFunc   ;==>_WinAPI_GetCompressedFileSize
 
 ; #FUNCTION# ====================================================================================================================
@@ -907,11 +900,11 @@ Func _WinAPI_GetCompression($sFilePath)
 	Local $hFile = _WinAPI_CreateFileEx($sFilePath, $OPEN_EXISTING, $GENERIC_READ, $FILE_SHARE_READWRITE, $FILE_FLAG_BACKUP_SEMANTICS)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009003C, 'ptr', 0, 'dword', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009003C, 'ptr', 0, 'dword', 0, _
 			'ushort*', 0, 'dword', 2, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, -1)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, -1)
 
-	Return $aRet[5]
+	Return $aCall[5]
 EndFunc   ;==>_WinAPI_GetCompression
 
 ; #FUNCTION# ====================================================================================================================
@@ -919,11 +912,11 @@ EndFunc   ;==>_WinAPI_GetCompression
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCurrentDirectory()
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetCurrentDirectoryW', 'dword', 4096, 'wstr', '')
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetCurrentDirectoryW', 'dword', 4096, 'wstr', '')
 	If @error Then Return SetError(@error, @extended, '')
-	; If Not $aRet[0] Then Return SetError(1000, 0,'')
+	; If Not $aCall[0] Then Return SetError(1000, 0,'')
 
-	Return SetExtended($aRet[0], $aRet[2])
+	Return SetExtended($aCall[0], $aCall[2])
 EndFunc   ;==>_WinAPI_GetCurrentDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -931,14 +924,14 @@ EndFunc   ;==>_WinAPI_GetCurrentDirectory
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetDiskFreeSpaceEx($sDrive)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetDiskFreeSpaceEx', 'str', $sDrive, 'int64*', 0, 'int64*', 0, 'int64*', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetDiskFreeSpaceEx', 'str', $sDrive, 'int64*', 0, 'int64*', 0, 'int64*', 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aResult[3]
+	Local $aRet[3]
 	For $i = 0 To 2
-		$aResult[$i] = $aRet[$i + 2]
+		$aRet[$i] = $aCall[$i + 2]
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetDiskFreeSpaceEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -956,10 +949,10 @@ Func _WinAPI_GetDriveBusType($sDrive)
 	DllStructSetData($tSPQ, 'PropertyId', 0)
 	DllStructSetData($tSPQ, 'QueryType', 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D1400, 'struct*', $tSPQ, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D1400, 'struct*', $tSPQ, _
 			'dword', DllStructGetSize($tSPQ), 'struct*', $tSDD, 'dword', DllStructGetSize($tSDD), _
 			'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, -1)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, -1)
 
 	Return DllStructGetData($tSDD, 'BusType')
 EndFunc   ;==>_WinAPI_GetDriveBusType
@@ -973,15 +966,15 @@ Func _WinAPI_GetDriveGeometryEx($iDrive)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
 	Local $tDGEX = DllStructCreate('uint64;dword;dword;dword;dword;uint64')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000700A0, 'ptr', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x000700A0, 'ptr', 0, _
 			'dword', 0, 'struct*', $tDGEX, 'dword', DllStructGetSize($tDGEX), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
-	Local $aResult[6]
+	Local $aRet[6]
 	For $i = 0 To 5
-		$aResult[$i] = DllStructGetData($tDGEX, $i + 1)
+		$aRet[$i] = DllStructGetData($tDGEX, $i + 1)
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetDriveGeometryEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -992,16 +985,16 @@ Func _WinAPI_GetDriveNumber($sDrive)
 	Local $hFile = _WinAPI_CreateFileEx('\\.\' & $sDrive, $OPEN_EXISTING, 0, $FILE_SHARE_READWRITE)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $tSDN = DllStructCreate('dword;ulong;ulong')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D1080, 'ptr', 0, _
+	Local $tSDN = DllStructCreate('dword;dword;dword')
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D1080, 'ptr', 0, _
 			'dword', 0, 'struct*', $tSDN, 'dword', DllStructGetSize($tSDN), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
-	Local $aResult[3]
+	Local $aRet[3]
 	For $i = 0 To 2
-		$aResult[$i] = DllStructGetData($tSDN, $i + 1)
+		$aRet[$i] = DllStructGetData($tSDN, $i + 1)
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetDriveNumber
 
 ; #FUNCTION# ====================================================================================================================
@@ -1009,16 +1002,11 @@ EndFunc   ;==>_WinAPI_GetDriveNumber
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetDriveType($sDrive = '')
-	Local $iTypeOfDrive = 'str'
-	If Not StringStripWS($sDrive, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$iTypeOfDrive = 'ptr'
-		$sDrive = 0
-	EndIf
-
-	Local $aRet = DllCall('kernel32.dll', 'uint', 'GetDriveType', $iTypeOfDrive, $sDrive)
+	If Not StringStripWS($sDrive, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sDrive = Null
+	Local $aCall = DllCall('kernel32.dll', 'uint', 'GetDriveType', 'str', $sDrive)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetDriveType
 
 ; #FUNCTION# ====================================================================================================================
@@ -1026,11 +1014,11 @@ EndFunc   ;==>_WinAPI_GetDriveType
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFileAttributes($sFilePath)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetFileAttributesW', 'wstr', $sFilePath)
-	If @error Or ($aRet[0] = 4294967295) Then Return SetError(@error, @extended, 0)
-	; If $aRet[0] = 4294967295Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetFileAttributesW', 'wstr', $sFilePath)
+	If @error Or ($aCall[0] = 4294967295) Then Return SetError(@error, @extended, 0)
+	; If $aCall[0] = 4294967295Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetFileAttributes
 
 ; #FUNCTION# ====================================================================================================================
@@ -1039,12 +1027,12 @@ EndFunc   ;==>_WinAPI_GetFileAttributes
 ; ===============================================================================================================================
 Func _WinAPI_GetFileID($hFile)
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'int64*', 0, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'int64*', 0, _
 			'ulong', 8, 'uint', 6)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Return $aRet[3]
+	Return $aCall[3]
 EndFunc   ;==>_WinAPI_GetFileID
 
 ; #FUNCTION# ====================================================================================================================
@@ -1053,26 +1041,26 @@ EndFunc   ;==>_WinAPI_GetFileID
 ; ===============================================================================================================================
 Func _WinAPI_GetFileInformationByHandle($hFile)
 	Local $tBHFI = DllStructCreate('dword;dword[2];dword[2];dword[2];dword;dword;dword;dword;dword;dword')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetFileInformationByHandle', 'handle', $hFile, 'struct*', $tBHFI)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetFileInformationByHandle', 'handle', $hFile, 'struct*', $tBHFI)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aResult[8]
-	$aResult[0] = DllStructGetData($tBHFI, 1)
+	Local $aRet[8]
+	$aRet[0] = DllStructGetData($tBHFI, 1)
 	For $i = 1 To 3
 		If DllStructGetData($tBHFI, $i + 1) Then
-			$aResult[$i] = DllStructCreate($tagFILETIME)
-			_WinAPI_MoveMemory($aResult[$i], DllStructGetPtr($tBHFI, $i + 1), 8)
+			$aRet[$i] = DllStructCreate($tagFILETIME)
+			_WinAPI_MoveMemory($aRet[$i], DllStructGetPtr($tBHFI, $i + 1), 8)
 			; Return SetError(@error + 10, @extended, 0) ; cannot really occur
 			; EndIf
 		Else
-			$aResult[$i] = 0
+			$aRet[$i] = 0
 		EndIf
 	Next
-	$aResult[4] = DllStructGetData($tBHFI, 5)
-	$aResult[5] = __WinAPI_MakeQWord(DllStructGetData($tBHFI, 7), DllStructGetData($tBHFI, 6))
-	$aResult[6] = DllStructGetData($tBHFI, 8)
-	$aResult[7] = __WinAPI_MakeQWord(DllStructGetData($tBHFI, 9), DllStructGetData($tBHFI, 10))
-	Return $aResult
+	$aRet[4] = DllStructGetData($tBHFI, 5)
+	$aRet[5] = __WinAPI_MakeQWord(DllStructGetData($tBHFI, 7), DllStructGetData($tBHFI, 6))
+	$aRet[6] = DllStructGetData($tBHFI, 8)
+	$aRet[7] = __WinAPI_MakeQWord(DllStructGetData($tBHFI, 9), DllStructGetData($tBHFI, 10))
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetFileInformationByHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -1082,10 +1070,10 @@ EndFunc   ;==>_WinAPI_GetFileInformationByHandle
 Func _WinAPI_GetFileInformationByHandleEx($hFile)
 	Local $tFI = DllStructCreate($tagFILEINFO)
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'struct*', $tFI, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'struct*', $tFI, _
 			'ulong', DllStructGetSize($tFI), 'uint', 4)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return $tFI
 EndFunc   ;==>_WinAPI_GetFileInformationByHandleEx
@@ -1096,12 +1084,12 @@ EndFunc   ;==>_WinAPI_GetFileInformationByHandleEx
 ; ===============================================================================================================================
 Func _WinAPI_GetFilePointerEx($hFile)
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'int64*', 0, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'int64*', 0, _
 			'ulong', 8, 'uint', 14)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aRet[0] Then Return SetError(10, $aRet[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 
-	Return $aRet[3]
+	Return $aCall[3]
 EndFunc   ;==>_WinAPI_GetFilePointerEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -1109,10 +1097,10 @@ EndFunc   ;==>_WinAPI_GetFilePointerEx
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_GetFileSizeEx($hFile)
-	Local $aResult = DllCall("kernel32.dll", "bool", "GetFileSizeEx", "handle", $hFile, "int64*", 0)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, -1)
+	Local $aCall = DllCall("kernel32.dll", "bool", "GetFileSizeEx", "handle", $hFile, "int64*", 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, -1)
 
-	Return $aResult[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_GetFileSizeEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -1123,13 +1111,13 @@ Func _WinAPI_GetFileSizeOnDisk($sFilePath)
 	Local $iSize = FileGetSize($sFilePath)
 	If @error Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetDiskFreeSpaceW', _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetDiskFreeSpaceW', _
 			'wstr', _WinAPI_PathStripToRoot(_WinAPI_GetFullPathName($sFilePath)), 'dword*', 0, 'dword*', 0, _
 			'dword*', 0, 'dword*', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return Ceiling($iSize / ($aRet[2] * $aRet[3])) * ($aRet[2] * $aRet[3])
+	Return Ceiling($iSize / ($aCall[2] * $aCall[3])) * ($aCall[2] * $aCall[3])
 EndFunc   ;==>_WinAPI_GetFileSizeOnDisk
 
 ; #FUNCTION# ====================================================================================================================
@@ -1137,11 +1125,11 @@ EndFunc   ;==>_WinAPI_GetFileSizeOnDisk
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFileTitle($sFilePath)
-	Local $aRet = DllCall('comdlg32.dll', 'short', 'GetFileTitleW', 'wstr', $sFilePath, 'wstr', '', 'word', 4096)
-	If @error Or $aRet[0] Then Return SetError(@error, @extended, '')
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('comdlg32.dll', 'short', 'GetFileTitleW', 'wstr', $sFilePath, 'wstr', '', 'word', 4096)
+	If @error Or $aCall[0] Then Return SetError(@error + 10, @extended, '')
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_GetFileTitle
 
 ; #FUNCTION# ====================================================================================================================
@@ -1149,12 +1137,12 @@ EndFunc   ;==>_WinAPI_GetFileTitle
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFileType($hFile)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetFileType', 'handle', $hFile)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetFileType', 'handle', $hFile)
 	If @error Then Return SetError(@error, @extended, -1)
 	Local $iLastError = _WinAPI_GetLastError()
-	If Not $aRet[0] And $iLastError Then Return SetError(10, $iLastError, -1)
+	If Not $aCall[0] And $iLastError Then Return SetError(10, $iLastError, -1)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetFileType
 
 ; #FUNCTION# ====================================================================================================================
@@ -1164,10 +1152,10 @@ EndFunc   ;==>_WinAPI_GetFileType
 Func _WinAPI_GetFinalPathNameByHandle($hFile)
 	Local $tFNI = DllStructCreate('ulong;wchar[4096]')
 	Local $tIOSB = DllStructCreate('ptr;ulong_ptr')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'struct*', $tFNI, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryInformationFile', 'handle', $hFile, 'struct*', $tIOSB, 'struct*', $tFNI, _
 			'ulong', DllStructGetSize($tFNI), 'uint', 9)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aRet[0] Then Return SetError(10, $aRet[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 	Local $iLength = DllStructGetData($tFNI, 1)
 	If Not $iLength Then Return SetError(12, 0, '')
 
@@ -1179,11 +1167,11 @@ EndFunc   ;==>_WinAPI_GetFinalPathNameByHandle
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFinalPathNameByHandleEx($hFile, $iFlags = 0)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetFinalPathNameByHandleW', 'handle', $hFile, 'wstr', '', 'dword', 4096, _
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetFinalPathNameByHandleW', 'handle', $hFile, 'wstr', '', 'dword', 4096, _
 			'dword', $iFlags)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_GetFinalPathNameByHandleEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -1191,11 +1179,11 @@ EndFunc   ;==>_WinAPI_GetFinalPathNameByHandleEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetFullPathName($sFilePath)
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetFullPathNameW', 'wstr', $sFilePath, 'dword', 4096, 'wstr', '', 'ptr', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, '')
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetFullPathNameW', 'wstr', $sFilePath, 'dword', 4096, 'wstr', '', 'ptr', 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[3]
+	Return $aCall[3]
 EndFunc   ;==>_WinAPI_GetFullPathName
 
 ; #FUNCTION# ====================================================================================================================
@@ -1203,11 +1191,11 @@ EndFunc   ;==>_WinAPI_GetFullPathName
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetLogicalDrives()
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'GetLogicalDrives')
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetLogicalDrives')
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetLogicalDrives
 
 ; #FUNCTION# ====================================================================================================================
@@ -1220,9 +1208,9 @@ Func _WinAPI_GetObjectID($sFilePath)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
 	Local $tFOID = DllStructCreate('byte[16];byte[48]')
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009009C, 'ptr', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009009C, 'ptr', 0, _
 			'dword', 0, 'struct*', $tFOID, 'dword', DllStructGetSize($tFOID), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Local $tGUID = DllStructCreate($tagGUID)
 	_WinAPI_MoveMemory($tGUID, $tFOID, 16)
@@ -1236,12 +1224,12 @@ EndFunc   ;==>_WinAPI_GetObjectID
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_GetOverlappedResult($hFile, $tOverlapped, ByRef $iBytes, $bWait = False)
-	Local $aResult = DllCall("kernel32.dll", "bool", "GetOverlappedResult", "handle", $hFile, "struct*", $tOverlapped, "dword*", 0, _
+	Local $aCall = DllCall("kernel32.dll", "bool", "GetOverlappedResult", "handle", $hFile, "struct*", $tOverlapped, "dword*", 0, _
 			"bool", $bWait)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, False)
+	If @error Then Return SetError(@error, @extended, False)
 
-	$iBytes = $aResult[3]
-	Return $aResult[0]
+	$iBytes = $aCall[3]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetOverlappedResult
 
 ; #FUNCTION# ====================================================================================================================
@@ -1257,8 +1245,8 @@ Func _WinAPI_GetPEType($sFilePath)
 
 	Local $iError = 0, $iVal
 	Do
-		Local $aRet = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 2, 'dword*', 0, 'ptr', 0)
-		If @error Or (Not $aRet[0]) Or ($aRet[4] <> 2) Then
+		Local $aCall = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 2, 'dword*', 0, 'ptr', 0)
+		If @error Or (Not $aCall[0]) Or ($aCall[4] <> 2) Then
 			$iError = @error + 30
 			ExitLoop
 		EndIf
@@ -1271,8 +1259,8 @@ Func _WinAPI_GetPEType($sFilePath)
 			$iError = @error + 40
 			ExitLoop
 		EndIf
-		$aRet = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 4, 'dword*', 0, 'ptr', 0)
-		If @error Or (Not $aRet[0]) Or ($aRet[4] <> 4) Then
+		$aCall = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 4, 'dword*', 0, 'ptr', 0)
+		If @error Or (Not $aCall[0]) Or ($aCall[4] <> 4) Then
 			$iError = @error + 50
 			ExitLoop
 		EndIf
@@ -1280,8 +1268,8 @@ Func _WinAPI_GetPEType($sFilePath)
 			$iError = @error + 60
 			ExitLoop
 		EndIf
-		$aRet = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 4, 'dword*', 0, 'ptr', 0)
-		If @error Or (Not $aRet[0]) Or ($aRet[4] <> 4) Then
+		$aCall = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 4, 'dword*', 0, 'ptr', 0)
+		If @error Or (Not $aCall[0]) Or ($aCall[4] <> 4) Then
 			$iError = @error + 70
 			ExitLoop
 		EndIf
@@ -1290,8 +1278,8 @@ Func _WinAPI_GetPEType($sFilePath)
 			$iError = 4
 			ExitLoop
 		EndIf
-		$aRet = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 2, 'dword*', 0, 'ptr', 0)
-		If @error Or (Not $aRet[0]) Or ($aRet[4] <> 2) Then
+		$aCall = DllCall('kernel32.dll', 'bool', 'ReadFile', 'handle', $hFile, 'struct*', $tData, 'dword', 2, 'dword*', 0, 'ptr', 0)
+		If @error Or (Not $aCall[0]) Or ($aCall[4] <> 2) Then
 			$iError = @error + 80
 			ExitLoop
 		EndIf
@@ -1308,10 +1296,10 @@ EndFunc   ;==>_WinAPI_GetPEType
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetProfilesDirectory()
-	Local $aRet = DllCall('userenv.dll', 'bool', 'GetProfilesDirectoryW', 'wstr', '', 'dword*', 4096)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('userenv.dll', 'bool', 'GetProfilesDirectoryW', 'wstr', '', 'dword*', 4096)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[1]
+	Return $aCall[1]
 EndFunc   ;==>_WinAPI_GetProfilesDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -1319,10 +1307,10 @@ EndFunc   ;==>_WinAPI_GetProfilesDirectory
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetTempFileName($sFilePath, $sPrefix = '')
-	Local $aRet = DllCall('kernel32.dll', 'uint', 'GetTempFileNameW', 'wstr', $sFilePath, 'wstr', $sPrefix, 'uint', 0, 'wstr', '')
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('kernel32.dll', 'uint', 'GetTempFileNameW', 'wstr', $sFilePath, 'wstr', $sPrefix, 'uint', 0, 'wstr', '')
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[4]
+	Return $aCall[4]
 EndFunc   ;==>_WinAPI_GetTempFileName
 
 ; #FUNCTION# ====================================================================================================================
@@ -1330,26 +1318,22 @@ EndFunc   ;==>_WinAPI_GetTempFileName
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetVolumeInformation($sRoot = '')
-	Local $sTypeOfRoot = 'wstr'
-	If Not StringStripWS($sRoot, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfRoot = 'ptr'
-		$sRoot = 0
-	EndIf
+	If Not StringStripWS($sRoot, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sRoot = Null
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetVolumeInformationW', $sTypeOfRoot, $sRoot, 'wstr', '', 'dword', 4096, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetVolumeInformationW', 'wstr', $sRoot, 'wstr', '', 'dword', 4096, _
 			'dword*', 0, 'dword*', 0, 'dword*', 0, 'wstr', '', 'dword', 4096)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aResult[5]
+	Local $aRet[5]
 	For $i = 0 To 4
 		Switch $i
 			Case 0
-				$aResult[$i] = $aRet[2]
+				$aRet[$i] = $aCall[2]
 			Case Else
-				$aResult[$i] = $aRet[$i + 3]
+				$aRet[$i] = $aCall[$i + 3]
 		EndSwitch
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetVolumeInformation
 
 ; #FUNCTION# ====================================================================================================================
@@ -1357,20 +1341,20 @@ EndFunc   ;==>_WinAPI_GetVolumeInformation
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetVolumeInformationByHandle($hFile)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetVolumeInformationByHandleW', 'handle', $hFile, 'wstr', '', 'dword', 4096, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetVolumeInformationByHandleW', 'handle', $hFile, 'wstr', '', 'dword', 4096, _
 			'dword*', 0, 'dword*', 0, 'dword*', 0, 'wstr', '', 'dword', 4096)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Local $aResult[5]
+	Local $aRet[5]
 	For $i = 0 To 4
 		Switch $i
 			Case 0
-				$aResult[$i] = $aRet[2]
+				$aRet[$i] = $aCall[2]
 			Case Else
-				$aResult[$i] = $aRet[$i + 3]
+				$aRet[$i] = $aCall[$i + 3]
 		EndSwitch
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetVolumeInformationByHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -1378,10 +1362,10 @@ EndFunc   ;==>_WinAPI_GetVolumeInformationByHandle
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetVolumeNameForVolumeMountPoint($sMountedPath)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'GetVolumeNameForVolumeMountPointW', 'wstr', $sMountedPath, 'wstr', '', 'dword', 80)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'GetVolumeNameForVolumeMountPointW', 'wstr', $sMountedPath, 'wstr', '', 'dword', 80)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aRet[2]
+	Return $aCall[2]
 EndFunc   ;==>_WinAPI_GetVolumeNameForVolumeMountPoint
 
 ; #FUNCTION# ====================================================================================================================
@@ -1425,9 +1409,9 @@ Func _WinAPI_IsDoorOpen($sDrive)
 	DllStructSetData($tCDB, 5, 0)
 	DllStructSetData($tCDB, 6, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0004D004, 'struct*', $tSPT, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0004D004, 'struct*', $tSPT, _
 			'dword', $iSize, 'struct*', $tSPT, 'dword', DllStructGetSize($tSPT), 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, False)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, False)
 
 	Return (BitAND(DllStructGetData($tHDR, 2), 0x10) = 0x10)
 EndFunc   ;==>_WinAPI_IsDoorOpen
@@ -1439,10 +1423,10 @@ EndFunc   ;==>_WinAPI_IsDoorOpen
 Func _WinAPI_IsPathShared($sFilePath)
 	If Not __DLL('ntshrui.dll') Then Return SetError(103, 0, 0)
 
-	Local $aRet = DllCall('ntshrui.dll', 'bool', 'IsPathSharedW', 'wstr', _WinAPI_PathRemoveBackslash($sFilePath), 'int', 1)
+	Local $aCall = DllCall('ntshrui.dll', 'bool', 'IsPathSharedW', 'wstr', _WinAPI_PathRemoveBackslash($sFilePath), 'int', 1)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_IsPathShared
 
 ; #FUNCTION# ====================================================================================================================
@@ -1457,12 +1441,12 @@ Func _WinAPI_IsWritable($sDrive)
 	Local $hFile = _WinAPI_CreateFileEx('\\.\' & $sDrive, $OPEN_EXISTING, 0, $FILE_SHARE_READWRITE)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x00070024, 'ptr', 0, 'dword', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x00070024, 'ptr', 0, 'dword', 0, _
 			'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
 	Local Const $ERROR_WRITE_PROTECT = 19 ; The media is write protected.
-	If __CheckErrorCloseHandle($aRet, $hFile, 1) <> 10 And @extended = $ERROR_WRITE_PROTECT Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile, 1) <> 10 And @extended = $ERROR_WRITE_PROTECT Then Return SetError(@error, @extended, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_IsWritable
 
 ; #FUNCTION# ====================================================================================================================
@@ -1473,11 +1457,11 @@ Func _WinAPI_LoadMedia($sDrive)
 	Local $hFile = _WinAPI_CreateFileEx('\\.\' & $sDrive, $OPEN_EXISTING, $GENERIC_READ, $FILE_SHARE_READWRITE)
 	If @error Then Return SetError(@error + 20, @extended, False)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D480C, 'ptr', 0, 'dword', 0, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D480C, 'ptr', 0, 'dword', 0, _
 			'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, False)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, False)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LoadMedia
 
 ; #FUNCTION# ====================================================================================================================
@@ -1488,11 +1472,11 @@ Func _WinAPI_LockDevice($sDrive, $bLock)
 	Local $hFile = _WinAPI_CreateFileEx('\\.\' & $sDrive, $OPEN_EXISTING, $GENERIC_READWRITE, $FILE_SHARE_READWRITE)
 	If @error Then Return SetError(@error + 20, @extended, False)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D4804, 'boolean*', $bLock, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x002D4804, 'boolean*', $bLock, _
 			'dword', 1, 'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, False)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, False)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LockDevice
 
 ; #FUNCTION# ====================================================================================================================
@@ -1500,13 +1484,13 @@ EndFunc   ;==>_WinAPI_LockDevice
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_LockFile($hFile, $iOffset, $iLength)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'LockFile', 'handle', $hFile, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'LockFile', 'handle', $hFile, _
 			'dword', _WinAPI_LoDWord($iOffset), 'dword', _WinAPI_HiDWord($iOffset), _
 			'dword', _WinAPI_LoDWord($iLength), 'dword', _WinAPI_HiDWord($iLength))
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_LockFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1514,12 +1498,12 @@ EndFunc   ;==>_WinAPI_LockFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_MapViewOfFile($hMapping, $iOffset = 0, $iBytes = 0, $iAccess = 0x0006)
-	Local $aRet = DllCall('kernel32.dll', 'ptr', 'MapViewOfFile', 'handle', $hMapping, 'dword', $iAccess, _
+	Local $aCall = DllCall('kernel32.dll', 'ptr', 'MapViewOfFile', 'handle', $hMapping, 'dword', $iAccess, _
 			'dword', _WinAPI_HiDWord($iOffset), 'dword', _WinAPI_LoDWord($iOffset), 'ulong_ptr', $iBytes)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MapViewOfFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1527,18 +1511,18 @@ EndFunc   ;==>_WinAPI_MapViewOfFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_MoveFileEx($sExistingFile, $sNewFile, $iFlags = 0, $pProgressProc = 0, $pData = 0)
-	Local $sTypeOfNewFile = 'wstr'
-	If Not StringStripWS($sNewFile, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfNewFile = 'ptr'
-		$sNewFile = 0
+	If Not StringStripWS($sNewFile, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sNewFile = Null
+
+	If BitAND($iFlags, $MOVE_FILE_DELAY_UNTIL_REBOOT) Then
+		If $sNewFile = 0 Then $sNewFile = Null
 	EndIf
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'MoveFileWithProgressW', 'wstr', $sExistingFile, $sTypeOfNewFile, $sNewFile, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'MoveFileWithProgressW', 'wstr', $sExistingFile, 'wstr', $sNewFile, _
 			'ptr', $pProgressProc, 'ptr', $pData, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MoveFileEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -1547,12 +1531,12 @@ EndFunc   ;==>_WinAPI_MoveFileEx
 ; ===============================================================================================================================
 Func _WinAPI_OpenFileById($hFile, $vID, $iAccess = 0, $iShare = 0, $iFlags = 0)
 	Local $tFIDD = DllStructCreate('dword;uint;int64;int64')
-	Local $hObj, $aRet, $iType, $iError = 0
+	Local $hObj, $aCall, $iType, $iError = 0
 
 	Select
 		Case IsString($vID)
-			$aRet = DllCall('ole32.dll', 'long', 'CLSIDFromString', 'wstr', $vID, 'ptr', DllStructGetPtr($tFIDD, 3))
-			If @error Or $aRet[0] Then
+			$aCall = DllCall('ole32.dll', 'long', 'CLSIDFromString', 'wstr', $vID, 'ptr', DllStructGetPtr($tFIDD, 3))
+			If @error Or $aCall[0] Then
 				Return SetError(@error + 30, 0, 0)
 			EndIf
 			$iType = 1
@@ -1574,15 +1558,15 @@ Func _WinAPI_OpenFileById($hFile, $vID, $iAccess = 0, $iShare = 0, $iFlags = 0)
 	Else
 		$hObj = $hFile
 	EndIf
-	$aRet = DllCall('kernel32.dll', 'handle', 'OpenFileById', 'handle', $hObj, 'struct*', $tFIDD, 'dword', $iAccess, _
+	$aCall = DllCall('kernel32.dll', 'handle', 'OpenFileById', 'handle', $hObj, 'struct*', $tFIDD, 'dword', $iAccess, _
 			'dword', $iShare, 'ptr', 0, 'dword', $iFlags)
-	If @error Or ($aRet[0] = Ptr(-1)) Then $iError = @error + 10 ; $INVALID_HANDLE_VALUE
+	If @error Or ($aCall[0] = Ptr(-1)) Then $iError = @error + 10 ; $INVALID_HANDLE_VALUE
 	If IsString($hFile) Then
 		DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hObj)
 	EndIf
 	If $iError Then Return SetError($iError, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_OpenFileById
 
 ; #FUNCTION# ====================================================================================================================
@@ -1590,11 +1574,11 @@ EndFunc   ;==>_WinAPI_OpenFileById
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_OpenFileMapping($sName, $iAccess = 0x0006, $bInherit = False)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'OpenFileMappingW', 'dword', $iAccess, 'bool', $bInherit, 'wstr', $sName)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'OpenFileMappingW', 'dword', $iAccess, 'bool', $bInherit, 'wstr', $sName)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_OpenFileMapping
 
 ; #FUNCTION# ====================================================================================================================
@@ -1602,10 +1586,10 @@ EndFunc   ;==>_WinAPI_OpenFileMapping
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathIsDirectoryEmpty($sFilePath)
-	Local $aRet = DllCall('shlwapi.dll', 'bool', 'PathIsDirectoryEmptyW', 'wstr', $sFilePath)
+	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsDirectoryEmptyW', 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_PathIsDirectoryEmpty
 
 ; #FUNCTION# ====================================================================================================================
@@ -1613,21 +1597,17 @@ EndFunc   ;==>_WinAPI_PathIsDirectoryEmpty
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_QueryDosDevice($sDevice)
-	Local $sTypeOfDevice = 'wstr'
-	If Not StringStripWS($sDevice, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfDevice = 'ptr'
-		$sDevice = 0
-	EndIf
+	If Not StringStripWS($sDevice, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sDevice = Null
 
 	Local $tData = DllStructCreate('wchar[16384]')
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'QueryDosDeviceW', $sTypeOfDevice, $sDevice, 'struct*', $tData, 'dword', 16384)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'QueryDosDeviceW', 'wstr', $sDevice, 'struct*', $tData, 'dword', 16384)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
 
-	Local $aResult = _WinAPI_StructToArray($tData)
+	Local $aRet = _WinAPI_StructToArray($tData)
 	If IsString($sDevice) Then
-		$aResult = $aResult[1]
+		$aRet = $aRet[1]
 	EndIf
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_QueryDosDevice
 
 ; #FUNCTION# ====================================================================================================================
@@ -1635,11 +1615,11 @@ EndFunc   ;==>_WinAPI_QueryDosDevice
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_ReadDirectoryChanges($hDirectory, $iFilter, $pBuffer, $iLength, $bSubtree = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'ReadDirectoryChangesW', 'handle', $hDirectory, 'struct*', $pBuffer, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'ReadDirectoryChangesW', 'handle', $hDirectory, 'struct*', $pBuffer, _
 			'dword', $iLength - Mod($iLength, 4), 'bool', $bSubtree, 'dword', $iFilter, 'dword*', 0, 'ptr', 0, 'ptr', 0)
-	If @error Or Not $aRet[0] Or (Not $aRet[6]) Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Or (Not $aCall[6]) Then Return SetError(@error + 10, @extended, 0)
 
-	$pBuffer = $aRet[2] ; if updated by the DllCall in case of not word align
+	$pBuffer = $aCall[2] ; if updated by the DllCall in case of not word align
 	Local $aData[101][2] = [[0]]
 	Local $tFNI, $iBuffer = 0, $iOffset = 0
 
@@ -1660,11 +1640,11 @@ EndFunc   ;==>_WinAPI_ReadDirectoryChanges
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_RemoveDirectory($sDirPath)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'RemoveDirectoryW', 'wstr', $sDirPath)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'RemoveDirectoryW', 'wstr', $sDirPath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_RemoveDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -1672,11 +1652,11 @@ EndFunc   ;==>_WinAPI_RemoveDirectory
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_ReOpenFile($hFile, $iAccess, $iShare, $iFlags = 0)
-	Local $aRet = DllCall('kernel32.dll', 'handle', 'ReOpenFile', 'handle', $hFile, 'dword', $iAccess, 'dword', $iShare, 'dword', $iFlags)
-	If @error Or ($aRet[0] = Ptr(-1)) Then Return SetError(@error, @extended, 0) ; $INVALID_HANDLE_VALUE
-	; If $aRet[0] = Ptr(-1) Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('kernel32.dll', 'handle', 'ReOpenFile', 'handle', $hFile, 'dword', $iAccess, 'dword', $iShare, 'dword', $iFlags)
+	If @error Or ($aCall[0] = Ptr(-1)) Then Return SetError(@error, @extended, 0) ; $INVALID_HANDLE_VALUE
+	; If $aCall[0] = Ptr(-1) Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ReOpenFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1684,18 +1664,14 @@ EndFunc   ;==>_WinAPI_ReOpenFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_ReplaceFile($sReplacedFile, $sReplacementFile, $sBackupFile = '', $iFlags = 0)
-	Local $sTypeOfBackupFile = 'wstr'
-	If Not StringStripWS($sBackupFile, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfBackupFile = 'ptr'
-		$sBackupFile = 0
-	EndIf
+	If Not StringStripWS($sBackupFile, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sBackupFile = Null
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'ReplaceFileW', 'wstr', $sReplacedFile, 'wstr', $sReplacementFile, _
-			$sTypeOfBackupFile, $sBackupFile, 'dword', $iFlags, 'ptr', 0, 'ptr', 0)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'ReplaceFileW', 'wstr', $sReplacedFile, 'wstr', $sReplacementFile, _
+			'wstr', $sBackupFile, 'dword', $iFlags, 'ptr', 0, 'ptr', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ReplaceFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1703,17 +1679,13 @@ EndFunc   ;==>_WinAPI_ReplaceFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SearchPath($sFilePath, $sSearchPath = '')
-	Local $sTypeOfPath = 'wstr'
-	If Not StringStripWS($sSearchPath, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-		$sTypeOfPath = 'ptr'
-		$sSearchPath = 0
-	EndIf
+	If Not StringStripWS($sSearchPath, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sSearchPath = Null
 
-	Local $aRet = DllCall('kernel32.dll', 'dword', 'SearchPathW', $sTypeOfPath, $sSearchPath, 'wstr', $sFilePath, 'ptr', 0, 'dword', 4096, 'wstr', '', 'ptr', 0)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, '')
-	; If Not $aRet[0] Then Return SetError(1000, 0, '')
+	Local $aCall = DllCall('kernel32.dll', 'dword', 'SearchPathW', 'wstr', $sSearchPath, 'wstr', $sFilePath, 'ptr', 0, 'dword', 4096, 'wstr', '', 'ptr', 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+	; If Not $aCall[0] Then Return SetError(1000, 0, '')
 
-	Return $aRet[5]
+	Return $aCall[5]
 EndFunc   ;==>_WinAPI_SearchPath
 
 ; #FUNCTION# ====================================================================================================================
@@ -1725,9 +1697,9 @@ Func _WinAPI_SetCompression($sFilePath, $iCompression)
 	Local $hFile = _WinAPI_CreateFileEx($sFilePath, $OPEN_EXISTING, $GENERIC_READWRITE, $FILE_SHARE_READWRITE, $FILE_FLAG_BACKUP_SEMANTICS)
 	If @error Then Return SetError(@error + 20, @extended, 0)
 
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009C040, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'DeviceIoControl', 'handle', $hFile, 'dword', 0x0009C040, _
 			'ushort*', $iCompression, 'dword', 2, 'ptr', 0, 'dword', 0, 'dword*', 0, 'ptr', 0)
-	If __CheckErrorCloseHandle($aRet, $hFile) Then Return SetError(@error, @extended, 0)
+	If __CheckErrorCloseHandle($aCall, $hFile) Then Return SetError(@error, @extended, 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_SetCompression
@@ -1737,11 +1709,11 @@ EndFunc   ;==>_WinAPI_SetCompression
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetCurrentDirectory($sDir)
-	Local $aRet = DllCall('kernel32.dll', 'int', 'SetCurrentDirectoryW', 'wstr', $sDir)
+	Local $aCall = DllCall('kernel32.dll', 'int', 'SetCurrentDirectoryW', 'wstr', $sDir)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetCurrentDirectory
 
 ; #FUNCTION# ====================================================================================================================
@@ -1749,10 +1721,10 @@ EndFunc   ;==>_WinAPI_SetCurrentDirectory
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetEndOfFile($hFile)
-	Local $aResult = DllCall("kernel32.dll", "bool", "SetEndOfFile", "handle", $hFile)
+	Local $aCall = DllCall("kernel32.dll", "bool", "SetEndOfFile", "handle", $hFile)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetEndOfFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1760,11 +1732,11 @@ EndFunc   ;==>_WinAPI_SetEndOfFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFileAttributes($sFilePath, $iAttributes)
-	Local $aRet = DllCall('kernel32.dll', 'int', 'SetFileAttributesW', 'wstr', $sFilePath, 'dword', $iAttributes)
+	Local $aCall = DllCall('kernel32.dll', 'int', 'SetFileAttributesW', 'wstr', $sFilePath, 'dword', $iAttributes)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFileAttributes
 
 ; #FUNCTION# ====================================================================================================================
@@ -1772,10 +1744,10 @@ EndFunc   ;==>_WinAPI_SetFileAttributes
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFileInformationByHandleEx($hFile, $tFILEINFO)
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwSetInformationFile', 'handle', $hFile, 'struct*', $tFILEINFO, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwSetInformationFile', 'handle', $hFile, 'struct*', $tFILEINFO, _
 			'struct*', $tFILEINFO, 'ulong', DllStructGetSize($tFILEINFO), 'uint', 4)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_SetFileInformationByHandleEx
@@ -1785,10 +1757,10 @@ EndFunc   ;==>_WinAPI_SetFileInformationByHandleEx
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFilePointer($hFile, $iPos, $iMethod = 0)
-	Local $aResult = DllCall("kernel32.dll", "INT", "SetFilePointer", "handle", $hFile, "long", $iPos, "ptr", 0, "long", $iMethod)
+	Local $aCall = DllCall("kernel32.dll", "INT", "SetFilePointer", "handle", $hFile, "long", $iPos, "ptr", 0, "long", $iMethod)
 	If @error Then Return SetError(@error, @extended, -1)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFilePointer
 
 ; #FUNCTION# ====================================================================================================================
@@ -1796,11 +1768,11 @@ EndFunc   ;==>_WinAPI_SetFilePointer
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFilePointerEx($hFile, $iPos, $iMethod = 0)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'SetFilePointerEx', 'handle', $hFile, 'int64', $iPos, 'int64*', 0, 'dword', $iMethod)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetFilePointerEx', 'handle', $hFile, 'int64', $iPos, 'int64*', 0, 'dword', $iMethod)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFilePointerEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -1808,11 +1780,11 @@ EndFunc   ;==>_WinAPI_SetFilePointerEx
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFileShortName($hFile, $sShortName)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'SetFileShortNameW', 'handle', $hFile, 'wstr', $sShortName)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetFileShortNameW', 'handle', $hFile, 'wstr', $sShortName)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFileShortName
 
 ; #FUNCTION# ====================================================================================================================
@@ -1820,11 +1792,11 @@ EndFunc   ;==>_WinAPI_SetFileShortName
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetFileValidData($hFile, $iLength)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'SetFileValidData', 'handle', $hFile, 'int64', $iLength)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetFileValidData', 'handle', $hFile, 'int64', $iLength)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFileValidData
 
 ; #FUNCTION# ====================================================================================================================
@@ -1832,11 +1804,11 @@ EndFunc   ;==>_WinAPI_SetFileValidData
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetSearchPathMode($iFlags)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'SetSearchPathMode', 'dword', $iFlags)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetSearchPathMode', 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetSearchPathMode
 
 ; #FUNCTION# ====================================================================================================================
@@ -1844,11 +1816,11 @@ EndFunc   ;==>_WinAPI_SetSearchPathMode
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetVolumeMountPoint($sFilePath, $sGUID)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'SetVolumeMountPointW', 'wstr', $sFilePath, 'wstr', $sGUID)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetVolumeMountPointW', 'wstr', $sFilePath, 'wstr', $sGUID)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetVolumeMountPoint
 
 ; #FUNCTION# ====================================================================================================================
@@ -1858,10 +1830,10 @@ EndFunc   ;==>_WinAPI_SetVolumeMountPoint
 Func _WinAPI_SfcIsFileProtected($sFilePath)
 	If Not __DLL('sfc.dll') Then Return SetError(103, 0, False)
 
-	Local $aRet = DllCall('sfc.dll', 'bool', 'SfcIsFileProtected', 'handle', 0, 'wstr', $sFilePath)
+	Local $aCall = DllCall('sfc.dll', 'bool', 'SfcIsFileProtected', 'handle', 0, 'wstr', $sFilePath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SfcIsFileProtected
 
 ; #FUNCTION# ====================================================================================================================
@@ -1869,13 +1841,13 @@ EndFunc   ;==>_WinAPI_SfcIsFileProtected
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_UnlockFile($hFile, $iOffset, $iLength)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'UnlockFile', 'handle', $hFile, _
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'UnlockFile', 'handle', $hFile, _
 			'dword', _WinAPI_LoDWord($iOffset), 'dword', _WinAPI_HiDWord($iOffset), _
 			'dword', _WinAPI_LoDWord($iLength), 'dword', _WinAPI_HiDWord($iLength))
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_UnlockFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1883,11 +1855,11 @@ EndFunc   ;==>_WinAPI_UnlockFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_UnmapViewOfFile($pAddress)
-	Local $aRet = DllCall('kernel32.dll', 'bool', 'UnmapViewOfFile', 'ptr', $pAddress)
+	Local $aCall = DllCall('kernel32.dll', 'bool', 'UnmapViewOfFile', 'ptr', $pAddress)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_UnmapViewOfFile
 
 ; #FUNCTION# ====================================================================================================================
@@ -1895,11 +1867,11 @@ EndFunc   ;==>_WinAPI_UnmapViewOfFile
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_Wow64EnableWow64FsRedirection($bEnable)
-	Local $aRet = DllCall('kernel32.dll', 'boolean', 'Wow64EnableWow64FsRedirection', 'boolean', $bEnable)
+	Local $aCall = DllCall('kernel32.dll', 'boolean', 'Wow64EnableWow64FsRedirection', 'boolean', $bEnable)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_Wow64EnableWow64FsRedirection
 
 #EndRegion Public Functions

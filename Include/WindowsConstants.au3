@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Windows_Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: <a href="../appendix/GUIStyles.htm">GUI control Windows styles</a> and much more constants.
 ; Author(s) .....: Valik, Gary Frost, ...
@@ -93,7 +93,7 @@ Global Const $WS_EX_CLIENTEDGE = 0x00000200
 Global Const $WS_EX_CONTEXTHELP = 0x00000400
 Global Const $WS_EX_DLGMODALFRAME = 0x00000001
 Global Const $WS_EX_LAYERED = 0x00080000
-Global Const $WS_EX_LAYOUTRTL = 0x400000
+Global Const $WS_EX_LAYOUTRTL = 0x00400000
 Global Const $WS_EX_LEFT = 0x00000000
 Global Const $WS_EX_LEFTSCROLLBAR = 0x00004000
 Global Const $WS_EX_LTRREADING = 0x00000000
@@ -101,6 +101,7 @@ Global Const $WS_EX_MDICHILD = 0x00000040
 Global Const $WS_EX_NOACTIVATE = 0x08000000
 Global Const $WS_EX_NOINHERITLAYOUT = 0x00100000
 Global Const $WS_EX_NOPARENTNOTIFY = 0x00000004
+Global Const $WS_EX_NOREDIRECTIONBITMAP = 0x00200000
 Global Const $WS_EX_RIGHT = 0x00001000
 Global Const $WS_EX_RIGHTSCROLLBAR = 0x00000000
 Global Const $WS_EX_RTLREADING = 0x2000

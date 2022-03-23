@@ -11,7 +11,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: ComboBox
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions that assist with ComboBox control management.
 ; Author(s) .....: gafrost, PaulIA, Valik
@@ -322,7 +322,7 @@ Func _GUICtrlComboBox_GetCueBanner($hWnd)
 
 	Local $tText = DllStructCreate("wchar[4096]")
 	If _SendMessage($hWnd, $CB_GETCUEBANNER, $tText, 4096, 0, "struct*") <> 1 Then Return SetError(-1, 0, "")
-	Return _WinAPI_WideCharToMultiByte($tText)
+	Return DllStructGetData($tText, 1)
 EndFunc   ;==>_GUICtrlComboBox_GetCueBanner
 
 ; #FUNCTION# ====================================================================================================================

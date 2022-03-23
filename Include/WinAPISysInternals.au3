@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPISys.au3
 ; Author(s) .....: jpm
 ; ===============================================================================================================================
@@ -100,12 +100,12 @@ Global Const $__WINAPICONSTANT_WM_SETFONT = 0x0030
 ; ===============================================================================================================================
 Func _WinAPI_CreateWindowEx($iExStyle, $sClass, $sName, $iStyle, $iX, $iY, $iWidth, $iHeight, $hParent, $hMenu = 0, $hInstance = 0, $pParam = 0)
 	If $hInstance = 0 Then $hInstance = _WinAPI_GetModuleHandle("")
-	Local $aResult = DllCall("user32.dll", "hwnd", "CreateWindowExW", "dword", $iExStyle, "wstr", $sClass, "wstr", $sName, _
+	Local $aCall = DllCall("user32.dll", "hwnd", "CreateWindowExW", "dword", $iExStyle, "wstr", $sClass, "wstr", $sName, _
 			"dword", $iStyle, "int", $iX, "int", $iY, "int", $iWidth, "int", $iHeight, "hwnd", $hParent, "handle", $hMenu, _
 			"handle", $hInstance, "struct*", $pParam)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CreateWindowEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -114,8 +114,8 @@ EndFunc   ;==>_WinAPI_CreateWindowEx
 ; ===============================================================================================================================
 Func _WinAPI_GetClientRect($hWnd)
 	Local $tRECT = DllStructCreate($tagRECT)
-	Local $aRet = DllCall("user32.dll", "bool", "GetClientRect", "hwnd", $hWnd, "struct*", $tRECT)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "bool", "GetClientRect", "hwnd", $hWnd, "struct*", $tRECT)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Return $tRECT
 EndFunc   ;==>_WinAPI_GetClientRect
@@ -125,10 +125,10 @@ EndFunc   ;==>_WinAPI_GetClientRect
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetDesktopWindow()
-	Local $aResult = DllCall("user32.dll", "hwnd", "GetDesktopWindow")
+	Local $aCall = DllCall("user32.dll", "hwnd", "GetDesktopWindow")
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetDesktopWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -136,10 +136,10 @@ EndFunc   ;==>_WinAPI_GetDesktopWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_DestroyWindow($hWnd)
-	Local $aResult = DllCall("user32.dll", "bool", "DestroyWindow", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "bool", "DestroyWindow", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DestroyWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -147,10 +147,10 @@ EndFunc   ;==>_WinAPI_DestroyWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_EnableWindow($hWnd, $bEnable = True)
-	Local $aResult = DllCall("user32.dll", "bool", "EnableWindow", "hwnd", $hWnd, "bool", $bEnable)
+	Local $aCall = DllCall("user32.dll", "bool", "EnableWindow", "hwnd", $hWnd, "bool", $bEnable)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_EnableWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -210,10 +210,10 @@ EndFunc   ;==>_WinAPI_EnumWindowsTop
 ; ===============================================================================================================================
 Func _WinAPI_GetClassName($hWnd)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
-	Local $aResult = DllCall("user32.dll", "int", "GetClassNameW", "hwnd", $hWnd, "wstr", "", "int", 4096)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, '')
+	Local $aCall = DllCall("user32.dll", "int", "GetClassNameW", "hwnd", $hWnd, "wstr", "", "int", 4096)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
 
-	Return SetExtended($aResult[0], $aResult[2])
+	Return SetExtended($aCall[0], $aCall[2])
 EndFunc   ;==>_WinAPI_GetClassName
 
 ; #FUNCTION# ====================================================================================================================
@@ -221,10 +221,10 @@ EndFunc   ;==>_WinAPI_GetClassName
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetFocus()
-	Local $aResult = DllCall("user32.dll", "hwnd", "GetFocus")
+	Local $aCall = DllCall("user32.dll", "hwnd", "GetFocus")
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetFocus
 
 ; #FUNCTION# ====================================================================================================================
@@ -232,10 +232,10 @@ EndFunc   ;==>_WinAPI_GetFocus
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetParent($hWnd)
-	Local $aResult = DllCall("user32.dll", "hwnd", "GetParent", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "hwnd", "GetParent", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetParent
 
 ; #FUNCTION# ====================================================================================================================
@@ -243,10 +243,10 @@ EndFunc   ;==>_WinAPI_GetParent
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetSysColor($iIndex)
-	Local $aResult = DllCall("user32.dll", "INT", "GetSysColor", "int", $iIndex)
+	Local $aCall = DllCall("user32.dll", "INT", "GetSysColor", "int", $iIndex)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetSysColor
 
 ; #FUNCTION# ====================================================================================================================
@@ -254,10 +254,10 @@ EndFunc   ;==>_WinAPI_GetSysColor
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetSystemMetrics($iIndex)
-	Local $aResult = DllCall("user32.dll", "int", "GetSystemMetrics", "int", $iIndex)
+	Local $aCall = DllCall("user32.dll", "int", "GetSystemMetrics", "int", $iIndex)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetSystemMetrics
 
 ; #FUNCTION# ====================================================================================================================
@@ -265,10 +265,10 @@ EndFunc   ;==>_WinAPI_GetSystemMetrics
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetWindow($hWnd, $iCmd)
-	Local $aResult = DllCall("user32.dll", "hwnd", "GetWindow", "hwnd", $hWnd, "uint", $iCmd)
+	Local $aCall = DllCall("user32.dll", "hwnd", "GetWindow", "hwnd", $hWnd, "uint", $iCmd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -289,10 +289,10 @@ EndFunc   ;==>_WinAPI_GetWindowHeight
 Func _WinAPI_GetWindowLong($hWnd, $iIndex)
 	Local $sFuncName = "GetWindowLongW"
 	If @AutoItX64 Then $sFuncName = "GetWindowLongPtrW"
-	Local $aResult = DllCall("user32.dll", "long_ptr", $sFuncName, "hwnd", $hWnd, "int", $iIndex)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "long_ptr", $sFuncName, "hwnd", $hWnd, "int", $iIndex)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetWindowLong
 
 ; #FUNCTION# ====================================================================================================================
@@ -301,8 +301,8 @@ EndFunc   ;==>_WinAPI_GetWindowLong
 ; ===============================================================================================================================
 Func _WinAPI_GetWindowRect($hWnd)
 	Local $tRECT = DllStructCreate($tagRECT)
-	Local $aRet = DllCall("user32.dll", "bool", "GetWindowRect", "hwnd", $hWnd, "struct*", $tRECT)
-	If @error Or Not $aRet[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("user32.dll", "bool", "GetWindowRect", "hwnd", $hWnd, "struct*", $tRECT)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
 
 	Return $tRECT
 EndFunc   ;==>_WinAPI_GetWindowRect
@@ -312,10 +312,10 @@ EndFunc   ;==>_WinAPI_GetWindowRect
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_GetWindowText($hWnd)
-	Local $aResult = DllCall("user32.dll", "int", "GetWindowTextW", "hwnd", $hWnd, "wstr", "", "int", 4096)
-	If @error Or Not $aResult[0] Then Return SetError(@error + 10, @extended, "")
+	Local $aCall = DllCall("user32.dll", "int", "GetWindowTextW", "hwnd", $hWnd, "wstr", "", "int", 4096)
+	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, "")
 
-	Return SetExtended($aResult[0], $aResult[2])
+	Return SetExtended($aCall[0], $aCall[2])
 EndFunc   ;==>_WinAPI_GetWindowText
 
 ; #FUNCTION# ====================================================================================================================
@@ -323,11 +323,11 @@ EndFunc   ;==>_WinAPI_GetWindowText
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetWindowThreadProcessId($hWnd, ByRef $iPID)
-	Local $aResult = DllCall("user32.dll", "dword", "GetWindowThreadProcessId", "hwnd", $hWnd, "dword*", 0)
+	Local $aCall = DllCall("user32.dll", "dword", "GetWindowThreadProcessId", "hwnd", $hWnd, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	$iPID = $aResult[2]
-	Return $aResult[0]
+	$iPID = $aCall[2]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetWindowThreadProcessId
 
 ; #FUNCTION# ====================================================================================================================
@@ -372,10 +372,11 @@ EndFunc   ;==>_WinAPI_InProcess
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_InvalidateRect($hWnd, $tRECT = 0, $bErase = True)
-	Local $aResult = DllCall("user32.dll", "bool", "InvalidateRect", "hwnd", $hWnd, "struct*", $tRECT, "bool", $bErase)
+	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
+	Local $aCall = DllCall("user32.dll", "bool", "InvalidateRect", "hwnd", $hWnd, "struct*", $tRECT, "bool", $bErase)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_InvalidateRect
 
 ; #FUNCTION# ====================================================================================================================
@@ -399,10 +400,10 @@ EndFunc   ;==>_WinAPI_IsClassName
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_IsWindow($hWnd)
-	Local $aResult = DllCall("user32.dll", "bool", "IsWindow", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "bool", "IsWindow", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_IsWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -410,10 +411,10 @@ EndFunc   ;==>_WinAPI_IsWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_IsWindowVisible($hWnd)
-	Local $aResult = DllCall("user32.dll", "bool", "IsWindowVisible", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "bool", "IsWindowVisible", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_IsWindowVisible
 
 ; #FUNCTION# ====================================================================================================================
@@ -421,11 +422,11 @@ EndFunc   ;==>_WinAPI_IsWindowVisible
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_MoveWindow($hWnd, $iX, $iY, $iWidth, $iHeight, $bRepaint = True)
-	Local $aResult = DllCall("user32.dll", "bool", "MoveWindow", "hwnd", $hWnd, "int", $iX, "int", $iY, "int", $iWidth, _
+	Local $aCall = DllCall("user32.dll", "bool", "MoveWindow", "hwnd", $hWnd, "int", $iX, "int", $iY, "int", $iWidth, _
 			"int", $iHeight, "bool", $bRepaint)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_MoveWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -433,10 +434,10 @@ EndFunc   ;==>_WinAPI_MoveWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetFocus($hWnd)
-	Local $aResult = DllCall("user32.dll", "hwnd", "SetFocus", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "hwnd", "SetFocus", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetFocus
 
 ; #FUNCTION# ====================================================================================================================
@@ -452,10 +453,10 @@ EndFunc   ;==>_WinAPI_SetFont
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetParent($hWndChild, $hWndParent)
-	Local $aResult = DllCall("user32.dll", "hwnd", "SetParent", "hwnd", $hWndChild, "hwnd", $hWndParent)
+	Local $aCall = DllCall("user32.dll", "hwnd", "SetParent", "hwnd", $hWndChild, "hwnd", $hWndParent)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetParent
 
 ; #FUNCTION# ====================================================================================================================
@@ -463,11 +464,11 @@ EndFunc   ;==>_WinAPI_SetParent
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetWindowPos($hWnd, $hAfter, $iX, $iY, $iCX, $iCY, $iFlags)
-	Local $aResult = DllCall("user32.dll", "bool", "SetWindowPos", "hwnd", $hWnd, "hwnd", $hAfter, "int", $iX, "int", $iY, _
+	Local $aCall = DllCall("user32.dll", "bool", "SetWindowPos", "hwnd", $hWnd, "hwnd", $hAfter, "int", $iX, "int", $iY, _
 			"int", $iCX, "int", $iCY, "uint", $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetWindowPos
 
 ; #FUNCTION# ====================================================================================================================
@@ -475,10 +476,10 @@ EndFunc   ;==>_WinAPI_SetWindowPos
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_SetWindowText($hWnd, $sText)
-	Local $aResult = DllCall("user32.dll", "bool", "SetWindowTextW", "hwnd", $hWnd, "wstr", $sText)
+	Local $aCall = DllCall("user32.dll", "bool", "SetWindowTextW", "hwnd", $hWnd, "wstr", $sText)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetWindowText
 
 ; #FUNCTION# ====================================================================================================================
@@ -486,10 +487,10 @@ EndFunc   ;==>_WinAPI_SetWindowText
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_ShowWindow($hWnd, $iCmdShow = 5)
-	Local $aResult = DllCall("user32.dll", "bool", "ShowWindow", "hwnd", $hWnd, "int", $iCmdShow)
+	Local $aCall = DllCall("user32.dll", "bool", "ShowWindow", "hwnd", $hWnd, "int", $iCmdShow)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_ShowWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -497,10 +498,10 @@ EndFunc   ;==>_WinAPI_ShowWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_UpdateWindow($hWnd)
-	Local $aResult = DllCall("user32.dll", "bool", "UpdateWindow", "hwnd", $hWnd)
+	Local $aCall = DllCall("user32.dll", "bool", "UpdateWindow", "hwnd", $hWnd)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_UpdateWindow
 
 #EndRegion Public Functions

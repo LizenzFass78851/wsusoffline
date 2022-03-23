@@ -4,7 +4,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Description ...: Additional variables, constants and functions for the WinAPIHObj.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -87,10 +87,10 @@ Global Const $DEFAULT_PALETTE = 15 ; Default palette. This palette consists of t
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_CloseHandle($hObject)
-	Local $aResult = DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hObject)
+	Local $aCall = DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hObject)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_CloseHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -98,10 +98,10 @@ EndFunc   ;==>_WinAPI_CloseHandle
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_DeleteObject($hObject)
-	Local $aResult = DllCall("gdi32.dll", "bool", "DeleteObject", "handle", $hObject)
+	Local $aCall = DllCall("gdi32.dll", "bool", "DeleteObject", "handle", $hObject)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_DeleteObject
 
 ; #FUNCTION# ====================================================================================================================
@@ -109,7 +109,7 @@ EndFunc   ;==>_WinAPI_DeleteObject
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_DuplicateHandle($hSourceProcessHandle, $hSourceHandle, $hTargetProcessHandle, $iDesiredAccess, $iInheritHandle, $iOptions)
-	Local $aResult = DllCall("kernel32.dll", "bool", "DuplicateHandle", _
+	Local $aCall = DllCall("kernel32.dll", "bool", "DuplicateHandle", _
 			"handle", $hSourceProcessHandle, _
 			"handle", $hSourceHandle, _
 			"handle", $hTargetProcessHandle, _
@@ -117,9 +117,9 @@ Func _WinAPI_DuplicateHandle($hSourceProcessHandle, $hSourceHandle, $hTargetProc
 			"dword", $iDesiredAccess, _
 			"bool", $iInheritHandle, _
 			"dword", $iOptions)
-	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[4]
+	Return $aCall[4]
 EndFunc   ;==>_WinAPI_DuplicateHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -127,11 +127,11 @@ EndFunc   ;==>_WinAPI_DuplicateHandle
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCurrentObject($hDC, $iType)
-	Local $aRet = DllCall('gdi32.dll', 'handle', 'GetCurrentObject', 'handle', $hDC, 'uint', $iType)
-	If @error Or Not $aRet[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	Local $aCall = DllCall('gdi32.dll', 'handle', 'GetCurrentObject', 'handle', $hDC, 'uint', $iType)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetCurrentObject
 
 ; #FUNCTION# ====================================================================================================================
@@ -139,10 +139,10 @@ EndFunc   ;==>_WinAPI_GetCurrentObject
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetCurrentProcess()
-	Local $aResult = DllCall("kernel32.dll", "handle", "GetCurrentProcess")
+	Local $aCall = DllCall("kernel32.dll", "handle", "GetCurrentProcess")
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetCurrentProcess
 
 ; #FUNCTION# ====================================================================================================================
@@ -150,10 +150,10 @@ EndFunc   ;==>_WinAPI_GetCurrentProcess
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetObject($hObject, $iSize, $pObject)
-	Local $aResult = DllCall("gdi32.dll", "int", "GetObjectW", "handle", $hObject, "int", $iSize, "struct*", $pObject)
+	Local $aCall = DllCall("gdi32.dll", "int", "GetObjectW", "handle", $hObject, "int", $iSize, "struct*", $pObject)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetObject
 
 ; #FUNCTION# ====================================================================================================================
@@ -163,16 +163,16 @@ EndFunc   ;==>_WinAPI_GetObject
 Func _WinAPI_GetObjectInfoByHandle($hObject)
 	Local $tagPUBLIC_OBJECT_BASIC_INFORMATION = 'ulong Attributes;ulong GrantedAcess;ulong HandleCount;ulong PointerCount;ulong Reserved[10]'
 	Local $tPOBI = DllStructCreate($tagPUBLIC_OBJECT_BASIC_INFORMATION)
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryObject', 'handle', $hObject, 'uint', 0, 'struct*', $tPOBI, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryObject', 'handle', $hObject, 'uint', 0, 'struct*', $tPOBI, _
 			'ulong', DllStructGetSize($tPOBI), 'ptr', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aRet[0] Then Return SetError(10, $aRet[0], 0)
+	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
 
-	Local $aResult[4]
+	Local $aRet[4]
 	For $i = 0 To 3
-		$aResult[$i] = DllStructGetData($tPOBI, $i + 1)
+		$aRet[$i] = DllStructGetData($tPOBI, $i + 1)
 	Next
-	Return $aResult
+	Return $aRet
 EndFunc   ;==>_WinAPI_GetObjectInfoByHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -183,10 +183,10 @@ Func _WinAPI_GetObjectNameByHandle($hObject)
 	Local $tagUNICODE_STRING = 'struct;ushort Length;ushort MaximumLength;ptr Buffer;endstruct'
 	Local $tagPUBLIC_OBJECT_TYPE_INFORMATION = 'struct;' & $tagUNICODE_STRING & ';ulong Reserved[22];endstruct'
 	Local $tPOTI = DllStructCreate($tagPUBLIC_OBJECT_TYPE_INFORMATION & ';byte[32]')
-	Local $aRet = DllCall('ntdll.dll', 'long', 'ZwQueryObject', 'handle', $hObject, 'uint', 2, 'struct*', $tPOTI, _
+	Local $aCall = DllCall('ntdll.dll', 'long', 'ZwQueryObject', 'handle', $hObject, 'uint', 2, 'struct*', $tPOTI, _
 			'ulong', DllStructGetSize($tPOTI), 'ulong*', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aRet[0] Then Return SetError(10, $aRet[0], '')
+	If $aCall[0] Then Return SetError(10, $aCall[0], '')
 	Local $pData = DllStructGetData($tPOTI, 3)
 	If Not $pData Then Return SetError(11, 0, '')
 
@@ -198,11 +198,11 @@ EndFunc   ;==>_WinAPI_GetObjectNameByHandle
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetObjectType($hObject)
-	Local $aRet = DllCall('gdi32.dll', 'dword', 'GetObjectType', 'handle', $hObject)
+	Local $aCall = DllCall('gdi32.dll', 'dword', 'GetObjectType', 'handle', $hObject)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $aRet[0] Then Return SetError(1000, 0, 0)
+	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
 
-	Return $aRet[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetObjectType
 
 ; #FUNCTION# ====================================================================================================================
@@ -213,10 +213,10 @@ Func _WinAPI_GetStdHandle($iStdHandle)
 	If $iStdHandle < 0 Or $iStdHandle > 2 Then Return SetError(2, 0, -1)
 	Local Const $aHandle[3] = [-10, -11, -12]
 
-	Local $aResult = DllCall("kernel32.dll", "handle", "GetStdHandle", "dword", $aHandle[$iStdHandle])
+	Local $aCall = DllCall("kernel32.dll", "handle", "GetStdHandle", "dword", $aHandle[$iStdHandle])
 	If @error Then Return SetError(@error, @extended, -1)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetStdHandle
 
 ; #FUNCTION# ====================================================================================================================
@@ -224,10 +224,10 @@ EndFunc   ;==>_WinAPI_GetStdHandle
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_GetStockObject($iObject)
-	Local $aResult = DllCall("gdi32.dll", "handle", "GetStockObject", "int", $iObject)
+	Local $aCall = DllCall("gdi32.dll", "handle", "GetStockObject", "int", $iObject)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetStockObject
 
 ; #FUNCTION# ====================================================================================================================
@@ -235,10 +235,10 @@ EndFunc   ;==>_WinAPI_GetStockObject
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SelectObject($hDC, $hGDIObj)
-	Local $aResult = DllCall("gdi32.dll", "handle", "SelectObject", "handle", $hDC, "handle", $hGDIObj)
+	Local $aCall = DllCall("gdi32.dll", "handle", "SelectObject", "handle", $hDC, "handle", $hGDIObj)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SelectObject
 
 ; #FUNCTION# ====================================================================================================================
@@ -246,10 +246,10 @@ EndFunc   ;==>_WinAPI_SelectObject
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinAPI_SetHandleInformation($hObject, $iMask, $iFlags)
-	Local $aResult = DllCall("kernel32.dll", "bool", "SetHandleInformation", "handle", $hObject, "dword", $iMask, "dword", $iFlags)
+	Local $aCall = DllCall("kernel32.dll", "bool", "SetHandleInformation", "handle", $hObject, "dword", $iMask, "dword", $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aResult[0]
+	Return $aCall[0]
 EndFunc   ;==>_WinAPI_SetHandleInformation
 
 #EndRegion Public Functions

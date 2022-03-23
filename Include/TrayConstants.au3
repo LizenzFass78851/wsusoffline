@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Constants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt v3 script.
 ; Author(s) .....: JLandes, Nutster, CyberSlug, Holger, ...
@@ -53,11 +53,11 @@ Global Const $TRAY_ITEM_RADIO = 1
 Global Const $TRAY_CLICK_SHOW = 0
 Global Const $TRAY_CLICK_PRIMARYDOWN = 1
 Global Const $TRAY_CLICK_PRIMARYUP = 2
-Global Const $TRAY_DBLCLICK_PRIMARY= 4
+Global Const $TRAY_DBLCLICK_PRIMARY = 4
 Global Const $TRAY_CLICK_SECONDARYDOWN = 8
 Global Const $TRAY_CLICK_SECONDARYUP = 16
-Global Const $TRAY_DBLCLICK_SECONDARY= 32
-Global Const $TRAY_CLICK_HOVERING= 64
+Global Const $TRAY_DBLCLICK_SECONDARY = 32
+Global Const $TRAY_CLICK_HOVERING = 64
 
 ; TraySetState values
 Global Const $TRAY_ICONSTATE_SHOW = 1

@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WordConstants
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt script when using the Word UDF.
 ; Author(s) .....: water
@@ -141,7 +141,7 @@ Global Const $WdFormatUnicodeText = 7 ; Unicode text format
 Global Const $WdFormatWebArchive = 9 ; Web archive format
 Global Const $WdFormatXML = 11 ; Extensible Markup Language (XML) format
 Global Const $WdFormatDocument97 = 0 ; Microsoft Word 97 document format
-Global Const $WdFormatDocumentDefault = 16; Word default document file format. For Microsoft Office Word 2007, this is the DOCX format
+Global Const $WdFormatDocumentDefault = 16 ; Word default document file format. For Microsoft Office Word 2007, this is the DOCX format
 Global Const $WdFormatPDF = 17 ; PDF format
 Global Const $WdFormatTemplate97 = 1 ; Word 97 template format
 Global Const $WdFormatXMLDocument = 12 ; XML document format

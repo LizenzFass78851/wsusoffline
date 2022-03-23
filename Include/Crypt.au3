@@ -5,7 +5,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Crypt
-; AutoIt Version : 3.3.14.5
+; AutoIt Version : 3.3.16.0
 ; Language ......: English
 ; Description ...: Functions for encrypting and hashing data.
 ; Author(s) .....: Andreas Karlsson (monoceres), jchd
@@ -77,14 +77,14 @@ Func _Crypt_Startup()
 		If $hAdvapi32 = -1 Then Return SetError(1001, 0, False)
 		__Crypt_DllHandleSet($hAdvapi32)
 		Local $iProviderID = $PROV_RSA_AES
-		Local $aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptAcquireContext", "handle*", 0, "ptr", 0, "ptr", 0, "dword", $iProviderID, "dword", $CRYPT_VERIFYCONTEXT)
-		If @error Or Not $aRet[0] Then
+		Local $aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptAcquireContext", "handle*", 0, "ptr", 0, "ptr", 0, "dword", $iProviderID, "dword", $CRYPT_VERIFYCONTEXT)
+		If @error Or Not $aCall[0] Then
 			Local $iError = @error + 1002, $iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			DllClose(__Crypt_DllHandle())
 			Return SetError($iError, $iExtended, False)
 		Else
-			__Crypt_ContextSet($aRet[1])
+			__Crypt_ContextSet($aCall[1])
 			; Fall through to success.
 		EndIf
 	EndIf
@@ -109,7 +109,7 @@ EndFunc   ;==>_Crypt_Shutdown
 ; Modified ......: jpm
 ; ===============================================================================================================================
 Func _Crypt_DeriveKey($vPassword, $iAlgID, $iHashPasswordID = $CALG_MD5)
-	Local $aRet = 0, _
+	Local $aCall, _
 			$tBuff = 0, $hCryptHash = 0, _
 			$iError = 0, $iExtended = 0, _
 			$vReturn = 0
@@ -119,37 +119,37 @@ Func _Crypt_DeriveKey($vPassword, $iAlgID, $iHashPasswordID = $CALG_MD5)
 
 	Do
 		; Create Hash object
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptCreateHash", "handle", __Crypt_Context(), "uint", $iHashPasswordID, "ptr", 0, "dword", 0, "handle*", 0)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptCreateHash", "handle", __Crypt_Context(), "uint", $iHashPasswordID, "ptr", 0, "dword", 0, "handle*", 0)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 10
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
 
-		$hCryptHash = $aRet[5]
+		$hCryptHash = $aCall[5]
 		$tBuff = DllStructCreate("byte[" & BinaryLen($vPassword) & "]")
 		DllStructSetData($tBuff, 1, $vPassword)
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptHashData", "handle", $hCryptHash, "struct*", $tBuff, "dword", DllStructGetSize($tBuff), "dword", $CRYPT_USERDATA)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptHashData", "handle", $hCryptHash, "struct*", $tBuff, "dword", DllStructGetSize($tBuff), "dword", $CRYPT_USERDATA)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 20
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
 
 		; Create key
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptDeriveKey", "handle", __Crypt_Context(), "uint", $iAlgID, "handle", $hCryptHash, "dword", $CRYPT_EXPORTABLE, "handle*", 0)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptDeriveKey", "handle", __Crypt_Context(), "uint", $iAlgID, "handle", $hCryptHash, "dword", $CRYPT_EXPORTABLE, "handle*", 0)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 30
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
-		$vReturn = $aRet[5]
+		$vReturn = $aCall[5]
 	Until True
 	If $hCryptHash <> 0 Then DllCall(__Crypt_DllHandle(), "bool", "CryptDestroyHash", "handle", $hCryptHash)
 
@@ -161,13 +161,12 @@ EndFunc   ;==>_Crypt_DeriveKey
 ; Modified ......: jpm
 ; ===============================================================================================================================
 Func _Crypt_DestroyKey($hCryptKey)
-	Local $aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptDestroyKey", "handle", $hCryptKey)
-	Local $iError = @error, $iExtended = @extended
-	If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
-	_Crypt_Shutdown()
-	If $iError Or Not $aRet[0] Then
-		Return SetError($iError + 10, $iExtended, False)
+	Local $aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptDestroyKey", "handle", $hCryptKey)
+	Local $iError = @error
+	If $iError Or Not $aCall[0] Then
+		Return SetError($iError + 10, _WinAPI_GetLastError(), False)
 	Else
+		_Crypt_Shutdown()
 		Return True
 	EndIf
 EndFunc   ;==>_Crypt_DestroyKey
@@ -188,7 +187,7 @@ Func _Crypt_EncryptData($vData, $vCryptKey, $iAlgID, $bFinal = True)
 	EndSwitch
 
 	Local $iReqBuffSize = 0, _
-			$aRet = 0, _
+			$aCall, _
 			$tBuff = 0, _
 			$iError = 0, $iExtended = 0, _
 			$vReturn = 0
@@ -207,25 +206,25 @@ Func _Crypt_EncryptData($vData, $vCryptKey, $iAlgID, $bFinal = True)
 			EndIf
 		EndIf
 
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptEncrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "ptr", 0, _
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptEncrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "ptr", 0, _
 				"dword*", BinaryLen($vData), "dword", 0)
-		If @error Or Not $aRet[0] Then
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 50
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
 
-		$iReqBuffSize = $aRet[6]
+		$iReqBuffSize = $aCall[6]
 		$tBuff = DllStructCreate("byte[" & $iReqBuffSize + 1 & "]")
 		DllStructSetData($tBuff, 1, $vData)
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptEncrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "struct*", $tBuff, _
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptEncrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "struct*", $tBuff, _
 				"dword*", BinaryLen($vData), "dword", $iReqBuffSize)
-		If @error Or Not $aRet[0] Then
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 60
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
@@ -253,7 +252,7 @@ Func _Crypt_DecryptData($vData, $vCryptKey, $iAlgID, $bFinal = True)
 			If BinaryLen($vData) = 0 Then Return SetError(0, 0, Binary(''))
 	EndSwitch
 
-	Local $aRet = 0, _
+	Local $aCall, _
 			$tBuff = 0, $tTempStruct = 0, _
 			$iError = 0, $iExtended = 0, $iPlainTextSize = 0, _
 			$vReturn = 0
@@ -274,16 +273,16 @@ Func _Crypt_DecryptData($vData, $vCryptKey, $iAlgID, $bFinal = True)
 
 		$tBuff = DllStructCreate("byte[" & BinaryLen($vData) + 1000 & "]")
 		If BinaryLen($vData) > 0 Then DllStructSetData($tBuff, 1, $vData)
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptDecrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "struct*", $tBuff, "dword*", BinaryLen($vData))
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptDecrypt", "handle", $vCryptKey, "handle", 0, "bool", $bFinal, "dword", 0, "struct*", $tBuff, "dword*", BinaryLen($vData))
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 70
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
 
-		$iPlainTextSize = $aRet[6]
+		$iPlainTextSize = $aCall[6]
 		$tTempStruct = DllStructCreate("byte[" & $iPlainTextSize + 1 & "]", DllStructGetPtr($tBuff))
 		$vReturn = BinaryMid(DllStructGetData($tTempStruct, 1), 1, $iPlainTextSize)
 	Until True
@@ -299,7 +298,7 @@ EndFunc   ;==>_Crypt_DecryptData
 ; Modified ......: jpm
 ; ===============================================================================================================================
 Func _Crypt_HashData($vData, $iAlgID, $bFinal = True, $hCryptHash = 0)
-	Local $aRet = 0, _
+	Local $aCall, _
 			$tBuff = 0, _
 			$iError = 0, $iExtended = 0, $iHashSize = 0, _
 			$vReturn = 0
@@ -310,47 +309,47 @@ Func _Crypt_HashData($vData, $iAlgID, $bFinal = True, $hCryptHash = 0)
 	Do
 		If $hCryptHash = 0 Then
 			; Create Hash object
-			$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptCreateHash", "handle", __Crypt_Context(), "uint", $iAlgID, "ptr", 0, "dword", 0, "handle*", 0)
-			If @error Or Not $aRet[0] Then
+			$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptCreateHash", "handle", __Crypt_Context(), "uint", $iAlgID, "ptr", 0, "dword", 0, "handle*", 0)
+			If @error Or Not $aCall[0] Then
 				$iError = @error + 10
 				$iExtended = @extended
-				If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+				If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 				$vReturn = -1
 				ExitLoop
 			EndIf
-			$hCryptHash = $aRet[5]
+			$hCryptHash = $aCall[5]
 		EndIf
 
 		$tBuff = DllStructCreate("byte[" & BinaryLen($vData) & "]")
 		DllStructSetData($tBuff, 1, $vData)
 
-		$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptHashData", "handle", $hCryptHash, "struct*", $tBuff, "dword", DllStructGetSize($tBuff), "dword", $CRYPT_USERDATA)
-		If @error Or Not $aRet[0] Then
+		$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptHashData", "handle", $hCryptHash, "struct*", $tBuff, "dword", DllStructGetSize($tBuff), "dword", $CRYPT_USERDATA)
+		If @error Or Not $aCall[0] Then
 			$iError = @error + 20
 			$iExtended = @extended
-			If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+			If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 			$vReturn = -1
 			ExitLoop
 		EndIf
 
 		If $bFinal Then
-			$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptGetHashParam", "handle", $hCryptHash, "dword", $HP_HASHSIZE, "dword*", 0, "dword*", 4, "dword", 0)
-			If @error Or Not $aRet[0] Then
+			$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptGetHashParam", "handle", $hCryptHash, "dword", $HP_HASHSIZE, "dword*", 0, "dword*", 4, "dword", 0)
+			If @error Or Not $aCall[0] Then
 				$iError = @error + 30
 				$iExtended = @extended
-				If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+				If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 				$vReturn = -1
 				ExitLoop
 			EndIf
-			$iHashSize = $aRet[3]
+			$iHashSize = $aCall[3]
 
 			; Get Hash
 			$tBuff = DllStructCreate("byte[" & $iHashSize & "]")
-			$aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptGetHashParam", "handle", $hCryptHash, "dword", $HP_HASHVAL, "struct*", $tBuff, "dword*", $iHashSize, "dword", 0)
-			If @error Or Not $aRet[0] Then
+			$aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptGetHashParam", "handle", $hCryptHash, "dword", $HP_HASHVAL, "struct*", $tBuff, "dword*", $iHashSize, "dword", 0)
+			If @error Or Not $aCall[0] Then
 				$iError = @error + 40
 				$iExtended = @extended
-				If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+				If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 				$vReturn = -1
 				ExitLoop
 			EndIf
@@ -571,11 +570,11 @@ Func _Crypt_GenRandom($pBuffer, $iSize)
 	_Crypt_Startup()
 	If @error Then Return SetError(@error, @extended, False)
 
-	Local $aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptGenRandom", "handle", __Crypt_Context(), "dword", $iSize, "struct*", $pBuffer)
+	Local $aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptGenRandom", "handle", __Crypt_Context(), "dword", $iSize, "struct*", $pBuffer)
 	Local $iError = @error, $iExtended = @extended
-	If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
+	If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
 	_Crypt_Shutdown()
-	If $iError Or (Not $aRet[0]) Then
+	If $iError Or (Not $aCall[0]) Then
 		Return SetError($iError + 10, $iExtended, False)
 	Else
 		Return True
@@ -716,10 +715,10 @@ EndFunc   ;==>__Crypt_ContextSet
 ; ===============================================================================================================================
 Func __Crypt_GetCalgFromCryptKey($vCryptKey)
 	Local $tAlgId = DllStructCreate("uint")
-	Local $aRet = DllCall(__Crypt_DllHandle(), "bool", "CryptGetKeyParam", "handle", $vCryptKey, "dword", $KP_ALGID, "struct*", $tAlgId, "dword*", DllStructGetSize($tAlgId), "dword", 0)
+	Local $aCall = DllCall(__Crypt_DllHandle(), "bool", "CryptGetKeyParam", "handle", $vCryptKey, "dword", $KP_ALGID, "struct*", $tAlgId, "dword*", DllStructGetSize($tAlgId), "dword", 0)
 	Local $iError = @error, $iExtended = @extended
-	If Not $aRet[0] Then $iExtended = _WinAPI_GetLastError()
-	If $iError Or Not $aRet[0] Then
+	If Not $aCall[0] Then $iExtended = _WinAPI_GetLastError()
+	If $iError Or Not $aCall[0] Then
 		Return SetError($iError + 80, $iExtended, $CRYPT_USERDATA)
 	Else
 		Return DllStructGetData($tAlgId, 1)
