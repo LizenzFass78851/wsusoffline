@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b24) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b24r2) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -834,7 +834,7 @@ While 1
 
     Case $dotnet4              ; .NET 4 check box toggled
       If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") OR (DotNet4MainVersion() = "4.7") OR (DotNet4MainVersion() = "4.8") ) _
-       AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") _
+       AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") AND (@OSVersion <> "WIN_2019") AND (@OSVersion <> "WIN_2022") AND (@OSVersion <> "WIN_11") _
        AND (WMFMainVersion() <> WMFTargetVersion()) ) Then
         GUICtrlSetState($wmf, $GUI_ENABLE)
       Else
