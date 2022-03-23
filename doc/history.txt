@@ -1865,11 +1865,14 @@ Community Edition 12.7 -- ??.??.????
 - "feature upgrades via enablement package" mechanism now allows updating to older, but still supported builds (Thanks to "aker")
 - Included Download URLs for Windows 10 21H2
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
-- .NET 5 updated to version 5.0.14
-- .NET 6 updated to version 6.0.2
+- .NET 5 updated to version 5.0.15
+- .NET 6 updated to version 6.0.3
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.31.31103.0 (Thanks to "harry" and "aker")
-- January 2022 to February 2022 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
-- January 2022 to February 2022 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 / 2022 (x86/x64) systems
+- January 2022 to March 2022 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
+- January 2022 to March 2022 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 / 2022 (x86/x64) systems
+- Replaced superseded April 2021 Servicing stack update (kb5011571) by March 2022 Servicing stack update (kb5001401) for Windows Server 2012 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001399) by March 2022 Servicing stack update (kb5011569) for Windows 10 Version 1507 (Thanks to "aker")
+- Replaced superseded September 2021 Servicing stack update (kb5005698) by March 2022 Servicing stack update (kb5011570) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")
 - Fix: DoUpdate.cmd fails to recall the update when autoreboot is enabled, if an update requests a reboot instead of a recall (Thanks to "rbronca")
 - Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")
