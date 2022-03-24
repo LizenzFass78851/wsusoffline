@@ -97,6 +97,7 @@ goto SetOfficeName
 rem *** Windows 10.0 / Server 2016/2019 ***
 rem *** Windows Server 2022 is "fe", but behaves like Windows 10 regarding updates, so treat it as "w100" ***
 rem *** Windows 11 / Server xxx ***
+rem NOTE: Windows 11 (Build >= 22567) has update file names starting with "Windows11.0" instead of "Windows10.0" [Thanks to "boco"]
 set OS_NAME=w100
 set IE_VER_TARGET_MAJOR=9
 set IE_VER_TARGET_MINOR=11
