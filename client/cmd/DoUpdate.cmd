@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b26)
+set WSUSOFFLINE_VERSION=12.7 (b27)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1668,6 +1668,8 @@ rem *** Determine and install missing Microsoft updates ***
 if exist %SystemRoot%\Temp\WOUpdatesToInstall.txt (
   for %%i in ("%SystemRoot%\Temp\WOUpdatesToInstall.txt") do if %%~zi==0 del %%i
   if exist %SystemRoot%\Temp\WOUpdatesToInstall.txt (
+    echo Continuing installation based on previous scan...
+    call :Log "Info: Continuing installation based on previous scan"
     move /Y %SystemRoot%\Temp\WOUpdatesToInstall.txt "%TEMP%\UpdatesToInstall.txt" >nul 2>&1
   )
   goto InstallUpdates
@@ -1799,31 +1801,34 @@ if %OS_VER_BUILD% LSS 17763 goto InstallUpdates
 
 if not exist "%TEMP%\UpdatesToInstall.txt" goto InstallUpdates
 
-if exist "%TEMP%\wsusou-SSU" rd /s /q "%TEMP%\wsusou-SSU" >nul 2>&1
+if exist "%TEMP%\wou_SSU" rd /s /q "%TEMP%\wou_SSU" >nul 2>&1
 
 echo Attempting to extract integrated servicing stack updates...
-for /f "delims=" %%f in ('type "%TEMP%\UpdatesToInstall.txt"') do (
+for /f "usebackq delims=" %%f in ("%TEMP%\UpdatesToInstall.txt") do (
   set WOU_UPD_NAME=%%f
+  rem dirty workaround for some strange behaviour in ListUpdateFile.cmd
+  if "!WOU_UPD_NAME:~-1!"==" " set WOU_UPD_NAME=!WOU_UPD_NAME:~0,-1!
   if "!WOU_UPD_NAME:~0,7!__!WOU_UPD_NAME:~-4!"=="..\w100__.cab" (
-    if not exist "%TEMP%\wsusou-SSU" mkdir "%TEMP%\wsusou-SSU"
-    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wsusou-SSU" >nul 2>&1
+    if not exist "%TEMP%\wou_SSU" mkdir "%TEMP%\wou_SSU"
+    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wou_SSU" >nul 2>&1
   ) else if "!WOU_UPD_NAME:~0,7!__!WOU_UPD_NAME:~-4!"=="..\w100__.msu" (
-    if not exist "%TEMP%\wsusou-SSU" mkdir "%TEMP%\wsusou-SSU"
-    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wsusou-SSU" >nul 2>&1
+    if not exist "%TEMP%\wou_SSU" mkdir "%TEMP%\wou_SSU"
+    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wou_SSU" >nul 2>&1
   )
   set WOU_UPD_NAME=
 )
 
-dir /b "%TEMP%\wsusou-SSU\SSU*.cab" >nul 2>&1
+if not exist "%TEMP%\wou_SSU" goto InstallUpdates
+dir /b "%TEMP%\wou_SSU\SSU*.cab" >nul 2>&1
 if errorlevel 1 (
   rem no integrated servicing stack update found
-  rd /s /q "%TEMP%\wsusou-SSU" >nul 2>&1
+  rd /s /q "%TEMP%\wou_SSU" >nul 2>&1
   goto InstallUpdates
 )
 
 echo Installing extracted servicing stack updates...
-for /f "delims=" %%f in ('dir /b "%TEMP%\wsusou-SSU\SSU*.cab"') do (
-  call InstallOSUpdate.cmd "%TEMP%\wsusou-SSU\%%f" /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+for /f "delims=" %%f in ('dir /b "%TEMP%\wou_SSU\SSU*.cab"') do (
+  call InstallOSUpdate.cmd "%TEMP%\wou_SSU\%%f" /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
   set ERR_LEVEL=!errorlevel!
   rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
   if "!ERR_LEVEL!"=="3010" (
@@ -1834,15 +1839,15 @@ for /f "delims=" %%f in ('dir /b "%TEMP%\wsusou-SSU\SSU*.cab"') do (
     goto InstError
   )
 )
-rd /s /q "%TEMP%\wsusou-SSU" >nul 2>&1
+rd /s /q "%TEMP%\wou_SSU" >nul 2>&1
 if "%RECALL_REQUIRED%"=="1" (
-  del "%TEMP%\UpdatesToInstall.txt"
-  rem move /Y "%TEMP%\UpdatesToInstall.txt" %SystemRoot%\Temp\WOUpdatesToInstall.txt >nul 2>&1
+  rem del "%TEMP%\UpdatesToInstall.txt"
+  move /Y "%TEMP%\UpdatesToInstall.txt" %SystemRoot%\Temp\WOUpdatesToInstall.txt >nul 2>&1
   goto Installed
 )
 if "%REBOOT_REQUIRED%"=="1" (
-  del "%TEMP%\UpdatesToInstall.txt"
-  rem move /Y "%TEMP%\UpdatesToInstall.txt" %SystemRoot%\Temp\WOUpdatesToInstall.txt >nul 2>&1
+  rem del "%TEMP%\UpdatesToInstall.txt"
+  move /Y "%TEMP%\UpdatesToInstall.txt" %SystemRoot%\Temp\WOUpdatesToInstall.txt >nul 2>&1
   goto Installed
 )
 
