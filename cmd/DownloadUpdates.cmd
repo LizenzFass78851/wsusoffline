@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b27)
+set WSUSOFFLINE_VERSION=12.7 (b28)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1033,7 +1033,7 @@ if "%CLEANUP_DL%"=="0" (
   goto VerifyDotNet
 )
 echo Cleaning up client directory for .NET Frameworks 3.5 SP1 and 4.x...
-for /F "delims=" %%i in ('dir ..\client\dotnet /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\dotnet" /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidStaticLinks-dotnet.txt" >nul 2>&1
   if errorlevel 1 (
     del "..\client\dotnet\%%i"
@@ -1121,7 +1121,7 @@ for %%i in (x64 x86) do (
 call :Log "Info: Downloaded/validated C++ Runtime Libraries' installation files"
 if "%CLEANUP_DL%"=="0" goto VerifyCPP
 echo Cleaning up client directory for C++ Runtime Libraries...
-for /F "delims=" %%i in ('dir ..\client\cpp /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\cpp" /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x64-glb.txt >nul 2>&1
   if errorlevel 1 (
     %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x86-glb.txt >nul 2>&1
@@ -1270,7 +1270,7 @@ for /F "usebackq tokens=1,2 delims=," %%j in ("%TEMP%\DynamicDownloadLinks-msedg
   )
 )
 
-for /F "delims=" %%i in ('dir ..\client\msedge /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\msedge" /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\DynamicDownloadLinks-msedge.txt" >nul 2>&1
   if errorlevel 1 (
     del "..\client\msedge\%%i"
@@ -1395,7 +1395,14 @@ if "%TMP_PLATFORM%"=="w100" (
       if not errorlevel 1 (
         if "%%j"=="%3" (
           if /i "%%k"=="Enabled" (
-            if "!TMP_BUILDS_ENABLED!"=="" (set TMP_BUILDS_ENABLED=%%i) else (set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i)
+            if "!TMP_BUILDS_ENABLED!"=="" (
+              set TMP_BUILDS_ENABLED=%%i
+            ) else (
+              echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
+              if errorlevel 1 (
+                set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i
+              )
+            )
           )
         )
       )
@@ -1407,7 +1414,14 @@ if "%TMP_PLATFORM%"=="w100" (
   for %%i in (!TMP_BUILDS_ALL!) do (
     echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
     if errorlevel 1 (
-      if "!TMP_BUILDS_DISABLED!"=="" (set TMP_BUILDS_DISABLED=%%i) else (set TMP_BUILDS_DISABLED=!TMP_BUILDS_DISABLED! %%i)
+      if "!TMP_BUILDS_DISABLED!"=="" (
+        set TMP_BUILDS_DISABLED=%%i
+      ) else (
+        echo "!TMP_BUILDS_DISABLED!" | find "%%i" >nul 2>&1
+        if errorlevel 1 (
+          set TMP_BUILDS_DISABLED=!TMP_BUILDS_DISABLED! %%i
+        )
+      )
     )
   )
 ) else (
@@ -2365,7 +2379,7 @@ if exist "%TEMP%\ValidStaticLinks-%1-%2.txt"  type "%TEMP%\ValidStaticLinks-%1-%
 if exist "%TEMP%\ValidDynamicLinks-%1-%2.txt" type "%TEMP%\ValidDynamicLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
 if not exist "%TEMP%\ValidLinks-%1-%2.txt" echo. >>"%TEMP%\ValidLinks-%1-%2.txt"
 
-for /F "delims=" %%i in ('dir ..\client\%1\%2 /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\%1\%2" /A:-D /B 2^>nul') do (
   if exist "%TEMP%\ValidLinks-%1-%2.txt" (
     %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
     if errorlevel 1 (
@@ -2381,20 +2395,22 @@ for /F "delims=" %%i in ('dir ..\client\%1\%2 /A:-D /B 2^>nul') do (
 if "%TMP_PLATFORM%"=="w100" (
   if not "%TMP_BUILDS_ENABLED%"=="" (
     for %%b in (%TMP_BUILDS_ENABLED%) do (
-      for /F "delims=" %%i in ('dir ..\client\%1\%2\%%b /A:-D /B 2^>nul') do (
-        if exist "%TEMP%\ValidLinks-%1-%2.txt" (
-          %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
-          if errorlevel 1 (
+	  if exist "..\client\%1\%2\%%b" (
+	    for /F "delims=" %%i in ('dir "..\client\%1\%2\%%b" /A:-D /B 2^>nul') do (
+          if exist "%TEMP%\ValidLinks-%1-%2.txt" (
+            %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
+            if errorlevel 1 (
+              del "..\client\%1\%2\%%b\%%i"
+              call :Log "Info: Deleted ..\client\%1\%2\%%b\%%i"
+            )
+          ) else (
             del "..\client\%1\%2\%%b\%%i"
             call :Log "Info: Deleted ..\client\%1\%2\%%b\%%i"
           )
-        ) else (
-          del "..\client\%1\%2\%%b\%%i"
-          call :Log "Info: Deleted ..\client\%1\%2\%%b\%%i"
         )
-      )
-      dir ..\client\%1\%2\%%b /A:-D >nul 2>&1
-      if errorlevel 1 rd "..\client\%1\%2\%%b"
+        dir "..\client\%1\%2\%%b" /A:-D >nul 2>&1
+        if errorlevel 1 rd "..\client\%1\%2\%%b"
+	  )
     )
   )
   if not "%TMP_BUILDS_DISABLED%"=="" (
@@ -2409,10 +2425,10 @@ if "%TMP_PLATFORM%"=="w100" (
 
 del "%TEMP%\ValidLinks-%1-%2.txt"
 
-dir ..\client\%1\%2 >nul 2>&1
-if errorlevel 1 rd ..\client\%1\%2
-dir ..\client\%1 >nul 2>&1
-if errorlevel 1 rd ..\client\%1
+dir "..\client\%1\%2" >nul 2>&1
+if errorlevel 1 rd "..\client\%1\%2"
+dir "..\client\%1" >nul 2>&1
+if errorlevel 1 rd "..\client\%1"
 
 call :Log "Info: Cleaned up client directory for %1 %2"
 
