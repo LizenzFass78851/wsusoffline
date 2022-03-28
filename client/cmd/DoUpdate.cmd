@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b28)
+set WSUSOFFLINE_VERSION=12.7 (b29)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1346,7 +1346,7 @@ for /f "tokens=1,2,3 delims=," %%a in (..\static\StaticUpdateIds-MSIProducts.txt
       ) else if "%%k"=="" (
         set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=%%f\%%g\%%h\%%i
       ) else (
-	    rem ERROR (maximale Iterationstiefe erreicht)
+        rem ERROR (maximale Iterationstiefe erreicht)
         set CURRENT_MSIPRODUCT_FILEDIRECTORY_FINAL=
       )
     )
@@ -1805,18 +1805,73 @@ if exist "%TEMP%\wou_SSU" rd /s /q "%TEMP%\wou_SSU" >nul 2>&1
 
 echo Attempting to extract integrated servicing stack updates...
 for /f "usebackq delims=" %%f in ("%TEMP%\UpdatesToInstall.txt") do (
-  set WOU_UPD_NAME=%%f
+  set WOU_SSU_UPDNAME=%%f
+  set WOU_SSU_FOUND=0
   rem dirty workaround for some strange behaviour in ListUpdateFile.cmd
-  if "!WOU_UPD_NAME:~-1!"==" " set WOU_UPD_NAME=!WOU_UPD_NAME:~0,-1!
-  if "!WOU_UPD_NAME:~0,7!__!WOU_UPD_NAME:~-4!"=="..\w100__.cab" (
+  if "!WOU_SSU_UPDNAME:~-1!"==" " set WOU_SSU_UPDNAME=!WOU_SSU_UPDNAME:~0,-1!
+  if "!WOU_SSU_UPDNAME:~0,7!__!WOU_SSU_UPDNAME:~-4!"=="..\w100__.cab" (
     if not exist "%TEMP%\wou_SSU" mkdir "%TEMP%\wou_SSU"
-    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wou_SSU" >nul 2>&1
-  ) else if "!WOU_UPD_NAME:~0,7!__!WOU_UPD_NAME:~-4!"=="..\w100__.msu" (
+    if not exist "%TEMP%\wou_SSU\tmp" mkdir "%TEMP%\wou_SSU\tmp"
+    %SystemRoot%\System32\expand.exe "!WOU_SSU_UPDNAME!" -F:SSU*.cab "%TEMP%\wou_SSU\tmp" >nul
+    dir /b "%TEMP%\wou_SSU\tmp\SSU*.cab" >nul 2>&1
+    if not errorlevel 1 (
+      set WOU_SSU_FOUND=1
+    )
+  ) else if "!WOU_SSU_UPDNAME:~0,7!__!WOU_SSU_UPDNAME:~-4!"=="..\w100__.msu" (
     if not exist "%TEMP%\wou_SSU" mkdir "%TEMP%\wou_SSU"
-    %SystemRoot%\System32\expand.exe "%%f" -F:SSU*.cab "%TEMP%\wou_SSU" >nul 2>&1
+    if not exist "%TEMP%\wou_SSU\tmp" mkdir "%TEMP%\wou_SSU\tmp"
+    %SystemRoot%\System32\expand.exe "!WOU_SSU_UPDNAME!" -F:SSU*.cab "%TEMP%\wou_SSU\tmp" >nul
+    dir /b "%TEMP%\wou_SSU\tmp\SSU*.cab" >nul 2>&1
+    if not errorlevel 1 (
+      set WOU_SSU_FOUND=1
+    )
   )
-  set WOU_UPD_NAME=
+  rem echo WOU_SSU_UPDNAME=!WOU_SSU_UPDNAME!
+  rem echo WOU_SSU_FOUND=!WOU_SSU_FOUND!
+
+  if "!WOU_SSU_FOUND!"=="1" (
+    if "%VERIFY_MODE%"=="/verify" (
+      echo Verifying integrity of !WOU_SSU_UPDNAME!...
+      for /F "tokens=2,3 delims=\" %%i in ("!WOU_SSU_UPDNAME!") do (
+        if exist ..\md\hashes-%%i-%%j.txt (
+          %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%%~nxf ..\md\hashes-%%i-%%j.txt >"%TEMP%\hash-%%i-%%j.txt"
+          %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i-%%j.txt" "!WOU_SSU_UPDNAME!"
+          if errorlevel 1 (
+            if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
+            rd /s /q "%TEMP%\wou_SSU\tmp" >nul 2>&1
+            echo ERROR: File hash does not match stored value ^(file: !WOU_UPD_NAME!^).
+            echo %DATE% %TIME% - Error: File hash does not match stored value ^(file: !WOU_UPD_NAME!^)>>%UPDATE_LOGFILE%
+          ) else (
+            if exist "%TEMP%\hash-%%i-%%j.txt" del "%TEMP%\hash-%%i-%%j.txt"
+            move /y "%TEMP%\wou_SSU\tmp\SSU*.cab" "%TEMP%\wou_SSU" >nul
+            rd /s /q "%TEMP%\wou_SSU\tmp" >nul 2>&1
+          )
+        ) else if exist ..\md\hashes-%%i.txt (
+          %SystemRoot%\System32\findstr.exe /L /I /C:%% /C:%%~nxf ..\md\hashes-%%i.txt >"%TEMP%\hash-%%i.txt"
+          %HASHDEEP_PATH% -a -b -k "%TEMP%\hash-%%i.txt" "!WOU_SSU_UPDNAME!"
+          if errorlevel 1 (
+            if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
+            rd /s /q "%TEMP%\wou_SSU\tmp" >nul 2>&1
+            echo ERROR: File hash does not match stored value ^(file: !WOU_UPD_NAME!^).
+            echo %DATE% %TIME% - Error: File hash does not match stored value ^(file: !WOU_UPD_NAME!^)>>%UPDATE_LOGFILE%
+          ) else (
+            if exist "%TEMP%\hash-%%i.txt" del "%TEMP%\hash-%%i.txt"
+            move /y "%TEMP%\wou_SSU\tmp\SSU*.cab" "%TEMP%\wou_SSU" >nul
+            rd /s /q "%TEMP%\wou_SSU\tmp" >nul 2>&1
+          )
+        ) else (
+          echo Warning: Hash files ..\md\hashes-%%i-%%j.txt and ..\md\hashes-%%i.txt not found.
+          echo %DATE% %TIME% - Warning: Hash files ..\md\hashes-%%i-%%j.txt and ..\md\hashes-%%i.txt not found>>%UPDATE_LOGFILE%
+        )
+      )
+    ) else (
+      move /y "%TEMP%\wou_SSU\tmp\SSU*.cab" "%TEMP%\wou_SSU" >nul
+      rd /s /q "%TEMP%\wou_SSU\tmp" >nul 2>&1
+    )
+  )
 )
+set WOU_SSU_UPDNAME=
+set WOU_SSU_FOUND=
 
 if not exist "%TEMP%\wou_SSU" goto InstallUpdates
 dir /b "%TEMP%\wou_SSU\SSU*.cab" >nul 2>&1
@@ -1828,7 +1883,7 @@ if errorlevel 1 (
 
 echo Installing extracted servicing stack updates...
 for /f "delims=" %%f in ('dir /b "%TEMP%\wou_SSU\SSU*.cab"') do (
-  call InstallOSUpdate.cmd "%TEMP%\wou_SSU\%%f" /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+  call InstallOSUpdate.cmd "%TEMP%\wou_SSU\%%f" /selectoptions %DISM_MODE% /errorsaswarnings
   set ERR_LEVEL=!errorlevel!
   rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
   if "!ERR_LEVEL!"=="3010" (
