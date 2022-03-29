@@ -1879,4 +1879,4 @@ Community Edition 12.7 -- ??.??.????
 - Fix: DoUpdate.cmd fails to recall the update when autoreboot is enabled, if an update requests a reboot instead of a recall (Thanks to "rbronca")
 - Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")
 - Fix: Attempt to extract integrated Servicing Stack updates from the rollup packages and install them first (Thanks to "rbronka")
-- [UNTESTED] Fix: error message while cleaning up w100(-x64) directories (Thanks to "negg")
+- Fix: error message while cleaning up w100(-x64) directories (Thanks to "negg")

@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b30)
+set WSUSOFFLINE_VERSION=12.7 (b31)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1387,31 +1387,53 @@ if "%TMP_PLATFORM:~-4%"=="-x64" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
-  set TMP_BUILDS_ALL=10240 14393 17763 18362 19041 20348 22000
+  set TMP_BUILDS_ALL_WIN10=10240 14393 17763 18362 19041 20348
+  set TMP_BUILDS_ALL_WIN11=22000
+  set TMP_BUILDS_ALL_CURRENT=
+  set TMP_BUILDS_LINE=
 
   if exist ..\Windows10Versions.ini (
-    for /f "skip=1 tokens=1-3 delims=_= " %%i in (..\Windows10Versions.ini) do (
-      echo "!TMP_BUILDS_ALL!" | find "%%i" >nul 2>&1
-      if not errorlevel 1 (
-        if "%%j"=="%3" (
-          if /i "%%k"=="Enabled" (
-            if "!TMP_BUILDS_ENABLED!"=="" (
-              set TMP_BUILDS_ENABLED=%%i
-            ) else (
-              echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
-              if errorlevel 1 (
-                set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i
+    set TMP_BUILDS_MATCH=0
+    for /f "tokens=1-3 delims=_=" %%i in (..\Windows10Versions.ini) do (
+      set TMP_BUILDS_LINE=%%i
+      if "!TMP_BUILDS_LINE:~0,1!"=="[" (
+        if "!TMP_BUILDS_LINE:~-1!"=="]" (
+          if "!TMP_BUILDS_LINE:~1,-1!"=="Windows 10" (
+            set TMP_BUILDS_MATCH=1
+            set TMP_BUILDS_ALL_CURRENT=!TMP_BUILDS_ALL_WIN10!
+          ) else if "!TMP_BUILDS_LINE:~1,-1!"=="Windows 11" (
+            set TMP_BUILDS_MATCH=1
+            set TMP_BUILDS_ALL_CURRENT=!TMP_BUILDS_ALL_WIN11!
+          ) else (
+            set TMP_BUILDS_MATCH=0
+            set TMP_BUILDS_ALL_CURRENT=
+          )
+        )
+      )
+      if "!TMP_BUILDS_MATCH!"=="1" (
+        echo "!TMP_BUILDS_ALL_CURRENT!" | find "%%i" >nul 2>&1
+        if not errorlevel 1 (
+          if "%%j"=="%3" (
+            if /i "%%k"=="Enabled" (
+              if "!TMP_BUILDS_ENABLED!"=="" (
+                set TMP_BUILDS_ENABLED=%%i
+              ) else (
+                echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
+                if errorlevel 1 (
+                  set TMP_BUILDS_ENABLED=!TMP_BUILDS_ENABLED! %%i
+                )
               )
             )
           )
         )
       )
     )
+    set TMP_BUILDS_MATCH=
   ) else (
-    set TMP_BUILDS_ENABLED=!TMP_BUILDS_ALL!
+    set TMP_BUILDS_ENABLED=!TMP_BUILDS_ALL_WIN10! !TMP_BUILDS_ALL_WIN11!
   )
   set TMP_BUILDS_DISABLED=
-  for %%i in (!TMP_BUILDS_ALL!) do (
+  for %%i in (!TMP_BUILDS_ALL_WIN10! !TMP_BUILDS_ALL_WIN11!) do (
     echo "!TMP_BUILDS_ENABLED!" | find "%%i" >nul 2>&1
     if errorlevel 1 (
       if "!TMP_BUILDS_DISABLED!"=="" (
@@ -1428,6 +1450,11 @@ if "%TMP_PLATFORM%"=="w100" (
   set TMP_BUILDS_ENABLED=
   set TMP_BUILDS_DISABLED=
 )
+
+rem echo TMP_PLATFORM=%TMP_PLATFORM%
+rem echo TMP_BUILDS_ENABLED=%TMP_BUILDS_ENABLED%
+rem echo TMP_BUILDS_DISABLED=%TMP_BUILDS_DISABLED%
+rem pause
 
 if "%SECONLY%"=="1" (
   set SUSED_LIST=..\exclude\ExcludeList-superseded-seconly.txt
