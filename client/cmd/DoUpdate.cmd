@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b29)
+set WSUSOFFLINE_VERSION=12.7 (b30)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1807,8 +1807,6 @@ echo Attempting to extract integrated servicing stack updates...
 for /f "usebackq delims=" %%f in ("%TEMP%\UpdatesToInstall.txt") do (
   set WOU_SSU_UPDNAME=%%f
   set WOU_SSU_FOUND=0
-  rem dirty workaround for some strange behaviour in ListUpdateFile.cmd
-  if "!WOU_SSU_UPDNAME:~-1!"==" " set WOU_SSU_UPDNAME=!WOU_SSU_UPDNAME:~0,-1!
   if "!WOU_SSU_UPDNAME:~0,7!__!WOU_SSU_UPDNAME:~-4!"=="..\w100__.cab" (
     if not exist "%TEMP%\wou_SSU" mkdir "%TEMP%\wou_SSU"
     if not exist "%TEMP%\wou_SSU\tmp" mkdir "%TEMP%\wou_SSU\tmp"

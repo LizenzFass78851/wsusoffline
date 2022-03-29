@@ -38,8 +38,8 @@ if /i "%SEARCH_LEFT_MOST%"=="1" (
 )
 dir /A:-D /B /OD %UPDATE_SEARCH_MASK% >"%TEMP%\Update.tmp" 2>nul
 if not errorlevel 1 (
-  for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i >>"%TEMP%\UpdatesToInstall.txt"
-  rem for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i>>"%TEMP%\UpdatesToInstall.txt"
+  rem for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do echo %2\%%i >>"%TEMP%\UpdatesToInstall.txt"
+  for /F "usebackq" %%i in ("%TEMP%\Update.tmp") do (echo %2\%%i) >>"%TEMP%\UpdatesToInstall.txt"
   if "%APPEND_UPDATES%"=="1" (
     type "%TEMP%\Update.tmp">>"%TEMP%\Update.txt"
     del "%TEMP%\Update.tmp"
