@@ -18,3 +18,4 @@ kb4565581,July 2020 Security only update for the .NET Framework 4.5.2 for Window
 kb4569741,August 2020 Security only update for the .NET Framework 4.5.2 for Windows 8.1 and Windows Server 2012 R2
 kb4578984,October 2020 Security only update for the .NET Framework 4.5.2 for Windows 8.1 and Windows Server 2012 R2
 kb5008893,January 2022 Security only update for the .NET Framework 4.5.2 for Windows 8.1 and Windows Server 2012 R2
+kb5012155,April 2022 Security only update for the .NET Framework 4.5.2 for Windows 8.1 and Windows Server 2012 R2

@@ -1838,11 +1838,12 @@ Community Edition 11.9.12 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-1.22-esr (Special thanks to H. Buhrmester)
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.31.31103.0 (Thanks to "harry" and "aker")
-- January 2022 to February 2022 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
-- Replaced superseded October 2021 Servicing Stack Update (kb5006750) by March 2022 Servicing Stack Update (kb5011942) for Windows Server 2008 SP2 (Thanks to "aker")
-- Replaced superseded October 2021 Servicing Stack Update (kb5006749) by March 2022 Servicing Stack Update (kb5011649) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
-- Replaced superseded April 2021 Servicing Stack Update (kb5001401) by March 2022 Servicing Stack Update (kb5011571) for Windows Server 2012 (Thanks to "aker")
-- Replaced superseded April 2021 Servicing stack update (kb5001399) by March 2022 Servicing stack update (kb5011569) for Windows 10 Version 1507 (Thanks to "aker")
+- January 2022 to April 2022 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
+- Replaced superseded October 2021 Servicing stack update (kb5006750) by March 2022 Servicing stack update (kb5011942) for Windows Server 2008 SP2 (Thanks to "aker")
+- Replaced superseded October 2021 Servicing stack update (kb5006749) by March 2022 Servicing stack update (kb5011649) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001401) by April 2022 Servicing stack update (kb5013270) for Windows Server 2012 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001403) by April 2022 Servicing stack update (kb5012672) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001399) by April 2022 Servicing stack update (kb5013269) for Windows 10 Version 1507 (Thanks to "aker")
 - Replaced superseded September 2021 Servicing stack update (kb5005698) by March 2022 Servicing stack update (kb5011570) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
 - AutoIt script compiler updated to version 3.3.16.0 (Thanks to "harry")

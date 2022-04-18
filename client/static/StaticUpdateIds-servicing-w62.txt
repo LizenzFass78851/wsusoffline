@@ -1,1 +1,1 @@
-6.2.9200.23639,kb5011571,March 2022 Servicing stack update for Windows Server 2012
+6.2.9200.23675,kb5013270,April 2022 Servicing stack update for Windows Server 2012
