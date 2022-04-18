@@ -1844,6 +1844,7 @@ Community Edition 11.9.12 -- ??.??.????
 - Replaced superseded April 2021 Servicing stack update (kb5001401) by April 2022 Servicing stack update (kb5013270) for Windows Server 2012 (Thanks to "aker")
 - Replaced superseded April 2021 Servicing stack update (kb5001403) by April 2022 Servicing stack update (kb5012672) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
 - Replaced superseded April 2021 Servicing stack update (kb5001399) by April 2022 Servicing stack update (kb5013269) for Windows 10 Version 1507 (Thanks to "aker")
+- Removed obsolete May 2018 Servicing stack update (kb4132216) for Windows Server 2016 and Windows 10 Version 1607 (Thanks to "rbronka")
 - Replaced superseded September 2021 Servicing stack update (kb5005698) by March 2022 Servicing stack update (kb5011570) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
 - AutoIt script compiler updated to version 3.3.16.0 (Thanks to "harry")
