@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b33)
+set WSUSOFFLINE_VERSION=11.9.12 (b34)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1787,6 +1787,20 @@ set WUPOL_NOAU=
 goto :eof
 
 :UpdateSystem
+rem *** Enforce all optional components to be fully updated (including reboot) before dynamically searching for updates ***
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%"=="0" (
+    if "%BOOT_MODE%"=="/autoreboot" (
+      rem echo DEBUG: Enforcing recall when reboot is required while autoreboot is enabled
+      set RECALL_REQUIRED=1
+    ) else (
+      rem echo DEBUG: Enforcing recall when reboot is required
+      set RECALL_REQUIRED=1
+  )
+)
+if "%RECALL_REQUIRED%"=="1" goto Installed
+if "%REBOOT_REQUIRED%"=="1" goto Installed
+
 rem *** Determine and install missing Microsoft updates ***
 if exist %SystemRoot%\Temp\WOUpdatesToInstall.txt (
   for %%i in ("%SystemRoot%\Temp\WOUpdatesToInstall.txt") do if %%~zi==0 del %%i
@@ -1878,12 +1892,14 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
 )
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%"=="0" (
+    if "%BOOT_MODE%"=="/autoreboot" (
+      rem echo DEBUG: Enforcing recall when reboot is required while autoreboot is enabled
       set RECALL_REQUIRED=1
-    )
+    ) else (
+      rem echo DEBUG: Enforcing recall when reboot is required
+      set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
