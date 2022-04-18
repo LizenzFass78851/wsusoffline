@@ -20,3 +20,4 @@ kb4565579,July 2020 Security only update for the .NET Framework 3.5.1 for Window
 kb4569736,August 2020 Security only update for the .NET Framework 3.5.1 for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb4578980,October 2020 Security only update for the .NET Framework 3.5.1 for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5008890,January 2022 Security only update for the .NET Framework 3.5.1 for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5012151,April 2022 Security only update for the .NET Framework 3.5.1 for Windows 7 SP1 and Windows Server 2008 R2 SP1
