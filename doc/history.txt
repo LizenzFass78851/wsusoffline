@@ -1871,7 +1871,7 @@ Community Edition 12.7 -- ??.??.????
 - January 2022 to April 2022 updates added to 'security only' lists for Windows 8.1 and Server 2012 / 2012 R2 (x86/x64) systems
 - January 2022 to April 2022 updates added to version-specific blacklists for Windows 10 and Server 2016 / 2019 / 2022 (x86/x64) systems
 - Replaced superseded April 2021 Servicing stack update (kb5011571) by April 2022 Servicing stack update (kb5013270) for Windows Server 2012 (Thanks to "aker")
-- Replaced superseded April 2021 Servicing stack update (kb5001403) by April 2021 Servicing stack update (kb5012672) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001403) by April 2022 Servicing stack update (kb5012672) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
 - Replaced superseded April 2021 Servicing stack update (kb5001399) by April 2022 Servicing stack update (kb5013269) for Windows 10 Version 1507 (Thanks to "aker")
 - Replaced superseded September 2021 Servicing stack update (kb5005698) by March 2022 Servicing stack update (kb5011570) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
