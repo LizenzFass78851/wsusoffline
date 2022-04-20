@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b34)
+set WSUSOFFLINE_VERSION=11.9.12 (b35)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1796,6 +1796,7 @@ if "%REBOOT_REQUIRED%"=="1" (
     ) else (
       rem echo DEBUG: Enforcing recall when reboot is required
       set RECALL_REQUIRED=1
+    )
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -1900,6 +1901,7 @@ if "%REBOOT_REQUIRED%"=="1" (
     ) else (
       rem echo DEBUG: Enforcing recall when reboot is required
       set RECALL_REQUIRED=1
+    )
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
