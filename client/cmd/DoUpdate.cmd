@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b35)
+set WSUSOFFLINE_VERSION=11.9.12 (b36)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1200,6 +1200,42 @@ if %DOTNET4_VER_BUILD% GEQ %DOTNET4_VER_TARGET_BUILD% goto SkipDotNet4Inst
 if exist %SystemRoot%\Temp\wou_net4_tried.txt goto SkipDotNet4Inst
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_net4_tried.txt
+if "%OS_NAME%"=="w60" (
+  echo Checking .NET Framework 4 prerequisite...
+  if "%DOTNET4_PREREQ_ID%"=="" (
+    echo Warning: Environment variable DOTNET4_PREREQ_ID not set.
+    call :Log "Warning: Environment variable DOTNET4_PREREQ_ID not set"
+    goto SkipDotNet4Inst
+  )
+  %CSCRIPT_PATH% //Nologo //B //E:vbs ListInstalledUpdateIds.vbs
+  if exist "%TEMP%\InstalledUpdateIds.txt" (
+    rem check, if KB956250 is installed installed
+    type "%TEMP%\InstalledUpdateIds.txt" | find "%DOTNET4_PREREQ_ID%" >nul 2>&1
+    if errorlevel 1 (
+      echo Installing .NET Framework 4 prerequisite...
+      echo %DOTNET4_PREREQ_ID%>"%TEMP%\MissingUpdateIds.txt"
+      call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+      if errorlevel 1 goto ListError
+      if exist "%TEMP%\UpdatesToInstall.txt" (
+        call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+        set ERR_LEVEL=!errorlevel!
+        rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
+        if "!ERR_LEVEL!"=="3010" (
+          set REBOOT_REQUIRED=1
+        ) else if "!ERR_LEVEL!"=="3011" (
+          set RECALL_REQUIRED=1
+        ) else if "!ERR_LEVEL!" NEQ "0" (
+          goto InstError
+        )
+      ) else (
+        echo Warning: .NET Framework 4 prerequisite installation file ^(kb%DOTNET4_PREREQ_ID%^) not found.
+        call :Log "Warning: .NET Framework 4 prerequisite installation file (kb%DOTNET4_PREREQ_ID%) not found"
+        goto SkipDotNet4Inst
+      )
+    )
+    if exist "%TEMP%\InstalledUpdateIds.txt" del "%TEMP%\InstalledUpdateIds.txt"
+  )
+)
 if "%OS_NAME%"=="w60" (
   set DOTNET4_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-enu.exe
   set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe
