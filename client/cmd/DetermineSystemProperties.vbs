@@ -640,7 +640,7 @@ WriteVersionToFile objCmdFile, "DOTNET4_VER", RegRead(wshShell, strRegKeyDotNet4
 objCmdFile.WriteLine("set DOTNET4_RELEASE=" & RegRead(wshShell, strRegKeyDotNet4 & strRegValRelease))
 
 ' Determine Windows Management Framework version
-If RegExists(wshShell, strRegKeyManagementFramework) Then
+If RegExists(wshShell, strRegKeyManagementFramework & strRegValPShVersion) Then
   WriteVersionToFile objCmdFile, "WMF_VER", RegRead(wshShell, strRegKeyManagementFramework & strRegValPShVersion)
 Else
   WriteVersionToFile objCmdFile, "WMF_VER", RegRead(wshShell, strRegKeyPowerShell & strRegValPShVersion)
