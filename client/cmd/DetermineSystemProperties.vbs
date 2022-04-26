@@ -698,14 +698,17 @@ End If
 
 ' Determine Microsoft .NET Framework 3.5 SP1 installation state
 WriteVersionToFile objCmdFile, "DOTNET35_VER", RegRead(wshShell, strRegKeyDotNet35 & strRegValVersion)
+
+' Determine Microsoft .NET Framework 4.x installation state
 WriteVersionToFile objCmdFile, "DOTNET4_VER", RegRead(wshShell, strRegKeyDotNet4 & strRegValVersion)
 objCmdFile.WriteLine("set DOTNET4_RELEASE=" & RegRead(wshShell, strRegKeyDotNet4 & strRegValRelease))
 
-' Determine Windows PowerShell version
-WriteVersionToFile objCmdFile, "PSH_VER", RegRead(wshShell, strRegKeyPowerShell & strRegValPShVersion)
-
 ' Determine Windows Management Framework version
-WriteVersionToFile objCmdFile, "WMF_VER", RegRead(wshShell, strRegKeyManagementFramework & strRegValPShVersion)
+If RegExists(wshShell, strRegKeyManagementFramework & strRegValPShVersion) Then
+  WriteVersionToFile objCmdFile, "WMF_VER", RegRead(wshShell, strRegKeyManagementFramework & strRegValPShVersion)
+Else
+  WriteVersionToFile objCmdFile, "WMF_VER", RegRead(wshShell, strRegKeyPowerShell & strRegValPShVersion)
+End If
 
 ' Determine Windows Defender installation state
 If RegExists(wshShell, strRegKeyWD) Then

@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b35)
+set WSUSOFFLINE_VERSION=12.7 (b37)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -194,7 +194,6 @@ rem echo Found Internet Explorer version: %IE_VER_MAJOR%.%IE_VER_MINOR%.%IE_VER_
 rem if "%MSEDGE_INSTALLED%"=="1" echo Found Edge (Chromium) version: %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%
 rem if "%MSEDGEUPDATE_INSTALLED%"=="1" echo Found Edge (Chromium) Updater version: %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%
 rem echo Found Microsoft .NET Framework 3.5 version: %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%
-rem echo Found Windows PowerShell version: %PSH_VER_MAJOR%.%PSH_VER_MINOR%
 rem echo Found Microsoft .NET Framework 4 version: %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)
 rem echo Found Windows Management Framework version: %WMF_VER_MAJOR%.%WMF_VER_MINOR%.%WMF_VER_BUILD%.%WMF_VER_REVIS%
 rem echo Found Windows Defender definitions version: %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%
@@ -217,7 +216,6 @@ call :Log "Info: Found Internet Explorer version %IE_VER_MAJOR%.%IE_VER_MINOR%.%
 if "%MSEDGE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) version %MSEDGE_VER_MAJOR%.%MSEDGE_VER_MINOR%.%MSEDGE_VER_BUILD%.%MSEDGE_VER_REVIS%"
 if "%MSEDGEUPDATE_INSTALLED%"=="1" call :Log "Info: Found Edge (Chromium) Updater version %MSEDGEUPDATE_VER_MAJOR%.%MSEDGEUPDATE_VER_MINOR%.%MSEDGEUPDATE_VER_BUILD%.%MSEDGEUPDATE_VER_REVIS%"
 call :Log "Info: Found Microsoft .NET Framework 3.5 version %DOTNET35_VER_MAJOR%.%DOTNET35_VER_MINOR%.%DOTNET35_VER_BUILD%.%DOTNET35_VER_REVIS%"
-call :Log "Info: Found Windows PowerShell version %PSH_VER_MAJOR%.%PSH_VER_MINOR%"
 call :Log "Info: Found Microsoft .NET Framework 4 version %DOTNET4_VER_MAJOR%.%DOTNET4_VER_MINOR%.%DOTNET4_VER_BUILD% (release: %DOTNET4_RELEASE%)"
 call :Log "Info: Found Windows Management Framework version %WMF_VER_MAJOR%.%WMF_VER_MINOR%.%WMF_VER_BUILD%.%WMF_VER_REVIS%"
 call :Log "Info: Found Windows Defender definitions version %WDDEFS_VER_MAJOR%.%WDDEFS_VER_MINOR%.%WDDEFS_VER_BUILD%.%WDDEFS_VER_REVIS%"
@@ -1273,13 +1271,15 @@ if %WMF_VER_MINOR% LSS %WMF_VER_TARGET_MINOR% goto InstallWMF
 if %WMF_VER_MINOR% GEQ %WMF_VER_TARGET_MINOR% goto SkipWMFInst
 :InstallWMF
 if exist %SystemRoot%\Temp\wou_wmf_tried.txt goto SkipWMFInst
+if exist "%SystemRoot%\Temp\wou_wmf_tried_kb%WMF_TARGET_ID%.txt" goto SkipWMFInst
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
-echo. >%SystemRoot%\Temp\wou_wmf_tried.txt
 if "%WMF_TARGET_ID%"=="" (
+  echo. >%SystemRoot%\Temp\wou_wmf_tried.txt
   echo Warning: Environment variable WMF_TARGET_ID not set.
   call :Log "Warning: Environment variable WMF_TARGET_ID not set"
   goto SkipWMFInst
 )
+echo. >%SystemRoot%\Temp\wou_wmf_tried_kb%WMF_TARGET_ID%.txt
 echo %WMF_TARGET_ID%>"%TEMP%\MissingUpdateIds.txt"
 call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
 if errorlevel 1 goto ListError
