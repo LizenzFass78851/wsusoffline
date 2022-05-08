@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b38)
+set WSUSOFFLINE_VERSION=11.9.12 (b39)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -974,7 +974,7 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
 :SkipIEw62Pre
 echo Installing Internet Explorer 11...
 for /F %%i in ('dir /B %IE_FILENAME%') do (
-  call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+  call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors
   set ERR_LEVEL=!errorlevel!
   rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
   if "!ERR_LEVEL!"=="3010" (
@@ -994,7 +994,7 @@ for /F %%i in ('dir /B %IE_FILENAME%') do (
   if not errorlevel 1 (
     echo Installing Internet Explorer 11 language pack...
     for /F %%i in ('dir /B %IE_LANG_FILENAME%') do (
-      call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors /passive /qn /norestart
+      call InstallOSUpdate.cmd "..\%OS_NAME%-%OS_ARCH%\glb\%%i" %VERIFY_MODE% /ignoreerrors
       set ERR_LEVEL=!errorlevel!
       rem echo DoUpdate: ERR_LEVEL=!ERR_LEVEL!
       if "!ERR_LEVEL!"=="3010" (
