@@ -1882,3 +1882,4 @@ Community Edition 12.7 -- ??.??.????
 - Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")
 - Fix: Attempt to extract integrated Servicing Stack updates from the rollup packages and install them first (Thanks to "rbronka")
 - Fix: error message while cleaning up w100(-x64) directories (Thanks to "negg")
+- Fix: Microsoft Edge 100 (and newer) fail to install with error code 109, if the wsusoffline media is read only (Thanks to "jmcaree" and "Charles Waters")

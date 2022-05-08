@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b37)
+set WSUSOFFLINE_VERSION=12.7 (b38)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -952,7 +952,7 @@ if %MSEDGE_VER_REVIS% GEQ %MSEDGE_VER_TARGET_REVIS% goto SkipMSEdgeInst
 :InstallMSEdge
 if exist %SystemRoot%\Temp\wou_msedge_tried.txt goto SkipMSEdgeInst
 echo Installing most recent Edge (Chromium)...
-call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /errorsaswarnings --msedge --verbose-logging --do-not-launch-msedge --system-level
+call InstallOSUpdate.cmd "..\msedge\%MSEDGE_FILENAME%" %VERIFY_MODE% /copytotemp /errorsaswarnings --msedge --verbose-logging --do-not-launch-msedge --system-level
 set ERR_LEVEL=%errorlevel%
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
 echo. >%SystemRoot%\Temp\wou_msedge_tried.txt
