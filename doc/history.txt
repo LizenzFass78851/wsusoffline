@@ -1836,6 +1836,7 @@ Community Edition 11.9.11 -- 24.12.2021
 --------------------------------------------------------------------------------
 Community Edition 11.9.12 -- ??.??.????
 - Included complete rewrite of the Linux scripts version CE-1.22-esr (Special thanks to H. Buhrmester)
+- Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.32.31326.0 (Thanks to "harry" and "aker")
 - January 2022 to May 2022 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems

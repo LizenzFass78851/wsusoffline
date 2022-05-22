@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b40)
+set WSUSOFFLINE_VERSION=11.9.12 (b41)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1184,16 +1184,15 @@ set REBOOT_REQUIRED=1
 :SkipDotNet35Inst
 
 rem *** Install .NET Framework 4 ***
-if "%INSTALL_DOTNET4%" NEQ "/instdotnet4" goto SkipDotNet4Inst
+if "%INSTALL_DOTNET4%" NEQ "/instdotnet4" (
+  rem force upgrade to 4.6.2, if .NET 4 is installed
+  if "%DOTNET4_VER_MAJOR%" NEQ "4" (goto SkipDotNet4Inst)
+)
 if "%OS_NAME%"=="w100" (
   if %OS_VER_BUILD% LSS 14393 goto SkipDotNet4Inst
 )
 echo Checking .NET Framework 4 installation state...
-if %DOTNET4_VER_MAJOR% LSS %DOTNET4_VER_TARGET_MAJOR% goto InstallDotNet4
-if %DOTNET4_VER_MAJOR% GTR %DOTNET4_VER_TARGET_MAJOR% goto SkipDotNet4Inst
-if %DOTNET4_VER_MINOR% LSS %DOTNET4_VER_TARGET_MINOR% goto InstallDotNet4
-if %DOTNET4_VER_MINOR% GTR %DOTNET4_VER_TARGET_MINOR% goto SkipDotNet4Inst
-if %DOTNET4_VER_BUILD% GEQ %DOTNET4_VER_TARGET_BUILD% goto SkipDotNet4Inst
+if %DOTNET4_RELEASE% GEQ %DOTNET4_RELEASE_TARGET% goto SkipDotNet4Inst
 :InstallDotNet4
 if exist %SystemRoot%\Temp\wou_net4_tried.txt goto SkipDotNet4Inst
 if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
@@ -1238,8 +1237,13 @@ if "%OS_NAME%"=="w60" (
   set DOTNET4_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-enu.exe
   set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe
 ) else (
-  set DOTNET4_FILENAME=..\dotnet\ndp48-x86-x64-allos-enu.exe
-  set DOTNET4LP_FILENAME=..\dotnet\ndp48-x86-x64-allos-%OS_LANG%.exe
+  if "%INSTALL_DOTNET4%"=="/instdotnet4" (
+    set DOTNET4_FILENAME=..\dotnet\ndp48-x86-x64-allos-enu.exe
+    set DOTNET4LP_FILENAME=..\dotnet\ndp48-x86-x64-allos-%OS_LANG%.exe
+  ) else (
+    set DOTNET4_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-enu.exe
+    set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe
+  )
 )
 if "%OS_SRV_CORE%"=="1" (
   set DOTNET4_INSTOPTS=/q /norestart
@@ -1319,7 +1323,7 @@ if "%ERR_LEVEL%"=="3010" (
 :SkipDotNet35CustomInst
 rem *** Install .NET Framework 4 - Custom ***
 if "%INSTALL_DOTNET4%"=="/instdotnet4" goto InstallDotNet4Custom
-if %DOTNET4_VER_MAJOR% EQU %DOTNET4_VER_TARGET_MAJOR% goto InstallDotNet4Custom
+if "%DOTNET4_VER_MAJOR%" GEQ "4" goto InstallDotNet4Custom
 goto SkipDotNet4CustomInst
 :InstallDotNet4Custom
 if not exist ..\static\custom\StaticUpdateIds-dotnet4.txt goto SkipDotNet4CustomInst
@@ -1362,9 +1366,9 @@ rem *** Install Windows Management Framework ***
 if "%INSTALL_WMF%" NEQ "/instwmf" goto SkipWMFInst
 if "%OS_NAME%"=="w100" goto SkipWMFInst
 if "%OS_NAME%"=="w60" (if %OS_DOMAIN_ROLE% LSS 2 goto SkipWMFInst)
-if %DOTNET4_VER_MAJOR% LSS %DOTNET4_VER_TARGET_MAJOR% (
-  echo Warning: Missing Windows Management Framework prerequisite .NET Framework 4.
-  call :Log "Warning: Missing Windows Management Framework prerequisite .NET Framework ^4"
+if %DOTNET4_RELEASE% LSS %WMF_PREREQ_DOTNET4_RELEASE% (
+  echo Warning: Missing Windows Management Framework prerequisite .NET Framework 4.5.2 or newer.
+  call :Log "Warning: Missing Windows Management Framework prerequisite .NET Framework 4.5.2 or newer"
   goto SkipWMFInst
 )
 echo Checking Windows Management Framework installation state...

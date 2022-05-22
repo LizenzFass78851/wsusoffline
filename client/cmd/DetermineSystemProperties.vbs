@@ -637,7 +637,11 @@ WriteVersionToFile objCmdFile, "DOTNET35_VER", RegRead(wshShell, strRegKeyDotNet
 
 ' Determine Microsoft .NET Framework 4.x installation state
 WriteVersionToFile objCmdFile, "DOTNET4_VER", RegRead(wshShell, strRegKeyDotNet4 & strRegValVersion)
-objCmdFile.WriteLine("set DOTNET4_RELEASE=" & RegRead(wshShell, strRegKeyDotNet4 & strRegValRelease))
+If RegExists(wshShell, strRegKeyDotNet4 & strRegValRelease) Then
+  objCmdFile.WriteLine("set DOTNET4_RELEASE=" & RegRead(wshShell, strRegKeyDotNet4 & strRegValRelease))
+Else
+  objCmdFile.WriteLine("set DOTNET4_RELEASE=0")
+End If
 
 ' Determine Windows Management Framework version
 If RegExists(wshShell, strRegKeyManagementFramework & strRegValPShVersion) Then

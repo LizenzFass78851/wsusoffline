@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b40) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b41) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -35,6 +35,7 @@ Dim Const $reg_key_windowsupdate      = "HKEY_LOCAL_MACHINE\Software\Policies\Mi
 Dim Const $reg_val_default            = ""
 Dim Const $reg_val_enabled            = "Enabled"
 Dim Const $reg_val_version            = "Version"
+Dim Const $reg_val_release            = "Release"
 Dim Const $reg_val_pshversion         = "PowerShellVersion"
 Dim Const $reg_val_logpixels          = "LogPixels"
 Dim Const $reg_val_applieddpi         = "AppliedDPI"
@@ -71,6 +72,7 @@ Dim Const $ini_section_messaging      = "Messaging"
 Dim Const $ini_value_showlog          = "showlog"
 ; Hidden messaging constants
 Dim Const $ini_value_showieinfo       = "showieinfo"
+Dim Const $ini_value_showdotnet4info  = "showdotnet4info"
 Dim Const $ini_value_showdismprogress = "showdismprogress"
 
 Dim Const $ini_section_misc           = "Miscellaneous"
@@ -273,6 +275,66 @@ Func DotNet4Version()
   Return RegRead($reg_key_dotnet4, $reg_val_version)
 EndFunc
 
+Func DotNet4Release()
+  Return RegRead($reg_key_dotnet4, $reg_val_release)
+EndFunc
+
+Func DotNet4DisplayVersion()
+  Switch DotNet4Release()
+    Case "378389"
+      Return "4.5"
+	  
+    Case "378675" ; Windows 8.1 / Windows Server 2012 R2
+      Return "4.5.1"
+    Case "378758"
+      Return "4.5.1"
+	  
+    Case "379893"
+      Return "4.5.2"
+	  
+    Case "393295" ; Windows 10 1507 (10240)
+      Return "4.6"
+    Case "393297"
+      Return "4.6"
+	  
+    Case "394254" ; Windows 10 1511 (10586)
+      Return "4.6.1"
+    Case "394271"
+      Return "4.6.1"
+	  
+    Case "394802" ; Windows 10 1607 / Windows Server 2016 (14393)
+      Return "4.6.2"
+    Case "394806"
+      Return "4.6.2"
+	  
+    Case "460798" ; Windows 10 1703 (15063)
+      Return "4.7"
+    Case "460805"
+      Return "4.7"
+	  
+    Case "461308" ;  Windows 10 1709 (16299)
+      Return "4.7.1"
+    Case "461310"
+      Return "4.7.1"
+	  
+    Case "461808" ; Windows 10 1803 (17134)
+      Return "4.7.2"
+    Case "461814"
+      Return "4.7.2"
+	  
+    Case "528040" ; Windows 10 1903/1909 (18362)
+      Return "4.8"
+    Case "528049"
+      Return "4.8"
+    Case "528372" ; Windows 10 2004/20H2/21H1/21H2 (19041)
+      Return "4.8"
+    Case "528449" ; Windows Server 2022 (20348) / Windows 11 (22000)
+      Return "4.8"	  
+	Case Else
+      Return ""
+  EndSwitch
+EndFunc
+
 Func DotNet4MainVersion()
   Return StringLeft(DotNet4Version(), 3)
 EndFunc
@@ -285,7 +347,7 @@ Func DotNet4TargetVersion()
   EndIf
 EndFunc
 
-Func DotNet4DisplayVersion()
+Func DotNet4TargetVersionDisplay()
   If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
     Return "4.6.2"
   Else
@@ -479,9 +541,9 @@ EndIf
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
 If $gergui Then
-  $dotnet4 = GUICtrlCreateCheckbox(".NET Framework " & DotNet4DisplayVersion() & " installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $dotnet4 = GUICtrlCreateCheckbox(".NET Framework " & DotNet4TargetVersionDisplay() & " installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework " & DotNet4DisplayVersion(), $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework " & DotNet4TargetVersionDisplay(), $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
 If ( (StringLeft(DotNet4Version(), 9) = DotNet4TargetVersion()) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
@@ -788,6 +850,17 @@ If ( ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "W
                            & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
   Else
      MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, the most recent version of Internet Explorer (IE11)" _
+                           & @LF & "will be automatically installed, when you start the updating process.")
+  EndIf
+EndIf
+;MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "DEBUG", "DotNet4MainVersion()=" & DotNet4MainVersion() & @LF & "DotNet4DisplayVersion()=" & DotNet4DisplayVersion() & @LF & "DotNet4Release()=" & DotNet4Release())
+If ( ( (DotNet4MainVersion() <> "") AND ((DotNet4MainVersion() = "4.5") OR ((DotNet4MainVersion() = "4.6") AND (DotNet4DisplayVersion() <> "4.6.2")))) _
+ AND (DefaultIniRead($ini_section_messaging, $ini_value_showdotnet4info, $enabled) = $enabled) ) Then
+  If $gergui Then
+     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird Version 4.6.2 des .NET Framework" _
+                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
+  Else
+     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, version 4.6.2 of .NET Framework" _
                            & @LF & "will be automatically installed, when you start the updating process.")
   EndIf
 EndIf
