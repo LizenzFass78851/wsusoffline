@@ -1864,6 +1864,7 @@ Community Edition 12.7 -- ??.??.????
 - [work in progress] Support added for Windows 11
 - "feature upgrades via enablement package" mechanism now allows updating to older, but still supported builds (Thanks to "aker")
 - Included Download URLs for Windows 10 21H2
+- Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
 - .NET 5 updated to version 5.0.17
 - .NET 6 updated to version 6.0.5
