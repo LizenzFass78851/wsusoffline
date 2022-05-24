@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b42)
+set WSUSOFFLINE_VERSION=12.7 (b43)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -735,9 +735,9 @@ if not "%SDDCoreReturnValue%"=="0" (
 if exist ..\static\sdd\StaticDownloadFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\StaticDownloadFiles-modified.txt) do (
     if not "%%f"=="" (
-      call :SDDCore %%f ..\static
+      call :SDDCore "https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified/%%f" ..\static
       if not "!SDDCoreReturnValue!"=="0" (
-        call :Log "Warning: Failed to download %%f"
+        call :Log "Warning: Failed to download https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticDownloadFiles-modified/%%f"
         goto SkipSDDDownload
       )
     )
@@ -751,9 +751,9 @@ if not "%SDDCoreReturnValue%"=="0" (
 if exist ..\static\sdd\ExcludeDownloadFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\ExcludeDownloadFiles-modified.txt) do (
     if not "%%f"=="" (
-      call :SDDCore %%f ..\exclude
+      call :SDDCore "https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified/%%f" ..\exclude
       if not "!SDDCoreReturnValue!"=="0" (
-        call :Log "Warning: Failed to download %%f"
+        call :Log "Warning: Failed to download https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/ExcludeDownloadFiles-modified/%%f"
         goto SkipSDDDownload
       )
     )
@@ -767,9 +767,9 @@ if not "%SDDCoreReturnValue%"=="0" (
 if exist ..\static\sdd\StaticUpdateFiles-modified.txt (
   for /f "delims=" %%f in (..\static\sdd\StaticUpdateFiles-modified.txt) do (
     if not "%%f"=="" (
-      call :SDDCore %%f ..\client\static
+      call :SDDCore "https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified/%%f" ..\client\static
       if not "!SDDCoreReturnValue!"=="0" (
-        call :Log "Warning: Failed to download %%f"
+        call :Log "Warning: Failed to download https://gitlab.com/wsusoffline/wsusoffline-sdd/-/raw/master/StaticUpdateFiles-modified/%%f"
         goto SkipSDDDownload
       )
     )
@@ -2558,18 +2558,18 @@ rem %2 -> Target-Path
 
 set SDDCoreReturnValue=
 
-if "%1"=="" (
+if "%~1"=="" (
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
-if "%2"=="" (
+if "%~2"=="" (
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
 
 rem ** get file name from the URL ***
 set SDDCoreFileName=
-for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%1"') do (
+for /f "delims=" %%f in ('%CSCRIPT_PATH% //Nologo //E:vbs ExtractFileNameFromURL.vbs "%~1"') do (
   if not "%%f"=="" (
     set SDDCoreFileName=%%f
   )
@@ -2583,7 +2583,7 @@ if "%SDDCoreFileName%"=="" (
 rem *** get local ETag ***
 set SDDCoreETagLocal=
 if not exist "..\static\SelfUpdateVersion-static.txt" (goto SDDCoreDownload)
-if not exist "%2\%SDDCoreFileName%" (goto SDDCoreDownload)
+if not exist "%~2\%SDDCoreFileName%" (goto SDDCoreDownload)
 for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do (
   if /i "%SDDCoreFileName%"=="%%a" (set "SDDCoreETagLocal=%%b")
 )
@@ -2591,14 +2591,14 @@ for /f "tokens=1,2 delims==" %%a in (..\static\SelfUpdateVersion-static.txt) do 
 :SDDCoreDownload
 if "%SDDCoreETagLocal%"=="" (
   rem not downloaded yet
-  set SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%2" %1
+  set SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%~2" "%~1"
 ) else (
   rem already some version downloaded
-  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%2" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" %1"
+  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%~2" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" %~1"
 )
 
-if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
-if exist "%2\%SDDCoreFileName%" (ren "%2\%SDDCoreFileName%" "%SDDCoreFileName%.bak" >nul)
+if exist "%~2\%SDDCoreFileName%.bak" (del "%~2\%SDDCoreFileName%.bak" >nul)
+if exist "%~2\%SDDCoreFileName%" (ren "%~2\%SDDCoreFileName%" "%SDDCoreFileName%.bak" >nul)
 
 set SDDCoreWGetBuffer=
 set SDDCoreResultBuffer=
@@ -2616,28 +2616,28 @@ for /f "delims=" %%f in ('%WGET_PATH% %SDDCoreWGetCmdLine% 2^>^&1') do (
 
 if "%SDDCoreResultBuffer%"=="" (
   rem no result received
-  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%")
+  if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%")
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
 
 if "%SDDCoreResultBuffer:~9,3%"=="200" (
   rem new file downloaded
-  if exist "%2\%SDDCoreFileName%.bak" (del "%2\%SDDCoreFileName%.bak" >nul)
+  if exist "%~2\%SDDCoreFileName%.bak" (del "%~2\%SDDCoreFileName%.bak" >nul)
   goto SDDCoreUpdateETag
 ) else if "%SDDCoreResultBuffer:~9,3%"=="304" (
   rem nothing changed
-  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
+  if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%" >nul)
   set SDDCoreReturnValue=0
   goto :SDDCoreSkip
 ) else if "%SDDCoreResultBuffer:~9,3%"=="412" (
   rem nothing changed
-  if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
+  if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%" >nul)
   set SDDCoreReturnValue=0
   goto :SDDCoreSkip
 )
 rem download error
-if exist "%2\%SDDCoreFileName%.bak" (move /y "%2\%SDDCoreFileName%.bak" "%2\%SDDCoreFileName%" >nul)
+if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%" >nul)
 set SDDCoreReturnValue=1
 goto :SDDCoreSkip
 
