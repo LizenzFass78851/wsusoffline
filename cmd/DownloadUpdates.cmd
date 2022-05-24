@@ -2594,7 +2594,7 @@ if "%SDDCoreETagLocal%"=="" (
   set SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%~2" "%~1"
 ) else (
   rem already some version downloaded
-  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%~2" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" %~1"
+  set "SDDCoreWGetCmdLine=--progress=bar:noscroll -nv --server-response -P "%~2" --header="If-None-Match: %SDDCoreETagLocal:"=\"%" "%~1""
 )
 
 if exist "%~2\%SDDCoreFileName%.bak" (del "%~2\%SDDCoreFileName%.bak" >nul)
