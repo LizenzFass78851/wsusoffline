@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b41)
+set WSUSOFFLINE_VERSION=12.7 (b42)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -457,12 +457,9 @@ goto SPInstalled
 :SPw100
 goto SkipSPInst
 :SPInstalled
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -541,12 +538,9 @@ call :Log "Info: Updated Servicing Stack to %SERVICING_VER_NEW%"
 set SERVICING_VER=%SERVICING_VER_NEW%
 goto CheckServicingStack
 :ServicingStackInstalled
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -781,12 +775,9 @@ set WOU_BUILDUPGRADE_MINREVIS=
 set WOU_BUILDUPGRADE_PREUPD=
 set WOU_BUILDUPGRADE_NEWBUILD=
 set WOU_BUILDUPGRADE_EPKGID=
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -904,12 +895,9 @@ goto IEInstalled
 :IEw100
 :IEInstalled
 set IE_FILENAME=
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -1249,12 +1237,9 @@ if "%ERR_LEVEL%"=="3010" (
   goto InstError
 )
 :SkipDotNet4CustomInst
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -1307,12 +1292,9 @@ if "%ERR_LEVEL%"=="3010" (
 rem FIXME 12.5 (b69)
 set RECALL_REQUIRED=1
 :SkipWMFInst
-if "%BOOT_MODE%"=="/autoreboot" (
-  if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
-      rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
-      set RECALL_REQUIRED=1
-    )
+if "%REBOOT_REQUIRED%"=="1" (
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    set RECALL_REQUIRED=1
   )
 )
 if "%REBOOT_REQUIRED%"=="1" goto Installed
@@ -1668,21 +1650,6 @@ set WUPOL_NOAU=
 goto :eof
 
 :UpdateSystem
-rem *** Enforce all optional components to be fully updated (including reboot) before dynamically searching for updates ***
-if "%REBOOT_REQUIRED%"=="1" (
-  if "%RECALL_REQUIRED%"=="0" (
-    if "%BOOT_MODE%"=="/autoreboot" (
-      rem echo DEBUG: Enforcing recall when reboot is required while autoreboot is enabled
-      set RECALL_REQUIRED=1
-    ) else (
-      rem echo DEBUG: Enforcing recall when reboot is required
-      set RECALL_REQUIRED=1
-    )
-  )
-)
-if "%RECALL_REQUIRED%"=="1" goto Installed
-if "%REBOOT_REQUIRED%"=="1" goto Installed
-
 rem *** Determine and install missing Microsoft updates ***
 if exist %SystemRoot%\Temp\WOUpdatesToInstall.txt (
   for %%i in ("%SystemRoot%\Temp\WOUpdatesToInstall.txt") do if %%~zi==0 del %%i
@@ -1749,15 +1716,11 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   )
   call :Log "Info: Installed Windows Update scan prerequisites"
 )
+rem *** Enforce all optional components to be fully updated (including reboot) before dynamically searching for updates ***
 if "%REBOOT_REQUIRED%"=="1" (
-  if "%RECALL_REQUIRED%"=="0" (
-    if "%BOOT_MODE%"=="/autoreboot" (
-      rem echo DEBUG: Enforcing recall when reboot is required while autoreboot is enabled
-      set RECALL_REQUIRED=1
-    ) else (
-      rem echo DEBUG: Enforcing recall when reboot is required
-      set RECALL_REQUIRED=1
-    )
+  if "%RECALL_REQUIRED%" NEQ "1" (
+    rem echo DEBUG: Enforcing recall when reboot is required
+    set RECALL_REQUIRED=1
   )
 )
 if "%RECALL_REQUIRED%"=="1" goto Installed
@@ -1953,7 +1916,7 @@ if "%RECALL_REQUIRED%"=="1" goto Installed
 
 if "%BOOT_MODE%"=="/autoreboot" (
   if "%REBOOT_REQUIRED%"=="1" (
-    if "%RECALL_REQUIRED%"=="0" (
+    if "%RECALL_REQUIRED%" NEQ "1" (
       rem echo DEBUG: Enforcing recall when reboot is required while on autoreboot is enabled
       set RECALL_REQUIRED=1
     )
@@ -2065,6 +2028,12 @@ if "%SHOW_LOG%"=="/showlog" start %SystemRoot%\System32\notepad.exe %UPDATE_LOGF
 goto :eof
 
 :Installed
+rem echo DoUpdate (Installed): RECALL_REQUIRED:%RECALL_REQUIRED%
+rem echo DoUpdate (Installed): REBOOT_REQUIRED:%REBOOT_REQUIRED%
+rem echo DoUpdate (Installed): BOOT_MODE:%BOOT_MODE%
+rem echo DoUpdate (Installed): OS_NAME:%OS_NAME%
+rem echo DoUpdate (Installed): OS_DOMAIN_ROLE:%OS_DOMAIN_ROLE%
+rem echo DoUpdate (Installed): USERNAME:%USERNAME%
 if "%RECALL_REQUIRED%"=="1" (
   if "%BOOT_MODE%"=="/autoreboot" (
     if "%OS_NAME%"=="w100" (
