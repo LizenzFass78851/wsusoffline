@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b43)
+set WSUSOFFLINE_VERSION=12.7 (b44)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -783,6 +783,51 @@ if "%REBOOT_REQUIRED%"=="1" (
 if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipBuildUpgrade
+
+rem *** Update Windows Update Agent ***
+echo Checking Windows Update Agent version...
+if %WUA_VER_MAJOR% LSS %WUA_VER_TARGET_MAJOR% goto InstallWUA
+if %WUA_VER_MAJOR% GTR %WUA_VER_TARGET_MAJOR% goto SkipWUAInst
+if %WUA_VER_MINOR% LSS %WUA_VER_TARGET_MINOR% goto InstallWUA
+if %WUA_VER_MINOR% GTR %WUA_VER_TARGET_MINOR% goto SkipWUAInst
+if %WUA_VER_BUILD% LSS %WUA_VER_TARGET_BUILD% goto InstallWUA
+if %WUA_VER_BUILD% GTR %WUA_VER_TARGET_BUILD% goto SkipWUAInst
+if %WUA_VER_REVIS% LSS %WUA_VER_TARGET_REVIS% goto InstallWUA
+if %WUA_VER_REVIS% GEQ %WUA_VER_TARGET_REVIS% goto SkipWUAInst
+:InstallWUA
+if exist %SystemRoot%\Temp\wou_wua_tried.txt goto SkipWUAInst
+if not exist %SystemRoot%\Temp\nul md %SystemRoot%\Temp
+echo. >%SystemRoot%\Temp\wou_wua_tried.txt
+if "%WUA_TARGET_ID%"=="" (
+  echo Warning: Environment variable WUA_TARGET_ID not set.
+  call :Log "Warning: Environment variable WUA_TARGET_ID not set"
+  goto SkipWUAInst
+)
+echo %WUA_TARGET_ID%>"%TEMP%\MissingUpdateIds.txt"
+call ListUpdatesToInstall.cmd /excludestatics /ignoreblacklist
+if errorlevel 1 goto ListError
+if exist "%TEMP%\UpdatesToInstall.txt" (
+  echo Installing most recent Windows Update Agent...
+  call InstallListedUpdates.cmd /selectoptions %VERIFY_MODE% %DISM_MODE% /errorsaswarnings
+  set ERR_LEVEL=!errorlevel!
+  rem echo DoUpdate: ERR_LEVEL=%ERR_LEVEL%
+  if "!ERR_LEVEL!"=="3010" (
+    set REBOOT_REQUIRED=1
+  ) else if "!ERR_LEVEL!"=="3011" (
+    set RECALL_REQUIRED=1
+  ) else if "!ERR_LEVEL!" NEQ "0" (
+    goto InstError
+  )
+  set WUA_SHA2_SUPPORT=1
+) else (
+  echo Warning: Windows Update Agent installation file ^(kb%WUA_TARGET_ID%^) not found.
+  call :Log "Warning: Windows Update Agent installation file (kb%WUA_TARGET_ID%) not found"
+  goto SkipWUAInst
+)
+rem FIXME 12.5 (b69)
+set RECALL_REQUIRED=1
+:SkipWUAInst
+if "%RECALL_REQUIRED%"=="1" goto Installed
 
 rem *** Install Internet Explorer ***
 if "%OS_SRV_CORE%"=="1" goto SkipIEInst
@@ -2003,6 +2048,7 @@ goto :eof
 :Cleanup
 if exist %SystemRoot%\Temp\wou_w63upd1_tried.txt del %SystemRoot%\Temp\wou_w63upd1_tried.txt
 if exist %SystemRoot%\Temp\wou_w63upd2_tried.txt del %SystemRoot%\Temp\wou_w63upd2_tried.txt
+if exist %SystemRoot%\Temp\wou_wua_tried.txt del %SystemRoot%\Temp\wou_wua_tried.txt
 if exist %SystemRoot%\Temp\wou_iepre_tried.txt del %SystemRoot%\Temp\wou_iepre_tried.txt
 if exist %SystemRoot%\Temp\wou_ie_tried.txt del %SystemRoot%\Temp\wou_ie_tried.txt
 if exist %SystemRoot%\Temp\wou_msedge_tried.txt del %SystemRoot%\Temp\wou_msedge_tried.txt

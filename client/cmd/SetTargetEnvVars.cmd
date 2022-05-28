@@ -10,6 +10,12 @@ if "%OS_RAM_GB%"=="" (
 if exist .\custom\SetUpdatesPerStage.cmd call .\custom\SetUpdatesPerStage.cmd
 if %UPDATES_PER_STAGE% LSS 40 set UPDATES_PER_STAGE=40
 
+set WUA_VER_TARGET_MAJOR=0
+set WUA_VER_TARGET_MINOR=0
+set WUA_VER_TARGET_BUILD=0
+set WUA_VER_TARGET_REVIS=0
+set WUA_TARGET_ID=
+
 set IE_VER_TARGET_BUILD=0
 set IE_VER_TARGET_REVIS=0
 
@@ -79,6 +85,15 @@ goto SetOfficeName
 :Windows6.2
 rem *** Windows Server 2012 ***
 set OS_NAME=w62
+
+rem FIXME
+rem "long search" issue fixed in WUA 7.8.9200.xxxxx (KBxxxxxxx) released xx/xxxx
+set WUA_VER_TARGET_MAJOR=7
+set WUA_VER_TARGET_MINOR=8
+set WUA_VER_TARGET_BUILD=9200
+set WUA_VER_TARGET_REVIS=16384
+set WUA_TARGET_ID=
+
 set IE_VER_TARGET_MAJOR=9
 set IE_VER_TARGET_MINOR=11
 set WMF_TARGET_ID=3191565
@@ -94,6 +109,16 @@ set OS_SP_PREREQ_ID=2975061
 set OS_SP_TARGET_ID=2919355
 set OS_UPD1_TARGET_REVIS=17041
 set OS_UPD2_TARGET_REVIS=17415
+rem "long search" issue fixed in WUA 7.9.9600.18094 (KB3102812) released 11/2015
+set WUA_VER_TARGET_MAJOR=7
+set WUA_VER_TARGET_MINOR=9
+set WUA_VER_TARGET_BUILD=9600
+set WUA_VER_TARGET_REVIS=18094
+set WUA_TARGET_ID=3102812
+rem set WUA_TARGET_ID=3112336
+rem set WUA_TARGET_ID=3135449
+rem set WUA_TARGET_ID=3138615
+rem set WUA_TARGET_ID=3172614
 set IE_VER_TARGET_MAJOR=9
 set IE_VER_TARGET_MINOR=11
 set WMF_TARGET_ID=3191564
@@ -108,6 +133,7 @@ rem *** Windows Server 2022 is "fe", but behaves like Windows 10 regarding updat
 rem *** Windows 11 / Server xxx ***
 rem NOTE: Windows 11 (Build >= 22567) has update file names starting with "Windows11.0" instead of "Windows10.0" [Thanks to "boco"]
 set OS_NAME=w100
+set WUA_VER_TARGET_MAJOR=10
 set IE_VER_TARGET_MAJOR=9
 set IE_VER_TARGET_MINOR=11
 set TSC_VER_TARGET_MAJOR=10
