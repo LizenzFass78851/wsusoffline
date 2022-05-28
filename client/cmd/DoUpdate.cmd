@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b44)
+set WSUSOFFLINE_VERSION=11.9.12 (b45)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -357,14 +357,6 @@ for %%i in (monitor) do (
 call :Log "Info: Adjusted power management settings"
 :SkipPowerCfg
 
-rem *** Determine Windows Update Agent (WUA) support for SHA2-signed wsusscn2.cab ***
-if "%WUA_SHA2_SUPPORT%" NEQ "1" (
-  if %WUA_VER_MAJOR% GTR %WUA_VER_TARGET_MAJOR% set WUA_SHA2_SUPPORT=1
-  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% GTR %WUA_VER_TARGET_MINOR% set WUA_SHA2_SUPPORT=1
-  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_TARGET_MINOR% if %WUA_VER_BUILD% GTR %WUA_VER_TARGET_BUILD% set WUA_SHA2_SUPPORT=1
-  if %WUA_VER_MAJOR% EQU %WUA_VER_TARGET_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_TARGET_MINOR% if %WUA_VER_BUILD% EQU %WUA_VER_TARGET_BUILD% if %WUA_VER_REVIS% GEQ %WUA_VER_TARGET_REVIS% set WUA_SHA2_SUPPORT=1
-)
-
 if "%JUST_OFFICE%"=="1" goto JustOffice
 
 rem *** Install Windows Service Pack ***
@@ -669,7 +661,6 @@ if exist "%TEMP%\UpdatesToInstall.txt" (
   ) else if "!ERR_LEVEL!" NEQ "0" (
     goto InstError
   )
-  set WUA_SHA2_SUPPORT=1
 ) else (
   echo Warning: Windows Update Agent installation file ^(kb%WUA_TARGET_ID%^) not found.
   call :Log "Warning: Windows Update Agent installation file (kb%WUA_TARGET_ID%) not found"
@@ -1913,6 +1904,12 @@ if "%RECALL_REQUIRED%"=="1" goto Installed
 if "%REBOOT_REQUIRED%"=="1" goto Installed
 
 :ListMissingIds
+rem *** Determine Windows Update Agent (WUA) support for SHA2-signed wsusscn2.cab ***
+set WUA_SHA2_SUPPORT=0
+if %WUA_VER_MAJOR% GTR %WUA_VER_SHA2_MAJOR% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% GTR %WUA_VER_SHA2_MINOR% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_SHA2_MINOR% if %WUA_VER_BUILD% GTR %WUA_VER_SHA2_BUILD% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_SHA2_MINOR% if %WUA_VER_BUILD% EQU %WUA_VER_SHA2_BUILD% if %WUA_VER_REVIS% GEQ %WUA_VER_SHA2_REVIS% set WUA_SHA2_SUPPORT=1
 rem *** Adjust service 'Windows Update' ***
 echo Adjusting service 'Windows Update'...
 call :EnableWUSvc
