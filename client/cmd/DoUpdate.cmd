@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b44)
+set WSUSOFFLINE_VERSION=12.7 (b45)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1773,6 +1773,12 @@ if "%REBOOT_REQUIRED%"=="1" goto Installed
 :SkipWuPre
 
 :ListMissingIds
+rem *** Determine Windows Update Agent (WUA) support for SHA2-signed wsusscn2.cab ***
+set WUA_SHA2_SUPPORT=0
+if %WUA_VER_MAJOR% GTR %WUA_VER_SHA2_MAJOR% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% GTR %WUA_VER_SHA2_MINOR% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_SHA2_MINOR% if %WUA_VER_BUILD% GTR %WUA_VER_SHA2_BUILD% set WUA_SHA2_SUPPORT=1
+if %WUA_VER_MAJOR% EQU %WUA_VER_SHA2_MAJOR% if %WUA_VER_MINOR% EQU %WUA_VER_SHA2_MINOR% if %WUA_VER_BUILD% EQU %WUA_VER_SHA2_BUILD% if %WUA_VER_REVIS% GEQ %WUA_VER_SHA2_REVIS% set WUA_SHA2_SUPPORT=1
 rem *** Adjust service 'Windows Update' ***
 echo Adjusting service 'Windows Update'...
 call :EnableWUSvc
@@ -1800,6 +1806,14 @@ if errorlevel 1 (
 )
 if exist "%TEMP%\hash-wsusscn2.txt" del "%TEMP%\hash-wsusscn2.txt"
 :SkipVerifyCatalog
+if "%OS_SHA2_SUPPORT%" NEQ "1" (
+  echo Warning: Support for SHA2 signed updates is missing. Updates might fail to install.
+  call :Log "Warning: Support for SHA2 signed updates is missing"
+)
+if "%WUA_SHA2_SUPPORT%" NEQ "1" (
+  echo Warning: Support for a SHA2 signed catalog file is missing. Missing updates might not be found.
+  call :Log "Warning: Support for a SHA2 signed catalog file is missing"
+)
 echo %TIME% - Listing ids of missing updates (please be patient, this will take a while)...
 copy /Y ..\wsus\wsusscn2.cab "%TEMP%" >nul
 %CSCRIPT_PATH% //Nologo //E:vbs ListMissingUpdateIds.vbs %LIST_MODE_IDS%
