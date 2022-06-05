@@ -369,6 +369,27 @@ function remove_obsolete_files ()
         ../client/static/StaticUpdateIds-w100-17134-dotnet4-528049.txt
     )
 
+    # *** Windows 10 Version 1903/1909 stuff ***
+    #
+    # Removed in the Community Edition 12.7
+    file_list+=(
+        ../exclude/ExcludeList-w100-18362.txt
+        ../static/StaticDownloadLinks-w100-18362-x64-glb.txt
+        ../static/StaticDownloadLinks-w100-18362-x86-glb.txt
+        ../client/static/StaticUpdateIds-w100-18362.txt
+        ../client/static/StaticUpdateIds-w100-18362-x64.txt
+        ../client/static/StaticUpdateIds-w100-18362-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-18362.txt
+        ../client/static/StaticUpdateIds-servicing-w100-18362.txt
+        ../client/static/StaticUpdateIds-w100-18362-dotnet.txt
+        ../client/static/StaticUpdateIds-w100-18363.txt
+        ../client/static/StaticUpdateIds-w100-18363-x64.txt
+        ../client/static/StaticUpdateIds-w100-18363-x86.txt
+        ../client/static/StaticUpdateIds-wupre-w100-18363.txt
+        ../client/static/StaticUpdateIds-servicing-w100-18363.txt
+        ../client/static/StaticUpdateIds-w100-18363-dotnet.txt
+    )
+
     # *** Refactoring of Windows 10 downloads ***
     #
     # All Windows 10 version-specific exclude lists were removed in the
