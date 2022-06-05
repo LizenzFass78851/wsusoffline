@@ -77,9 +77,8 @@ goto SetOfficeName
 :Windows6.0
 rem *** Windows Server 2008 ***
 set OS_NAME=w60
-rem FIXME
-rem "long search" issue fixed in WUA 7.7.600x.xxxxx (KBxxxxxxx) released xx/xxxx
-rem SHA2-support added in WUA 7.7.6003.20705 (KB4534312/KB4534303) released 01/2020
+rem "long search" issue does not really occur even running WUA 7.6.7600.256 [standalone] released 06/2012 / 07/2014 [tested using w2k8 and 07/2020 catalog]
+rem SHA2-support added in WUA 7.7.6003.20705 [KB4534312/KB4534303] released 01/2020
 set WUA_VER_TARGET_MAJOR=7
 set WUA_VER_TARGET_MINOR=7
 set WUA_VER_TARGET_BUILD=6003
@@ -124,9 +123,8 @@ rem *** Windows 7 / Server 2008 R2 ***
 set OS_NAME=w61
 set OS_SP_VER_TARGET_MAJOR=1
 set OS_SP_TARGET_ID=976932
-rem FIXME
-rem "long search" issue fixed in WUA 7.6.7601.19046 (KB3102810) released 11/2015
-rem SHA2-support added in WUA 7.6.7601.24542 (KB4534314/KB4534310) released 01/2020
+rem "long search" issue fixed in WUA 7.6.7601.19046 [KB3102810] released 11/2015 (actually works since 7.6.7601.18917 [KB3065987] released 07/2015)
+rem SHA2-support added in WUA 7.6.7601.24542 [KB4534314/KB4534310] released 01/2020
 set WUA_VER_TARGET_MAJOR=7
 set WUA_VER_TARGET_MINOR=6
 set WUA_VER_TARGET_BUILD=7601
@@ -152,15 +150,13 @@ goto SetOfficeName
 rem *** Windows Server 2012 ***
 set OS_NAME=w62
 set OS_SP_VER_TARGET_MAJOR=0
-
-rem FIXME
-rem "long search" issue fixed in WUA 7.8.9200.xxxxx (KBxxxxxxx) released xx/xxxx
+rem "long search" issue fixed in WUA 7.8.9200.22695 [KB4493451] released 04/2019
 set WUA_VER_TARGET_MAJOR=7
 set WUA_VER_TARGET_MINOR=8
 set WUA_VER_TARGET_BUILD=9200
-set WUA_VER_TARGET_REVIS=16384
-set WUA_TARGET_ID=
-
+set WUA_VER_TARGET_REVIS=22695
+rem using 04/2020 SecOnly [KB4550971] as update for WUA
+set WUA_TARGET_ID=4550971
 set WUA_VER_SHA2_MAJOR=7
 set WUA_VER_SHA2_MINOR=9
 set WUA_VER_SHA2_BUILD=9200
@@ -183,7 +179,7 @@ set OS_SP_PREREQ_ID=2975061
 set OS_SP_TARGET_ID=2919355
 set OS_UPD1_TARGET_REVIS=17041
 set OS_UPD2_TARGET_REVIS=17415
-rem "long search" issue fixed in WUA 7.9.9600.18094 (KB3102812) released 11/2015
+rem "long search" issue fixed in WUA 7.9.9600.18094 [KB3102812] released 11/2015
 set WUA_VER_TARGET_MAJOR=7
 set WUA_VER_TARGET_MINOR=9
 set WUA_VER_TARGET_BUILD=9600
@@ -196,7 +192,7 @@ rem set WUA_TARGET_ID=3172614
 set WUA_VER_SHA2_MAJOR=7
 set WUA_VER_SHA2_MINOR=9
 set WUA_VER_SHA2_BUILD=9600
-set WUA_VER_SHA2_REVIS=18094
+set WUA_VER_SHA2_REVIS=16384
 set MSI_VER_TARGET_MAJOR=5
 set MSI_VER_TARGET_MINOR=0
 set IE_VER_TARGET_MAJOR=9
