@@ -16,18 +16,18 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b47)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b48)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
 Dim Const $runAllFile                   = "RunAll.cmd"
 Dim Const $win10_ver_inifilebody        = "Windows10Versions"
-Dim Const $win10_vmax                   = 6
-Dim Const $win10_versions               = "10240,14393,17763,18362,19041,20348"
-Dim Const $win10_displayversions        = "1507,1607,1809,1903/1909,2004/20H2/21H1/21H2,"
-Dim Const $win10_displayversions_x86    = ",,,,,"
-Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,,Server 2022"
-Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Disabled,Enabled,Enabled"
+Dim Const $win10_vmax                   = 5
+Dim Const $win10_versions               = "10240,14393,17763,19041,20348"
+Dim Const $win10_displayversions        = "1507,1607,1809,2004/20H2/21H1/21H2,"
+Dim Const $win10_displayversions_x86    = ",,,,"
+Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,Server 2022"
+Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Enabled,Enabled"
 Dim Const $win11_vmax                   = 1
 Dim Const $win11_versions               = "22000"
 Dim Const $win11_displayversions        = "21H2"

@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b47)
+set WSUSOFFLINE_VERSION=12.7 (b48)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -504,6 +504,23 @@ if exist ..\client\static\StaticUpdateIds-wupre-w100-17134.txt del ..\client\sta
 if exist ..\client\static\StaticUpdateIds-servicing-w100-17134.txt del ..\client\static\StaticUpdateIds-servicing-w100-17134.txt
 if exist ..\client\static\StaticUpdateIds-w100-17134-dotnet.txt del ..\client\static\StaticUpdateIds-w100-17134-dotnet.txt
 if exist ..\client\static\StaticUpdateIds-w100-17134-dotnet4-528049.txt del ..\client\static\StaticUpdateIds-w100-17134-dotnet4-528049.txt
+
+rem *** Windows 10 Version 1903/1909 stuff ***
+if exist ..\exclude\ExcludeList-w100-18362.txt del ..\exclude\ExcludeList-w100-18362.txt
+if exist ..\static\StaticDownloadLinks-w100-18362-x64-glb.txt del ..\static\StaticDownloadLinks-w100-18362-x64-glb.txt
+if exist ..\static\StaticDownloadLinks-w100-18362-x86-glb.txt del ..\static\StaticDownloadLinks-w100-18362-x86-glb.txt
+if exist ..\client\static\StaticUpdateIds-w100-18362.txt del ..\client\static\StaticUpdateIds-w100-18362.txt
+if exist ..\client\static\StaticUpdateIds-w100-18362-x64.txt del ..\client\static\StaticUpdateIds-w100-18362-x64.txt
+if exist ..\client\static\StaticUpdateIds-w100-18362-x86.txt del ..\client\static\StaticUpdateIds-w100-18362-x86.txt
+if exist ..\client\static\StaticUpdateIds-wupre-w100-18362.txt del ..\client\static\StaticUpdateIds-wupre-w100-18362.txt
+if exist ..\client\static\StaticUpdateIds-servicing-w100-18362.txt del ..\client\static\StaticUpdateIds-servicing-w100-18362.txt
+if exist ..\client\static\StaticUpdateIds-w100-18362-dotnet.txt del ..\client\static\StaticUpdateIds-w100-18362-dotnet.txt
+if exist ..\client\static\StaticUpdateIds-w100-18363.txt del ..\client\static\StaticUpdateIds-w100-18363.txt
+if exist ..\client\static\StaticUpdateIds-w100-18363-x64.txt del ..\client\static\StaticUpdateIds-w100-18363-x64.txt
+if exist ..\client\static\StaticUpdateIds-w100-18363-x86.txt del ..\client\static\StaticUpdateIds-w100-18363-x86.txt
+if exist ..\client\static\StaticUpdateIds-wupre-w100-18363.txt del ..\client\static\StaticUpdateIds-wupre-w100-18363.txt
+if exist ..\client\static\StaticUpdateIds-servicing-w100-18363.txt del ..\client\static\StaticUpdateIds-servicing-w100-18363.txt
+if exist ..\client\static\StaticUpdateIds-w100-18363-dotnet.txt del ..\client\static\StaticUpdateIds-w100-18363-dotnet.txt
 
 rem *** Office and invcif.exe stuff ***
 if exist ..\static\StaticDownloadLinks-inventory.txt del ..\static\StaticDownloadLinks-inventory.txt
@@ -1341,7 +1358,7 @@ if "%TMP_PLATFORM:~-4%"=="-x64" (
 )
 
 if "%TMP_PLATFORM%"=="w100" (
-  set TMP_BUILDS_ALL_WIN10=10240 14393 17763 18362 19041 20348
+  set TMP_BUILDS_ALL_WIN10=10240 14393 17763 19041 20348
   set TMP_BUILDS_ALL_WIN11=22000
   set TMP_BUILDS_ALL_CURRENT=
   set TMP_BUILDS_LINE=
