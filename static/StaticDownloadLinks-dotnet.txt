@@ -2,12 +2,6 @@ https://download.visualstudio.microsoft.com/download/pr/8e396c75-4d0d-41d3-aea8-
 https://download.visualstudio.microsoft.com/download/pr/8e396c75-4d0d-41d3-aea8-848babc2736a/b8e975409f7d239f7a29fca883a98020/ndp462-kb3151800-x86-x64-allos-deu.exe
 https://download.visualstudio.microsoft.com/download/pr/2d6bb6b2-226a-4baa-bdec-798822606ff1/8494001c276a4b96804cde7829c04d7f/ndp48-x86-x64-allos-enu.exe
 https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/df0f90ae22e5dd134a940246c142c828/ndp48-x86-x64-allos-deu.exe
-https://download.visualstudio.microsoft.com/download/pr/54683c13-6b04-4d7d-b4d4-1f055b50ea43/e99048e2840d57040e8312058853a5b9/dotnet-runtime-5.0.17-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/a0832b5a-6900-442b-af79-6ffddddd6ba4/e2df0b25dd851ee0b38a86947dd0e42e/dotnet-runtime-5.0.17-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/b6fe5f2a-95f4-46f1-9824-f5994f10bc69/db5ec9b47ec877b5276f83a185fdb6a0/windowsdesktop-runtime-5.0.17-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/3aa4e942-42cd-4bf5-afe7-fc23bd9c69c5/64da54c8864e473c19a7d3de15790418/windowsdesktop-runtime-5.0.17-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/4bfa247d-321d-4b29-a34b-62320849059b/8df7a17d9aad4044efe9b5b1c423e82c/aspnetcore-runtime-5.0.17-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/3789ec90-2717-424f-8b9c-3adbbcea6c16/2085cc5ff077b8789ff938015392e406/aspnetcore-runtime-5.0.17-win-x64.exe
 https://download.visualstudio.microsoft.com/download/pr/205afc96-c1cf-499e-a02b-5222f0806f9b/c97f9ee3ce58cae4ffe746732fa99784/dotnet-runtime-6.0.5-win-x86.exe
 https://download.visualstudio.microsoft.com/download/pr/b395fa18-c53b-4f7f-bf91-6b2d3c43fedb/d83a318111da9e15f5ecebfd2d190e89/dotnet-runtime-6.0.5-win-x64.exe
 https://download.visualstudio.microsoft.com/download/pr/68b75eff-3cee-41e0-b993-88a3e063eaee/3aa76cd11da04e2126a3fb7a6ee16e23/windowsdesktop-runtime-6.0.5-win-x86.exe

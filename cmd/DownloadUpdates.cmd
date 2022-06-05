@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b46)
+set WSUSOFFLINE_VERSION=12.7 (b47)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -569,42 +569,7 @@ if exist ..\client\cpp\x86-glb\nul (
   move /Y ..\client\cpp\x86-glb\*.* ..\client\cpp >nul
   rd /S /Q ..\client\cpp\x86-glb
 )
-if exist ..\client\static\StaticUpdateIds-cpp2005_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2005_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2005_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2005_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2005_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2005_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2005_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2005_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2008_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2008_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2008_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2010_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2010_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2010_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2012_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2012_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2012_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2013_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2013_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2013_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x64_documented.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x64_new.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x64_old.txt del ..\client\static\StaticUpdateIds-cpp2015_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x86_documented.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_documented.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x86_new.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-cpp2015_x86_old.txt del ..\client\static\StaticUpdateIds-cpp2015_x86_old.txt
+del /Q ..\client\static\StaticUpdateIds-cpp*.txt >nul 2>&1
 
 rem *** .NET restructuring stuff ***
 if exist ..\exclude\ExcludeList-dotnet.txt del ..\exclude\ExcludeList-dotnet.txt
@@ -627,20 +592,9 @@ if exist ..\client\dotnet\glb\nul (
   rd /S /Q ..\client\dotnet\glb
 )
 
-rem *** .NET 5 restructuring stuff ***
-if exist ..\client\static\StaticUpdateIds-dotnet5_documented.txt del ..\client\static\StaticUpdateIds-dotnet5_documented.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x64_new.txt del ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x64_old.txt del ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x86_new.txt del ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x86_old.txt del ..\client\static\StaticUpdateIds-dotnet5_ASPNETRuntime_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x64_new.txt del ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x64_old.txt del ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x86_new.txt del ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x86_old.txt del ..\client\static\StaticUpdateIds-dotnet5_DesktopRuntime_x86_old.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_Runtime_x64_new.txt del ..\client\static\StaticUpdateIds-dotnet5_Runtime_x64_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_Runtime_x64_old.txt del ..\client\static\StaticUpdateIds-dotnet5_Runtime_x64_old.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_Runtime_x86_new.txt del ..\client\static\StaticUpdateIds-dotnet5_Runtime_x86_new.txt
-if exist ..\client\static\StaticUpdateIds-dotnet5_Runtime_x86_old.txt del ..\client\static\StaticUpdateIds-dotnet5_Runtime_x86_old.txt
+rem *** .NET 5 stuff ***
+del /Q ..\client\static\StaticUpdateIds-dotnet5_*.txt >nul 2>&1
+del /Q ..\client\static\StaticUpdateIds-MSIProducts-dotnet5_*.txt >nul 2>&1
 
 rem *** Microsoft Security Essentials stuff ***
 if exist ..\static\StaticDownloadLink-mssedefs-x64.txt del ..\static\StaticDownloadLink-mssedefs-x64.txt
