@@ -56,8 +56,8 @@ Private Const numBuildPSFSupport               = 21382
 Private Const idxBuild                         = 2
 
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, strFilePathMSEdge, strFilePathMSEdgeUpdate, strVersionMSEdgeUpdate, arrayOfficeNames, arrayOfficeVersions, MSIProducts
-Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strCmdFileName
-Dim strOSArchitecture, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strMSOFilePath, strOfficeMSOVersion, strMSIProductId, languageCode, i, j
+Dim strSystemFolder, strTempFolder, strProfileFolder, strKernelFileName, strWUAFileName, strCmdFileName
+Dim strOSArchitecture, strKernelVersion, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strMSOFilePath, strOfficeMSOVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
 
 Private Function RegExists(objShell, strName)
@@ -491,6 +491,7 @@ Set wshShell = WScript.CreateObject("WScript.Shell")
 strSystemFolder = wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\system32"
 strTempFolder = wshShell.ExpandEnvironmentStrings("%TEMP%")
 strProfileFolder = wshShell.ExpandEnvironmentStrings("%USERPROFILE%")
+strKernelFileName = strSystemFolder & "\ntoskrnl.exe"
 strWUAFileName = strSystemFolder & "\wuaueng.dll"
 If WScript.Arguments.Count = 0 Then
   strCmdFileName = strProfileFolder & "\Desktop\WOUSystemProperties.txt"
@@ -505,6 +506,9 @@ Set objFileSystem = CreateObject("Scripting.FileSystemObject")
 Set objCmdFile = objFileSystem.CreateTextFile(strCmdFileName, True)
 
 ' Determine basic system properties
+
+strKernelVersion = GetFileVersion(objFileSystem, strKernelFileName)
+
 Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
 ' Documentation: http://msdn.microsoft.com/en-us/library/aa394239(VS.85).aspx
 For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingSystem")
@@ -521,17 +525,20 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
   End If
   OSVer_Real_Major = CInt(Split(objQueryItem.Version, ".")(0))
   OSVer_Real_Minor = CInt(Split(objQueryItem.Version, ".")(1))
-  If Split(objQueryItem.Version, ".")(2) = "18363" Then
-    OSVer_Real_Build = 18362
-  ElseIf Split(objQueryItem.Version, ".")(2) = "19042" Then
-    OSVer_Real_Build = 19041
-  ElseIf Split(objQueryItem.Version, ".")(2) = "19043" Then
-    OSVer_Real_Build = 19041
-  ElseIf Split(objQueryItem.Version, ".")(2) = "19044" Then
-    OSVer_Real_Build = 19041
-  Else
-    OSVer_Real_Build = CInt(Split(objQueryItem.Version, ".")(2))
-  End If
+  'If Split(objQueryItem.Version, ".")(2) = "18363" Then
+  '  OSVer_Real_Build = 18362
+  'ElseIf Split(objQueryItem.Version, ".")(2) = "19042" Then
+  '  OSVer_Real_Build = 19041
+  'ElseIf Split(objQueryItem.Version, ".")(2) = "19043" Then
+  '  OSVer_Real_Build = 19041
+  'ElseIf Split(objQueryItem.Version, ".")(2) = "19044" Then
+  '  OSVer_Real_Build = 19041
+  'ElseIf Split(objQueryItem.Version, ".")(2) = "19045" Then
+  '  OSVer_Real_Build = 19041
+  'Else
+  '  OSVer_Real_Build = CInt(Split(objQueryItem.Version, ".")(2))
+  'End If
+  OSVer_Real_Build = CInt(Split(strKernelVersion, ".")(2))
   objCmdFile.WriteLine("set OS_VER_BUILD_INTERNAL=" & OSVer_Real_Build)
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))
   WriteLanguageToFile objCmdFile, "OS_LANG", objQueryItem.OSLanguage, True, True

@@ -1863,6 +1863,7 @@ Community Edition 12.7 -- ??.??.????
 - NOTE: Support removed for Windows 10 version 1909 since Microsoft discontinued support for it on May 10th, 2022
 - Included complete rewrite of the Linux scripts version CE-2.7 (Special thanks to H. Buhrmester)
 - [work in progress] Support added for Windows 11
+- Added static update definition files for Windows 10 Version 22H2 (build 19045)
 - "feature upgrades via enablement package" mechanism now allows updating to older, but still supported builds (Thanks to "aker")
 - Included Download URLs for Windows 10 21H2
 - Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
