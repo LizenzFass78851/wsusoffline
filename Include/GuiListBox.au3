@@ -10,7 +10,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: ListBox
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist with ListBox control management.
 ; Author(s) .....: Paul Campbell (PaulIA)

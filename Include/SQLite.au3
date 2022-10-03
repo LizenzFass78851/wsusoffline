@@ -8,7 +8,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: SQLite
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist access to an SQLite database.
 ; Author(s) .....: Fida Florian (piccaso), jchd, jpm

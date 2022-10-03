@@ -7,7 +7,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Misc
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist with Common Dialogs.
 ; Author(s) .....: Gary Frost, Florian Fida (Piccaso), Dale (Klaatu) Thompson, Valik, ezzetabi, Jon, Paul Campbell (PaulIA)

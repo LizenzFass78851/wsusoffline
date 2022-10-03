@@ -11,7 +11,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Description ...: Additional variables, constants and functions for the WinAPISys.au3
 ; Author(s) .....: Yashied, jpm
 ; ===============================================================================================================================
@@ -61,6 +61,7 @@ Global Const $tagUSEROBJECTFLAGS = 'int Inherit;int Reserved;dword Flags'
 ; _WinAPI_ExpandEnvironmentStrings
 ; _WinAPI_GetActiveWindow
 ; _WinAPI_GetAsyncKeyState
+; _WinAPI_GetCapture
 ; _WinAPI_GetClipboardSequenceNumber
 ; _WinAPI_GetCurrentHwProfile
 ; _WinAPI_GetDefaultPrinter
@@ -457,6 +458,17 @@ Func _WinAPI_GetAsyncKeyState($iKey)
 
 	Return $aCall[0]
 EndFunc   ;==>_WinAPI_GetAsyncKeyState
+
+; #FUNCTION# ====================================================================================================================
+; Author ........: jpm
+; Modified.......:
+; ===============================================================================================================================
+Func _WinAPI_GetCapture()
+	Local $aCall = DllCall("user32.dll", "hwnd", "GetCapture")
+	If @error Then Return SetError(@error, @extended, 0)
+
+	Return $aCall[0]
+EndFunc   ;==>_WinAPI_GetCapture
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
