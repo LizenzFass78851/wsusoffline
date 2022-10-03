@@ -2,9 +2,9 @@ https://download.visualstudio.microsoft.com/download/pr/8e396c75-4d0d-41d3-aea8-
 https://download.visualstudio.microsoft.com/download/pr/8e396c75-4d0d-41d3-aea8-848babc2736a/b8e975409f7d239f7a29fca883a98020/ndp462-kb3151800-x86-x64-allos-deu.exe
 https://download.visualstudio.microsoft.com/download/pr/2d6bb6b2-226a-4baa-bdec-798822606ff1/8494001c276a4b96804cde7829c04d7f/ndp48-x86-x64-allos-enu.exe
 https://download.visualstudio.microsoft.com/download/pr/c2ad65ab-bab3-4d24-ada4-aaf2ff0c1266/df0f90ae22e5dd134a940246c142c828/ndp48-x86-x64-allos-deu.exe
-https://download.visualstudio.microsoft.com/download/pr/205afc96-c1cf-499e-a02b-5222f0806f9b/c97f9ee3ce58cae4ffe746732fa99784/dotnet-runtime-6.0.5-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/b395fa18-c53b-4f7f-bf91-6b2d3c43fedb/d83a318111da9e15f5ecebfd2d190e89/dotnet-runtime-6.0.5-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/68b75eff-3cee-41e0-b993-88a3e063eaee/3aa76cd11da04e2126a3fb7a6ee16e23/windowsdesktop-runtime-6.0.5-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/5681bdf9-0a48-45ac-b7bf-21b7b61657aa/bbdc43bc7bf0d15b97c1a98ae2e82ec0/windowsdesktop-runtime-6.0.5-win-x64.exe
-https://download.visualstudio.microsoft.com/download/pr/6d6093d9-1547-410f-91e5-cd1c84cd29cc/ade04a37ae559ec060b331146fefed0e/aspnetcore-runtime-6.0.5-win-x86.exe
-https://download.visualstudio.microsoft.com/download/pr/042e2559-fe53-4793-b385-665b7c1ca6d5/308ffacc925383207a8f1a27a1df8bdc/aspnetcore-runtime-6.0.5-win-x64.exe
+https://download.visualstudio.microsoft.com/download/pr/60c4767e-c0df-491b-970c-cf69d0c2c581/524ccc6ff8aa96120753ab387bf22d5d/dotnet-runtime-6.0.6-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/7989338b-8ae9-4a5d-8425-020148016812/c26361fde7f706279265a505b4d1d93a/dotnet-runtime-6.0.6-win-x64.exe
+https://download.visualstudio.microsoft.com/download/pr/cc04076c-d188-4c20-9b4f-89be06f1a39c/32da746ef46fbeedb4f609b67cb451c3/windowsdesktop-runtime-6.0.6-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/9d6b6b34-44b5-4cf4-b924-79a00deb9795/2f17c30bdf42b6a8950a8552438cf8c1/windowsdesktop-runtime-6.0.6-win-x64.exe
+https://download.visualstudio.microsoft.com/download/pr/b68b5e5c-aeaa-4efd-b194-b37bd73eff64/b2afe8dbd41c8f266f8df26df8fe4ce9/aspnetcore-runtime-6.0.6-win-x86.exe
+https://download.visualstudio.microsoft.com/download/pr/7751b01b-4548-478d-ac63-ca57f2b66a3f/3339efd1fde8f62fed0ac2406f8bc559/aspnetcore-runtime-6.0.6-win-x64.exe

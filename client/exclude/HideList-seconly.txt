@@ -444,3 +444,11 @@ kb5013872,May 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2
 kb5013638,May 2022 Security and Quality Rollup for .NET Framework 3.5 SP1 on Windows 8.1 and Windows Server 2012 R2
 kb5013643,May 2022 Security and Quality Rollup for .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
 kb5013631,May 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5014747,June 2022 Security Monthly Quality Rollup for Windows Server 2012
+kb5014738,June 2022 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb5014807,June 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows Server 2012
+kb5014636,June 2022 Security and Quality Rollup for .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb5014632,June 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
+kb5014808,June 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5014637,June 2022 Security and Quality Rollup for .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
+kb5014633,June 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
