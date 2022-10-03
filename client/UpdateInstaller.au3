@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b53) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b54) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -92,6 +92,7 @@ Dim Const $path_rel_autologon           = "\bin\Autologon.exe"
 Dim Const $path_rel_rcerts              = "\win\glb\*.crt"
 Dim Const $path_rel_cpp                 = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet48        = "\dotnet\ndp48-x86-x64-allos-*.exe"
+Dim Const $path_rel_instdotnet481       = "\dotnet\ndp481-x86-x64-allos-*.exe"
 Dim Const $path_rel_w100_19042_x86      = "\w100\glb\windows10.0-kb4562830-x86*.*"
 Dim Const $path_rel_w100_19042_x64      = "\w100-x64\glb\windows10.0-kb4562830-x64*.*"
 Dim Const $path_rel_w100_19042_x86_sub  = "\w100\glb\19041\windows10.0-kb4562830-x86*.*"
@@ -394,7 +395,10 @@ Func DotNet4DisplayVersion()
     Case "528372" ; Windows 10 2004/20H2/21H1/21H2 (19041)
       Return "4.8"
     Case "528449" ; Windows Server 2022 (20348) / Windows 11 (22000)
-      Return "4.8"	  
+      Return "4.8"
+
+    Case "533325"
+      Return "4.8.1"
 	Case Else
       Return ""
   EndSwitch
@@ -404,12 +408,25 @@ Func DotNet4MainVersion()
   Return StringLeft(DotNet4Version(), 3)
 EndFunc
 
-Func DotNet4TargetVersion()
-  Return "4.8.03761"
+Func DotNet4TargetRelease()
+  Switch @OSVersion
+    Case "WIN_10"
+      If (Number(@OSBuild) < 19041) Then
+        Return "528372"
+      Else
+        Return "533325"
+      EndIf
+    Case "WIN_2022"
+      Return "533325"
+	Case "WIN_11"
+      Return "533325"
+	Case Else
+      Return "0"
+  EndSwitch
 EndFunc
 
 Func DotNet4TargetVersionDisplay()
-  Return "4.8"
+  Return DotNet4DisplayVersion(DotNet4TargetRelease())
 EndFunc
 
 Func WMFMainVersion()
@@ -437,7 +454,14 @@ Func CPPPresent($basepath)
 EndFunc
 
 Func DotNet4InstPresent($basepath)
-  Return FileExists($basepath & $path_rel_instdotnet48)
+  Switch DotNet4DisplayVersion("")
+    Case "4.8"
+      Return FileExists($basepath & $path_rel_instdotnet48)
+    Case "4.8.1"
+      Return FileExists($basepath & $path_rel_instdotnet481)
+    Case Else
+      Return FileExists($basepath & $path_rel_instdotnet48) ; not optimal, but working
+  EndSwitch
 EndFunc
 
 Func ListMSIPackages()
@@ -592,7 +616,7 @@ If $gergui Then
 Else
   $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework " & DotNet4TargetVersionDisplay(), $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (StringLeft(DotNet4Version(), 9) = DotNet4TargetVersion()) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
+If ( (Number(DotNet4Release()) >= Number(DotNet4TargetRelease())) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then

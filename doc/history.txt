@@ -1867,6 +1867,7 @@ Community Edition 12.7 -- ??.??.????
 - Included Download URLs for Windows 10 21H2
 - Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
+- .NET Framework 4 updated to v. 4.8.1 for Windows 10 20H2 / Windows Server 2022 and newer (Thanks to "aker")
 - .NET 5 support removed since Microsoft discontinued support for it on May 10th, 2022
 - .NET 6 updated to version 6.0.8
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.32.31332.0 (Thanks to "harry" and "aker")
