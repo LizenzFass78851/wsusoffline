@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b58) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b59) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -346,7 +346,11 @@ Func DotNet4Release()
 EndFunc
 
 Func DotNet4DisplayVersion()
-  Switch DotNet4Release()
+  Return DotNet4ReleaseToDisplayVersion(DotNet4Release())
+EndFunc
+
+Func DotNet4ReleaseToDisplayVersion($strDotNet4Release)
+  Switch $strDotNet4Release
     Case "378389"
       Return "4.5"
 	  
@@ -435,7 +439,7 @@ Func DotNet4TargetRelease()
 EndFunc
 
 Func DotNet4TargetVersionDisplay()
-  Return DotNet4DisplayVersion(DotNet4TargetRelease())
+  Return DotNet4ReleaseToDisplayVersion(DotNet4TargetRelease())
 EndFunc
 
 Func WMFMainVersion()
@@ -463,7 +467,7 @@ Func CPPPresent($basepath)
 EndFunc
 
 Func DotNet4InstPresent($basepath)
-  Switch DotNet4DisplayVersion("")
+  Switch DotNet4DisplayVersion()
     Case "4.8"
       Return FileExists($basepath & $path_rel_instdotnet48)
     Case "4.8.1"
