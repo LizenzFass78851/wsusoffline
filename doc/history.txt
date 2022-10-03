@@ -1878,6 +1878,7 @@ Community Edition 12.7 -- ??.??.????
 - Removed obsolete May 2018 Servicing stack update (kb4132216) for Windows Server 2016 and Windows 10 Version 1607 (Thanks to "rbronka")
 - Replaced superseded September 2021 Servicing stack update (kb5005698) by August 2022 Servicing stack update (kb5017095) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Replaced superseded August 2021 Servicing stack update (kb5005260) by May 2022 Servicing stack update (kb5014032) for Windows 10 Version 20H2/21H1/21H2 (Thanks to "aker")
+- Replaced superseded January 2021 Secure Boot DBX update (kb4535680) by August 2022 Secure Boot DBX update (kb5012170) (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
 - AutoIt script compiler updated to version 3.3.16.0 (Thanks to "harry")
 - Fix: Download error in Linux scripts while parsing the certificate URLs (Thanks to "mani" and "hbuhrmester")
