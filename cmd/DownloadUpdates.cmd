@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b57)
+set WSUSOFFLINE_VERSION=12.7 (b58)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -1359,7 +1359,7 @@ if "%TMP_PLATFORM:~-4%"=="-x64" (
 
 if "%TMP_PLATFORM%"=="w100" (
   set TMP_BUILDS_ALL_WIN10=10240 14393 17763 19041 20348
-  set TMP_BUILDS_ALL_WIN11=22000
+  set TMP_BUILDS_ALL_WIN11=22000 22621
   set TMP_BUILDS_ALL_CURRENT=
   set TMP_BUILDS_LINE=
 

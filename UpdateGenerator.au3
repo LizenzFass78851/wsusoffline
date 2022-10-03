@@ -16,7 +16,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b57)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b58)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"
@@ -28,10 +28,10 @@ Dim Const $win10_displayversions        = "1507,1607,1809,2004/20H2/21H1/21H2,"
 Dim Const $win10_displayversions_x86    = ",,,,"
 Dim Const $win10_displayversions_x64    = ",Server 2016,Server 2019,,Server 2022"
 Dim Const $win10_defaults               = "Disabled,Enabled,Enabled,Enabled,Enabled"
-Dim Const $win11_vmax                   = 1
-Dim Const $win11_versions               = "22000"
-Dim Const $win11_displayversions        = "21H2"
-Dim Const $win11_defaults               = "Enabled"
+Dim Const $win11_vmax                   = 2
+Dim Const $win11_versions               = "22000,22621"
+Dim Const $win11_displayversions        = "21H2,22H2"
+Dim Const $win11_defaults               = "Enabled,Enabled"
 
 ; Registry constants
 Dim Const $reg_key_hkcu_desktop         = "HKEY_CURRENT_USER\Control Panel\Desktop"

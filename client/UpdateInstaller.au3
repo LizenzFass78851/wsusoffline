@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b57) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b58) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -397,6 +397,8 @@ Func DotNet4DisplayVersion()
     Case "528449" ; Windows Server 2022 (20348) / Windows 11 (22000)
       Return "4.8"
 
+    Case "533320" ; Windows 11 (22621)
+      Return "4.8.1"
     Case "533325"
       Return "4.8.1"
 	Case Else
@@ -419,7 +421,14 @@ Func DotNet4TargetRelease()
     Case "WIN_2022"
       Return "533325"
 	Case "WIN_11"
-      Return "533325"
+      Switch @OSBuild
+        Case "22000"
+          Return "533325"
+        Case "22621"
+          Return "533320"
+        Case Else
+          Return "0"
+      EndSwitch
 	Case Else
       Return "0"
   EndSwitch
