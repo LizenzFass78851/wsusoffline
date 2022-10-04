@@ -67,3 +67,4 @@ kb5011527,March 2022 Security Only Quality Update for Windows Server 2012
 kb5012666,April 2022 Security Only Quality Update for Windows Server 2012
 kb5014018,May 2022 Security Only Quality Update for Windows Server 2012
 kb5014741,June 2022 Security Only Quality Update for Windows Server 2012
+kb5016263,July 2022 Security Only Quality Update for Windows Server 2012
