@@ -813,7 +813,7 @@ rem *** Download Sysinternals' tools Autologon, Sigcheck and Streams ***
 if "%SKIP_DL%"=="1" goto SkipSysinternals
 :DownloadSysinternals
 echo Downloading Sysinternals' tools Autologon, Sigcheck and Streams...
-%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-sysinternals.txt %DLDR_POPT% ..\bin
+%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-sysinternals.txt %DLDR_POPT% "..\bin"
 if errorlevel 1 goto DownloadError
 call :Log "Info: Downloaded Sysinternals' tools Autologon, Sigcheck and Streams"
 pushd ..\bin
@@ -890,7 +890,7 @@ echo Downloading/validating most recent Windows Update catalog file...
 if exist ..\client\wsus\wsusscn2.cab (
   copy /Y ..\client\wsus\wsusscn2.cab ..\client\wsus\wsusscn2.bak >nul
 )
-%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-wsus.txt %DLDR_POPT% ..\client\wsus
+%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-wsus.txt %DLDR_POPT% "..\client\wsus"
 if errorlevel 1 goto DownloadError
 call :Log "Info: Downloaded/validated most recent Windows Update catalog file"
 if "%VERIFY_DL%" NEQ "1" goto SkipWSUS
@@ -965,7 +965,7 @@ if exist ..\exclude\custom\ExcludeListForce-all.txt (
 )
 
 for /F "usebackq tokens=* delims=" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\dotnet "%%i"
+  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\dotnet" "%%i"
   if errorlevel 1 (
     if exist "..\client\dotnet\%%~nxi" del "..\client\dotnet\%%~nxi"
     echo Warning: Download of %%i failed.
@@ -1050,7 +1050,7 @@ for %%i in (x64 x86) do (
         call :Log "Info: Renamed file ..\client\cpp\%%k to %%~nxj"
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\cpp "%%j"
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\cpp" "%%j"
     if errorlevel 1 (
       if exist "..\client\cpp\%%~nxj" del "..\client\cpp\%%~nxj"
       echo Warning: Download of %%j failed.
@@ -1145,7 +1145,7 @@ for /F "usebackq tokens=1,2 delims=," %%i in ("%TEMP%\StaticDownloadLinks-msse-%
       call :Log "Info: Renamed file ..\client\msse\%TARGET_ARCH%-glb\%%j to %%~nxi"
     )
   )
-  %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\msse\%TARGET_ARCH%-glb "%%i"
+  %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% "..\client\msse\%TARGET_ARCH%-glb" "%%i"
   if errorlevel 1 (
     if exist "..\client\msse\%TARGET_ARCH%-glb\%%~nxi" del "..\client\msse\%TARGET_ARCH%-glb\%%~nxi"
     echo Warning: Download of %%i failed.
@@ -1229,7 +1229,7 @@ if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt (
 if not exist ..\client\wddefs\nul md ..\client\wddefs
 if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Windows Defender definition files...
-%DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% ..\client\wddefs\%TARGET_ARCH%-glb
+%DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% "..\client\wddefs\%TARGET_ARCH%-glb"
 if errorlevel 1 (
   echo Warning: Download/validation of Windows Defender definition files failed.
   call :Log "Warning: Download/validation of Windows Defender definition files failed"
