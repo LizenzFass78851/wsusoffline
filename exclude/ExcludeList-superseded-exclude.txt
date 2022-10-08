@@ -48,7 +48,7 @@ windows10.0-kb3172729
 windows10.0-kb4022727
 windows10.0-kb4022730-x86_ad125b5e079babea62b5b977d34fb1652bc76fc1
 windows10.0-kb5014024
-windows10.0-kb5016058
+windows10.0-kb5017095
 windows10.0-kb5003364
 windows10.0-kb5005112
 windows10.0-kb4495611
