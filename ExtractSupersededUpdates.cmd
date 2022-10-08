@@ -21,7 +21,7 @@ if not exist "%TEMP%\package.xml" (
   %SystemRoot%\System32\expand.exe "%TEMP%\package.cab" "%TEMP%\package.xml"
   del "%TEMP%\package.cab"
 ) else (
-  set PREEXISTING_WSUSSCN2_CAB=0
+  set PREEXISTING_WSUSSCN2_CAB=1
   set PREEXISTING_PACKAGE_XML=1
 )
 
