@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b53) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b54) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -339,20 +339,42 @@ Func DotNet4MainVersion()
   Return StringLeft(DotNet4Version(), 3)
 EndFunc
 
-Func DotNet4TargetVersion()
-  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-    Return "4.6.01590"
-  Else
-    Return "4.8.03761"
-  EndIf
+Func DotNet4TargetRelease()
+  Switch @OSVersion
+    Case "WIN_VISTA"
+      Return "394806"
+    Case "WIN_2008"
+      Return "394806"
+    Case "WIN_7"
+      Return "528049"
+    Case "WIN_2008R2"
+      Return "528049"
+    Case "WIN_2012"
+      Return "528049"
+    Case "WIN_81"
+      Return "528049"
+    Case "WIN_2012R2"
+      Return "528049"
+    Case "WIN_10"
+      Switch @OSBuild
+	    Case "14393"
+	      Return "528049"
+	    Case "17763"
+	      Return "528049"
+	    Case Else
+	      Return "0"
+      EndSwitch
+    Case "WIN_2016"
+      Return "528049"
+    Case "WIN_2019"
+      Return "528049"
+	Case Else
+      Return "0"
+  EndSwitch
 EndFunc
 
 Func DotNet4TargetVersionDisplay()
-  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-    Return "4.6.2"
-  Else
-    Return "4.8"
-  EndIf
+  Return DotNet4DisplayVersion(DotNet4TargetRelease())
 EndFunc
 
 Func WMFMainVersion()
@@ -396,11 +418,14 @@ Func DotNet35InstPresent($basepath)
 EndFunc
 
 Func DotNet4InstPresent($basepath)
-  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-    Return FileExists($basepath & $path_rel_instdotnet46)
-  Else
-    Return FileExists($basepath & $path_rel_instdotnet48)
-  EndIf
+  Switch DotNet4DisplayVersion("")
+    Case "4.6.2"
+      Return FileExists($basepath & $path_rel_instdotnet46)
+    Case "4.8"
+      Return FileExists($basepath & $path_rel_instdotnet48)
+    Case Else
+      Return FileExists($basepath & $path_rel_instdotnet46) ; not optimal, but working
+  EndSwitch
 EndFunc
 
 Func MSSEPresent($basepath)
@@ -545,7 +570,7 @@ If $gergui Then
 Else
   $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework " & DotNet4TargetVersionDisplay(), $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (StringLeft(DotNet4Version(), 9) = DotNet4TargetVersion()) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
+If ( (Number(DotNet4Release()) >= Number(DotNet4TargetRelease())) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then
