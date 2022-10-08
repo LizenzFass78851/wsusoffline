@@ -16,7 +16,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b63)"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b64)"
 Dim Const $title                        = $caption & " - Generator"
 Dim Const $downloadURL                  = "https://gitlab.com/wsusoffline/"
 Dim Const $downloadLogFile              = "download.log"

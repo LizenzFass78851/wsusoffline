@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b63)
+set WSUSOFFLINE_VERSION=12.7 (b64)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -837,7 +837,7 @@ rem *** Download Sysinternals' tools Autologon, Sigcheck and Streams ***
 if "%SKIP_DL%"=="1" goto SkipSysinternals
 :DownloadSysinternals
 echo Downloading Sysinternals' tools Autologon, Sigcheck and Streams...
-%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-sysinternals.txt %DLDR_POPT% ..\bin
+%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-sysinternals.txt %DLDR_POPT% "..\bin"
 if errorlevel 1 goto DownloadError
 call :Log "Info: Downloaded Sysinternals' tools Autologon, Sigcheck and Streams"
 pushd ..\bin
@@ -914,7 +914,7 @@ echo Downloading/validating most recent Windows Update catalog file...
 if exist ..\client\wsus\wsusscn2.cab (
   copy /Y ..\client\wsus\wsusscn2.cab ..\client\wsus\wsusscn2.bak >nul
 )
-%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-wsus.txt %DLDR_POPT% ..\client\wsus
+%DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% ..\static\StaticDownloadLinks-wsus.txt %DLDR_POPT% "..\client\wsus"
 if errorlevel 1 goto DownloadError
 call :Log "Info: Downloaded/validated most recent Windows Update catalog file"
 if "%VERIFY_DL%" NEQ "1" goto SkipWSUS
@@ -989,7 +989,7 @@ if exist ..\exclude\custom\ExcludeListForce-all.txt (
 )
 
 for /F "usebackq tokens=* delims=" %%i in ("%TEMP%\ValidStaticLinks-dotnet.txt") do (
-  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\dotnet "%%i"
+  %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\dotnet" "%%i"
   if errorlevel 1 (
     if exist "..\client\dotnet\%%~nxi" del "..\client\dotnet\%%~nxi"
     echo Warning: Download of %%i failed.
@@ -1074,7 +1074,7 @@ for %%i in (x64 x86) do (
         call :Log "Info: Renamed file ..\client\cpp\%%k to %%~nxj"
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\cpp "%%j"
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\cpp" "%%j"
     if errorlevel 1 (
       if exist "..\client\cpp\%%~nxj" del "..\client\cpp\%%~nxj"
       echo Warning: Download of %%j failed.
@@ -1214,7 +1214,7 @@ for /F "usebackq tokens=1,2 delims=," %%j in ("%TEMP%\DynamicDownloadLinks-msedg
       echo %%j>"%TEMP%\DynamicDownloadLink-msedge.txt"
       if exist "%TEMP%\DynamicDownloadLink-msedge.txt" (
         if "!MSEdgeFileNamePartial!" NEQ "" del "..\client\msedge\!MSEdgeFileNamePartial!*" >nul 2>&1
-        %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% "%TEMP%\DynamicDownloadLink-msedge.txt" %DLDR_POPT% ..\client\msedge
+        %DLDR_PATH% %DLDR_COPT% %DLDR_IOPT% "%TEMP%\DynamicDownloadLink-msedge.txt" %DLDR_POPT% "..\client\msedge"
         if errorlevel 1 (
           if "!MSEdgeFileNamePartial!" NEQ "" del "..\client\msedge\!MSEdgeFileNamePartial!*" >nul 2>&1
           echo Warning: Download of "%%k" failed.
@@ -1288,7 +1288,7 @@ if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt (
 if not exist ..\client\wddefs\nul md ..\client\wddefs
 if exist ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt del ..\client\md\hashes-wddefs-%TARGET_ARCH%-glb.txt
 echo Downloading/validating Windows Defender definition files...
-%DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% ..\client\wddefs\%TARGET_ARCH%-glb
+%DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_IOPT% ..\static\StaticDownloadLink-wddefs-%TARGET_ARCH%-glb.txt %DLDR_POPT% "..\client\wddefs\%TARGET_ARCH%-glb"
 if errorlevel 1 (
   echo Warning: Download/validation of Windows Defender definition files failed.
   call :Log "Warning: Download/validation of Windows Defender definition files failed"
@@ -1654,12 +1654,12 @@ if exist ..\exclude\custom\ExcludeList-superseded-exclude-seconly.txt (
   type ..\exclude\custom\ExcludeList-superseded-exclude-seconly.txt >>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
 )
 for %%i in (w62 w63) do (
-  for /F %%j in ('dir /B ..\client\static\StaticUpdateIds-%%i*-seconly.txt 2^>nul') do (
+  for /F %%j in ('dir /B "..\client\static\StaticUpdateIds-%%i*-seconly.txt" 2^>nul') do (
     for /F "tokens=1* delims=,;" %%k in (..\client\static\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
     )
   )
-  for /F %%j in ('dir /B ..\client\static\custom\StaticUpdateIds-%%i*-seconly.txt 2^>nul') do (
+  for /F %%j in ('dir /B "..\client\static\custom\StaticUpdateIds-%%i*-seconly.txt" 2^>nul') do (
     for /F "tokens=1* delims=,;" %%k in (..\client\static\custom\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
     )
@@ -2587,7 +2587,7 @@ for /f "delims=" %%f in ('%WGET_PATH% %SDDCoreWGetCmdLine% 2^>^&1') do (
 
 if "%SDDCoreResultBuffer%"=="" (
   rem no result received
-  if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%")
+  if exist "%~2\%SDDCoreFileName%.bak" (move /y "%~2\%SDDCoreFileName%.bak" "%~2\%SDDCoreFileName%" >nul)
   set SDDCoreReturnValue=1
   goto :SDDCoreSkip
 )
