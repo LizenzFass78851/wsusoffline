@@ -422,7 +422,7 @@ Func DotNet4TargetRelease()
           Case "10240"
 		    Return "394806"
           Case "14393"
-		    Return "528040"
+		    Return "528049"
           Case "18362", "18363"
 		    Return "528040"
 		  Case Else
