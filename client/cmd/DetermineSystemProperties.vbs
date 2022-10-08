@@ -486,6 +486,7 @@ Set wshShell = WScript.CreateObject("WScript.Shell")
 strSystemFolder = wshShell.ExpandEnvironmentStrings("%SystemRoot%") & "\system32"
 strTempFolder = wshShell.ExpandEnvironmentStrings("%TEMP%")
 strProfileFolder = wshShell.ExpandEnvironmentStrings("%USERPROFILE%")
+strKernelFileName = strSystemFolder & "\ntoskrnl.exe"
 strWUAFileName = strSystemFolder & "\wuaueng.dll"
 strMSIFileName = strSystemFolder & "\msi.dll"
 strTSCFileName = strSystemFolder & "\mstsc.exe"
