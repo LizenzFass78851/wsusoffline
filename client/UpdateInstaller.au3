@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 12.7.0)
 
-Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b64) - Installer"
+Dim Const $caption                      = "WSUS Offline Update - Community Edition - 12.7 (b65) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64           = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -480,7 +480,7 @@ Func CPPPresent($basepath)
 EndFunc
 
 Func DotNet4InstPresent($basepath)
-  Switch DotNet4DisplayVersion()
+  Switch DotNet4TargetVersionDisplay()
     Case "4.8"
       Return FileExists($basepath & $path_rel_instdotnet48)
     Case "4.8.1"
@@ -645,10 +645,14 @@ EndIf
 If ( (Number(DotNet4Release()) >= Number(DotNet4TargetRelease())) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
-  If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then
-    GUICtrlSetState(-1, $GUI_CHECKED)
+  If ( (DotNet4MainVersion() = "4.0") OR (DotNet4MainVersion() = "4.5") OR (DotNet4DisplayVersion() = "4.6") OR (DotNet4DisplayVersion() = "4.6.1")) Then
+    GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
   Else
-    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then
+      GUICtrlSetState(-1, $GUI_CHECKED)
+    Else
+      GUICtrlSetState(-1, $GUI_UNCHECKED)
+    EndIf
   EndIf
 EndIf
 
