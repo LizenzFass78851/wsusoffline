@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b64)
+set WSUSOFFLINE_VERSION=11.9.12 (b65)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1170,10 +1170,9 @@ if "%INSTALL_DOTNET4%" NEQ "/instdotnet4" (
   rem force upgrade to 4.6.2, if .NET 4 is installed
   if "%DOTNET4_VER_MAJOR%" NEQ "4" (goto SkipDotNet4Inst)
 )
-if "%OS_NAME%"=="w100" (
-  if %OS_VER_BUILD% LSS 14393 goto SkipDotNet4Inst
-)
 echo Checking .NET Framework 4 installation state...
+rem echo DOTNET4_RELEASE: DOTNET4_RELEASE
+rem echo DOTNET4_RELEASE_TARGET: DOTNET4_RELEASE_TARGET
 if %DOTNET4_RELEASE% GEQ %DOTNET4_RELEASE_TARGET% goto SkipDotNet4Inst
 :InstallDotNet4
 if exist %SystemRoot%\Temp\wou_net4_tried.txt goto SkipDotNet4Inst
