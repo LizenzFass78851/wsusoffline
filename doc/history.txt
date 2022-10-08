@@ -1889,3 +1889,4 @@ Community Edition 12.7 -- ??.??.????
 - Fix: Attempt to extract integrated Servicing Stack updates from the rollup packages and install them first (Thanks to "rbronka")
 - Fix: error message while cleaning up w100(-x64) directories (Thanks to "negg")
 - Fix: Microsoft Edge 100 (and newer) fail to install with error code 109, if the wsusoffline media is read only (Thanks to "jmcaree" and "Charles Waters")
+- Fix: wsusou will now install .NET 4.6.2 instead of 4.8 on Windows 10 1507 LTSB (Thanks to "aker")
