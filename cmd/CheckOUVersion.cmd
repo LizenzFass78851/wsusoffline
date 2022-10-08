@@ -141,7 +141,7 @@ if "%EXIT_ERR%"=="1" (
 ) else (
   title %ComSpec%
   endlocal
-  goto /b 2
+  exit /b 2
 )
 
 :Result_UpdateAvailable
@@ -155,7 +155,6 @@ if "%EXIT_ERR%"=="1" (
 )
 
 :Result_OK
-:EoF
 title %ComSpec%
 endlocal
 exit /b 0

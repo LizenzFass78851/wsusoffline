@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b63) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b64) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -431,7 +431,11 @@ EndFunc
 Func DotNet4InstPresent($basepath)
   Switch DotNet4DisplayVersion()
     Case "4.6.2"
-      Return FileExists($basepath & $path_rel_instdotnet46)
+	  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") )
+	    Return FileExists($basepath & $path_rel_instdotnet46)
+	  Else
+	    Return FileExists($basepath & $path_rel_instdotnet46) ; not optimal, but working
+	  EndIf
     Case "4.8"
       Return FileExists($basepath & $path_rel_instdotnet48)
     Case Else
@@ -803,7 +807,7 @@ GUICtrlSetResizing (-1, $GUI_DOCKRIGHT + $GUI_DOCKBOTTOM)
 
 ; GUI message loop
 GUISetState()
-If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") ) Then
+If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
   If $gergui Then
     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Nicht unterstütztes Betriebssystem: " & @OSVersion)
   Else

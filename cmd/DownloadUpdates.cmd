@@ -35,7 +35,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b63)
+set WSUSOFFLINE_VERSION=11.9.12 (b64)
 title %~n0 %1 %2 %3 %4 %5 %6 %7 %8 %9
 echo Starting WSUS Offline Update - Community Edition - download v. %WSUSOFFLINE_VERSION% for %1 %2...
 set DOWNLOAD_LOGFILE=..\log\download.log
@@ -628,7 +628,7 @@ if exist ..\static\StaticDownloadLink-this.txt del ..\static\StaticDownloadLink-
 
 rem *** delete old-style hashes ***
 if exist ..\client\md\nul (
-  for /f "delims=" %%f in ('dir /b ..\client\md\hashes-*.txt 2^>nul') do (
+  for /f "delims=" %%f in ('dir /b "..\client\md\hashes-*.txt" 2^>nul') do (
     %SystemRoot%\System32\findstr.exe /L /C:"-c md5,sha1,sha256 -b" /C:"-c sha1 -b" "..\client\md\%%f" >nul 2>&1
     if errorlevel 1 (
       del /Q "..\client\md\%%f" >nul 2>&1
@@ -980,7 +980,7 @@ if "%CLEANUP_DL%"=="0" (
   goto VerifyDotNet
 )
 echo Cleaning up client directory for .NET Frameworks 3.5 SP1 and 4.x...
-for /F "delims=" %%i in ('dir ..\client\dotnet /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\dotnet" /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidStaticLinks-dotnet.txt" >nul 2>&1
   if errorlevel 1 (
     del "..\client\dotnet\%%i"
@@ -1068,7 +1068,7 @@ for %%i in (x64 x86) do (
 call :Log "Info: Downloaded/validated C++ Runtime Libraries' installation files"
 if "%CLEANUP_DL%"=="0" goto VerifyCPP
 echo Cleaning up client directory for C++ Runtime Libraries...
-for /F "delims=" %%i in ('dir ..\client\cpp /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\cpp" /A:-D /B 2^>nul') do (
   %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x64-glb.txt >nul 2>&1
   if errorlevel 1 (
     %SystemRoot%\System32\find.exe /I "%%i" ..\static\StaticDownloadLinks-cpp-x86-glb.txt >nul 2>&1
@@ -1165,7 +1165,7 @@ if "%CLEANUP_DL%"=="0" (
   goto VerifyMSSE
 )
 echo Cleaning up client directory for Microsoft Security Essentials...
-for /F "delims=" %%i in ('dir ..\client\msse\%TARGET_ARCH%-glb /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\msse\%TARGET_ARCH%-glb" /A:-D /B 2^>nul') do (
   if "%%i" NEQ "mpam-fe.exe" (
     %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\StaticDownloadLinks-msse-%TARGET_ARCH%-glb.txt" >nul 2>&1
     if errorlevel 1 (
@@ -1511,12 +1511,12 @@ if exist ..\exclude\custom\ExcludeList-superseded-exclude-seconly.txt (
   type ..\exclude\custom\ExcludeList-superseded-exclude-seconly.txt >>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
 )
 for %%i in (w62 w63) do (
-  for /F %%j in ('dir /B ..\client\static\StaticUpdateIds-%%i*-seconly.txt 2^>nul') do (
+  for /F %%j in ('dir /B "..\client\static\StaticUpdateIds-%%i*-seconly.txt" 2^>nul') do (
     for /F "tokens=1* delims=,;" %%k in (..\client\static\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
     )
   )
-  for /F %%j in ('dir /B ..\client\static\custom\StaticUpdateIds-%%i*-seconly.txt 2^>nul') do (
+  for /F %%j in ('dir /B "..\client\static\custom\StaticUpdateIds-%%i*-seconly.txt" 2^>nul') do (
     for /F "tokens=1* delims=,;" %%k in (..\client\static\custom\%%j) do (
       echo %%k>>"%TEMP%\ExcludeList-superseded-exclude-seconly.txt"
     )
@@ -1655,7 +1655,7 @@ call :Log "Info: Extracting BundledUpdateRevisionAndFileIds.txt ..."
 del "%TEMP%\BundledUpdateRevisionAndFileIds-unsorted.txt"
 
 rem echo Extracting UpdateCabExeIdsAndLocations.txt ...
-call :Log "Info: Extracting file 3, UpdateCabExeIdsAndLocations.txt ..."
+call :Log "Info: Extracting UpdateCabExeIdsAndLocations.txt ..."
 %CSCRIPT_PATH% //Nologo //B //E:vbs XSLT.vbs "%TEMP%\package.xml" ..\xslt\extract-update-cab-exe-ids-and-locations.xsl "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
 ..\bin\gsort.exe -u -T "%TEMP%" "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt" > "%TEMP%\UpdateCabExeIdsAndLocations.txt"
 del "%TEMP%\UpdateCabExeIdsAndLocations-unsorted.txt"
@@ -1871,7 +1871,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
         call :Log "Info: Renamed file ..\client\%1\%2\%%l to %%~nxk"
       )
     )
-    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% ..\client\%1\%2 "%%k"
+    %DLDR_PATH% %DLDR_COPT% %DLDR_UOPT% %DLDR_POPT% "..\client\%1\%2" "%%k"
     if errorlevel 1 (
       if exist "..\client\%1\%2\%%~nxk" del "..\client\%1\%2\%%~nxk"
       echo Warning: Download of %%k failed.
@@ -1898,7 +1898,7 @@ for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TE
 if "%WSUS_URL%"=="" (
   for /F "tokens=1* delims=:" %%i in ('%SystemRoot%\System32\findstr.exe /N $ "%TEMP%\ValidDynamicLinks-%1-%2.txt"') do (
     echo Downloading/validating update %%i of %LINES_COUNT%...
-    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%j"
+    %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\%1\%2" "%%j"
     if errorlevel 1 (
       echo Warning: Download of %%j failed.
       call :Log "Warning: Download of %%j failed"
@@ -1915,7 +1915,7 @@ if "%WSUS_URL%"=="" (
     echo Downloading/validating update %%i of %LINES_COUNT%...
     for /F "tokens=1-3 delims=," %%k in ("%%j") do (
       if "%%m"=="" (
-        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%l"
+        %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\%1\%2" "%%l"
         if errorlevel 1 (
           echo Warning: Download of %%l failed.
           call :Log "Warning: Download of %%l failed"
@@ -1929,9 +1929,9 @@ if "%WSUS_URL%"=="" (
           call :Log "Info: Renamed file ..\client\%1\%2\%%k to %%~nxl"
         )
         if "%WSUS_BY_PROXY%"=="1" (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% "%%l"
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% %DLDR_POPT% "..\client\%1\%2" %DLDR_LOPT% "%%l"
         ) else (
-          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% ..\client\%1\%2 %DLDR_LOPT% "%%l"
+          %DLDR_PATH% %DLDR_COPT% %DLDR_NVOPT% --no-proxy %DLDR_POPT% "..\client\%1\%2" %DLDR_LOPT% "%%l"
         )
         if errorlevel 1 (
           if exist "..\client\%1\%2\%%~nxl" (
@@ -1943,7 +1943,7 @@ if "%WSUS_URL%"=="" (
             echo Warning: Download of %%l ^(%%k^) failed.
             call :Log "Warning: Download of %%l (%%k) failed"
           ) else (
-            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% ..\client\%1\%2 "%%m"
+            %DLDR_PATH% %DLDR_COPT% %DLDR_POPT% "..\client\%1\%2" "%%m"
             if errorlevel 1 (
               echo Warning: Download of %%m failed.
               call :Log "Warning: Download of %%m failed"
@@ -1999,7 +1999,7 @@ if exist "%TEMP%\ValidStaticLinks-%1-%2.txt"  type "%TEMP%\ValidStaticLinks-%1-%
 if exist "%TEMP%\ValidDynamicLinks-%1-%2.txt" type "%TEMP%\ValidDynamicLinks-%1-%2.txt" >>"%TEMP%\ValidLinks-%1-%2.txt"
 if not exist "%TEMP%\ValidLinks-%1-%2.txt" echo. >>"%TEMP%\ValidLinks-%1-%2.txt"
 
-for /F "delims=" %%i in ('dir ..\client\%1\%2 /A:-D /B 2^>nul') do (
+for /F "delims=" %%i in ('dir "..\client\%1\%2" /A:-D /B 2^>nul') do (
   if exist "%TEMP%\ValidLinks-%1-%2.txt" (
     %SystemRoot%\System32\find.exe /I "%%i" "%TEMP%\ValidLinks-%1-%2.txt" >nul 2>&1
     if errorlevel 1 (
@@ -2014,8 +2014,8 @@ for /F "delims=" %%i in ('dir ..\client\%1\%2 /A:-D /B 2^>nul') do (
 
 del "%TEMP%\ValidLinks-%1-%2.txt"
 
-dir ..\client\%1\%2 /A:-D >nul 2>&1
-if errorlevel 1 rd ..\client\%1\%2
+dir "..\client\%1\%2" /A:-D >nul 2>&1
+if errorlevel 1 rd "..\client\%1\%2"
 
 call :Log "Info: Cleaned up client directory for %1 %2"
 
