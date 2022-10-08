@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=11.9.12 (b62)
+set WSUSOFFLINE_VERSION=11.9.12 (b63)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -1220,8 +1220,13 @@ if "%OS_NAME%"=="w60" (
   set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe
 ) else (
   if "%INSTALL_DOTNET4%"=="/instdotnet4" (
-    set DOTNET4_FILENAME=..\dotnet\ndp48-x86-x64-allos-enu.exe
-    set DOTNET4LP_FILENAME=..\dotnet\ndp48-x86-x64-allos-%OS_LANG%.exe
+    if %OS_VER_BUILD_INTERNAL% EQU 10240 (
+      set DOTNET4_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-enu.exe
+      set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe
+    ) else (
+      set DOTNET4_FILENAME=..\dotnet\ndp48-x86-x64-allos-enu.exe
+      set DOTNET4LP_FILENAME=..\dotnet\ndp48-x86-x64-allos-%OS_LANG%.exe
+    )
   ) else (
     set DOTNET4_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-enu.exe
     set DOTNET4LP_FILENAME=..\dotnet\ndp462-kb3151800-x86-x64-allos-%OS_LANG%.exe

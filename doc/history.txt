@@ -1855,3 +1855,4 @@ Community Edition 11.9.12 -- ??.??.????
 - Fix: ListUpdatesToInstall.cmd will now show, if which files of an update are missing (Thanks to "aker")
 - Fix: .NET 4.6.2 on Windows Server 2008 installation could result in unpredictable behaviour, if KB956250 is missing (Thanks to "rbronka" and "aker")
 - Fix: WMF 3.0 installation might fail on Windows Server 2008 (Thanks to "rbronka")
+- Fix: wsusou will now install .NET 4.6.2 instead of 4.8 on Windows 10 1507 LTSB (Thanks to "aker")
