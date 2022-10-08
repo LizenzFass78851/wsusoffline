@@ -11,7 +11,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: ComboBox
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist with ComboBox control management.
 ; Author(s) .....: gafrost, PaulIA, Valik

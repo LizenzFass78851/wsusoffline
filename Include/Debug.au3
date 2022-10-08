@@ -9,7 +9,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Debug
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions to help script debugging.
 ; Author(s) .....: Nutster, Jpm, Valik, guinness, water
@@ -76,8 +76,11 @@ EndFunc   ;==>_Assert
 ; Author ........: Melba23
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _DebugArrayDisplay(Const ByRef $aArray, $sTitle = Default, $sArrayRange = Default, $iFlags = Default, $vUser_Separator = Default, $sHeader = Default, $iMax_ColWidth = Default, $hUser_Function = Default, Const $_iCallerScriptLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
-	Local $iRet = __ArrayDisplay_Share($aArray, $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iMax_ColWidth, $hUser_Function, True, $_iCallerScriptLineNumber, $_iCallerError, $_iCallerExtended)
+Func _DebugArrayDisplay(Const ByRef $aArray, $sTitle = Default, $sArrayRange = Default, $iFlags = Default, $vUser_Separator = Default, $sHeader = Default, $iDesired_Colwidth = Default, $hUser_Function = Default, Const $_iCallerScriptLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
+	Local $iRet = -1
+	While $iRet = -1 ; to retry in case UserFunction was used
+		$iRet = __ArrayDisplay_Share($aArray, $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iDesired_Colwidth, $hUser_Function, True, $_iCallerScriptLineNumber, $_iCallerError, $_iCallerExtended)
+	WEnd
 	Return SetError(@error, @extended, $iRet)
 EndFunc   ;==>_DebugArrayDisplay
 
@@ -293,7 +296,23 @@ Func _DebugReportVar($sVarName, $vVar, $bErrExt = False, Const $iDebugLineNumber
 				EndIf
 			Next
 		EndIf
-	ElseIf IsDllStruct($vVar) Or IsObj($vVar) Then
+	ElseIf IsDllStruct($vVar) Then
+		Local $aArray[2], $sStruct = ""
+		Local $i = -1
+		While 1
+			$i += 1
+			If $i = UBound($aArray) Then ReDim $aArray[$i + UBound($aArray)]
+			$aArray[$i] = DllStructGetData($vVar, $i + 1)
+			If @error Then ExitLoop
+			$sStruct &= VarGetType($aArray[$i]) & "; "
+		WEnd
+		ReDim $aArray[$i]
+		$sData &= ' ("' & StringTrimRight($sStruct, 2) & '")'
+		For $r = 0 To UBound($aArray) - 1
+			$sData &= @CRLF & @TAB & "#" & $r + 1 & " "
+			$sData &= __Debug_DataFormat($aArray[$r])
+		Next
+	ElseIf IsObj($vVar) Then
 	Else
 		$sData &= ' = ' & __Debug_DataFormat($vVar)
 	EndIf

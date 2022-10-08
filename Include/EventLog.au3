@@ -9,7 +9,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Event_Log
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist Windows System logs.
 ; Description ...: When an error occurs, the system administrator or support technicians must determine what  caused  the  error,

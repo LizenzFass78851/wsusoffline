@@ -13,7 +13,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: IPAddress
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Functions that assist with IPAddress control management.
 ; Author(s) .....: Gary Frost (gafrost)

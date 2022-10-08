@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: ExcelConstants
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt script when using the Excel UDF.
 ; Author(s) .....: water

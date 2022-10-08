@@ -6,7 +6,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Internal UDF Library for AutoIt3 _ArrayDisplay() and _DebugArrayDisplay()
-; AutoIt Version : 3.3.16.0
+; AutoIt Version : 3.3.16.1
 ; Description ...: Internal functions for the Array.au3 and Debug.au3
 ; Author(s) .....: Melba23, jpm, LarsJ, pixelsearch
 ; ===============================================================================================================================
@@ -16,6 +16,7 @@
 ; #VARIABLES# ===================================================================================================================
 ; for use with the notify handler
 
+Global $_g_ArrayDisplay_bUserFunc = False
 Global $_g_ArrayDisplay_hListView
 Global $_g_ArrayDisplay_iTranspose
 Global $_g_ArrayDisplay_iDisplayRow
@@ -72,8 +73,17 @@ Global Const $_ARRAYCONSTANT_tagLVITEM = "struct;uint Mask;int Item;int SubItem;
 
 #EndRegion Functions list
 
-Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange = Default, $iFlags = Default, $vUser_Separator = Default, $sHeader = Default, $iMax_ColWidth = Default, $hUser_Function = Default, $bDebug = True, Const $_iScriptLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
+Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange = Default, $iFlags = Default, $vUser_Separator = Default, $sHeader = Default, $iDesired_Colwidth = Default, $hUser_Function = Default, $bDebug = True, Const $_iScriptLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
 	Local $sMsgBoxTitle = (($bDebug) ? ("_DebugArrayDisplay") : ("_ArrayDisplay"))
+
+	; to avoid user_function using _DebugAArrayDislay() recursion
+	If $_g_ArrayDisplay_bUserFunc Then
+		$hUser_Function = Default
+		$bDebug = False
+	EndIf
+	If Not IsKeyword($hUser_Function) = $KEYWORD_DEFAULT Then
+		$_g_ArrayDisplay_bUserFunc = True
+	EndIf
 
 	; Default values
 	If $sTitle = Default Then $sTitle = $sMsgBoxTitle
@@ -81,6 +91,12 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 	If $iFlags = Default Then $iFlags = 0
 	If $vUser_Separator = Default Then $vUser_Separator = ""
 	If $sHeader = Default Then $sHeader = ""
+
+	Local $iMin_ColWidth = 55
+	Local $iMax_ColWidth = 350
+;~  If $iDesired_Colwidth = Default Then ; do not change predefined $iMin_ColWidth, $iMax_ColWidth
+	If $iDesired_Colwidth > 0 Then $iMax_ColWidth = $iDesired_Colwidth
+	If $iDesired_Colwidth < 0 Then $iMin_ColWidth = -$iDesired_Colwidth
 	If $iMax_ColWidth = Default Then $iMax_ColWidth = 350
 	If $iMax_ColWidth > 4095 Then $iMax_ColWidth = 4095 ; needed as the structure inside the notify handler is declared as Static
 	If $hUser_Function = Default Then $hUser_Function = 0
@@ -276,9 +292,9 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 	If $fTimer * $_g_ArrayDisplay_nCols < 1000 Then
 		; 		__ArrayDisplay_SortIndexes(-1)
 		__ArrayDisplay_SortIndexes(2, $_g_ArrayDisplay_nCols)
-		If $bDebug Then ConsoleWrite("Sorting all indexes = " & TimerDiff($hTimer) & @CRLF & @CRLF)
+;~ 		If $bDebug Then ConsoleWrite("Sorting all indexes = " & TimerDiff($hTimer) & @CRLF & @CRLF)
 	Else
-		If $bDebug Then ConsoleWrite("Sorting one index = " & TimerDiff($hTimer) & @CRLF)
+;~ 		If $bDebug Then ConsoleWrite("Sorting one index = " & TimerDiff($hTimer) & @CRLF)
 	EndIf
 
 	#EndRegion Generate Sort index for columns
@@ -380,10 +396,11 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 
 	#Region Adjust dialog width
 
-	Local $iWidth = 40, $iColWidth = 0, $aiColWidth[$iColFill], $iMin_ColWidth = 55
+	Local $iWidth = 40, $iColWidth = 0, $aiColWidth[$iColFill]
 	; Get required column widths to fit items
-	Local $iColWidthHeader
+	Local $iColWidthHeader, $iMin_ColW = 55
 	For $i = 0 To $iColFill - 1
+		If $i > 0 Then $iMin_ColW = $iMin_ColWidth ; to be use only for #col > 0
 		GUICtrlSendMsg($idListView, (0x1000 + 30), $i, -1)                            ; $LVM_SETCOLUMNWIDTH $LVSCW_AUTOSIZE
 		$iColWidth = GUICtrlSendMsg($idListView, (0x1000 + 29), $i, 0)                    ; $LVM_GETCOLUMNWIDTH
 		; Check width of header if set
@@ -392,9 +409,9 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 			GUICtrlSendMsg($idListView, (0x1000 + 30), $i, -2)                            ; $LVM_SETCOLUMNWIDTH $LVSCW_AUTOSIZE_USEHEADER
 			$iColWidthHeader = GUICtrlSendMsg($idListView, (0x1000 + 29), $i, 0)              ; $GETCOLUMNWIDTH
 			; Set minimum if required
-			If $iColWidth < $iMin_ColWidth And $iColWidthHeader < $iMin_ColWidth Then
-				GUICtrlSendMsg($idListView, (0x1000 + 30), $i, $iMin_ColWidth)                ; $LVM_SETCOLUMNWIDTH
-				$iColWidth = $iMin_ColWidth
+			If $iColWidth < $iMin_ColW And $iColWidthHeader < $iMin_ColW Then
+				GUICtrlSendMsg($idListView, (0x1000 + 30), $i, $iMin_ColW)                ; $LVM_SETCOLUMNWIDTH
+				$iColWidth = $iMin_ColW
 			ElseIf $iColWidthHeader < $iColWidth Then
 				GUICtrlSendMsg($idListView, (0x1000 + 30), $i, $iColWidth)                    ; $LVM_SETCOLUMNWIDTH
 			Else
@@ -402,9 +419,9 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 			EndIf
 		Else
 			; Set minimum if required
-			If $iColWidth < $iMin_ColWidth Then
-				GUICtrlSendMsg($idListView, (0x1000 + 30), $i, $iMin_ColWidth)                ; $LVM_SETCOLUMNWIDTH
-				$iColWidth = $iMin_ColWidth
+			If $iColWidth < $iMin_ColW Then
+				GUICtrlSendMsg($idListView, (0x1000 + 30), $i, $iMin_ColW)                ; $LVM_SETCOLUMNWIDTH
+				$iColWidth = $iMin_ColW
 			EndIf
 		EndIf
 		; Add to total width
@@ -604,7 +621,11 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 
 					; Pass array and selection to user function
 					$hUser_Function($_g_ArrayDisplay_aArray, $aiSelItems)
-					GUICtrlSetState($idListView, $_ARRAYCONSTANT_GUI_FOCUS)
+					$_g_ArrayDisplay_bUserFunc = False
+
+					__ArrayDisplay_CleanUp($hGUI, $iCoordMode, $iOnEventMode, $_iCallerError, $_iCallerExtended, $p__ArrayDisplay_NotifyHandler)
+					;;__ArrayDisplay_Share($aArray, $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iMax_ColWidth, $hUser_Function, $bDebug, $_iScriptLineNumber, $_iCallerError, $_iCallerExtended)
+					Return SetError($_iCallerError, $_iCallerExtended, -1)
 
 				Case $idExit_Script
 					; Clear up
@@ -616,6 +637,12 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 
 	#EndRegion GUI Handling events
 
+	__ArrayDisplay_CleanUp($hGUI, $iCoordMode, $iOnEventMode, $_iCallerError, $_iCallerExtended, $p__ArrayDisplay_NotifyHandler)
+
+	Return SetError($_iCallerError, $_iCallerExtended, 1)
+EndFunc   ;==>__ArrayDisplay_Share
+
+Func __ArrayDisplay_CleanUp($hGUI, $iCoordMode, $iOnEventMode, $_iCallerError, $_iCallerExtended, $p__ArrayDisplay_NotifyHandler)
 	; Cleanup
 	DllCall("comctl32.dll", "bool", "RemoveWindowSubclass", "hwnd", $hGUI, "ptr", $p__ArrayDisplay_NotifyHandler, "uint_ptr", 0)   ; $iSubclassId = 0
 
@@ -628,7 +655,7 @@ Func __ArrayDisplay_Share(Const ByRef $aArray, $sTitle = Default, $sArrayRange =
 	Opt("GUIOnEventMode", $iOnEventMode) ; Reset original GUI mode
 
 	Return SetError($_iCallerError, $_iCallerExtended, 1)
-EndFunc   ;==>__ArrayDisplay_Share
+EndFunc   ;==>__ArrayDisplay_CleanUp
 
 ; #ADDITIONAL Functions to speed up _ArrayDisplay() or _DebugArrayDisplay()# ====================================================
 ; Thanks Larsj
@@ -653,18 +680,7 @@ Func __ArrayDisplay_NotifyHandler($hWnd, $iMsg, $wParam, $lParam, $iSubclassId, 
 
 					Local $sTemp
 					If $_g_ArrayDisplay_iDisplayRow = 0 Then
-						If $_g_ArrayDisplay_iDims = 2 Then
-							$sTemp = $_g_ArrayDisplay_aArray[$iRow][$iCol]
-						Else
-							$sTemp = $_g_ArrayDisplay_aArray[$iRow]
-						EndIf
-						Switch VarGetType($sTemp)
-							Case "Array"
-								$sTemp = "{Array}"
-							Case "Map"
-								$sTemp = "{Map}"
-						EndSwitch
-						If StringLen($sTemp) > 4095 Then $sTemp = StringLeft($sTemp, 4095)
+						$sTemp = __ArrayDisplay_GetData($iRow, $iCol)
 						DllStructSetData($tText, 1, $sTemp)
 						DllStructSetData($tNMLVDISPINFO, "Text", $pText)
 					Else
@@ -683,18 +699,7 @@ Func __ArrayDisplay_NotifyHandler($hWnd, $iMsg, $wParam, $lParam, $iSubclassId, 
 							EndIf
 							DllStructSetData($tNMLVDISPINFO, "Text", $pText)
 						Else
-							If $_g_ArrayDisplay_iDims = 2 Then
-								$sTemp = $_g_ArrayDisplay_aArray[$iRow][$iCol - 1]
-							Else
-								$sTemp = $_g_ArrayDisplay_aArray[$iRow]
-							EndIf
-							Switch VarGetType($sTemp)
-								Case "Array"
-									$sTemp = "{Array}"
-								Case "Map"
-									$sTemp = "{Map}"
-							EndSwitch
-							If StringLen($sTemp) > 4095 Then $sTemp = StringLeft($sTemp, 4095)
+							$sTemp = __ArrayDisplay_GetData($iRow, $iCol - 1)
 							DllStructSetData($tText, 1, $sTemp)
 							DllStructSetData($tNMLVDISPINFO, "Text", $pText)
 						EndIf
@@ -707,6 +712,31 @@ Func __ArrayDisplay_NotifyHandler($hWnd, $iMsg, $wParam, $lParam, $iSubclassId, 
 	Return DllCall("comctl32.dll", "lresult", "DefSubclassProc", "hwnd", $hWnd, "uint", $iMsg, "wparam", $wParam, "lparam", $lParam)[0]
 	#forceref $iSubclassId, $pData
 EndFunc   ;==>__ArrayDisplay_NotifyHandler
+
+Func __ArrayDisplay_GetData($iRow, $iCol)
+	Local $sTemp
+	If $_g_ArrayDisplay_iDims = 2 Then
+		$sTemp = $_g_ArrayDisplay_aArray[$iRow][$iCol]
+	Else
+		$sTemp = $_g_ArrayDisplay_aArray[$iRow]
+	EndIf
+	Switch VarGetType($sTemp)
+		Case "Array"
+			Local $sSubscript = ""
+			For $i = 1 To UBound($sTemp, 0)
+				$sSubscript = "[" & UBound($sTemp, $i) & "]"
+			Next
+
+			$sTemp = "{Array" & $sSubscript & "}"
+		Case "Map"
+			$sTemp = "{Map[" & UBound($sTemp) & "]}"
+		Case "Object"
+			$sTemp = "{Object}"
+	EndSwitch
+	If StringLen($sTemp) > 4095 Then $sTemp = StringLeft($sTemp, 4095)
+
+	Return $sTemp
+EndFunc   ;==>__ArrayDisplay_GetData
 
 Func __ArrayDisplay_SortIndexes($iColStart, $iColEnd = $iColStart)
 	Dim $_g_ArrayDisplay_aIndex[$_g_ArrayDisplay_nRows]
@@ -795,9 +825,9 @@ Func __ArrayDisplay_SortArrayStruct(Const ByRef $aArray, $iCol)
 				$r = $nVal1 < $nVal2 ? -1 : $nVal1 > $nVal2 ? 1 : 0
 			Else ; Natural sort
 				If $iDims = 1 Then
-					$r = DllCall($hDllComp, 'int', 'StrCmpLogicalW', 'wstr', $aArray[$i], 'wstr', $aArray[DllStructGetData($tIndex, 1, $mi + 1)])[0]
+					$r = DllCall($hDllComp, 'int', 'StrCmpLogicalW', 'wstr', String($aArray[$i]), 'wstr', String($aArray[DllStructGetData($tIndex, 1, $mi + 1)]))[0]
 				Else
-					$r = DllCall($hDllComp, 'int', 'StrCmpLogicalW', 'wstr', $aArray[$i][$iCol], 'wstr', $aArray[DllStructGetData($tIndex, 1, $mi + 1)][$iCol])[0]
+					$r = DllCall($hDllComp, 'int', 'StrCmpLogicalW', 'wstr', String($aArray[$i][$iCol]), 'wstr', String($aArray[DllStructGetData($tIndex, 1, $mi + 1)][$iCol]))[0]
 				EndIf
 			EndIf
 			Switch $r
