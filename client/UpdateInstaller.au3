@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b57) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b58) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -329,7 +329,12 @@ Func DotNet4DisplayVersion()
     Case "528372" ; Windows 10 2004/20H2/21H1/21H2 (19041)
       Return "4.8"
     Case "528449" ; Windows Server 2022 (20348) / Windows 11 (22000)
-      Return "4.8"	  
+      Return "4.8"
+
+    Case "533320" ; Windows 11 (22621)
+      Return "4.8.1"
+    Case "533325"
+      Return "4.8.1"
 	Case Else
       Return ""
   EndSwitch
