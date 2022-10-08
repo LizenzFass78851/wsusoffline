@@ -1,1 +1,1 @@
-6.3.9600.20475,kb5016264,July 2022 Servicing stack update for Windows 8.1 and Windows Server 2012 R2
+6.3.9600.20564,kb5017398,September 2022 Servicing stack update for Windows 8.1 and Windows Server 2012 R2

@@ -1839,14 +1839,14 @@ Community Edition 11.9.12 -- ??.??.????
 - Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")
 - C++ 2015-2022 Redistributable Runtime Libraries updated to v. 14.32.31326.0 (Thanks to "harry" and "aker")
-- January 2022 to August 2022 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
+- January 2022 to September 2022 updates added to 'security only' lists for Windows Server 2008, Windows 7 / Windows Server 2008 R2, Windows Server 2012 and Windows 8.1 / Windows Server 2012 R2 (x86/x64) systems
 - Replaced superseded October 2021 Servicing stack update (kb5006750) by July 2022 Servicing stack update (kb5016129) for Windows Server 2008 SP2 (Thanks to "aker")
-- Replaced superseded October 2021 Servicing stack update (kb5006749) by July 2022 Servicing stack update (kb5016057) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
+- Replaced superseded October 2021 Servicing stack update (kb5006749) by September 2022 Servicing stack update (kb5017397) for Windows 7 (x86/x64) and Server 2008 R2 (Thanks to "aker")
 - Replaced superseded April 2021 Servicing stack update (kb5001401) by July 2022 Servicing stack update (kb5016263) for Windows Server 2012 (Thanks to "aker")
-- Replaced superseded April 2021 Servicing stack update (kb5001403) by July 2022 Servicing stack update (kb5016264) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
+- Replaced superseded April 2021 Servicing stack update (kb5001403) by September 2022 Servicing stack update (kb5017398) for Windows 8.1 / Server 2012 R2 (Thanks to "aker")
 - Replaced superseded April 2021 Servicing stack update (kb5001399) by May 2022 Servicing stack update (kb5014024) for Windows 10 Version 1507 (Thanks to "aker")
 - Removed obsolete May 2018 Servicing stack update (kb4132216) for Windows Server 2016 and Windows 10 Version 1607 (Thanks to "rbronka")
-- Replaced superseded September 2021 Servicing stack update (kb5005698) by August 2022 Servicing stack update (kb5017095) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
+- Replaced superseded September 2021 Servicing stack update (kb5005698) by September 2022 Servicing stack update (kb5017396) for Windows 10 Version 1607 and Windows Server 2016 (Thanks to "aker")
 - Replaced superseded January 2021 Secure Boot DBX update (kb4535680) by August 2022 Secure Boot DBX update (kb5012170) (Thanks to "aker")
 - Wget download utility updated to version 1.21.3 [2022-03-12] (Thanks to "boco")
 - AutoIt script compiler updated to version 3.3.16.0 (Thanks to "harry")

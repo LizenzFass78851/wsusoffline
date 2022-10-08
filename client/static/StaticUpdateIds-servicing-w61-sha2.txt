@@ -1,1 +1,1 @@
-6.1.7601.26016,kb5016057,July 2022 Servicing stack update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+6.1.7601.26111,kb5017397,September 2022 Servicing stack update for Windows 7 SP1 and Windows Server 2008 R2 SP1
