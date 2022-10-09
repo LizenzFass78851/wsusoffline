@@ -54,7 +54,7 @@ Private Const strVersionSuffixes               = "MAJOR,MINOR,BUILD,REVIS"
 Private Const idxBuild                         = 2
 
 Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem, objFolder, arrayOfficeNames, arrayOfficeVersions, MSIProducts
-Dim strSystemFolder, strTempFolder, strProfileFolder, strWUAFileName, strMSIFileName, strTSCFileName, strCmdFileName
+Dim strSystemFolder, strTempFolder, strProfileFolder, strKernelFileName, strWUAFileName, strMSIFileName, strTSCFileName, strCmdFileName
 Dim strOSArchitecture, strKernelVersion, strBuildLabEx, strUBR, strInstallationType, strOfficeInstallPath, strMSOFilePath, strOfficeMSOVersion, strMSIProductId, languageCode, i, j
 Dim ServicingStack_Major, ServicingStack_Minor, ServicingStack_Build, ServicingStack_Revis, OSVer_Real_Major, OSVer_Real_Minor, OSVer_Real_Build
 
