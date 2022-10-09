@@ -405,7 +405,7 @@ Func DotNet4ReleaseToDisplayVersion($strDotNet4Release)
       Return "4.8.1"
     Case "533325"
       Return "4.8.1"
-	Case Else
+    Case Else
       Return ""
   EndSwitch
 EndFunc
