@@ -17,7 +17,7 @@
 #pragma compile(ProductName, "WSUS Offline Update - Community Edition")
 #pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b65) - Installer"
+Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b66) - Installer"
 
 ; Registry constants
 Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
@@ -431,7 +431,7 @@ EndFunc
 Func DotNet4InstPresent($basepath)
   Switch DotNet4TargetVersionDisplay()
     Case "4.6.2"
-	  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") )
+	  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
 	    Return FileExists($basepath & $path_rel_instdotnet46)
 	  Else
 	    Return FileExists($basepath & $path_rel_instdotnet46) ; not optimal, but working
