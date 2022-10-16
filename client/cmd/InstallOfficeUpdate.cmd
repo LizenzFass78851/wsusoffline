@@ -56,6 +56,10 @@ popd
 shift /1
 :EvalParams
 if "%~1"=="" goto NoMoreParams
+if /i "%~1"=="/endevalparams" (
+  shift /1
+  goto NoMoreParams
+)
 if /i "%~1"=="/selectoptions" (
   set SELECT_OPTIONS=1
   shift /1
