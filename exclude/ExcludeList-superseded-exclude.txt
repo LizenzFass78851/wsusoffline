@@ -41,7 +41,7 @@ windows8-rt-kb3018238
 windows8-rt-kb4483187
 windows8-rt-kb4507434
 windows8.1-kb3173424
-windows8.1-kb5017398
+windows8.1-kb5018922
 windows8.1-kb4483187
 windows10.0-kb3173427
 windows10.0-kb3172729

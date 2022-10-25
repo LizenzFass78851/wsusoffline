@@ -63,3 +63,4 @@ kb5014743,June 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5015870,July 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5016686,August 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5017371,September 2022 Security Only Quality Update for Windows Server 2008 SP2
+kb5018446,October 2022 Security Only Quality Update for Windows Server 2008 SP2

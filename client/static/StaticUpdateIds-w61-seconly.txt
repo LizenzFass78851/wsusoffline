@@ -75,3 +75,4 @@ kb5014742,June 2022 Security Only Quality Update for Windows 7 SP1 and Windows S
 kb5016057,July 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5016679,August 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
 kb5017373,September 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5018479,October 2022 Security Only Quality Update for Windows 7 SP1 and Windows Server 2008 R2 SP1

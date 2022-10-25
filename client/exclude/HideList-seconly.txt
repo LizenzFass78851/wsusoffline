@@ -800,3 +800,17 @@ kb5017530,September 2022 Security and Quality Rollup for .NET Framework 3.5 SP1,
 kb5017037,September 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
 kb5017531,September 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 8.1 and Windows Server 2012 R2
 kb5017038,September 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5018450,October 2022 Security Monthly Quality Rollup for Windows Server 2008
+kb5018454,October 2022 Security Monthly Quality Rollup for Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5018457,October 2022 Security Monthly Quality Rollup for Windows Server 2012
+kb5018474,October 2022 Security Monthly Quality Rollup for Windows 8.1 and Windows Server 2012 R2
+kb5018550,October 2022 Security and Quality Rollup for .NET Framework 2.0, 3.0 and 4.6.2 on Windows Server 2008
+kb5018547,October 2022 Security and Quality Rollup for .NET Framework 3.5.1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 7 and Windows Server 2008 R2
+kb5018521,October 2022 Security and Quality Rollup for .NET Framework 4.6.2 on Windows Server 2008 and .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5018516,October 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows 7 SP1 and Windows Server 2008 R2 SP1
+kb5018548,August 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows Server 2012
+kb5018522,August 2022 Security and Quality Rollup for .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows Server 2012
+kb5018518,August 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows Server 2012
+kb5018549,August 2022 Security and Quality Rollup for .NET Framework 3.5 SP1, 4.6.2, 4.7, 4.7.1, 4.7.2 and 4.8 on Windows 8.1 and Windows Server 2012 R2
+kb5018523,August 2022 Security and Quality Rollup for .NET Framework 4.6.2, 4.7, 4.7.1 and 4.7.2 on Windows 8.1 and Windows Server 2012 R2
+kb5018519,August 2022 Security and Quality Rollup for .NET Framework 4.8 on Windows 8.1 and Windows Server 2012 R2
