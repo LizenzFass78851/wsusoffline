@@ -92,9 +92,14 @@ function check_needed_applications ()
 
     log_info_message "Checking needed applications..."
 
-    if ((BASH_VERSINFO[0] <= 4))
+    if ((BASH_VERSINFO[0] < 4))
     then
-        if ((BASH_VERSINFO[1] <= 2))
+        log_error_message "You need at least bash-4.2 to run this script"
+        missing_binaries="$(( missing_binaries + 1 ))"
+    fi
+    if ((BASH_VERSINFO[0] -eq 4))
+    then
+        if ((BASH_VERSINFO[1] < 2))
         then
             log_error_message "You need at least bash-4.2 to run this script"
             missing_binaries="$(( missing_binaries + 1 ))"
