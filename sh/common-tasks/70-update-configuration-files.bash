@@ -534,44 +534,48 @@ function update_configuration_files ()
 
 # Function recursive_download
 #
-# The function recursive_download is used for the configuration files
-# StaticDownloadFiles-modified.txt, ExcludeDownloadFiles-modified.txt
-# and StaticUpdateFiles-modified.txt. These files don't exist on the
-# first download run.
+# The function recursive_download is used for the update of the
+# configuration files in the directories wsusoffline/static, exclude
+# and client/static.
 #
-# They contain download links for configuration files, which have been
-# modified since the last release of WSUS Offline Update.
+# If first downloads the index files StaticDownloadFiles-modified.txt,
+# ExcludeDownloadFiles-modified.txt and StaticUpdateFiles-modified.txt
+# to the directory wsusoffline/static/sdd.
 #
-# Directly after a version update of WSUS Offline Update, these index
-# files are usually empty.
+# These index files contain the filenames of configuration files, which
+# have been modified since the last release of WSUS Offline Update.
 #
-# If they are not empty, then the contained URLs will be recursively
-# downloaded.
+# The filenames will be appended to base URLs, which are derived
+# from the download links of the index files. Then the modified files
+# are downloaded to the directories wsusoffline/static, exclude and
+# client/static.
 #
-# In earlier versions of WSUS Offline Update, this recursive download
-# was only used for the static directory. Therefore, this step is still
-# known as the "update of static download definitions (SDD)".
+# In earlier versions of WSUS Offline Update, this recursive download was
+# only applied to the wsusoffline/static directory. Therefore, this step
+# is still known as the "update of static download definitions (SDD)".
+
 function recursive_download ()
 {
     local download_dir="$1"
-    local download_link="$2"
-    local filename="${download_link##*/}"
+    local download_link="$2"  # URL of the index file
+    local index_filename="${download_link##*/}"  # basename in bash
+    local base_url="${download_link%.txt}"  # base URL of the modified files
     local -i number_of_links="0"
-    local url=""
+    local modified_filename=""
     local -i initial_errors="0"
     initial_errors="$(get_error_count)"
 
-    log_info_message "Downloading/validating index file ${filename} ..."
+    log_info_message "Downloading/validating index file ${index_filename} ..."
     # Since version 1.19.2-CE and 2.1-CE of the Linux download scripts,
     # the three index files are downloaded to ../static/sdd, only the
-    # included links are downloaded to the specified download directories
+    # included files are downloaded to the specified download directories
     # ../static, ../exclude and ../client/static.
     download_from_gitlab "../static/sdd" "${download_link}"
     if same_error_count "${initial_errors}"
     then
-        log_debug_message "Downloaded/validated index file ${filename}"
+        log_debug_message "Downloaded/validated index file ${index_filename}"
     else
-        log_warning_message "The download of index file ${filename} failed"
+        log_warning_message "The download of index file ${index_filename} failed"
         return 0
     fi
 
@@ -579,24 +583,31 @@ function recursive_download ()
     # Update, the index files StaticDownloadFiles-modified.txt,
     # ExcludeDownloadFiles-modified.txt and StaticUpdateFiles-modified.txt
     # are usually empty.
-    if [[ -s "../static/sdd/${filename}" ]]
+    if [[ -s "../static/sdd/${index_filename}" ]]
     then
-        number_of_links="$( wc -l < "../static/sdd/${filename}" )"
-        log_info_message "Downloading/validating ${number_of_links} link(s) from index file ${filename} ..."
+        number_of_links="$( wc -l < "../static/sdd/${index_filename}" )"
+        log_info_message "Downloading/validating ${number_of_links} link(s) from index file ${index_filename} ..."
 
-        while IFS=$'\r\n' read -r url
+        # Since wsusoffline versions 11.9.12 (b43) and 12.7 (b43),
+        # the index files only contain the filenames of the modified
+        # files. The filenames must be appended to a base url, to get
+        # the complete download links.
+        while IFS=$'\r\n' read -r modified_filename
         do
-            download_from_gitlab "${download_dir}" "${url}"
-        done < "../static/sdd/${filename}"
+            if [[ -n "${modified_filename}" ]]
+            then
+                download_from_gitlab "${download_dir}"  \
+                                     "${base_url}/${modified_filename}"
+            fi
+        done < "../static/sdd/${index_filename}"
 
         if same_error_count "${initial_errors}"
         then
-            log_info_message "Downloaded/validated ${number_of_links} link(s) from index file ${filename}"
+            log_info_message "Downloaded/validated ${number_of_links} link(s) from index file ${index_filename}"
         else
-            log_warning_message "Some downloads from index file ${filename} failed -- see the download log for details"
+            log_warning_message "Some downloads from index file ${index_filename} failed. See the download log for details."
         fi
     fi
-
     return 0
 }
 

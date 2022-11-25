@@ -1835,7 +1835,7 @@ Community Edition 11.9.11 -- 24.12.2021
 - Fix: DetermineSystemProperties.vbs might fail to detect Office installations, if only some components (e.g. Lync or Groove) are installed (Thanks to "jmcaree")
 --------------------------------------------------------------------------------
 Community Edition 11.9.12 -- ??.??.????
-- Included complete rewrite of the Linux scripts version CE-1.22-esr (Special thanks to H. Buhrmester)
+- Included complete rewrite of the Linux scripts version CE-1.23-esr (Special thanks to H. Buhrmester)
 - misc. improvements to InstallOSUpdate.cmd and InstallOfficeUpdate.com (Thanks to "aker")
 - Removed support for .NET Framework 4.5.2, 4.6 and 4.6.1; these version will be upgraded to 4.6.2 (Thanks to "aker")
 - Static download URLs for aria2 download utility updated to v. 1.36.0 (Thanks to "harry" and "boco")

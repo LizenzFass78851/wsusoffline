@@ -1,3 +1,15 @@
+Linux download scripts, version 1.23-ESR
+
+   Release date: 2022-11-24
+   Development branch: esr-11.9
+   Supported version: WSUS Offline Update, Community Edition 11.9.12 (b74r2)
+
+   Internal Changes
+
+    * Refactored SDD code
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 1.22-ESR
 
    Release date: 2022-01-30
