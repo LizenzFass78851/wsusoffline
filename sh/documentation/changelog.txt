@@ -1,3 +1,27 @@
+Linux download scripts, version 2.8
+
+   Release date: 2022-11-27
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.7 (b74r2)
+
+   New Features
+
+    * Support added for Windows 10 22H2, Windows Server 2022, Windows
+      11 21H2 and Windows 11 22H2
+
+   Internal Changes
+
+    * Refactored SDD code
+    * Simplified the selection of localized .NET Framework files
+    * Simplified the deletion of obsolete configuration files
+    * The script syntax-check.bash now checks for shellcheck
+
+   Documentation
+
+    * The file compatibility.txt indicates the minimum bash version.
+
+---------------------------------------------------------------------------
+
 Linux download scripts, version 2.7
 
    Release date: 2022-01-13

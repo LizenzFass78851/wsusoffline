@@ -1,3 +1,49 @@
+NEWS for the Linux download scripts, version 2.8
+
+   Release date: 2022-11-27
+   Development branch: master
+   Supported version: WSUS Offline Update, Community Edition 12.7 (b74r2)
+
+   New Features
+
+    * Support added for:
+
+      Windows 10, version 22H2  (build 19041)
+      Windows Server 2022       (build 20348)
+      Windows 11, version 21H2  (build 22000)
+      Windows 11, version 22H2  (build 22621)
+
+      Windows 11 versions are treated just like Window
+      10 versions. They are downloaded to the same directory
+      wsusoffline/client/w100-x64/glb. Windows 10 and Windows 11 versions
+      are then sorted into different subdirectories, based on their
+      build numbers.
+
+   Internal Changes
+
+    * Refactored SDD code, according to WSUS Offline Update - Community
+      Edition - version 12.7 (b43)
+
+    * Simplified the selection of localized .NET Framework downloads
+
+    * Simplified the deletion of two sets of obsolete configuration files
+      (StaticUpdateIds-cpp*.txt and StaticUpdateIds-dotnet5_*.txt)
+
+    * The script syntax-check.bash now checks for shellcheck
+
+      shellcheck is an external command, which integrates nicely
+      in the editor Geany, and which is also used in the script
+      syntax-check.bash. It is not needed for regular usage; but if
+      you like to edit and extend these scripts, then it is highly
+      recommended.
+
+   Documentation
+
+    * The file compatibility.txt was updated to indicate the minimum
+      needed bash version.
+
+---------------------------------------------------------------------------
+
 NEWS for the Linux download scripts, version 2.7
 
    Release date: 2022-01-13
