@@ -2,3 +2,4 @@ http://download.windowsupdate.com/d/msdownload/update/software/updt/2020/11/wind
 http://b1.download.windowsupdate.com/c/upgr/2020/12/windows10.0-kb4562830-x64_93a5c65488affb6e73a0a48ad6a58d8bc1713fd7.msu
 http://b1.download.windowsupdate.com/d/upgr/2021/03/windows10.0-kb5000736-x64_880844224a175033802b3d7a1f40ec304c0548dd.msu
 http://b1.download.windowsupdate.com/d/upgr/2021/11/windows10.0-kb5003791-x64_73ea2c9804395921aa91a4ceea212a8282b55a84.cab
+https://catalog.s.download.windowsupdate.com/c/upgr/2022/07/windows10.0-kb5015684-x64_523c039b86ca98f2d818c4e6706e2cc94b634c4a.msu
