@@ -27,6 +27,7 @@ Private Const strRegValRelease                 = "Release"
 Private Const strRegValDisplayVersion          = "DisplayVersion"
 Private Const strRegValUBR                     = "UBR"
 Private Const strRegValBuildLabEx              = "BuildLabEx"
+Private Const strRegValEditionID               = "EditionID"
 Private Const strRegValSHA2Support             = "SHA2-Codesigning-Support"
 Private Const strRegValSHA2Support2            = "SHA2-Core-Codesigning-Support"
 Private Const strRegValInstallationType        = "InstallationType"
@@ -542,9 +543,16 @@ For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_OperatingS
   objCmdFile.WriteLine("set OS_VER_BUILD_INTERNAL=" & OSVer_Real_Build)
   objCmdFile.WriteLine("set OS_LANG_CODE=0x" & Hex(objQueryItem.OSLanguage))
   WriteLanguageToFile objCmdFile, "OS_LANG", objQueryItem.OSLanguage, True, True
+  If RegExists(wshShell, strRegKeyWindowsVersion & strRegValEditionID) Then
+    objCmdFile.WriteLine("set OS_EDITIONID=" & RegRead(wshShell, strRegKeyWindowsVersion & strRegValEditionID))
+  Else
+    objCmdFile.WriteLine("set OS_EDITIONID=")
+  End If
   strInstallationType = RegRead(wshShell, strRegKeyWindowsVersion & strRegValInstallationType)
   If InStr(1, strInstallationType, "Core", vbTextCompare) > 0 Then
     objCmdFile.WriteLine("set OS_SRV_CORE=1")
+  Else
+    objCmdFile.WriteLine("set OS_SRV_CORE=0")
   End If
   If CInt(Split(objQueryItem.Version, ".")(0)) < 6 Then
     ' Windows 2000, Windows XP, Windows Server 2003 never got SHA2-support
