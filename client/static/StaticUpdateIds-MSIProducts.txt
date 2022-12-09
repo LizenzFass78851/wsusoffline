@@ -16,3 +16,9 @@ dotNET6_DesktopRuntime_x86,.NET 6 Windows Desktop Runtime (x86),..\dotnet\window
 dotNET6_DesktopRuntime_x64,.NET 6 Windows Desktop Runtime (x64),..\dotnet\windowsdesktop-runtime-6.*-win-x64.exe
 dotNET6_ASPNETRuntime_x86,.NET 6 ASP.NET Core Runtime (x86),..\dotnet\aspnetcore-runtime-6.*-win-x86.exe
 dotNET6_ASPNETRuntime_x64,.NET 6 ASP.NET Core Runtime (x64),..\dotnet\aspnetcore-runtime-6.*-win-x64.exe
+dotNET7_Runtime_x86,.NET 7 Windows Runtime (x86),..\dotnet\dotnet-runtime-7.*-win-x86.exe
+dotNET7_Runtime_x64,.NET 7 Windows Runtime (x64),..\dotnet\dotnet-runtime-7.*-win-x64.exe
+dotNET7_DesktopRuntime_x86,.NET 7 Windows Desktop Runtime (x86),..\dotnet\windowsdesktop-runtime-7.*-win-x86.exe
+dotNET7_DesktopRuntime_x64,.NET 7 Windows Desktop Runtime (x64),..\dotnet\windowsdesktop-runtime-7.*-win-x64.exe
+dotNET7_ASPNETRuntime_x86,.NET 7 ASP.NET Core Runtime (x86),..\dotnet\aspnetcore-runtime-7.*-win-x86.exe
+dotNET7_ASPNETRuntime_x64,.NET 7 ASP.NET Core Runtime (x64),..\dotnet\aspnetcore-runtime-7.*-win-x64.exe
