@@ -31,7 +31,7 @@ if "%DIRCMD%" NEQ "" set DIRCMD=
 
 cd /D "%~dp0"
 
-set WSUSOFFLINE_VERSION=12.7 (b78)
+set WSUSOFFLINE_VERSION=12.7 (b79)
 title %~n0 %*
 echo Starting WSUS Offline Update - Community Edition - v. %WSUSOFFLINE_VERSION% at %TIME%...
 set UPDATE_LOGFILE=%SystemRoot%\wsusofflineupdate.log
@@ -553,7 +553,10 @@ if "%OS_VER_MAJOR%"=="" goto SkipBuildUpgrade
 if %OS_VER_MAJOR% LSS 10 goto SkipBuildUpgrade
 rem exclude LTSB/LTSC editions
 if "!OS_EDITIONID:~0,11!"=="EnterpriseS" (
-  call :Log "Info: Skipping feature upgrade as a LTSB-^/LTSC-SKU has been detected"
+  echo Skipping feature upgrade as a LTSB-/LTSC-SKU has been detected
+  call :Log "Info: Skipping feature upgrade as a LTSB-/LTSC-SKU has been detected"
+  rem echo. >%SystemRoot%\Temp\wou_buildupgrade_prep_tried.txt
+  rem echo. >%SystemRoot%\Temp\wou_buildupgrade_tried.txt
   goto SkipBuildUpgrade
 )
 
