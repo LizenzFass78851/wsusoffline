@@ -65,3 +65,6 @@ kb5016686,August 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5017371,September 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5018446,October 2022 Security Only Quality Update for Windows Server 2008 SP2
 kb5020005,November 2022 Security Only Quality Update for Windows Server 2008 SP2
+kb5021293,December 2022 Security Only Quality Update for Windows Server 2008 SP2
+kb5020895,December 2022 Security Update for the .NET Framework 2.0 SP2 and 3.0 SP2 on Windows Server 2008 SP2
+
