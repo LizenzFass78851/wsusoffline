@@ -1,36 +1,24 @@
 #include-once
 
 #include "MemoryConstants.au3"
+#include "StructureConstants.au3"
 #include "ProcessConstants.au3"
 #include "Security.au3"
-#include "StructureConstants.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Memory
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Description ...: Functions that assist with Memory management.
 ;                  The memory manager implements virtual memory, provides a core set of services such  as  memory  mapped  files,
 ;                  copy-on-write memory, large memory support, and underlying support for the cache manager.
 ; Author(s) .....: Paul Campbell (PaulIA)
-; ===============================================================================================================================
-
-#Region Functions list
-
-; #NO_DOC_FUNCTION# =============================================================================================================
-;
-; Used by GUI UDF not to be documented
-;
-; _MemFree
-; _MemInit
-; _MemRead
-; _MemWrite
+; Dll(s) ........: kernel32.dll
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
 ; _MemGlobalAlloc
 ; _MemGlobalFree
 ; _MemGlobalLock
-; _MemGlobalRealloc
 ; _MemGlobalSize
 ; _MemGlobalUnlock
 ; _MemMoveMemory
@@ -42,12 +30,12 @@
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; $tagMEMMAP
+; _MemFree
+; _MemInit
+; _MemRead
+; _MemWrite
 ; __Mem_OpenProcess
 ; ===============================================================================================================================
-
-#EndRegion Functions list
-
-#Region Global Variables and Constants
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: $tagMEMMAP
@@ -60,11 +48,7 @@
 ; ===============================================================================================================================
 Global Const $tagMEMMAP = "handle hProc;ulong_ptr Size;ptr Mem"
 
-#EndRegion Global Variables and Constants
-
-#Region Public Functions
-
-; #NO_DOC_FUNCTION# =============================================================================================================
+; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: _MemFree
 ; Description ...: Releases a memory map structure for a control
 ; Syntax.........: _MemFree ( ByRef $tMemMap )
@@ -92,62 +76,52 @@ EndFunc   ;==>_MemFree
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MemGlobalAlloc($iBytes, $iFlags = 0)
-	Local $aCall = DllCall("kernel32.dll", "handle", "GlobalAlloc", "uint", $iFlags, "ulong_ptr", $iBytes)
+	Local $aResult = DllCall("kernel32.dll", "handle", "GlobalAlloc", "uint", $iFlags, "ulong_ptr", $iBytes)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemGlobalAlloc
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _MemGlobalFree($hMemory)
-	Local $aCall = DllCall("kernel32.dll", "ptr", "GlobalFree", "handle", $hMemory)
+Func _MemGlobalFree($hMem)
+	Local $aResult = DllCall("kernel32.dll", "ptr", "GlobalFree", "handle", $hMem)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemGlobalFree
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _MemGlobalLock($hMemory)
-	Local $aCall = DllCall("kernel32.dll", "ptr", "GlobalLock", "handle", $hMemory)
-	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
-EndFunc   ;==>_MemGlobalLock
-
-; #FUNCTION# ====================================================================================================================
-; Author ........: matwachich
-; Modified.......: Jpm
-; ===============================================================================================================================
-Func _MemGlobalRealloc($hMemory, $iBytes, $iFlags = 0)
-	Local $aResult = DllCall("kernel32.dll", "handle", "GlobalReAlloc", "handle", $hMemory, "ulong_ptr", $iBytes, "uint", $iFlags)
+Func _MemGlobalLock($hMem)
+	Local $aResult = DllCall("kernel32.dll", "ptr", "GlobalLock", "handle", $hMem)
 	If @error Then Return SetError(@error, @extended, 0)
 	Return $aResult[0]
-EndFunc   ;==>_MemGlobalRealloc
+EndFunc   ;==>_MemGlobalLock
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _MemGlobalSize($hMemory)
-	Local $aCall = DllCall("kernel32.dll", "ulong_ptr", "GlobalSize", "handle", $hMemory)
+Func _MemGlobalSize($hMem)
+	Local $aResult = DllCall("kernel32.dll", "ulong_ptr", "GlobalSize", "handle", $hMem)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemGlobalSize
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _MemGlobalUnlock($hMemory)
-	Local $aCall = DllCall("kernel32.dll", "bool", "GlobalUnlock", "handle", $hMemory)
+Func _MemGlobalUnlock($hMem)
+	Local $aResult = DllCall("kernel32.dll", "bool", "GlobalUnlock", "handle", $hMem)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemGlobalUnlock
 
-; #NO_DOC_FUNCTION# =============================================================================================================
+; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: _MemInit
 ; Description ...: Initializes a tagMEMMAP structure for a control
 ; Syntax.........: _MemInit ( $hWnd, $iSize, ByRef $tMemMap )
@@ -164,9 +138,9 @@ EndFunc   ;==>_MemGlobalUnlock
 ; Example .......:
 ; ===============================================================================================================================
 Func _MemInit($hWnd, $iSize, ByRef $tMemMap)
-	Local $aCall = DllCall("user32.dll", "dword", "GetWindowThreadProcessId", "hwnd", $hWnd, "dword*", 0)
+	Local $aResult = DllCall("User32.dll", "dword", "GetWindowThreadProcessId", "hwnd", $hWnd, "dword*", 0)
 	If @error Then Return SetError(@error + 10, @extended, 0)
-	Local $iProcessID = $aCall[2]
+	Local $iProcessID = $aResult[2]
 	If $iProcessID = 0 Then Return SetError(1, 0, 0) ; Invalid window handle
 
 	Local $iAccess = BitOR($PROCESS_VM_OPERATION, $PROCESS_VM_READ, $PROCESS_VM_WRITE)
@@ -192,7 +166,7 @@ Func _MemMoveMemory($pSource, $pDest, $iLength)
 	If @error Then Return SetError(@error, @extended)
 EndFunc   ;==>_MemMoveMemory
 
-; #NO_DOC_FUNCTION# =============================================================================================================
+; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: _MemRead
 ; Description ...: Transfer memory from external address space to internal address space
 ; Syntax.........: _MemRead ( ByRef $tMemMap, $pSrce, $pDest, $iSize )
@@ -210,16 +184,16 @@ EndFunc   ;==>_MemMoveMemory
 ; Example .......:
 ; ===============================================================================================================================
 Func _MemRead(ByRef $tMemMap, $pSrce, $pDest, $iSize)
-	Local $aCall = DllCall("kernel32.dll", "bool", "ReadProcessMemory", "handle", DllStructGetData($tMemMap, "hProc"), _
+	Local $aResult = DllCall("kernel32.dll", "bool", "ReadProcessMemory", "handle", DllStructGetData($tMemMap, "hProc"), _
 			"ptr", $pSrce, "struct*", $pDest, "ulong_ptr", $iSize, "ulong_ptr*", 0)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemRead
 
-; #NO_DOC_FUNCTION# =============================================================================================================
+; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: _MemWrite
 ; Description ...: Transfer memory to external address space from internal address space
-; Syntax.........: _MemWrite ( ByRef $tMemMap, $pSrce [, $pDest = 0 [, $iSize = 0 [, $sSrce = "struct*"]]] )
+; Syntax.........: _MemWrite ( ByRef $tMemMap, $pSrce [, $pDest = 0 [, $iSize = 0 [, $sSrce = "ptr"]]] )
 ; Parameters ....: $tMemMap     - tagMEMMAP structure
 ;                  $pSrce       - Pointer to internal memory
 ;                  $pDest       - Pointer to external memory
@@ -237,10 +211,10 @@ EndFunc   ;==>_MemRead
 Func _MemWrite(ByRef $tMemMap, $pSrce, $pDest = 0, $iSize = 0, $sSrce = "struct*")
 	If $pDest = 0 Then $pDest = DllStructGetData($tMemMap, "Mem")
 	If $iSize = 0 Then $iSize = DllStructGetData($tMemMap, "Size")
-	Local $aCall = DllCall("kernel32.dll", "bool", "WriteProcessMemory", "handle", DllStructGetData($tMemMap, "hProc"), _
+	Local $aResult = DllCall("kernel32.dll", "bool", "WriteProcessMemory", "handle", DllStructGetData($tMemMap, "hProc"), _
 			"ptr", $pDest, $sSrce, $pSrce, "ulong_ptr", $iSize, "ulong_ptr*", 0)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemWrite
 
 ; #FUNCTION# ====================================================================================================================
@@ -248,9 +222,9 @@ EndFunc   ;==>_MemWrite
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MemVirtualAlloc($pAddress, $iSize, $iAllocation, $iProtect)
-	Local $aCall = DllCall("kernel32.dll", "ptr", "VirtualAlloc", "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iAllocation, "dword", $iProtect)
+	Local $aResult = DllCall("kernel32.dll", "ptr", "VirtualAlloc", "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iAllocation, "dword", $iProtect)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemVirtualAlloc
 
 ; #FUNCTION# ====================================================================================================================
@@ -258,9 +232,9 @@ EndFunc   ;==>_MemVirtualAlloc
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MemVirtualAllocEx($hProcess, $pAddress, $iSize, $iAllocation, $iProtect)
-	Local $aCall = DllCall("kernel32.dll", "ptr", "VirtualAllocEx", "handle", $hProcess, "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iAllocation, "dword", $iProtect)
+	Local $aResult = DllCall("kernel32.dll", "ptr", "VirtualAllocEx", "handle", $hProcess, "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iAllocation, "dword", $iProtect)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemVirtualAllocEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -268,9 +242,9 @@ EndFunc   ;==>_MemVirtualAllocEx
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MemVirtualFree($pAddress, $iSize, $iFreeType)
-	Local $aCall = DllCall("kernel32.dll", "bool", "VirtualFree", "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iFreeType)
+	Local $aResult = DllCall("kernel32.dll", "bool", "VirtualFree", "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iFreeType)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemVirtualFree
 
 ; #FUNCTION# ====================================================================================================================
@@ -278,23 +252,19 @@ EndFunc   ;==>_MemVirtualFree
 ; Modified.......:
 ; ===============================================================================================================================
 Func _MemVirtualFreeEx($hProcess, $pAddress, $iSize, $iFreeType)
-	Local $aCall = DllCall("kernel32.dll", "bool", "VirtualFreeEx", "handle", $hProcess, "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iFreeType)
+	Local $aResult = DllCall("kernel32.dll", "bool", "VirtualFreeEx", "handle", $hProcess, "ptr", $pAddress, "ulong_ptr", $iSize, "dword", $iFreeType)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_MemVirtualFreeEx
-
-#EndRegion Public Functions
-
-#Region Internal Functions
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: __Mem_OpenProcess
 ; Description ...: Returns a handle of an existing process object
-; Syntax.........: _WinAPI_OpenProcess ( $iAccess, $bInherit, $iProcessID [, $bDebugPriv = False] )
+; Syntax.........: _WinAPI_OpenProcess ( $iAccess, $fInherit, $iProcessID [, $fDebugPriv = False] )
 ; Parameters ....: $iAccess     - Specifies the access to the process object
-;                  $bInherit    - Specifies whether the returned handle can be inherited
-;                  $iPID        - Specifies the process identifier of the process to open
-;                  $bDebugPriv  - Certain system processes can not be opened unless you have the  debug  security  privilege.  If
+;                  $fInherit    - Specifies whether the returned handle can be inherited
+;                  $iProcessID  - Specifies the process identifier of the process to open
+;                  $fDebugPriv  - Certain system processes can not be opened unless you have the  debug  security  privilege.  If
 ;                  +True, this function will attempt to open the process with debug priviliges if the process can not  be  opened
 ;                  +with standard access privileges.
 ; Return values .: Success      - Process handle to the object
@@ -305,39 +275,38 @@ EndFunc   ;==>_MemVirtualFreeEx
 ; Link ..........: @@MsdnLink@@ OpenProcess
 ; Example .......:
 ; ===============================================================================================================================
-Func __Mem_OpenProcess($iAccess, $bInherit, $iPID, $bDebugPriv = False)
+Func __Mem_OpenProcess($iAccess, $fInherit, $iProcessID, $fDebugPriv = False)
 	; Attempt to open process with standard security priviliges
-	Local $aCall = DllCall("kernel32.dll", "handle", "OpenProcess", "dword", $iAccess, "bool", $bInherit, "dword", $iPID)
-	If @error Then Return SetError(@error, @extended, 0)
-	If $aCall[0] Then Return $aCall[0]
-	If Not $bDebugPriv Then Return SetError(100, 0, 0)
+	Local $aResult = DllCall("kernel32.dll", "handle", "OpenProcess", "dword", $iAccess, "bool", $fInherit, "dword", $iProcessID)
+	If @error Then Return SetError(@error + 10, @extended, 0)
+	If $aResult[0] Then Return $aResult[0]
+	If Not $fDebugPriv Then Return 0
 
 	; Enable debug privileged mode
 	Local $hToken = _Security__OpenThreadTokenEx(BitOR($TOKEN_ADJUST_PRIVILEGES, $TOKEN_QUERY))
-	If @error Then Return SetError(@error + 10, @extended, 0)
-	_Security__SetPrivilege($hToken, $SE_DEBUG_NAME, True)
+	If @error Then Return SetError(@error + 20, @extended, 0)
+	_Security__SetPrivilege($hToken, "SeDebugPrivilege", True)
 	Local $iError = @error
-	Local $iExtended = @extended
+	Local $iLastError = @extended
 	Local $iRet = 0
 	If Not @error Then
 		; Attempt to open process with debug privileges
-		$aCall = DllCall("kernel32.dll", "handle", "OpenProcess", "dword", $iAccess, "bool", $bInherit, "dword", $iPID)
+		$aResult = DllCall("kernel32.dll", "handle", "OpenProcess", "dword", $iAccess, "bool", $fInherit, "dword", $iProcessID)
 		$iError = @error
-		$iExtended = @extended
-		If $aCall[0] Then $iRet = $aCall[0]
+		$iLastError = @extended
+		If $aResult[0] Then $iRet = $aResult[0]
 
 		; Disable debug privileged mode
-		_Security__SetPrivilege($hToken, $SE_DEBUG_NAME, False)
+		_Security__SetPrivilege($hToken, "SeDebugPrivilege", False)
 		If @error Then
-			$iError = @error + 20
-			$iExtended = @extended
+			$iError = @error + 30
+			$iLastError = @extended
 		EndIf
 	Else
-		$iError = @error + 30 ; SeDebugPrivilege=True error
+		$iError = @error + 40
 	EndIf
 	DllCall("kernel32.dll", "bool", "CloseHandle", "handle", $hToken)
+	; No need to test @error.
 
-	Return SetError($iError, $iExtended, $iRet)
+	Return SetError($iError, $iLastError, $iRet)
 EndFunc   ;==>__Mem_OpenProcess
-
-#EndRegion Internal Functions

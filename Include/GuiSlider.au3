@@ -1,27 +1,43 @@
 #include-once
 
-#include "SendMessage.au3"
 #include "SliderConstants.au3"
+#include "WinAPI.au3"
 #include "StructureConstants.au3"
+#include "SendMessage.au3"
 #include "UDFGlobalID.au3"
-#include "WinAPIConv.au3"
-#include "WinAPISysInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Slider
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with Slider Control "Trackbar" management.
 ; Author(s) .....: Gary Frost (gafrost)
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-Global $__g_hSLastWnd
+Global $_ghSLastWnd
 
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
 Global Const $__SLIDERCONSTANT_ClassName = "msctls_trackbar32"
+; ===============================================================================================================================
+
+; #OLD_FUNCTIONS#================================================================================================================
+; Old Function/Name                      ; --> New Function/Name/Replacement(s)
+;
+; deprecated functions will no longer work
+; _GUICtrlSliderClearTics                  ; --> _GUICtrlSlider_ClearTics
+; _GUICtrlSliderGetLineSize                ; --> _GUICtrlSlider_GetLineSize
+; _GUICtrlSliderGetNumTics                 ; --> _GUICtrlSlider_GetNumTics
+; _GUICtrlSliderGetPageSize                ; --> _GUICtrlSlider_GetPageSize
+; _GUICtrlSliderGetPos                     ; --> _GUICtrlSlider_GetPos
+; _GUICtrlSliderGetRangeMax                ; --> _GUICtrlSlider_GetRangeMax
+; _GUICtrlSliderGetRangeMin                ; --> _GUICtrlSlider_GetRangeMin
+; _GUICtrlSliderSetLineSize                ; --> _GUICtrlSlider_SetLineSize
+; _GUICtrlSliderSetPageSize                ; --> _GUICtrlSlider_SetPageSize
+; _GUICtrlSliderSetPos                     ; --> _GUICtrlSlider_SetPos
+; _GUICtrlSliderSetTicFreq                 ; --> _GUICtrlSlider_SetTicFreq
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -92,7 +108,7 @@ EndFunc   ;==>_GUICtrlSlider_ClearTics
 ; Author ........: Gary Frost
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlSlider_Create($hWnd, $iX, $iY, $iWidth = 100, $iHeight = 20, $iStyle = $TBS_AUTOTICKS, $iExStyle = 0x00000000)
+Func _GUICtrlSlider_Create($hWnd, $iX, $iY, $iWidth = 100, $iHeight = 20, $iStyle = 0x0001, $iExStyle = 0x00000000)
 	If Not IsHWnd($hWnd) Then Return SetError(1, 0, 0) ; Invalid Window handle for _GUICtrlSlider_Create 1st parameter
 
 	If $iWidth = -1 Then $iWidth = 100
@@ -106,7 +122,7 @@ Func _GUICtrlSlider_Create($hWnd, $iX, $iY, $iWidth = 100, $iHeight = 20, $iStyl
 	If @error Then Return SetError(@error, @extended, 0)
 
 	Local $hSlider = _WinAPI_CreateWindowEx($iExStyle, $__SLIDERCONSTANT_ClassName, "", $iStyle, $iX, $iY, $iWidth, $iHeight, $hWnd, $nCtrlID)
-	_SendMessage($hSlider, $TBM_SETRANGE, True, _WinAPI_MakeLong(0, 100)) ;  // min. & max. positions
+	_SendMessage($hSlider, $TBM_SETRANGE, True, _WinAPI_MakeLong(0, 100));  // min. & max. positions
 	_GUICtrlSlider_SetTicFreq($hSlider, 5)
 	Return $hSlider
 EndFunc   ;==>_GUICtrlSlider_Create
@@ -118,12 +134,12 @@ EndFunc   ;==>_GUICtrlSlider_Create
 Func _GUICtrlSlider_Destroy(ByRef $hWnd)
 	If Not _WinAPI_IsClassName($hWnd, $__SLIDERCONSTANT_ClassName) Then Return SetError(2, 2, False)
 
-	Local $iDestroyed = 0
+	Local $Destroyed = 0
 	If IsHWnd($hWnd) Then
-		If _WinAPI_InProcess($hWnd, $__g_hSLastWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghSLastWnd) Then
 			Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 			Local $hParent = _WinAPI_GetParent($hWnd)
-			$iDestroyed = _WinAPI_DestroyWindow($hWnd)
+			$Destroyed = _WinAPI_DestroyWindow($hWnd)
 			Local $iRet = __UDF_FreeGlobalID($hParent, $nCtrlID)
 			If Not $iRet Then
 				; can check for errors here if needed, for debug
@@ -133,20 +149,20 @@ Func _GUICtrlSlider_Destroy(ByRef $hWnd)
 			Return SetError(1, 1, False)
 		EndIf
 	Else
-		$iDestroyed = GUICtrlDelete($hWnd)
+		$Destroyed = GUICtrlDelete($hWnd)
 	EndIf
-	If $iDestroyed Then $hWnd = 0
-	Return $iDestroyed <> 0
+	If $Destroyed Then $hWnd = 0
+	Return $Destroyed <> 0
 EndFunc   ;==>_GUICtrlSlider_Destroy
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlSlider_GetBuddy($hWnd, $bLocation)
+Func _GUICtrlSlider_GetBuddy($hWnd, $fLocation)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Return _SendMessage($hWnd, $TBM_GETBUDDY, $bLocation, 0, 0, "wparam", "lparam", "hwnd")
+	Return _SendMessage($hWnd, $TBM_GETBUDDY, $fLocation, 0, 0, "wparam", "lparam", "hwnd")
 EndFunc   ;==>_GUICtrlSlider_GetBuddy
 
 ; #FUNCTION# ====================================================================================================================
@@ -154,12 +170,12 @@ EndFunc   ;==>_GUICtrlSlider_GetBuddy
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlSlider_GetChannelRect($hWnd)
-	Local $tRECT = _GUICtrlSlider_GetChannelRectEx($hWnd)
+	Local $tRect = _GUICtrlSlider_GetChannelRectEx($hWnd)
 	Local $aRect[4]
-	$aRect[0] = DllStructGetData($tRECT, "Left")
-	$aRect[1] = DllStructGetData($tRECT, "Top")
-	$aRect[2] = DllStructGetData($tRECT, "Right")
-	$aRect[3] = DllStructGetData($tRECT, "Bottom")
+	$aRect[0] = DllStructGetData($tRect, "Left")
+	$aRect[1] = DllStructGetData($tRect, "Top")
+	$aRect[2] = DllStructGetData($tRect, "Right")
+	$aRect[3] = DllStructGetData($tRect, "Bottom")
 	Return $aRect
 EndFunc   ;==>_GUICtrlSlider_GetChannelRect
 
@@ -170,9 +186,9 @@ EndFunc   ;==>_GUICtrlSlider_GetChannelRect
 Func _GUICtrlSlider_GetChannelRectEx($hWnd)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Local $tRECT = DllStructCreate($tagRECT)
-	_SendMessage($hWnd, $TBM_GETCHANNELRECT, 0, $tRECT, 0, "wparam", "struct*")
-	Return $tRECT
+	Local $tRect = DllStructCreate($tagRECT)
+	_SendMessage($hWnd, $TBM_GETCHANNELRECT, 0, $tRect, 0, "wparam", "struct*")
+	Return $tRect
 EndFunc   ;==>_GUICtrlSlider_GetChannelRectEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -312,12 +328,12 @@ EndFunc   ;==>_GUICtrlSlider_GetThumbLength
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlSlider_GetThumbRect($hWnd)
-	Local $tRECT = _GUICtrlSlider_GetThumbRectEx($hWnd)
+	Local $tRect = _GUICtrlSlider_GetThumbRectEx($hWnd)
 	Local $aRect[4]
-	$aRect[0] = DllStructGetData($tRECT, "Left")
-	$aRect[1] = DllStructGetData($tRECT, "Top")
-	$aRect[2] = DllStructGetData($tRECT, "Right")
-	$aRect[3] = DllStructGetData($tRECT, "Bottom")
+	$aRect[0] = DllStructGetData($tRect, "Left")
+	$aRect[1] = DllStructGetData($tRect, "Top")
+	$aRect[2] = DllStructGetData($tRect, "Right")
+	$aRect[3] = DllStructGetData($tRect, "Bottom")
 	Return $aRect
 EndFunc   ;==>_GUICtrlSlider_GetThumbRect
 
@@ -328,9 +344,9 @@ EndFunc   ;==>_GUICtrlSlider_GetThumbRect
 Func _GUICtrlSlider_GetThumbRectEx($hWnd)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Local $tRECT = DllStructCreate($tagRECT)
-	_SendMessage($hWnd, $TBM_GETTHUMBRECT, 0, $tRECT, 0, "wparam", "struct*")
-	Return $tRECT
+	Local $tRect = DllStructCreate($tagRECT)
+	_SendMessage($hWnd, $TBM_GETTHUMBRECT, 0, $tRect, 0, "wparam", "struct*")
+	Return $tRect
 EndFunc   ;==>_GUICtrlSlider_GetThumbRectEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -377,11 +393,11 @@ EndFunc   ;==>_GUICtrlSlider_GetUnicodeFormat
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlSlider_SetBuddy($hWnd, $bLocation, $hBuddy)
+Func _GUICtrlSlider_SetBuddy($hWnd, $fLocation, $hBuddy)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 	If Not IsHWnd($hBuddy) Then $hBuddy = GUICtrlGetHandle($hBuddy)
 
-	Return _SendMessage($hWnd, $TBM_SETBUDDY, $bLocation, $hBuddy, 0, "wparam", "hwnd", "hwnd")
+	Return _SendMessage($hWnd, $TBM_SETBUDDY, $fLocation, $hBuddy, 0, "wparam", "hwnd", "hwnd")
 EndFunc   ;==>_GUICtrlSlider_SetBuddy
 
 ; #FUNCTION# ====================================================================================================================
@@ -508,10 +524,10 @@ EndFunc   ;==>_GUICtrlSlider_SetTicFreq
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlSlider_SetTipSide($hWnd, $iLocation)
+Func _GUICtrlSlider_SetTipSide($hWnd, $fLocation)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	_SendMessage($hWnd, $TBM_SETTIPSIDE, $iLocation)
+	_SendMessage($hWnd, $TBM_SETTIPSIDE, $fLocation)
 EndFunc   ;==>_GUICtrlSlider_SetTipSide
 
 ; #FUNCTION# ====================================================================================================================
@@ -528,8 +544,8 @@ EndFunc   ;==>_GUICtrlSlider_SetToolTips
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlSlider_SetUnicodeFormat($hWnd, $bUnicode)
+Func _GUICtrlSlider_SetUnicodeFormat($hWnd, $fUnicode)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
-	Return _SendMessage($hWnd, $TBM_SETUNICODEFORMAT, $bUnicode) <> 0
+	Return _SendMessage($hWnd, $TBM_SETUNICODEFORMAT, $fUnicode) <> 0
 EndFunc   ;==>_GUICtrlSlider_SetUnicodeFormat

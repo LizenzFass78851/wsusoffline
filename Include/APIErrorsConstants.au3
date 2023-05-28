@@ -2,10 +2,11 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: API Constants UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.8 / 3.3.8.0
 ; Language ......: English
 ; Description ...: System error codes to be used with WinAPIEx UDF library
 ; Author(s) .....: Yashied
+; Requirements...: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================

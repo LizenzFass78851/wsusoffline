@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: GDIPlus_Constants
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.2
 ; Language ......: English
 ; Description ...: Constants for GDI+
 ; Author(s) .....: Valik, Gary Frost, UEZ
@@ -22,7 +22,7 @@ Global Const $GDIP_DASHSTYLEDASHDOT = 3 ; An alternating dash-dot line
 Global Const $GDIP_DASHSTYLEDASHDOTDOT = 4 ; An alternating dash-dot-dot line
 Global Const $GDIP_DASHSTYLECUSTOM = 5 ; A a user-defined, custom dashed line
 
-; Encoder Parameter GUIDs
+; Enocder Parameter GUIDs
 Global Const $GDIP_EPGCHROMINANCETABLE = '{F2E455DC-09B3-4316-8260-676ADA32481C}'
 Global Const $GDIP_EPGCOLORDEPTH = '{66087055-AD66-4C7C-9A18-38A2310B8337}'
 Global Const $GDIP_EPGCOMPRESSION = '{E09D739D-CCD4-44EE-8EBA-3FBF8BE4FC58}'
@@ -122,10 +122,10 @@ Global Const $GDIP_PXF16ARGB1555 = 0x00061007 ; 16 bpp; 1 bit for alpha and 5 bi
 Global Const $GDIP_PXF24RGB = 0x00021808 ; 24 bpp; 8 bits for each RGB
 Global Const $GDIP_PXF32RGB = 0x00022009 ; 32 bpp; 8 bits for each RGB. No alpha.
 Global Const $GDIP_PXF32ARGB = 0x0026200A ; 32 bpp; 8 bits for each RGB and alpha
-Global Const $GDIP_PXF32PARGB = 0x000E200B ; 32 bpp; 8 bits for each RGB and alpha, pre-mulitiplied
+Global Const $GDIP_PXF32PARGB = 0x000D200B ; 32 bpp; 8 bits for each RGB and alpha, pre-mulitiplied
 Global Const $GDIP_PXF48RGB = 0x0010300C ; 48 bpp; 16 bits for each RGB
 Global Const $GDIP_PXF64ARGB = 0x0034400D ; 64 bpp; 16 bits for each RGB and alpha
-Global Const $GDIP_PXF64PARGB = 0x001A400E ; 64 bpp; 16 bits for each RGB and alpha, pre-multiplied
+Global Const $GDIP_PXF64PARGB = 0x001C400E ; 64 bpp; 16 bits for each RGB and alpha, pre-multiplied
 
 ; ImageFormat constants (Globally Unique Identifier (GUID))
 Global Const $GDIP_IMAGEFORMAT_UNDEFINED = "{B96B3CA9-0728-11D3-9D7B-0000F81EF32E}" ; Windows GDI+ is unable to determine the format.
@@ -187,6 +187,14 @@ Global Const $GDIP_INTERPOLATIONMODE_NEARESTNEIGHBOR = 5 ; Specifies nearest-nei
 Global Const $GDIP_INTERPOLATIONMODE_HIGHQUALITYBILINEAR = 6 ; Specifies high-quality, bilinear interpolation. Prefiltering is performed to ensure high-quality shrinking.
 Global Const $GDIP_INTERPOLATIONMODE_HIGHQUALITYBICUBIC = 7 ; Specifies high-quality, bicubic interpolation. Prefiltering is performed to ensure high-quality shrinking. This mode produces the highest quality transformed images.
 
+; TextRenderingHint constants
+Global Const $GDIP_TEXTRENDERINGHINT_SYSTEMDEFAULT = 0 ; Specifies that a character is drawn using the currently selected system font smoothing mode (also called a rendering hint).
+Global Const $GDIP_TEXTRENDERINGHINT_SINGLEBITPERPIXELGRIDFIT = 1 ; Specifies that a character is drawn using its glyph bitmap and hinting to improve character appearance on stems and curvature.
+Global Const $GDIP_TEXTRENDERINGHINT_SINGLEBITPERPIXEL = 2 ; Specifies that a character is drawn using its glyph bitmap and no hinting. This results in better performance at the expense of quality.
+Global Const $GDIP_TEXTRENDERINGHINT_ANTIALIASGRIDFIT = 3 ; Specifies that a character is drawn using its antialiased glyph bitmap and hinting. This results in much better quality due to antialiasing at a higher performance cost.
+Global Const $GDIP_TEXTRENDERINGHINT_ANTIALIAS = 4 ; Specifies that a character is drawn using its antialiased glyph bitmap and no hinting. Stem width differences may be noticeable because hinting is turned off.
+Global Const $GDIP_TEXTRENDERINGHINT_CLEARTYPEGRIDFIT = 5 ; Specifies that a character is drawn using its glyph ClearType bitmap and hinting. This type of text rendering cannot be used along with CompositingModeSourceCopy.
+
 ; PixelOffsetMode constants
 Global Const $GDIP_PIXELOFFSETMODE_INVALID = -1 ; Used internally.
 Global Const $GDIP_PIXELOFFSETMODE_DEFAULT = 0 ; Equivalent to $GDIP_PIXELOFFSETMODE_NONE
@@ -220,15 +228,16 @@ Global Const $GDIP_QUALITYMODELOW = 1
 Global Const $GDIP_QUALITYMODEHIGH = 2
 
 ; Alpha Compositing mode constants
-Global Const $GDIP_COMPOSITINGMODESOURCEOVER = 0
-Global Const $GDIP_COMPOSITINGMODESOURCECOPY = 1
+Global Const $GDIP_COMPOSITINGMODESOURCEOVER = 0 ; Specifies that when a color is rendered, it is blended with the background color. The blend is determined by the alpha component of the color being rendered
+Global Const $GDIP_COMPOSITINGMODESOURCECOPY = 1 ; Specifies that when a color is rendered, it overwrites the background color. This mode cannot be used along with $TextRenderingHintClearTypeGridFit
 
 ; Alpha Compositing quality constants
-Global Const $GDIP_COMPOSITINGQUALITY_DEFAULT = 0
-Global Const $GDIP_COMPOSITINGQUALITY_HIGHSPEED = 1
-Global Const $GDIP_COMPOSITINGQUALITY_HIGHQUALITY = 2
-Global Const $GDIP_COMPOSITINGQUALITY_GAMMACORRECTED = 3
-Global Const $GDIP_COMPOSITINGQUALITY_ASSUMELINEAR = 4
+Global Const $GDIP_COMPOSITINGQUALITYINVALID = $GDIP_QUALITYMODEINVALID ; Invalid quality
+Global Const $GDIP_COMPOSITINGQUALITYDEFAULT = $GDIP_QUALITYMODEDEFAULT ; Gamma correction is not applied
+Global Const $GDIP_COMPOSITINGQUALITYHIGHSPEED = $GDIP_QUALITYMODELOW ; Gamma correction is not applied. High speed, low quality
+Global Const $GDIP_COMPOSITINGQUALITYHIGHQUALITY = $GDIP_QUALITYMODEHIGH ; Gamma correction is applied. Composition of high quality and speed.
+Global Const $GDIP_COMPOSITINGQUALITYGAMMACORRECTED = 3 ; Gamma correction is applied
+Global Const $GDIP_COMPOSITINGQUALITYASSUMELINEAR = 4 ; Gamma correction is not applied. Linear values are used
 
 ; Various hatch styles
 Global Const $GDIP_HATCHSTYLE_HORIZONTAL = 0
@@ -306,11 +315,11 @@ Global Const $GDIP_ColorCurveEffectGuid = '{DD6A0022-58E4-4a67-9D9B-D48EB881A53D
 Global Const $GDIP_AdjustExposure = 0 ;[-255..255]
 Global Const $GDIP_AdjustDensity = 1 ;[-255..255]
 Global Const $GDIP_AdjustContrast = 2 ;[-100..100]
-Global Const $GDIP_AdjustHighlight = 3 ;[-100..100]
-Global Const $GDIP_AdjustShadow = 4 ;[-100..100]
-Global Const $GDIP_AdjustMidtone = 5 ;[-100..100]
-Global Const $GDIP_AdjustWhiteSaturation = 6 ;[0..255]
-Global Const $GDIP_AdjustBlackSaturation = 7 ;[0..255]
+Global Const $GDIP_AdjustHighlight = 3;[-100..100]
+Global Const $GDIP_AdjustShadow = 4;[-100..100]
+Global Const $GDIP_AdjustMidtone = 5;[-100..100]
+Global Const $GDIP_AdjustWhiteSaturation = 6;[0..255]
+Global Const $GDIP_AdjustBlackSaturation = 7;[0..255]
 
 Global Const $GDIP_CurveChannelAll = 0
 Global Const $GDIP_CurveChannelRed = 1
@@ -346,14 +355,13 @@ Global Const $GDIP_DitherTypeSolid = 1 ;Solid color - picks the nearest matching
 Global Const $GDIP_DitherTypeOrdered4x4 = 2
 Global Const $GDIP_DitherTypeOrdered8x8 = 3
 Global Const $GDIP_DitherTypeOrdered16x16 = 4
-Global Const $GDIP_DitherTypeOrdered91x91 = 5
-Global Const $GDIP_DitherTypeSpiral4x4 = 6
-Global Const $GDIP_DitherTypeSpiral8x8 = 7
-Global Const $GDIP_DitherTypeDualSpiral4x4 = 8
-Global Const $GDIP_DitherTypeDualSpiral8x8 = 9
+Global Const $GDIP_DitherTypeSpiral4x4 = 5
+Global Const $GDIP_DitherTypeSpiral8x8 = 6
+Global Const $GDIP_DitherTypeDualSpiral4x4 = 7
+Global Const $GDIP_DitherTypeDualSpiral8x8 = 8
 
 ;Error diffusion. May be used with any palette.
-Global Const $GDIP_DitherTypeErrorDiffusion = 10
+Global Const $GDIP_DitherTypeErrorDiffusion = 9
 Global Const $GDIP_DitherTypeMax = 10
 
 ;HistogramFormat
@@ -365,47 +373,4 @@ Global Const $GDIP_HistogramFormatB = 4
 Global Const $GDIP_HistogramFormatG = 5
 Global Const $GDIP_HistogramFormatR = 6
 Global Const $GDIP_HistogramFormatA = 7
-
-;TextRenderingHint constants
-Global Const $GDIP_TEXTRENDERINGHINTSYSTEMDEFAULT = 0
-Global Const $GDIP_TEXTRENDERINGHINTSINGLEBITPERPIXELGRIDFIT = 1
-Global Const $GDIP_TEXTRENDERINGHINTSINGLEBITPERPIXEL = 2
-Global Const $GDIP_TEXTRENDERINGHINTANTIALIASGRIDFIT = 3
-Global Const $GDIP_TEXTRENDERINGHINTANTIALIAS = 4
-Global Const $GDIP_TEXTRENDERINGHINTCLEARTYPEGRIDFIT = 5
-
-;RotateFlipType constants
-Global Const $GDIP_RotateNoneFlipNone = 0
-Global Const $GDIP_Rotate90FlipNone = 1
-Global Const $GDIP_Rotate180FlipNone = 2
-Global Const $GDIP_Rotate270FlipNone = 3
-Global Const $GDIP_RotateNoneFlipX = 4
-Global Const $GDIP_Rotate90FlipX = 5
-Global Const $GDIP_Rotate180FlipX = 6
-Global Const $GDIP_Rotate270FlipX = 7
-Global Const $GDIP_RotateNoneFlipY = $GDIP_Rotate180FlipX
-Global Const $GDIP_Rotate90FlipY = $GDIP_Rotate270FlipX
-Global Const $GDIP_Rotate180FlipY = $GDIP_RotateNoneFlipX
-Global Const $GDIP_Rotate270FlipY = $GDIP_Rotate90FlipX
-Global Const $GDIP_RotateNoneFlipXY = $GDIP_Rotate180FlipNone
-Global Const $GDIP_Rotate90FlipXY = $GDIP_Rotate270FlipNone
-Global Const $GDIP_Rotate270FlipXY = $GDIP_Rotate90FlipNone
-
-; Multi-frame dimensions (Globally Unique Identifier (GUID))
-Global Const $GDIP_FRAMEDIMENSION_TIME = "{6AEDBD6D-3FB5-418A-83A6-7F45229DC872}"
-Global Const $GDIP_FRAMEDIMENSION_RESOLUTION = "{84236F7B-3BD3-428F-8DAB-4EA1439CA315}"
-Global Const $GDIP_FRAMEDIMENSION_PAGE = "{7462DC86-6180-4C7E-8E3F-EE7333A7A483}"
-
-;ImageAttributesSetThreshold constants
-Global Const $GDIP_COLORADJUSTTYPE_DEFAULT = 0
-Global Const $GDIP_COLORADJUSTTYPE_BITMAP = 1
-Global Const $GDIP_COLORADJUSTTYPE_BRUSH = 2
-Global Const $GDIP_COLORADJUSTTYPE_PEN = 3
-Global Const $GDIP_COLORADJUSTTYPE_TEXT = 4
-Global Const $GDIP_COLORADJUSTTYPE_COUNT = 5
-Global Const $GDIP_COLORADJUSTTYPE_ANY = 6
-
-;ImageWrapMode constants
-Global Enum $GDIP_WrapModeTile, $GDIP_WrapModeTileFlipX, $GDIP_WrapModeTileFlipY, $GDIP_WrapModeTileFlipXY, $GDIP_WrapModeClamp
-
 ;===============================================================================================================================

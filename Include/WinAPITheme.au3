@@ -1,17 +1,18 @@
 #include-once
 
 #include "APIThemeConstants.au3"
-#include "StructureConstants.au3"
 #include "WinAPIInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.8.1++
 ; Description ...: Additional variables, constants and functions for the WinAPITheme.au3
 ; Author(s) .....: Yashied, jpm
+; Dll(s) ........: uxtheme.dll
+; Requirements ..: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
-#Region Global Variables and Constants
+#region Global Variables and Constants
 
 ; #VARIABLES# ===================================================================================================================
 ; ===============================================================================================================================
@@ -19,9 +20,9 @@
 ; #CONSTANTS# ===================================================================================================================
 Global Const $tagDTTOPTS = 'dword Size;dword Flags;dword clrText;dword clrBorder;dword clrShadow;int TextShadowType;' & $tagPOINT & ';int BorderSize;int FontPropId;int ColorPropId;int StateId;int ApplyOverlay;int GlowSize;ptr DrawTextCallback;lparam lParam'
 ; ===============================================================================================================================
-#EndRegion Global Variables and Constants
+#endregion Global Variables and Constants
 
-#Region Functions list
+#region Functions list
 
 ; #CURRENT# =====================================================================================================================
 ; _WinAPI_BeginBufferedPaint
@@ -79,9 +80,9 @@ Global Const $tagDTTOPTS = 'dword Size;dword Flags;dword clrText;dword clrBorder
 ; _WinAPI_SetThemeAppProperties
 ; _WinAPI_SetWindowTheme
 ; ===============================================================================================================================
-#EndRegion Functions list
+#endregion Functions list
 
-#Region Public Functions
+#region Public Functions
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
@@ -107,12 +108,12 @@ Func _WinAPI_BeginBufferedPaint($hDC, $tTarget, ByRef $hNewDC, $iFormat = 0, $iF
 	DllStructSetData($tPP, 3, DllStructGetPtr($tExclude))
 	DllStructSetData($tPP, 4, DllStructGetPtr($tBF))
 
-	Local $aCall = DllCall('uxtheme.dll', 'handle', 'BeginBufferedPaint', 'handle', $hDC, 'struct*', $tTarget, 'dword', $iFormat, _
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'BeginBufferedPaint', 'handle', $hDC, 'struct*', $tTarget, 'dword', $iFormat, _
 			'struct*', $tPP, 'handle*', 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, 0)
 
-	$hNewDC = $aCall[5]
-	Return $aCall[0]
+	$hNewDC = $Ret[5]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_BeginBufferedPaint
 
 ; #FUNCTION# ====================================================================================================================
@@ -120,9 +121,9 @@ EndFunc   ;==>_WinAPI_BeginBufferedPaint
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_BufferedPaintClear($hBP, $tRECT = 0)
-	Local $aCall = DllCall('uxtheme.dll', 'long', 'BufferedPaintClear', 'handle', $hBP, 'struct*', $tRECT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'BufferedPaintClear', 'handle', $hBP, 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_BufferedPaintClear
@@ -132,9 +133,9 @@ EndFunc   ;==>_WinAPI_BufferedPaintClear
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_BufferedPaintInit()
-	Local $aCall = DllCall('uxtheme.dll', 'long', 'BufferedPaintInit')
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'BufferedPaintInit')
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_BufferedPaintInit
@@ -144,9 +145,9 @@ EndFunc   ;==>_WinAPI_BufferedPaintInit
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_BufferedPaintSetAlpha($hBP, $iAlpha = 255, $tRECT = 0)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'BufferedPaintSetAlpha', 'handle', $hBP, 'struct*', $tRECT, 'byte', $iAlpha)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'BufferedPaintSetAlpha', 'handle', $hBP, 'struct*', $tRECT, 'byte', $iAlpha)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_BufferedPaintSetAlpha
@@ -156,9 +157,9 @@ EndFunc   ;==>_WinAPI_BufferedPaintSetAlpha
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_BufferedPaintUnInit()
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'BufferedPaintUnInit')
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'BufferedPaintUnInit')
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_BufferedPaintUnInit
@@ -168,9 +169,9 @@ EndFunc   ;==>_WinAPI_BufferedPaintUnInit
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_CloseThemeData($hTheme)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'CloseThemeData', 'handle', $hTheme)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'CloseThemeData', 'handle', $hTheme)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_CloseThemeData
@@ -179,11 +180,11 @@ EndFunc   ;==>_WinAPI_CloseThemeData
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_DrawThemeBackground($hTheme, $iPartID, $iStateID, $hDC, $tRECT, $tCLIP = 0)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeBackground', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'struct*', $tCLIP)
+Func _WinAPI_DrawThemeBackground($hTheme, $iPartId, $iStateId, $hDC, $tRECT, $tCLIP = 0)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeBackground', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'struct*', $tCLIP)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeBackground
@@ -192,11 +193,11 @@ EndFunc   ;==>_WinAPI_DrawThemeBackground
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_DrawThemeEdge($hTheme, $iPartID, $iStateID, $hDC, $tRECT, $iEdge, $iFlags, $tAREA = 0)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeEdge', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'uint', $iEdge, 'uint', $iFlags, 'struct*', $tAREA)
+Func _WinAPI_DrawThemeEdge($hTheme, $iPartId, $iStateId, $hDC, $tRECT, $iEdge, $iFlags, $tAREA = 0)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeEdge', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'uint', $iEdge, 'uint', $iFlags, 'struct*', $tAREA)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeEdge
@@ -205,11 +206,11 @@ EndFunc   ;==>_WinAPI_DrawThemeEdge
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_DrawThemeIcon($hTheme, $iPartID, $iStateID, $hDC, $tRECT, $hIL, $iIndex)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeIcon', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'handle', $hIL, 'int', $iIndex)
+Func _WinAPI_DrawThemeIcon($hTheme, $iPartId, $iStateId, $hDC, $tRECT, $hIL, $iIndex)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeIcon', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'handle', $hIL, 'int', $iIndex)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeIcon
@@ -219,9 +220,9 @@ EndFunc   ;==>_WinAPI_DrawThemeIcon
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_DrawThemeParentBackground($hWnd, $hDC, $tRECT = 0)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeParentBackground', 'hwnd', $hWnd, 'handle', $hDC, 'struct*', $tRECT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeParentBackground', 'hwnd', $hWnd, 'handle', $hDC, 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeParentBackground
@@ -230,11 +231,11 @@ EndFunc   ;==>_WinAPI_DrawThemeParentBackground
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_DrawThemeText($hTheme, $iPartID, $iStateID, $hDC, $sText, $tRECT, $iFlags)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeText', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'dword', 0, 'struct*', $tRECT)
+Func _WinAPI_DrawThemeText($hTheme, $iPartId, $iStateId, $hDC, $sText, $tRECT, $iFlags)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeText', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'dword', 0, 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeText
@@ -243,11 +244,11 @@ EndFunc   ;==>_WinAPI_DrawThemeText
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_DrawThemeTextEx($hTheme, $iPartID, $iStateID, $hDC, $sText, $tRECT, $iFlags, $tDTTOPTS)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'DrawThemeTextEx', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'struct*', $tRECT, 'struct*', $tDTTOPTS)
+Func _WinAPI_DrawThemeTextEx($hTheme, $iPartId, $iStateId, $hDC, $sText, $tRECT, $iFlags, $tDTTOPTS)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'DrawThemeTextEx', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'struct*', $tRECT, 'struct*', $tDTTOPTS)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_DrawThemeTextEx
@@ -256,10 +257,10 @@ EndFunc   ;==>_WinAPI_DrawThemeTextEx
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_EndBufferedPaint($hBP, $bUpdate = True)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'EndBufferedPaint', 'handle', $hBP, 'bool', $bUpdate)
+Func _WinAPI_EndBufferedPaint($hBP, $fUpdate = 1)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'EndBufferedPaint', 'handle', $hBP, 'bool', $fUpdate)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_EndBufferedPaint
@@ -269,11 +270,11 @@ EndFunc   ;==>_WinAPI_EndBufferedPaint
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetBufferedPaintBits($hBP)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetBufferedPaintBits', 'handle', $hBP, 'ptr*', 0, 'int*', 0)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetBufferedPaintBits', 'handle', $hBP, 'ptr*', 0, 'int*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return SetExtended($sResult[3], $sResult[2])
+	Return SetExtended($Ret[3], $Ret[2])
 EndFunc   ;==>_WinAPI_GetBufferedPaintBits
 
 ; #FUNCTION# ====================================================================================================================
@@ -281,10 +282,10 @@ EndFunc   ;==>_WinAPI_GetBufferedPaintBits
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetBufferedPaintDC($hBP)
-	Local $sResult = DllCall('uxtheme.dll', 'handle', 'GetBufferedPaintDC', 'handle', $hBP)
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'GetBufferedPaintDC', 'handle', $hBP)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetBufferedPaintDC
 
 ; #FUNCTION# ====================================================================================================================
@@ -292,10 +293,10 @@ EndFunc   ;==>_WinAPI_GetBufferedPaintDC
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetBufferedPaintTargetDC($hBP)
-	Local $sResult = DllCall('uxtheme.dll', 'handle', 'GetBufferedPaintTargetDC', 'handle', $hBP)
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'GetBufferedPaintTargetDC', 'handle', $hBP)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetBufferedPaintTargetDC
 
 ; #FUNCTION# ====================================================================================================================
@@ -304,9 +305,9 @@ EndFunc   ;==>_WinAPI_GetBufferedPaintTargetDC
 ; ===============================================================================================================================
 Func _WinAPI_GetBufferedPaintTargetRect($hBP)
 	Local $tRECT = DllStructCreate($tagRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetBufferedPaintTargetRect', 'handle', $hBP, 'struct*', $tRECT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetBufferedPaintTargetRect', 'handle', $hBP, 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tRECT
 EndFunc   ;==>_WinAPI_GetBufferedPaintTargetRect
@@ -316,16 +317,16 @@ EndFunc   ;==>_WinAPI_GetBufferedPaintTargetRect
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetCurrentThemeName()
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetCurrentThemeName', 'wstr', '', 'int', 4096, 'wstr', '', 'int', 2048, _
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetCurrentThemeName', 'wstr', '', 'int', 4096, 'wstr', '', 'int', 2048, _
 			'wstr', '', 'int', 2048)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Local $aRet[3]
+	Local $Result[3]
 	For $i = 0 To 2
-		$aRet[$i] = $sResult[$i * 2 + 1]
+		$Result[$i] = $Ret[$i * 2 + 1]
 	Next
-	Return $aRet
+	Return $Result
 EndFunc   ;==>_WinAPI_GetCurrentThemeName
 
 ; #FUNCTION# ====================================================================================================================
@@ -333,22 +334,22 @@ EndFunc   ;==>_WinAPI_GetCurrentThemeName
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetThemeAppProperties()
-	Local $sResult = DllCall('uxtheme.dll', 'dword', 'GetThemeAppProperties')
+	Local $Ret = DllCall('uxtheme.dll', 'dword', 'GetThemeAppProperties')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThemeAppProperties
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeBackgroundContentRect($hTheme, $iPartID, $iStateID, $hDC, $tRECT)
+Func _WinAPI_GetThemeBackgroundContentRect($hTheme, $iPartId, $iStateId, $hDC, $tRECT)
 	Local $tAREA = DllStructCreate($tagRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundContentRect', 'handle', $hTheme, 'handle', $hDC, _
-			'int', $iPartID, 'int', $iStateID, 'struct*', $tRECT, 'struct*', $tAREA)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundContentRect', 'handle', $hTheme, 'handle', $hDC, _
+			'int', $iPartId, 'int', $iStateId, 'struct*', $tRECT, 'struct*', $tAREA)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tAREA
 EndFunc   ;==>_WinAPI_GetThemeBackgroundContentRect
@@ -357,12 +358,12 @@ EndFunc   ;==>_WinAPI_GetThemeBackgroundContentRect
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeBackgroundExtent($hTheme, $iPartID, $iStateID, $hDC, $tRECT)
+Func _WinAPI_GetThemeBackgroundExtent($hTheme, $iPartId, $iStateId, $hDC, $tRECT)
 	Local $tAREA = DllStructCreate($tagRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundExtent', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'struct*', $tAREA)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundExtent', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'struct*', $tAREA)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tAREA
 EndFunc   ;==>_WinAPI_GetThemeBackgroundExtent
@@ -371,103 +372,103 @@ EndFunc   ;==>_WinAPI_GetThemeBackgroundExtent
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeBackgroundRegion($hTheme, $iPartID, $iStateID, $hDC, $tRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundRegion', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'handle*', 0)
+Func _WinAPI_GetThemeBackgroundRegion($hTheme, $iPartId, $iStateId, $hDC, $tRECT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeBackgroundRegion', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'handle*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[6]
+	Return $Ret[6]
 EndFunc   ;==>_WinAPI_GetThemeBackgroundRegion
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeBitmap($hTheme, $iPartID, $iStateID, $iPropID, $iFlag = 0x01)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeBitmap', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'ulong', $iFlag, 'handle*', 0)
+Func _WinAPI_GetThemeBitmap($hTheme, $iPartId, $iStateId, $iPropId, $iFlag = 0x01)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeBitmap', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'ulong', $iFlag, 'handle*', 0)
 	If @error Then Return SetError(@error, @extended, -1)
-	If $sResult[0] Then Return SetError(10, $sResult[0], -1)
+	If $Ret[0] Then Return SetError(10, $Ret[0], -1)
 
-	Return $sResult[6]
+	Return $Ret[6]
 EndFunc   ;==>_WinAPI_GetThemeBitmap
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeBool($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeBool', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'bool*', 0)
+Func _WinAPI_GetThemeBool($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeBool', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'bool*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemeBool
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeColor($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeColor', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'dword*', 0)
+Func _WinAPI_GetThemeColor($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeColor', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'dword*', 0)
 	If @error Then Return SetError(@error, @extended, -1)
-	If $sResult[0] Then Return SetError(10, $sResult[0], -1)
+	If $Ret[0] Then Return SetError(10, $Ret[0], -1)
 
-	Return __RGB($sResult[5])
+	Return __RGB($Ret[5])
 EndFunc   ;==>_WinAPI_GetThemeColor
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeDocumentationProperty($sFilePath, $sProperty)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeDocumentationProperty', 'wstr', $sFilePath, 'wstr', $sProperty, _
+Func _WinAPI_GetThemeDocumentationProperty($sFile, $sProperty)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeDocumentationProperty', 'wstr', $sFile, 'wstr', $sProperty, _
 			'wstr', '', 'int', 4096)
 	If @error Then Return SetError(@error, @extended, '')
-	If $sResult[0] Then Return SetError(10, $sResult[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $sResult[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_GetThemeDocumentationProperty
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeEnumValue($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeEnumValue', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'int*', 0)
+Func _WinAPI_GetThemeEnumValue($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeEnumValue', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'int*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemeEnumValue
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeFilename($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'uint', 'GetThemeFilename', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'wstr', '', 'int', 4096)
+Func _WinAPI_GetThemeFilename($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'uint', 'GetThemeFilename', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'wstr', '', 'int', 4096)
 	If @error Then Return SetError(@error, @extended, '')
-	If $sResult[0] Then Return SetError(10, $sResult[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemeFilename
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeFont($hTheme, $iPartID, $iStateID, $iPropID, $hDC = 0)
+Func _WinAPI_GetThemeFont($hTheme, $iPartId, $iStateId, $iPropId, $hDC = 0)
 	Local $tLOGFONT = DllStructCreate($tagLOGFONT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeFont', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'int', $iPropID, 'struct*', $tLOGFONT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeFont', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'int', $iPropId, 'struct*', $tLOGFONT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tLOGFONT
 EndFunc   ;==>_WinAPI_GetThemeFont
@@ -476,25 +477,25 @@ EndFunc   ;==>_WinAPI_GetThemeFont
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeInt($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeInt', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'int*', 0)
+Func _WinAPI_GetThemeInt($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeInt', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'int*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemeInt
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeMargins($hTheme, $iPartID, $iStateID, $iPropID, $hDC, $tRECT)
+Func _WinAPI_GetThemeMargins($hTheme, $iPartId, $iStateId, $iPropId, $hDC, $tRECT)
 	Local $tMARGINS = DllStructCreate($tagMARGINS)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeMargins', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'int', $iPropID, 'struct*', $tRECT, 'struct*', $tMARGINS)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeMargins', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'int', $iPropId, 'struct*', $tRECT, 'struct*', $tMARGINS)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tMARGINS
 EndFunc   ;==>_WinAPI_GetThemeMargins
@@ -503,25 +504,25 @@ EndFunc   ;==>_WinAPI_GetThemeMargins
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeMetric($hTheme, $iPartID, $iStateID, $iPropID, $hDC = 0)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeMetric', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'int', $iPropID, 'int*', 0)
+Func _WinAPI_GetThemeMetric($hTheme, $iPartId, $iStateId, $iPropId, $hDC = 0)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeMetric', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'int', $iPropId, 'int*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[6]
+	Return $Ret[6]
 EndFunc   ;==>_WinAPI_GetThemeMetric
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemePartSize($hTheme, $iPartID, $iStateID, $hDC, $tRECT, $iType)
+Func _WinAPI_GetThemePartSize($hTheme, $iPartId, $iStateId, $hDC, $tRECT, $iType)
 	Local $tSIZE = DllStructCreate($tagSIZE)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemePartSize', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tRECT, 'int', $iType, 'struct*', $tSIZE)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemePartSize', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tRECT, 'int', $iType, 'struct*', $tSIZE)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tSIZE
 EndFunc   ;==>_WinAPI_GetThemePartSize
@@ -530,12 +531,12 @@ EndFunc   ;==>_WinAPI_GetThemePartSize
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemePosition($hTheme, $iPartID, $iStateID, $iPropID)
+Func _WinAPI_GetThemePosition($hTheme, $iPartId, $iStateId, $iPropId)
 	Local $tPOINT = DllStructCreate($tagPOINT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemePosition', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'struct*', $tPOINT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemePosition', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'struct*', $tPOINT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tPOINT
 EndFunc   ;==>_WinAPI_GetThemePosition
@@ -544,25 +545,25 @@ EndFunc   ;==>_WinAPI_GetThemePosition
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemePropertyOrigin($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemePropertyOrigin', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'uint*', 0)
+Func _WinAPI_GetThemePropertyOrigin($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemePropertyOrigin', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'uint*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemePropertyOrigin
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeRect($hTheme, $iPartID, $iStateID, $iPropID)
+Func _WinAPI_GetThemeRect($hTheme, $iPartId, $iStateId, $iPropId)
 	Local $tRECT = DllStructCreate($tagRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeRect', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'struct*', $tRECT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeRect', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'struct*', $tRECT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tRECT
 EndFunc   ;==>_WinAPI_GetThemeRect
@@ -571,57 +572,57 @@ EndFunc   ;==>_WinAPI_GetThemeRect
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeString($hTheme, $iPartID, $iStateID, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeString', 'handle', $hTheme, 'int', $iPartID, 'int', $iStateID, _
-			'int', $iPropID, 'wstr', '', 'int', 4096)
+Func _WinAPI_GetThemeString($hTheme, $iPartId, $iStateId, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeString', 'handle', $hTheme, 'int', $iPartId, 'int', $iStateId, _
+			'int', $iPropId, 'wstr', '', 'int', 4096)
 	If @error Then Return SetError(@error, @extended, '')
-	If $sResult[0] Then Return SetError(10, $sResult[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $sResult[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetThemeString
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysBool($hTheme, $iBoolID)
-	Local $sResult = DllCall('uxtheme.dll', 'bool', 'GetThemeSysBool', 'handle', $hTheme, 'int', $iBoolID)
+Func _WinAPI_GetThemeSysBool($hTheme, $iBoolId)
+	Local $Ret = DllCall('uxtheme.dll', 'bool', 'GetThemeSysBool', 'handle', $hTheme, 'int', $iBoolId)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThemeSysBool
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysColor($hTheme, $iColorID)
-	Local $sResult = DllCall('uxtheme.dll', 'dword', 'GetThemeSysColor', 'handle', $hTheme, 'int', $iColorID)
+Func _WinAPI_GetThemeSysColor($hTheme, $iColorId)
+	Local $Ret = DllCall('uxtheme.dll', 'dword', 'GetThemeSysColor', 'handle', $hTheme, 'int', $iColorId)
 	If @error Then Return SetError(@error, @extended, -1)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThemeSysColor
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysColorBrush($hTheme, $iColorID)
-	Local $sResult = DllCall('uxtheme.dll', 'handle', 'GetThemeSysColorBrush', 'handle', $hTheme, 'int', $iColorID)
+Func _WinAPI_GetThemeSysColorBrush($hTheme, $iColorId)
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'GetThemeSysColorBrush', 'handle', $hTheme, 'int', $iColorId)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThemeSysColorBrush
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysFont($hTheme, $iFontID)
+Func _WinAPI_GetThemeSysFont($hTheme, $iFontId)
 	Local $tLOGFONT = DllStructCreate($tagLOGFONT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeSysFont', 'handle', $hTheme, 'int', $iFontID, 'struct*', $tLOGFONT)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeSysFont', 'handle', $hTheme, 'int', $iFontId, 'struct*', $tLOGFONT)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tLOGFONT
 EndFunc   ;==>_WinAPI_GetThemeSysFont
@@ -630,47 +631,47 @@ EndFunc   ;==>_WinAPI_GetThemeSysFont
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysInt($hTheme, $iIntID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeSysInt', 'handle', $hTheme, 'int', $iIntID, 'int*', 0)
+Func _WinAPI_GetThemeSysInt($hTheme, $iIntId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeSysInt', 'handle', $hTheme, 'int', $iIntId, 'int*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_GetThemeSysInt
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysSize($hTheme, $iSizeID)
-	Local $sResult = DllCall('uxtheme.dll', 'int', 'GetThemeSysSize', 'handle', $hTheme, 'int', $iSizeID)
+Func _WinAPI_GetThemeSysSize($hTheme, $iSizeId)
+	Local $Ret = DllCall('uxtheme.dll', 'int', 'GetThemeSysSize', 'handle', $hTheme, 'int', $iSizeId)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThemeSysSize
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeSysString($hTheme, $iStringID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeSysString', 'handle', $hTheme, 'int', $iStringID, 'wstr', '', 'int', 4096)
+Func _WinAPI_GetThemeSysString($hTheme, $iStringId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeSysString', 'handle', $hTheme, 'int', $iStringId, 'wstr', '', 'int', 4096)
 	If @error Then Return SetError(@error, @extended, '')
-	If $sResult[0] Then Return SetError(10, $sResult[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $sResult[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_GetThemeSysString
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeTextExtent($hTheme, $iPartID, $iStateID, $hDC, $sText, $tRECT, $iFlags)
+Func _WinAPI_GetThemeTextExtent($hTheme, $iPartId, $iStateId, $hDC, $sText, $tRECT, $iFlags)
 	Local $tAREA = DllStructCreate($tagRECT)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeTextExtent', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'struct*', $tRECT, 'struct*', $tAREA)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeTextExtent', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'wstr', $sText, 'int', -1, 'dword', $iFlags, 'struct*', $tRECT, 'struct*', $tAREA)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tAREA
 EndFunc   ;==>_WinAPI_GetThemeTextExtent
@@ -679,12 +680,12 @@ EndFunc   ;==>_WinAPI_GetThemeTextExtent
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeTextMetrics($hTheme, $iPartID, $iStateID, $hDC = 0)
+Func _WinAPI_GetThemeTextMetrics($hTheme, $iPartId, $iStateId, $hDC = 0)
 	Local $tTEXTMETRIC = DllStructCreate($tagTEXTMETRIC)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeTextMetrics', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartID, _
-			'int', $iStateID, 'struct*', $tTEXTMETRIC)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeTextMetrics', 'handle', $hTheme, 'handle', $hDC, 'int', $iPartId, _
+			'int', $iStateId, 'struct*', $tTEXTMETRIC)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return $tTEXTMETRIC
 EndFunc   ;==>_WinAPI_GetThemeTextMetrics
@@ -693,13 +694,13 @@ EndFunc   ;==>_WinAPI_GetThemeTextMetrics
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetThemeTransitionDuration($hTheme, $iPartID, $iStateIDFrom, $iStateIDTo, $iPropID)
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'GetThemeTransitionDuration', 'handle', $hTheme, 'int', $iPartID, _
-			'int', $iStateIDFrom, 'int', $iStateIDTo, 'int', $iPropID, 'dword*', 0)
+Func _WinAPI_GetThemeTransitionDuration($hTheme, $iPartId, $iStateIdFrom, $iStateIdTo, $iPropId)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'GetThemeTransitionDuration', 'handle', $hTheme, 'int', $iPartId, _
+			'int', $iStateIdFrom, 'int', $iStateIdTo, 'int', $iPropId, 'dword*', 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
-	Return $sResult[6]
+	Return $Ret[6]
 EndFunc   ;==>_WinAPI_GetThemeTransitionDuration
 
 ; #FUNCTION# ====================================================================================================================
@@ -707,10 +708,10 @@ EndFunc   ;==>_WinAPI_GetThemeTransitionDuration
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetWindowTheme($hWnd)
-	Local $sResult = DllCall('uxtheme.dll', 'handle', 'GetWindowTheme', 'hwnd', $hWnd)
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'GetWindowTheme', 'hwnd', $hWnd)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetWindowTheme
 
 ; #FUNCTION# ====================================================================================================================
@@ -718,33 +719,33 @@ EndFunc   ;==>_WinAPI_GetWindowTheme
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_IsThemeActive()
-	Local $sResult = DllCall('uxtheme.dll', 'bool', 'IsThemeActive')
+	Local $Ret = DllCall('uxtheme.dll', 'bool', 'IsThemeActive')
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_IsThemeActive
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_IsThemeBackgroundPartiallyTransparent($hTheme, $iPartID, $iStateID)
-	Local $sResult = DllCall('uxtheme.dll', 'bool', 'IsThemeBackgroundPartiallyTransparent', 'handle', $hTheme, 'int', $iPartID, _
-			'int', $iStateID)
+Func _WinAPI_IsThemeBackgroundPartiallyTransparent($hTheme, $iPartId, $iStateId)
+	Local $Ret = DllCall('uxtheme.dll', 'bool', 'IsThemeBackgroundPartiallyTransparent', 'handle', $hTheme, 'int', $iPartId, _
+			'int', $iStateId)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_IsThemeBackgroundPartiallyTransparent
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_IsThemePartDefined($hTheme, $iPartID)
-	Local $sResult = DllCall('uxtheme.dll', 'int', 'IsThemePartDefined', 'handle', $hTheme, 'int', $iPartID, 'int', 0)
+Func _WinAPI_IsThemePartDefined($hTheme, $iPartId)
+	Local $Ret = DllCall('uxtheme.dll', 'int', 'IsThemePartDefined', 'ptr', $hTheme, 'int', $iPartId, 'int', 0)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_IsThemePartDefined
 
 ; #FUNCTION# ====================================================================================================================
@@ -752,11 +753,11 @@ EndFunc   ;==>_WinAPI_IsThemePartDefined
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_OpenThemeData($hWnd, $sClass)
-	Local $sResult = DllCall('uxtheme.dll', 'handle', 'OpenThemeData', 'hwnd', $hWnd, 'wstr', $sClass)
+	Local $Ret = DllCall('uxtheme.dll', 'handle', 'OpenThemeData', 'hwnd', $hWnd, 'wstr', $sClass)
 	If @error Then Return SetError(@error, @extended, 0)
-	; If Not $sResult[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $sResult[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_OpenThemeData
 
 ; #FUNCTION# ====================================================================================================================
@@ -774,15 +775,22 @@ EndFunc   ;==>_WinAPI_SetThemeAppProperties
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_SetWindowTheme($hWnd, $sName = Default, $sList = Default)
-	If Not IsString($sName) Then $sName = Null
-	If Not IsString($sList) Then $sList = Null
+Func _WinAPI_SetWindowTheme($hWnd, $sName = 0, $sList = 0)
+	Local $TypeOfName = 'wstr', $TypeOfList = 'wstr'
+	If Not IsString($sName) Then
+		$TypeOfName = 'ptr'
+		$sName = 0
+	EndIf
+	If Not IsString($sList) Then
+		$TypeOfList = 'ptr'
+		$sList = 0
+	EndIf
 
-	Local $sResult = DllCall('uxtheme.dll', 'long', 'SetWindowTheme', 'hwnd', $hWnd, 'wstr', $sName, 'wstr', $sList)
+	Local $Ret = DllCall('uxtheme.dll', 'long', 'SetWindowTheme', 'hwnd', $hWnd, $TypeOfName, $sName, $TypeOfList, $sList)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $sResult[0] Then Return SetError(10, $sResult[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return 1
 EndFunc   ;==>_WinAPI_SetWindowTheme
 
-#EndRegion Public Functions
+#endregion Public Functions

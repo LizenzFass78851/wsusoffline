@@ -1,17 +1,14 @@
 #include-once
 
-#include "GuiCtrlInternals.au3"
-#include "Memory.au3"
-#include "SendMessage.au3"
 #include "TabConstants.au3"
+#include "Memory.au3"
+#include "WinAPI.au3"
+#include "SendMessage.au3"
 #include "UDFGlobalID.au3"
-#include "WinAPIConv.au3"
-#include "WinAPIHObj.au3"
-#include "WinAPISysInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Tab_Control
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with Tab control management.
 ;                  A tab control is analogous to the dividers in a notebook or the labels in a  file  cabinet.  By  using  a  tab
@@ -22,9 +19,7 @@
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-
-; Optimization by pixelsearch DllStructCreate() once
-Global $__g_tTabBuffer, $__g_tTabBufferANSI ; = DllStructCreate()
+Global $_ghTabLastWnd
 
 ; ===============================================================================================================================
 
@@ -33,6 +28,27 @@ Global Const $__TABCONSTANT_ClassName = "SysTabControl32"
 Global Const $__TABCONSTANT_WS_CLIPSIBLINGS = 0x04000000
 Global Const $__TABCONSTANT_WM_NOTIFY = 0x004E
 Global Const $__TABCONSTANT_DEFAULT_GUI_FONT = 17
+; ===============================================================================================================================
+
+; #OLD_FUNCTIONS#================================================================================================================
+; Old Function/Name                      ; --> New Function/Name/Replacement(s)
+;
+; deprecated functions will no longer work
+; _GUICtrlTabDeleteAllItems             ; --> _GUICtrlTab_DeleteAllItems
+; _GUICtrlTabDeleteItem                 ; --> _GUICtrlTab_DeleteItem
+; _GUICtrlTabDeselectAll                ; --> _GUICtrlTab_DeselectAll
+; _GUICtrlTabGetCurFocus                ; --> _GUICtrlTab_GetCurFocus
+; _GUICtrlTabGetCurSel                  ; --> _GUICtrlTab_GetCurSel
+; _GUICtrlTabGetExtendedStyle           ; --> _GUICtrlTab_GetExtendedStyle
+; _GUICtrlTabGetItemCount               ; --> _GUICtrlTab_GetItemCount
+; _GUICtrlTabGetItemRECT                ; --> _GUICtrlTab_GetItemRect
+; _GUICtrlTabGetRowCount                ; --> _GUICtrlTab_GetRowCount
+; _GUICtrlTabGetUnicodeFormat           ; --> _GUICtrlTab_GetUnicodeFormat
+; _GUICtrlTabHighlightItem              ; --> _GUICtrlTab_HighlightItem
+; _GUICtrlTabSetCurFocus                ; --> _GUICtrlTab_SetCurFocus
+; _GUICtrlTabSetCurSel                  ; --> _GUICtrlTab_SetCurSel
+; _GUICtrlTabSetMinTabWidth             ; --> _GUICtrlTab_SetMinTabWidth
+; _GUICtrlTabSetUnicodeFormat           ; --> _GUICtrlTab_SetUnicodeFormat
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -108,7 +124,7 @@ Global Const $__TABCONSTANT_DEFAULT_GUI_FONT = 17
 ; Author ........: Paul Campbell (PaulIA)
 ; Remarks .......:
 ; ===============================================================================================================================
-Global Const $tagTCITEM = "struct; uint Mask;dword State;dword StateMask;ptr Text;int TextMax;int Image;lparam Param; endstruct"
+Global Const $tagTCITEM = "uint Mask;dword State;dword StateMask;ptr Text;int TextMax;int Image;lparam Param"
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: $tagTCHITTESTINFO
@@ -124,30 +140,41 @@ Global Const $tagTCITEM = "struct; uint Mask;dword State;dword StateMask;ptr Tex
 ; Author ........: Paul Campbell (PaulIA)
 ; Remarks .......:
 ; ===============================================================================================================================
-Global Const $tagTCHITTESTINFO = "struct;" & $tagPOINT & ";uint Flags; endstruct"
+Global Const $tagTCHITTESTINFO = $tagPOINT & ";uint Flags"
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: __GUICtrlTab_AdjustRect
 ; Description ...: Calculates a tab control's display area given a window rectangle
-; Syntax.........: __GUICtrlTab_AdjustRect ( $hWnd, ByRef $tRECT [, $bLarger = False] )
+; Syntax.........: __GUICtrlTab_AdjustRect ( $hWnd, ByRef $tRect [, $fLarger = False] )
 ; Parameters ....: $hWnd        - Handle to the control
-;                  $tRECT       - $tagRECT structure that holds a window or text display rectangle
-;                  $bLarger     - Value that specifies which operation to perform.  If True, $tRECT is used to specify a text
-;                  +display rectangle and it receives the corresponding window rectangle.  If False, $tRECT is used to specify a
+;                  $tRect       - $tagRECT structure that holds a window or text display rectangle
+;                  $fLarger     - Value that specifies which operation to perform.  If True, $tRect is used to specify a text
+;                  +display rectangle and it receives the corresponding window rectangle.  If False, $tRect is used to specify a
 ;                  +window rectangle and it receives the corresponding text display rectangle.
-; Return values .: $tRECT parameter updated
+; Return values .: Success      - $tagRECT structure with requested coordinates
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; Remarks .......: This message applies only to tab controls that are at the top.  It does not apply to tab controls that are on
 ;                  the sides or bottom.
 ; Related .......: $tagRECT
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func __GUICtrlTab_AdjustRect($hWnd, ByRef $tRECT, $bLarger = False)
+Func __GUICtrlTab_AdjustRect($hWnd, ByRef $tRect, $fLarger = False)
 	If IsHWnd($hWnd) Then
-		__GUICtrl_SendMsg($hWnd, $TCM_ADJUSTRECT, $bLarger, $tRECT, 0, True)
+		If _WinAPI_InProcess($hWnd, $_ghTabLastWnd) Then
+			_SendMessage($hWnd, $TCM_ADJUSTRECT, $fLarger, $tRect, 0, "wparam", "struct*")
+		Else
+			Local $iRect = DllStructGetSize($tRect)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iRect, $tMemMap)
+			_MemWrite($tMemMap, $tRect)
+			_SendMessage($hWnd, $TCM_ADJUSTRECT, $fLarger, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tRect, $iRect)
+			_MemFree($tMemMap)
+		EndIf
 	EndIf
+	Return $tRect
 EndFunc   ;==>__GUICtrlTab_AdjustRect
 
 ; #FUNCTION# ====================================================================================================================
@@ -179,7 +206,6 @@ Func _GUICtrlTab_ActivateTab($hWnd, $iIndex)
 
 	DllStructSetData($tNmhdr, 3, $TCN_SELCHANGE)
 	_SendMessage($hParent, $__TABCONSTANT_WM_NOTIFY, $nIndX, $tNmhdr, 0, "wparam", "struct*")
-
 	Return $iRet
 EndFunc   ;==>_GUICtrlTab_ActivateTab
 
@@ -187,11 +213,11 @@ EndFunc   ;==>_GUICtrlTab_ActivateTab
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost), PsaltyDS
 ; ===============================================================================================================================
-Func _GUICtrlTab_ClickTab($hWnd, $iIndex, $sButton = "left", $bMove = False, $iClicks = 1, $iSpeed = 1)
+Func _GUICtrlTab_ClickTab($hWnd, $iIndex, $sButton = "left", $fMove = False, $iClicks = 1, $iSpeed = 1)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
 	Local $iX, $iY
-	If Not $bMove Then
+	If Not $fMove Then
 		; Don't move mouse, use ControlClick()
 		Local $hWinParent = _WinAPI_GetParent($hWnd)
 		Local $avTabPos = _GUICtrlTab_GetItemRect($hWnd, $iIndex)
@@ -200,8 +226,8 @@ Func _GUICtrlTab_ClickTab($hWnd, $iIndex, $sButton = "left", $bMove = False, $iC
 		ControlClick($hWinParent, "", $hWnd, $sButton, $iClicks, $iX, $iY)
 	Else
 		; Original code to move mouse and click (requires active window)
-		Local $tRECT = _GUICtrlTab_GetItemRectEx($hWnd, $iIndex)
-		Local $tPoint = _WinAPI_PointFromRect($tRECT, True)
+		Local $tRect = _GUICtrlTab_GetItemRectEx($hWnd, $iIndex)
+		Local $tPoint = _WinAPI_PointFromRect($tRect, True)
 		$tPoint = _WinAPI_ClientToScreen($hWnd, $tPoint)
 		_WinAPI_GetXYFromPoint($tPoint, $iX, $iY)
 		Local $iMode = Opt("MouseCoordMode", 1)
@@ -232,7 +258,6 @@ Func _GUICtrlTab_Create($hWnd, $iX, $iY, $iWidth = 150, $iHeight = 150, $iStyle 
 
 	Local $hTab = _WinAPI_CreateWindowEx($iExStyle, $__TABCONSTANT_ClassName, "", $iStyle, $iX, $iY, $iWidth, $iHeight, $hWnd, $nCtrlID)
 	_WinAPI_SetFont($hTab, _WinAPI_GetStockObject($__TABCONSTANT_DEFAULT_GUI_FONT))
-
 	Return $hTab
 EndFunc   ;==>_GUICtrlTab_Create
 
@@ -264,11 +289,11 @@ EndFunc   ;==>_GUICtrlTab_DeleteItem
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlTab_DeselectAll($hWnd, $bExclude = True)
+Func _GUICtrlTab_DeselectAll($hWnd, $fExclude = True)
 	If IsHWnd($hWnd) Then
-		_SendMessage($hWnd, $TCM_DESELECTALL, $bExclude)
+		_SendMessage($hWnd, $TCM_DESELECTALL, $fExclude)
 	Else
-		GUICtrlSendMsg($hWnd, $TCM_DESELECTALL, $bExclude, 0)
+		GUICtrlSendMsg($hWnd, $TCM_DESELECTALL, $fExclude, 0)
 	EndIf
 EndFunc   ;==>_GUICtrlTab_DeselectAll
 
@@ -279,12 +304,12 @@ EndFunc   ;==>_GUICtrlTab_DeselectAll
 Func _GUICtrlTab_Destroy(ByRef $hWnd)
 	If Not _WinAPI_IsClassName($hWnd, $__TABCONSTANT_ClassName) Then Return SetError(2, 2, False)
 
-	Local $iDestroyed = 0
+	Local $Destroyed = 0
 	If IsHWnd($hWnd) Then
-		If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghTabLastWnd) Then
 			Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 			Local $hParent = _WinAPI_GetParent($hWnd)
-			$iDestroyed = _WinAPI_DestroyWindow($hWnd)
+			$Destroyed = _WinAPI_DestroyWindow($hWnd)
 			Local $iRet = __UDF_FreeGlobalID($hParent, $nCtrlID)
 			If Not $iRet Then
 				; can check for errors here if needed, for debug
@@ -294,30 +319,28 @@ Func _GUICtrlTab_Destroy(ByRef $hWnd)
 			Return SetError(1, 1, False)
 		EndIf
 	Else
-		$iDestroyed = GUICtrlDelete($hWnd)
+		$Destroyed = GUICtrlDelete($hWnd)
 	EndIf
-	If $iDestroyed Then $hWnd = 0
-
-	Return $iDestroyed <> 0
+	If $Destroyed Then $hWnd = 0
+	Return $Destroyed <> 0
 EndFunc   ;==>_GUICtrlTab_Destroy
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlTab_FindTab($hWnd, $sText, $bInStr = False, $iStart = 0)
+Func _GUICtrlTab_FindTab($hWnd, $sText, $fInStr = False, $iStart = 0)
 	Local $sTab
 
 	For $iI = $iStart To _GUICtrlTab_GetItemCount($hWnd)
 		$sTab = _GUICtrlTab_GetItemText($hWnd, $iI)
-		Switch $bInStr
+		Switch $fInStr
 			Case False
 				If $sTab = $sText Then Return $iI
 			Case True
 				If StringInStr($sTab, $sText) Then Return $iI
 		EndSwitch
 	Next
-
 	Return -1
 EndFunc   ;==>_GUICtrlTab_FindTab
 
@@ -352,12 +375,11 @@ EndFunc   ;==>_GUICtrlTab_GetCurSel
 Func _GUICtrlTab_GetDisplayRect($hWnd)
 	Local $aRect[4]
 
-	Local $tRECT = _GUICtrlTab_GetDisplayRectEx($hWnd)
-	$aRect[0] = DllStructGetData($tRECT, "Left")
-	$aRect[1] = DllStructGetData($tRECT, "Top")
-	$aRect[2] = DllStructGetData($tRECT, "Right")
-	$aRect[3] = DllStructGetData($tRECT, "Bottom")
-
+	Local $tRect = _GUICtrlTab_GetDisplayRectEx($hWnd)
+	$aRect[0] = DllStructGetData($tRect, "Left")
+	$aRect[1] = DllStructGetData($tRect, "Top")
+	$aRect[2] = DllStructGetData($tRect, "Right")
+	$aRect[3] = DllStructGetData($tRect, "Bottom")
 	Return $aRect
 EndFunc   ;==>_GUICtrlTab_GetDisplayRect
 
@@ -366,10 +388,8 @@ EndFunc   ;==>_GUICtrlTab_GetDisplayRect
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetDisplayRectEx($hWnd)
-	Local $tRECT = _WinAPI_GetClientRect($hWnd)
-	__GUICtrlTab_AdjustRect($hWnd, $tRECT)
-
-	Return $tRECT
+	Local $tRect = _WinAPI_GetClientRect($hWnd)
+	Return __GUICtrlTab_AdjustRect($hWnd, $tRect)
 EndFunc   ;==>_GUICtrlTab_GetDisplayRectEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -402,27 +422,41 @@ EndFunc   ;==>_GUICtrlTab_GetImageList
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItem($hWnd, $iIndex)
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
+	Local $fUnicode = _GUICtrlTab_GetUnicodeFormat($hWnd)
 
-;~ 	Local $tagTCITEMEx = $tagTCITEM & ";ptr Filler" ; strange the Filler is erased by TCM_GETITEM : MS Bug!!!
-	Local $tItem = DllStructCreate($tagTCITEM)
+	Local $iBuffer = 4096
+	Local $tagTCITEMEx = $tagTCITEM & ";ptr Filler" ; strange the Filler is erased by TCM_GETITEM : MS Bug!!!
+	Local $tItem = DllStructCreate($tagTCITEMEx)
 	DllStructSetData($tItem, "Mask", $TCIF_ALLDATA)
+	DllStructSetData($tItem, "TextMax", $iBuffer)
 	DllStructSetData($tItem, "StateMask", BitOR($TCIS_HIGHLIGHTED, $TCIS_BUTTONPRESSED))
-	Local $tBuffer, $iMsg
-	If _GUICtrlTab_GetUnicodeFormat($hWnd) Then
-		$tBuffer = $__g_tTabBuffer
-		$iMsg = $TCM_GETITEMW
+	Local $iItem = DllStructGetSize($tItem)
+	Local $tBuffer
+	If $fUnicode Then
+		$tBuffer = DllStructCreate("wchar Text[" & $iBuffer & "]")
+		$iBuffer *= 2
 	Else
-		$tBuffer = $__g_tTabBufferANSI
-		$iMsg = $TCM_GETITEMA
+		$tBuffer = DllStructCreate("char Text[" & $iBuffer & "]")
 	EndIf
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, True, 4, True)
-
+	Local $tMemMap
+	Local $pMemory = _MemInit($hWnd, $iItem + $iBuffer, $tMemMap)
+	Local $pText = $pMemory + $iItem
+	DllStructSetData($tItem, "Text", $pText)
+	_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+	Local $iRet
+	If $fUnicode Then
+		$iRet = _SendMessage($hWnd, $TCM_GETITEMW, $iIndex, $pMemory)
+	Else
+		$iRet = _SendMessage($hWnd, $TCM_GETITEMA, $iIndex, $pMemory)
+	EndIf
+	_MemRead($tMemMap, $pMemory, $tItem, $iItem)
+	_MemRead($tMemMap, $pText, $tBuffer, $iBuffer)
+	_MemFree($tMemMap)
 	Local $aItem[4]
 	$aItem[0] = DllStructGetData($tItem, "State")
 	$aItem[1] = DllStructGetData($tBuffer, "Text")
 	$aItem[2] = DllStructGetData($tItem, "Image")
 	$aItem[3] = DllStructGetData($tItem, "Param")
-
 	Return SetError($iRet = 0, 0, $aItem)
 EndFunc   ;==>_GUICtrlTab_GetItem
 
@@ -444,7 +478,6 @@ EndFunc   ;==>_GUICtrlTab_GetItemCount
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItemImage($hWnd, $iIndex)
 	Local $aItem = _GUICtrlTab_GetItem($hWnd, $iIndex)
-
 	Return $aItem[2]
 EndFunc   ;==>_GUICtrlTab_GetItemImage
 
@@ -454,7 +487,6 @@ EndFunc   ;==>_GUICtrlTab_GetItemImage
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItemParam($hWnd, $iIndex)
 	Local $aItem = _GUICtrlTab_GetItem($hWnd, $iIndex)
-
 	Return $aItem[3]
 EndFunc   ;==>_GUICtrlTab_GetItemParam
 
@@ -465,12 +497,11 @@ EndFunc   ;==>_GUICtrlTab_GetItemParam
 Func _GUICtrlTab_GetItemRect($hWnd, $iIndex)
 	Local $aRect[4]
 
-	Local $tRECT = _GUICtrlTab_GetItemRectEx($hWnd, $iIndex)
-	$aRect[0] = DllStructGetData($tRECT, "Left")
-	$aRect[1] = DllStructGetData($tRECT, "Top")
-	$aRect[2] = DllStructGetData($tRECT, "Right")
-	$aRect[3] = DllStructGetData($tRECT, "Bottom")
-
+	Local $tRect = _GUICtrlTab_GetItemRectEx($hWnd, $iIndex)
+	$aRect[0] = DllStructGetData($tRect, "Left")
+	$aRect[1] = DllStructGetData($tRect, "Top")
+	$aRect[2] = DllStructGetData($tRect, "Right")
+	$aRect[3] = DllStructGetData($tRect, "Bottom")
 	Return $aRect
 EndFunc   ;==>_GUICtrlTab_GetItemRect
 
@@ -479,10 +510,22 @@ EndFunc   ;==>_GUICtrlTab_GetItemRect
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItemRectEx($hWnd, $iIndex)
-	Local $tRECT = DllStructCreate($tagRECT)
-	__GUICtrl_SendMsg($hWnd, $TCM_GETITEMRECT, $iIndex, $tRECT, 0, True)
-
-	Return $tRECT
+	Local $tRect = DllStructCreate($tagRECT)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghTabLastWnd) Then
+			_SendMessage($hWnd, $TCM_GETITEMRECT, $iIndex, $tRect, 0, "wparam", "struct*")
+		Else
+			Local $iRect = DllStructGetSize($tRect)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iRect, $tMemMap)
+			_SendMessage($hWnd, $TCM_GETITEMRECT, $iIndex, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tRect, $iRect)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		GUICtrlSendMsg($hWnd, $TCM_GETITEMRECT, $iIndex, DllStructGetPtr($tRect))
+	EndIf
+	Return $tRect
 EndFunc   ;==>_GUICtrlTab_GetItemRectEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -491,7 +534,6 @@ EndFunc   ;==>_GUICtrlTab_GetItemRectEx
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItemState($hWnd, $iIndex)
 	Local $aItem = _GUICtrlTab_GetItem($hWnd, $iIndex)
-
 	Return $aItem[0]
 EndFunc   ;==>_GUICtrlTab_GetItemState
 
@@ -501,7 +543,6 @@ EndFunc   ;==>_GUICtrlTab_GetItemState
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetItemText($hWnd, $iIndex)
 	Local $aItem = _GUICtrlTab_GetItem($hWnd, $iIndex)
-
 	Return $aItem[1]
 EndFunc   ;==>_GUICtrlTab_GetItemText
 
@@ -534,11 +575,6 @@ EndFunc   ;==>_GUICtrlTab_GetToolTips
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlTab_GetUnicodeFormat($hWnd)
-	If Not IsDllStruct($__g_tTabBuffer) Then
-		$__g_tTabBuffer = DllStructCreate("wchar Text[4096]")
-		$__g_tTabBufferANSI = DllStructCreate("char Text[4096]", DllStructGetPtr($__g_tTabBuffer))
-	EndIf
-
 	If IsHWnd($hWnd) Then
 		Return _SendMessage($hWnd, $TCM_GETUNICODEFORMAT) <> 0
 	Else
@@ -550,11 +586,11 @@ EndFunc   ;==>_GUICtrlTab_GetUnicodeFormat
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlTab_HighlightItem($hWnd, $iIndex, $bHighlight = True)
+Func _GUICtrlTab_HighlightItem($hWnd, $iIndex, $fHighlight = True)
 	If IsHWnd($hWnd) Then
-		Return _SendMessage($hWnd, $TCM_HIGHLIGHTITEM, $iIndex, $bHighlight) <> 0
+		Return _SendMessage($hWnd, $TCM_HIGHLIGHTITEM, $iIndex, $fHighlight) <> 0
 	Else
-		Return GUICtrlSendMsg($hWnd, $TCM_HIGHLIGHTITEM, $iIndex, $bHighlight) <> 0
+		Return GUICtrlSendMsg($hWnd, $TCM_HIGHLIGHTITEM, $iIndex, $fHighlight) <> 0
 	EndIf
 EndFunc   ;==>_GUICtrlTab_HighlightItem
 
@@ -568,11 +604,22 @@ Func _GUICtrlTab_HitTest($hWnd, $iX, $iY)
 	Local $tHit = DllStructCreate($tagTCHITTESTINFO)
 	DllStructSetData($tHit, "X", $iX)
 	DllStructSetData($tHit, "Y", $iY)
-
-	Local $aHit[2] = [-1, 1]
-	$aHit[0] = __GUICtrl_SendMsg($hWnd, $TCM_HITTEST, 0, $tHit, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghTabLastWnd) Then
+			$aHit[0] = _SendMessage($hWnd, $TCM_HITTEST, 0, $tHit, 0, "wparam", "struct*")
+		Else
+			Local $iHit = DllStructGetSize($tHit)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iHit, $tMemMap)
+			_MemWrite($tMemMap, $tHit)
+			$aHit[0] = _SendMessage($hWnd, $TCM_HITTEST, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tHit, $iHit)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$aHit[0] = GUICtrlSendMsg($hWnd, $TCM_HITTEST, 0, DllStructGetPtr($tHit))
+	EndIf
 	$aHit[1] = DllStructGetData($tHit, "Flags")
-
 	Return $aHit
 EndFunc   ;==>_GUICtrlTab_HitTest
 
@@ -581,21 +628,52 @@ EndFunc   ;==>_GUICtrlTab_HitTest
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlTab_InsertItem($hWnd, $iIndex, $sText, $iImage = -1, $iParam = 0)
-	Local $tBuffer, $iMsg
-	If _GUICtrlTab_GetUnicodeFormat($hWnd) Then
-		$tBuffer = $__g_tTabBuffer
-		$iMsg = $TCM_INSERTITEMW
+	Local $fUnicode = _GUICtrlTab_GetUnicodeFormat($hWnd)
+
+	Local $iBuffer = StringLen($sText) + 1
+	Local $tBuffer
+	If $fUnicode Then
+		$tBuffer = DllStructCreate("wchar Text[" & $iBuffer & "]")
+		$iBuffer *= 2
 	Else
-		$tBuffer = $__g_tTabBufferANSI
-		$iMsg = $TCM_INSERTITEMA
+		$tBuffer = DllStructCreate("char Text[" & $iBuffer & "]")
 	EndIf
+	Local $pBuffer = DllStructGetPtr($tBuffer)
 	Local $tItem = DllStructCreate($tagTCITEM)
 	DllStructSetData($tBuffer, "Text", $sText)
 	DllStructSetData($tItem, "Mask", BitOR($TCIF_TEXT, $TCIF_IMAGE, $TCIF_PARAM))
+	DllStructSetData($tItem, "TextMax", $iBuffer)
 	DllStructSetData($tItem, "Image", $iImage)
 	DllStructSetData($tItem, "Param", $iParam)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, 4)
-
+	Local $iRet
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghTabLastWnd) Then
+			DllStructSetData($tItem, "Text", $pBuffer)
+			$iRet = _SendMessage($hWnd, $TCM_INSERTITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
+		Else
+			Local $iItem = DllStructGetSize($tItem)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iItem + $iBuffer, $tMemMap)
+			Local $pText = $pMemory + $iItem
+			DllStructSetData($tItem, "Text", $pText)
+			_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+			_MemWrite($tMemMap, $tBuffer, $pText, $iBuffer)
+			If $fUnicode Then
+				$iRet = _SendMessage($hWnd, $TCM_INSERTITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+			Else
+				$iRet = _SendMessage($hWnd, $TCM_INSERTITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+			EndIf
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		Local $pItem = DllStructGetPtr($tItem)
+		DllStructSetData($tItem, "Text", $pBuffer)
+		If $fUnicode Then
+			$iRet = GUICtrlSendMsg($hWnd, $TCM_INSERTITEMW, $iIndex, $pItem)
+		Else
+			$iRet = GUICtrlSendMsg($hWnd, $TCM_INSERTITEMA, $iIndex, $pItem)
+		EndIf
+	EndIf
 	Return $iRet
 EndFunc   ;==>_GUICtrlTab_InsertItem
 
@@ -668,19 +746,19 @@ Func _GUICtrlTab_SetItem($hWnd, $iIndex, $sText = -1, $iState = -1, $iImage = -1
 	If Not IsHWnd($hWnd) Then $hWnd = GUICtrlGetHandle($hWnd)
 
 	Local $tItem = DllStructCreate($tagTCITEM)
-	Local $tBuffer, $iMask = 0, $iMsg
-	If _GUICtrlTab_GetUnicodeFormat($hWnd) Then
-		$tBuffer = $__g_tTabBuffer
-		$iMsg = $TCM_SETITEMW
-	Else
-		$tBuffer = $__g_tTabBufferANSI
-		$iMsg = $TCM_SETITEMA
-	EndIf
+	Local $iBuffer, $tBuffer, $iMask = 0, $iRet
+	Local $fUnicode = _GUICtrlTab_GetUnicodeFormat($hWnd)
 	If IsString($sText) Then
+		$iBuffer = StringLen($sText) + 1
+		If $fUnicode Then
+			$tBuffer = DllStructCreate("wchar Text[" & $iBuffer & "]")
+			$iBuffer *= 2
+		Else
+			$tBuffer = DllStructCreate("char Text[" & $iBuffer & "]")
+		EndIf
 		DllStructSetData($tBuffer, "Text", $sText)
+		DllStructSetData($tItem, "Text", DllStructGetPtr($tBuffer))
 		$iMask = $TCIF_TEXT
-	Else
-		$tBuffer = 0
 	EndIf
 	If $iState <> -1 Then
 		DllStructSetData($tItem, "State", $iState)
@@ -696,9 +774,20 @@ Func _GUICtrlTab_SetItem($hWnd, $iIndex, $sText = -1, $iState = -1, $iImage = -1
 		$iMask = BitOR($iMask, $TCIF_PARAM)
 	EndIf
 	DllStructSetData($tItem, "Mask", $iMask)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, 4)
-
-	Return $iRet <> 0
+	Local $iItem = DllStructGetSize($tItem)
+	Local $tMemMap
+	Local $pMemory = _MemInit($hWnd, $iItem + 8192, $tMemMap)
+	Local $pText = $pMemory + 4096
+	DllStructSetData($tItem, "Text", $pText)
+	_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+	If IsString($sText) Then _MemWrite($tMemMap, $tBuffer, $pText, $iBuffer)
+	If $fUnicode Then
+		$iRet = _SendMessage($hWnd, $TCM_SETITEMW, $iIndex, $pMemory) <> 0
+	Else
+		$iRet = _SendMessage($hWnd, $TCM_SETITEMA, $iIndex, $pMemory) <> 0
+	EndIf
+	_MemFree($tMemMap)
+	Return $iRet
 EndFunc   ;==>_GUICtrlTab_SetItem
 
 ; #FUNCTION# ====================================================================================================================
@@ -785,10 +874,10 @@ EndFunc   ;==>_GUICtrlTab_SetToolTips
 ; Author ........: Gary Frost (gafrost)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlTab_SetUnicodeFormat($hWnd, $bUnicode)
+Func _GUICtrlTab_SetUnicodeFormat($hWnd, $fUnicode)
 	If IsHWnd($hWnd) Then
-		Return _SendMessage($hWnd, $TCM_SETUNICODEFORMAT, $bUnicode) <> 0
+		Return _SendMessage($hWnd, $TCM_SETUNICODEFORMAT, $fUnicode) <> 0
 	Else
-		Return GUICtrlSendMsg($hWnd, $TCM_SETUNICODEFORMAT, $bUnicode, 0) <> 0
+		Return GUICtrlSendMsg($hWnd, $TCM_SETUNICODEFORMAT, $fUnicode, 0) <> 0
 	EndIf
 EndFunc   ;==>_GUICtrlTab_SetUnicodeFormat

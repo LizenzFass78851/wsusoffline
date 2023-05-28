@@ -1,2 +1,0 @@
-/*.au3
-/bin/IfAdmin.cpp

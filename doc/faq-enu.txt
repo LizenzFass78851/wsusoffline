@@ -2,9 +2,6 @@ Q: How can I update "WSUS Offline Update" itself?
 A: As long as release notes or installation hints don't recommend other, you may unpack a new version's archive (.zip) over/into an existing structure, if you let existing files be overwritten.
 Of course you may use the automatic self update functionality instead.
 --------------------------------------------------------------------------------
-Q: Where are the downloaded update files stored?
-A: Every file which is required for the installation part is stored in the "client" subdirectory.
---------------------------------------------------------------------------------
 Q: Can I exclude patches from download and/or installation?
 A: Yes, that's possible through customizing the download- and update scripts according to your requirements. You may add new patches or exclude existing ones. Please follow this guide:
 
@@ -12,33 +9,41 @@ A: Yes, that's possible through customizing the download- and update scripts acc
 You have to differentiate between statically defined updates (like the latest Service Packs, for example) and updates that are determined dynamically at runtime of the script.
 
 a) Statically defined updates
-To exclude static updates from download, please delete the corresponding URL definitions in the matching file named "StaticDownloadLinks-<platform>[-<architecture>].txt" in the folder "static\custom". Please note that the files residing here will be overwritten on a software update.
+Should you desire to exclude all static updates from download, simply check the "Exclude statically defined updates" checkbox inside the Update Generator before downloading. Please be aware that updates you downloaded earlier, which are now excluded, will be deleted on the run.
 
 b) Dynamically determined updates
-To exclude dynamically determined updates from download, insert their knowledge base ID (KBxxxxxx or simply xxxxxx) into the matching exclude file named "ExcludeList-<platform>[-<architecture>].txt" in the folder "exclude\custom".
+To exclude dynamically determined updates from download, insert their knowledge base ID (KBxxxxxx or simply xxxxxx) into the matching exclude file named "ExcludeList-<platform>[-<architecture>].txt".
 
 2. Excluding updates from installation
 Once again you have to make a difference between statically defined and dynamically determined updates.
 a) Statically defined updates
 The statically defined updates (latest version each) are:
 - Service Pack (SP)
+- Windows Update Agent (WUA)
 - Microsoft Installer (MSI)
 - Windows Script Host (WSH)
 - Internet Explorer (IE)
 These updates will be installed only if the version installed on the target system is lower than the versions defined in the file "SetTargetEnvVars.cmd" (directory .\client\cmd). If you generally want to prevent installation of one of those updates, you have to modify the expected values in the "SetTargetEnvVars.cmd" or insert jump marks into the "DoUpdate.cmd" (which controls the installation process). You should do this in very special cases only, as with SP, WUA, MSI and WSH, certain versions are required as preconditions.
 b) Dynamically determined updates
-To exclude dynamically determined updates from installation, insert their knowledge base ID (KBxxxxxx or simply xxxxxx) into the file "ExcludeList.txt" (directory .\client\exclude\custom). These updates will now be ignored; and you'll receive a warning in the log.
+To exclude dynamically determined updates from installation, insert their knowledge base ID (KBxxxxxx or simply xxxxxx) into the file "ExcludeList.txt" (directory .\client\exclude). These updates will now be ignored; and you'll receive a warning in the log.
 
 The following updates are already excluded:
+- kb816093 (Security update for Microsoft VM)
 - kb951847 (.NET Framework 3.5 SP1 Family Update (will be explicitly installed if selected)) 
 - kb890830 (Windows Malicious Software Removal Tool (MSRT))
-- kb944036 (Internet Explorer 8)
-- kb982861 (Internet Explorer 9 (will be implicitly installed))
-- kb2718695 (Internet Explorer 10)
-- kb2841134 (Internet Explorer 11 (will be implicitly installed))
+- kb926874 (Internet Explorer 7 (will be explicitly installed if selected))
+- kb940767 (Internet Explorer 7 (will be explicitly installed if selected))
+- kb944036 (Internet Explorer 8 (will be explicitly installed if selected))
+- kb982861 (Internet Explorer 9 (will be explicitly installed if selected))
+- kb2718695 (Internet Explorer 10 (will be explicitly installed if selected))
+- kb2841134 (Internet Explorer 11 (will be explicitly installed if selected))
 - kb976002 (Browser Choice)
+- kb923618 (Office 2003 Service Pack 3 (will be implicitly installed if required))
+- kb2526086 (Office 2007 Service Pack 3 (will be implicitly installed if required))
 - kb2687455 (Office 2010 Service Pack 2 (will be implicitly installed if required))
 - kb2817430 (Office 2013 Service Pack 1 (will be implicitly installed if required))
+- kb936929 (Windows XP Service Pack 3 (will be implicitly installed if required))
+- kb914961 (Windows Server 2003 Service Pack 2 (will be implicitly installed if required))
 - kb936330 (Windows Vista Service Pack 1 (will be implicitly installed if required))
 - kb948465 (Windows Vista Service Pack 2 (will be implicitly installed if required))
 - kb976932 (Windows 7 Service Pack 1 (will be implicitly installed if required))
@@ -54,7 +59,7 @@ For adding an update to be downloaded, insert its download URL into the matching
 
 2. Adding updates to installation routines
 
-Add an update to installation by inserting its knowledge base ID (KBxxxxxx or simply xxxxxx) into the matching "StaticUpdateIds-<platform>[-<architecture>].txt file (directory "...\client\static\custom"). Please don't forget a trailing <CR><LF>. For example, the updates could be stored under \Client \win \glb; there is checked with every Windows version.
+Add an update to installation by inserting its knowledge base ID (KBxxxxxx or simply xxxxxx) into the matching "StaticUpdateIds-<platform>[-<architecture>].txt file (directory "...\client\static\custom"). Please don't forget a trailing <CR><LF>.
 --------------------------------------------------------------------------------
 Q: Can I skip the dynamic update determination during downloading/installation in order to use my static definitions only?
 A: Yes.
@@ -143,7 +148,7 @@ To "clean up" your OS do the following:
 - Execute the "CleanupRecall.cmd" script in the "cmd" directory, then reboot.
 
 If it still won't work, follow this guide:
-- Log off the "WOUTempAdmin" account. While doing this, hold the <Shift> key to prevent automatic login and show the Logon screen instead.
+- Log off the "WSUSAdmin" account. While doing this, hold the <Shift> key to prevent automatic login and show the Logon screen instead.
 - Log on the "Administrator" account (or an account with administrative rights).
 - Check for the existence of a file named "%SystemRoot%\wsusbak-winlogon.reg".
 - If the file exists, start the registry editor ([Start - Run...] regedit) and delete the key "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon". Then merge the backed up values back into the registry by double-clicking the "%SystemRoot%\wsusbak-winlogon.reg" file and confirming the prompt. Then you can delete that file.
@@ -153,7 +158,7 @@ If it still won't work, follow this guide:
 - AutoAdminLogon: Delete value
 - ForceAutoLogon: Delete value
 - Delete the "WOUTempAdmin" account using the "User accounts" Control Panel item.
-- Delete the user profile files if they still exist (C:\Users).
+- Delete the user profile files if they still exist (XP: C:\Documents and Settings, Vista/7: C:\Users).
 - Reboot.
 --------------------------------------------------------------------------------
 Q: During download, I receive a file integrity verification failure. What can I do to resolve this?
@@ -184,10 +189,4 @@ A: Please call ...\cmd\AddOffice2010x64Support.cmd {lng} once to add their URLs 
 --------------------------------------------------------------------------------
 Q: I don't need the German installation files for IEx, .NET and MSSE. How can I disable their downloads?
 A: Please call ...\cmd\RemoveGermanLanguageSupport.cmd once to remove their URLs from the static download definitions.
---------------------------------------------------------------------------------
-Q: Before the update installation, the system is checked to determine how many updates to be installed in one run max. Is there a parameter to specify this value?
-A: The parameters can be specified in the file ...\client\cmd\custom\SetUpdatesPerStage.cmdt. It should not be less than the parameter "UPDATES_PER_STAGE" in the file \client\cmd\SetTargetEnvVars.cmd (currently 40). Smaller values are automatically corrected. After setting the stage limits, the file SetUpdatesPerStage.cmd must be renamed (cmd without t)!
---------------------------------------------------------------------------------
-Q: While downloading wget/aria2 report some kind of certificate issue.
-A: This is caused by some missing root certificates on the machine. As a workaround, please take a look at https://gitlab.com/wsusoffline/wsusoffline/-/wikis/Root-CA-Update on how to fix this issue.
 --------------------------------------------------------------------------------

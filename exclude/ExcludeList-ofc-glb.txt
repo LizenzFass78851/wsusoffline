@@ -1,6 +1,0 @@
-intl-
-/ime-
-/ime32
-/ime64
-/proof
-/msconv_

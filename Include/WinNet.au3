@@ -1,17 +1,18 @@
 #include-once
 
+#include "WinAPI.au3"
 #include "StructureConstants.au3"
-#include "WinAPIConv.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WindowsNetworking
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with Windows Networking management.
 ;                  The Windows Networking (WNet) functions allow you to implement networking  capabilities  in  your  application
 ;                  without making allowances for a particular network  provider  or  physical  network  implementation.  This  is
 ;                  because the WNet functions are network independent.
 ; Author(s) .....: Paul Campbell (PaulIA)
+; Dll(s) ........: mpr.dll
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -58,20 +59,6 @@ Global Const $RESOURCEUSAGE_NOLOCALDEVICE = 0x00000004
 Global Const $RESOURCEUSAGE_SIBLING = 0x00000008
 Global Const $RESOURCEUSAGE_ATTACHED = 0x00000010
 Global Const $RESOURCEUSAGE_RESERVED = 0x80000000
-
-; DisplayType
-Global Const $RESOURCEDISPLAYTYPE_GENERIC = 0x00000000
-Global Const $RESOURCEDISPLAYTYPE_DOMAIN = 0x00000001
-Global Const $RESOURCEDISPLAYTYPE_SERVER = 0x00000002
-Global Const $RESOURCEDISPLAYTYPE_SHARE = 0x00000003
-Global Const $RESOURCEDISPLAYTYPE_FILE = 0x00000004
-Global Const $RESOURCEDISPLAYTYPE_GROUP = 0x00000005
-Global Const $RESOURCEDISPLAYTYPE_NETWORK = 0x00000006
-Global Const $RESOURCEDISPLAYTYPE_ROOT = 0x00000007
-Global Const $RESOURCEDISPLAYTYPE_SHAREADMIN = 0x00000008
-Global Const $RESOURCEDISPLAYTYPE_DIRECTORY = 0x00000009
-Global Const $RESOURCEDISPLAYTYPE_TREE = 0x0000000A
-Global Const $RESOURCEDISPLAYTYPE_NDSCONTAINER = 0x0000000A
 
 Global Const $WNNC_NET_MSNET = 0x00010000
 Global Const $WNNC_NET_LANMAN = 0x00020000
@@ -184,7 +171,7 @@ Global Const $WNNC_CRED_MANAGER = 0xFFFF0000
 ;                  |$CONNDLG_NOT_PERSIST - Do not restore the connection at logon
 ;                  DevNum   - If the call to the _WNet_ConnectionDialog1 function is successful, this member returns  the  number
 ;                  +of the connected device. The value is 1 for A:, 2 for B:, 3 for C:, and so on.  If the user made a deviceless
-;                  +connection, the value is -1.
+;                  +connection, the value is –1.
 ; Author ........: Paul Campbell (PaulIA)
 ; Remarks .......:
 ; ===============================================================================================================================
@@ -280,9 +267,9 @@ Func _WinNet_AddConnection($sLocalName, $sRemoteName, $sPassword = 0)
 		DllStructSetData($tPassword, "Text", $sPassword)
 	EndIf
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetAddConnectionW", "wstr", $sRemoteName, "struct*", $tPassword, "wstr", $sLocalName)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetAddConnectionW", "wstr", $sRemoteName, "struct*", $tPassword, "wstr", $sLocalName)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_AddConnection
 
 ; #FUNCTION# ====================================================================================================================
@@ -323,9 +310,9 @@ Func _WinNet_AddConnection2($sLocalName, $sRemoteName, $sUserName = 0, $sPasswor
 	DllStructSetData($tResource, "LocalName", $pLocalName)
 	DllStructSetData($tResource, "RemoteName", $pRemoteName)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetAddConnection2W", "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, "dword", $iFlags)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetAddConnection2W", "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, "dword", $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_AddConnection2
 
 ; #FUNCTION# ====================================================================================================================
@@ -366,29 +353,29 @@ Func _WinNet_AddConnection3($hWnd, $sLocalName, $sRemoteName, $sUserName = 0, $s
 	DllStructSetData($tResource, "LocalName", $pLocalName)
 	DllStructSetData($tResource, "RemoteName", $pRemoteName)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetAddConnection3W", "hwnd", $hWnd, "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, "dword", $iFlags)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetAddConnection3W", "hwnd", $hWnd, "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, "dword", $iFlags)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_AddConnection3
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _WinNet_CancelConnection($sName, $bForce = True)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetCancelConnectionW", "wstr", $sName, "bool", $bForce)
+Func _WinNet_CancelConnection($sName, $fForce = True)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetCancelConnectionW", "wstr", $sName, "bool", $fForce)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_CancelConnection
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _WinNet_CancelConnection2($sName, $bUpdate = True, $bForce = True)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetCancelConnection2W", "wstr", $sName, "dword", $bUpdate, "bool", $bForce)
+Func _WinNet_CancelConnection2($sName, $fUpdate = True, $fForce = True)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetCancelConnection2W", "wstr", $sName, "dword", $fUpdate, "bool", $fForce)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_CancelConnection2
 
 ; #FUNCTION# ====================================================================================================================
@@ -396,9 +383,9 @@ EndFunc   ;==>_WinNet_CancelConnection2
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_CloseEnum($hEnum)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetCloseEnum", "handle", $hEnum)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetCloseEnum", "handle", $hEnum)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_CloseEnum
 
 ; #FUNCTION# ====================================================================================================================
@@ -406,9 +393,9 @@ EndFunc   ;==>_WinNet_CloseEnum
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_ConnectionDialog($hWnd)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetConnectionDialog", "hwnd", $hWnd, "dword", $RESOURCETYPE_DISK)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetConnectionDialog", "hwnd", $hWnd, "dword", $RESOURCETYPE_DISK)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_ConnectionDialog
 
 ; #FUNCTION# ====================================================================================================================
@@ -438,10 +425,10 @@ Func _WinNet_ConnectionDialog1($hWnd, $sRemoteName = "", $iFlags = 2)
 	DllStructSetData($tConnect, "Resource", $pResource)
 	DllStructSetData($tConnect, "Flags", $iDialog)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetConnectionDialog1W", "struct*", $tConnect)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetConnectionDialog1W", "struct*", $tConnect)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aCall[0] = -1 Then Return -1 ; user cancels the dialog box
-	If $aCall[0] <> 0 Then Return SetError($aCall[0], 0, 0)
+	If $aResult[0] = -1 Then Return -1 ; user cancels the dialog box
+	If $aResult[0] <> 0 Then Return SetError($aResult[0], 0, 0)
 	Return DllStructGetData($tConnect, "DevNum")
 EndFunc   ;==>_WinNet_ConnectionDialog1
 
@@ -450,9 +437,9 @@ EndFunc   ;==>_WinNet_ConnectionDialog1
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_DisconnectDialog($hWnd)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetDisconnectDialog", "hwnd", $hWnd, "dword", $RESOURCETYPE_DISK)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetDisconnectDialog", "hwnd", $hWnd, "dword", $RESOURCETYPE_DISK)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_DisconnectDialog
 
 ; #FUNCTION# ====================================================================================================================
@@ -482,10 +469,10 @@ Func _WinNet_DisconnectDialog1($hWnd, $sLocalName, $sRemoteName = "", $iFlags = 
 	DllStructSetData($tDialog, "RemoteName", $pRemoteName)
 	DllStructSetData($tDialog, "Flags", $iOptions)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetDisconnectDialog1W", "struct*", $tDialog)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetDisconnectDialog1W", "struct*", $tDialog)
 	If @error Then Return SetError(@error, @extended, 0)
-	If $aCall[0] > 0 Then Return SetError($aCall[0], 0, 0)
-	If $aCall[0] = -1 Then Return -1
+	If $aResult[0] > 0 Then Return SetError($aResult[0], 0, 0)
+	If $aResult[0] = -1 Then Return -1
 	Return 1
 EndFunc   ;==>_WinNet_DisconnectDialog1
 
@@ -494,11 +481,11 @@ EndFunc   ;==>_WinNet_DisconnectDialog1
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_EnumResource($hEnum, ByRef $iCount, $pBuffer, ByRef $iBufSize)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetEnumResourceW", "handle", $hEnum, "dword*", $iCount, "struct*", $pBuffer, "dword*", $iBufSize)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetEnumResourceW", "handle", $hEnum, "dword*", $iCount, "ptr", $pBuffer, "dword*", $iBufSize)
 	If @error Then Return SetError(@error, @extended, False)
-	$iCount = $aCall[2]
-	$iBufSize = $aCall[4]
-	Return $aCall[0]
+	$iCount = $aResult[2]
+	$iBufSize = $aResult[4]
+	Return $aResult[0]
 EndFunc   ;==>_WinNet_EnumResource
 
 ; #FUNCTION# ====================================================================================================================
@@ -506,9 +493,9 @@ EndFunc   ;==>_WinNet_EnumResource
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_GetConnection($sLocalName)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetConnectionW", "wstr", $sLocalName, "wstr", "", "dword*", 4096)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetConnectionW", "wstr", $sLocalName, "wstr", "", "dword*", 4096)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetExtended($aCall[0], $aCall[2])
+	Return SetExtended($aResult[0], $aResult[2])
 EndFunc   ;==>_WinNet_GetConnection
 
 ; #FUNCTION# ====================================================================================================================
@@ -529,14 +516,14 @@ Func _WinNet_GetConnectionPerformance($sLocalName, $sRemoteName)
 	Local $tInfo = DllStructCreate($tagNETCONNECTINFOSTRUCT)
 	DllStructSetData($tInfo, "Size", DllStructGetSize($tInfo))
 
-	Local $aCall = DllCall("mpr.dll", "dword", "MultinetGetConnectionPerformanceW", "struct*", $tResource, "struct*", $tInfo)
+	Local $aResult = DllCall("mpr.dll", "dword", "MultinetGetConnectionPerformanceW", "struct*", $tResource, "struct*", $tInfo)
 	If @error Then Return SetError(@error, @extended, False)
 	Local $aInfo[4]
 	$aInfo[0] = DllStructGetData($tInfo, "Flags")
 	$aInfo[1] = DllStructGetData($tInfo, "Speed")
 	$aInfo[2] = DllStructGetData($tInfo, "Delay")
 	$aInfo[3] = DllStructGetData($tInfo, "OptDataSize")
-	Return SetExtended($aCall[0], $aInfo)
+	Return SetExtended($aResult[0], $aInfo)
 EndFunc   ;==>_WinNet_GetConnectionPerformance
 
 ; #FUNCTION# ====================================================================================================================
@@ -544,12 +531,12 @@ EndFunc   ;==>_WinNet_GetConnectionPerformance
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_GetLastError(ByRef $iError, ByRef $sError, ByRef $sName)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetLastErrorW", "dword*", $iError, "wstr", "", "dword", 1024, "wstr", "", "dword", 1024)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetLastErrorW", "dword*", $iError, "wstr", "", "dword", 1024, "wstr", "", "dword", 1024)
 	If @error Then Return SetError(@error, @extended, False)
-	$iError = $aCall[1]
-	$sError = $aCall[2]
-	$sName = $aCall[3]
-	Return $aCall[0]
+	$iError = $aResult[1]
+	$sError = $aResult[2]
+	$sName = $aResult[3]
+	Return $aResult[0]
 EndFunc   ;==>_WinNet_GetLastError
 
 ; #FUNCTION# ====================================================================================================================
@@ -560,7 +547,7 @@ Func _WinNet_GetNetworkInformation($sName)
 	Local $tInfo = DllStructCreate($tagNETINFOSTRUCT)
 	DllStructSetData($tInfo, "Size", DllStructGetSize($tInfo))
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetNetworkInformationW", "wstr", $sName, "struct*", $tInfo)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetNetworkInformationW", "wstr", $sName, "struct*", $tInfo)
 	If @error Then Return SetError(@error, @extended, False)
 	Local $aInfo[6]
 	$aInfo[0] = DllStructGetData($tInfo, "Version")
@@ -569,7 +556,7 @@ Func _WinNet_GetNetworkInformation($sName)
 	$aInfo[3] = DllStructGetData($tInfo, "NetType")
 	$aInfo[4] = DllStructGetData($tInfo, "Printers")
 	$aInfo[5] = DllStructGetData($tInfo, "Drives")
-	Return SetExtended($aCall[0], $aInfo)
+	Return SetExtended($aResult[0], $aInfo)
 EndFunc   ;==>_WinNet_GetNetworkInformation
 
 ; #FUNCTION# ====================================================================================================================
@@ -577,9 +564,9 @@ EndFunc   ;==>_WinNet_GetNetworkInformation
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_GetProviderName($iType)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetProviderNameW", "dword", $iType, "wstr", "", "dword*", 4096)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetProviderNameW", "dword", $iType, "wstr", "", "dword*", 4096)
 	If @error Then Return SetError(@error, @extended, "")
-	Return SetExtended($aCall[0], $aCall[2])
+	Return SetExtended($aResult[0], $aResult[2])
 EndFunc   ;==>_WinNet_GetProviderName
 
 ; #FUNCTION# ====================================================================================================================
@@ -608,11 +595,11 @@ Func _WinNet_GetResourceInformation($sRemoteName, $sProvider = "", $iType = 0)
 	DllStructSetData($tResource, "Type", $iType)
 	DllStructSetData($tResource, "Provider", $pProvider)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetResourceInformationW", "struct*", $tResource, "struct*", $tBuffer, "dword*", 16384, "wstr", "")
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetResourceInformationW", "struct*", $tResource, "struct*", $tBuffer, "dword*", 16384, "wstr", "")
 	If @error Then Return SetError(@error, @extended, False)
 	Local $aResource = __WinNet_NETRESOURCEToArray(DllStructGetPtr($tBuffer))
-	$aResource[8] = $aCall[4]
-	Return SetExtended($aCall[0], $aResource)
+	$aResource[8] = $aResult[4]
+	Return SetExtended($aResult[0], $aResource)
 EndFunc   ;==>_WinNet_GetResourceInformation
 
 ; #FUNCTION# ====================================================================================================================
@@ -638,9 +625,9 @@ Func _WinNet_GetResourceParent($sRemoteName, $sProvider, $iType = 0)
 	DllStructSetData($tResource, "Type", $iType)
 	DllStructSetData($tResource, "Provider", $pProvider)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetResourceParentW", "struct*", $tResource, "struct*", $tBuffer, "dword*", 16384)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetResourceParentW", "struct*", $tResource, "struct*", $tBuffer, "dword*", 16384)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetExtended($aCall[0], __WinNet_NETRESOURCEToArray(DllStructGetPtr($tBuffer)))
+	Return SetExtended($aResult[0], __WinNet_NETRESOURCEToArray(DllStructGetPtr($tBuffer)))
 EndFunc   ;==>_WinNet_GetResourceParent
 
 ; #FUNCTION# ====================================================================================================================
@@ -654,7 +641,7 @@ Func _WinNet_GetUniversalName($sLocalPath)
 
 	Local $tBuffer = DllStructCreate("byte[16384]")
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetUniversalNameW", "struct*", $tLocal, "dword", 2, "struct*", $tBuffer, "dword*", 16384)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetUniversalNameW", "struct*", $tLocal, "dword", 2, "struct*", $tBuffer, "dword*", 16384)
 	If @error Then Return SetError(@error, @extended, False)
 	Local $tRemote = DllStructCreate($tagREMOTE_NAME_INFO, DllStructGetPtr($tBuffer))
 	Local $pText = DllStructGetData($tRemote, "Universal")
@@ -667,7 +654,7 @@ Func _WinNet_GetUniversalName($sLocalPath)
 	$pText = DllStructGetData($tRemote, "Remaining")
 	$tText = DllStructCreate("wchar Text[4096]", $pText)
 	$aPath[2] = DllStructGetData($tText, "Text")
-	Return SetExtended($aCall[0], $aPath)
+	Return SetExtended($aResult[0], $aPath)
 EndFunc   ;==>_WinNet_GetUniversalName
 
 ; #FUNCTION# ====================================================================================================================
@@ -675,9 +662,9 @@ EndFunc   ;==>_WinNet_GetUniversalName
 ; Modified.......:
 ; ===============================================================================================================================
 Func _WinNet_GetUser($sName)
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetGetUserW", "wstr", $sName, "wstr", "", "dword*", 4096)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetGetUserW", "wstr", $sName, "wstr", "", "dword*", 4096)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetExtended($aCall[0], $aCall[2])
+	Return SetExtended($aResult[0], $aResult[2])
 EndFunc   ;==>_WinNet_GetUser
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -777,9 +764,9 @@ EndFunc   ;==>__WinNet_NETRESOURCEToArray
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: jpm
+; Modified.......:
 ; ===============================================================================================================================
-Func _WinNet_OpenEnum($iScope, $iType, $iUsage, $tResource, ByRef $hEnum)
+Func _WinNet_OpenEnum($iScope, $iType, $iUsage, $pResource, ByRef $hEnum)
 	Switch $iScope
 		Case 1
 			$iScope = $RESOURCE_GLOBALNET
@@ -796,26 +783,26 @@ Func _WinNet_OpenEnum($iScope, $iType, $iUsage, $tResource, ByRef $hEnum)
 	If BitAND($iUsage, 2) <> 0 Then $iFlags = BitOR($iFlags, $RESOURCEUSAGE_CONTAINER)
 	If BitAND($iUsage, 4) <> 0 Then $iFlags = BitOR($iFlags, $RESOURCEUSAGE_ATTACHED)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetOpenEnum", "dword", $iScope, "dword", $iType, "dword", $iFlags, "struct*", $tResource, "handle*", 0)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetOpenEnum", "dword", $iScope, "dword", $iType, "dword", $iFlags, "ptr", $pResource, "handle*", 0)
 	If @error Then Return SetError(@error, @extended, False)
 
-	$hEnum = $aCall[5]
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	$hEnum = $aResult[5]
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_OpenEnum
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _WinNet_RestoreConnection($sDevice = "", $hWnd = 0, $bUseUI = True)
+Func _WinNet_RestoreConnection($sDevice = "", $hWnd = 0, $fUseUI = True)
 	Local $tDevice = 0
 	If $sDevice <> "" Then
 		$tDevice = _WinAPI_MultiByteToWideChar($sDevice)
 	EndIf
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetRestoreConnectionW", "hwnd", $hWnd, "struct*", $tDevice, "bool", $bUseUI)
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetRestoreConnectionW", "hwnd", $hWnd, "struct*", $tDevice, "bool", $fUseUI)
 	If @error Then Return SetError(@error, @extended, False)
-	Return SetError($aCall[0], 0, $aCall[0] = 0)
+	Return SetError($aResult[0], 0, $aResult[0] = 0)
 EndFunc   ;==>_WinNet_RestoreConnection
 
 ; #FUNCTION# ====================================================================================================================
@@ -861,11 +848,11 @@ Func _WinNet_UseConnection($hWnd, $sLocalName, $sRemoteName, $sUserName = 0, $sP
 	DllStructSetData($tResource, "LocalName", $pLocalName)
 	DllStructSetData($tResource, "RemoteName", $pRemoteName)
 
-	Local $aCall = DllCall("mpr.dll", "dword", "WNetUseConnectionW", "hwnd", $hWnd, "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, _
+	Local $aResult = DllCall("mpr.dll", "dword", "WNetUseConnectionW", "hwnd", $hWnd, "struct*", $tResource, "struct*", $tPassword, "struct*", $tUserName, _
 			"dword", $iFlags, "wstr", "", "dword*", 4096, "dword*", 0)
 	If @error Then Return SetError(@error, @extended, False)
 	Local $aInfo[2]
-	$aInfo[0] = BitAND($aCall[8], $CONNECT_LOCALDRIVE) <> 0
-	$aInfo[1] = $aCall[6] ; AccessName
-	Return SetExtended($aCall[0], $aInfo)
+	$aInfo[0] = BitAND($aResult[8], $CONNECT_LOCALDRIVE) <> 0
+	$aInfo[1] = $aResult[6] ; AccessName
+	Return SetExtended($aResult[0], $aInfo)
 EndFunc   ;==>_WinNet_UseConnection

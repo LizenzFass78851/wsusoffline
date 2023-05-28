@@ -1,18 +1,18 @@
 #include-once
 
 #include "APIShPathConstants.au3"
-#include "StringConstants.au3"
-#include "StructureConstants.au3"
 #include "WinAPIInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.8.1++
 ; Description ...: Additional variables, constants and functions for the WinAPIShPath.au3
 ; Author(s) .....: Yashied, jpm
+; Dll(s) ........: shell32.dll, kernel32.dll, ntdll.dll, shlwapi.dll, credui.dll, user32.dll, gdi32.dll
+; Requirements ..: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
-#Region Functions list
+#region Functions list
 
 ; #CURRENT# =====================================================================================================================
 ; _WinAPI_CommandLineToArgv
@@ -31,7 +31,6 @@
 ; _WinAPI_PathFindExtension
 ; _WinAPI_PathFindFileName
 ; _WinAPI_PathFindNextComponent
-; _WinAPI_PathFindOnPath
 ; _WinAPI_PathGetArgs
 ; _WinAPI_PathGetCharType
 ; _WinAPI_PathGetDriveNumber
@@ -75,51 +74,51 @@
 ; _WinAPI_UrlHash
 ; _WinAPI_UrlIs
 ; ===============================================================================================================================
-#EndRegion Functions list
+#endregion Functions list
 
-#Region Public Functions
+#region Public Functions
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_CommandLineToArgv($sCmd)
-	Local $aRet[1] = [0]
+	Local $Result[1] = [0]
 
-	$sCmd = StringStripWS($sCmd, $STR_STRIPLEADING + $STR_STRIPTRAILING)
+	$sCmd = StringStripWS($sCmd, 3)
 	If Not $sCmd Then
-		Return $aRet
+		Return $Result
 	EndIf
 
-	Local $aCall = DllCall('shell32.dll', 'ptr', 'CommandLineToArgvW', 'wstr', $sCmd, 'int*', 0)
-	If @error Or Not $aCall[0] Or (Not $aCall[2]) Then Return SetError(@error + 10, @extended, 0)
+	Local $Ret = DllCall('shell32.dll', 'ptr', 'CommandLineToArgvW', 'wstr', $sCmd, 'int*', 0)
+	If @error Or Not $Ret[0] Or (Not $Ret[2]) Then Return SetError(@error + 10, @extended, 0)
 
-	Local $tPtr = DllStructCreate('ptr[' & $aCall[2] & ']', $aCall[0])
+	Local $tPtr = DllStructCreate('ptr[' & $Ret[2] & ']', $Ret[0])
 
-	Dim $aRet[$aCall[2] + 1] = [$aCall[2]]
-	For $i = 1 To $aCall[2]
-		$aRet[$i] = _WinAPI_GetString(DllStructGetData($tPtr, 1, $i))
+	Dim $Result[$Ret[2] + 1] = [$Ret[2]]
+	For $i = 1 To $Ret[2]
+		$Result[$i] = _WinAPI_GetString(DllStructGetData($tPtr, 1, $i))
 	Next
-	; _WinAPI_LocalFree($aCall[0])
-	DllCall("kernel32.dll", "handle", "LocalFree", "handle", $aCall[0])
+	; _WinAPI_LocalFree($Ret[0])
+	DllCall("kernel32.dll", "handle", "LocalFree", "handle", $Ret[0])
 
-	Return $aRet
+	Return $Result
 EndFunc   ;==>_WinAPI_CommandLineToArgv
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_IsNameInExpression($sString, $sPattern, $bCaseSensitive = False)
-	If Not $bCaseSensitive Then $sPattern = StringUpper($sPattern)
+Func _WinAPI_IsNameInExpression($sString, $sPattern, $fCaseSensitive = 0)
+	If Not $fCaseSensitive Then $sPattern = StringUpper($sPattern)
 
 	Local $tUS1 = __US($sPattern)
 	Local $tUS2 = __US($sString)
-	Local $aCall = DllCall('ntdll.dll', 'boolean', 'RtlIsNameInExpression', 'struct*', $tUS1, 'struct*', $tUS2, _
-			'boolean', Not $bCaseSensitive, 'ptr', 0)
+	Local $Ret = DllCall('ntdll.dll', 'boolean', 'RtlIsNameInExpression', 'struct*', $tUS1, 'struct*', $tUS2, _
+			'boolean', Not $fCaseSensitive, 'ptr', 0)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_IsNameInExpression
 
 ; #FUNCTION# ====================================================================================================================
@@ -133,15 +132,15 @@ Func _WinAPI_ParseURL($sUrl)
 	Local $tURL = DllStructCreate('wchar[4096]') ; needed as 'wstr', $sUrl is not working
 	DllStructSetData($tURL, 1, $sUrl)
 
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'ParseURLW', 'struct*', $tURL, 'struct*', $tPURL)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'ParseURLW', 'struct*', $tURL, 'struct*', $tPURL)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Local $aRet[3]
-	$aRet[0] = DllStructGetData(DllStructCreate('wchar[' & DllStructGetData($tPURL, 3) & ']', DllStructGetData($tPURL, 2)), 1)
-	$aRet[1] = DllStructGetData(DllStructCreate('wchar[' & DllStructGetData($tPURL, 5) & ']', DllStructGetData($tPURL, 4)), 1)
-	$aRet[2] = DllStructGetData($tPURL, 6)
-	Return $aRet
+	Local $Result[3]
+	$Result[0] = DllStructGetData(DllStructCreate('wchar[' & DllStructGetData($tPURL, 3) & ']', DllStructGetData($tPURL, 2)), 1)
+	$Result[1] = DllStructGetData(DllStructCreate('wchar[' & DllStructGetData($tPURL, 5) & ']', DllStructGetData($tPURL, 4)), 1)
+	$Result[2] = DllStructGetData($tPURL, 6)
+	Return $Result
 EndFunc   ;==>_WinAPI_ParseURL
 
 ; #FUNCTION# ====================================================================================================================
@@ -151,39 +150,39 @@ EndFunc   ;==>_WinAPI_ParseURL
 Func _WinAPI_ParseUserName($sUser)
 	If Not __DLL('credui.dll') Then Return SetError(103, 0, 0)
 
-	Local $aCall = DllCall('credui.dll', 'dword', 'CredUIParseUserNameW', 'wstr', $sUser, 'wstr', '', 'ulong', 4096, 'wstr', '', _
+	Local $Ret = DllCall('credui.dll', 'dword', 'CredUIParseUserNameW', 'wstr', $sUser, 'wstr', '', 'ulong', 4096, 'wstr', '', _
 			'ulong', 4096)
 	If @error Then Return SetError(@error, @extended, 0)
-	Switch $aCall[0]
+	Switch $Ret[0]
 		Case 0
 
 		Case 1315 ; ERROR_INVALID_ACCOUNT_NAME
-			If StringStripWS($sUser, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then
-				$aCall[2] = $sUser
-				$aCall[4] = ''
+			If StringStripWS($sUser, 3) Then
+				$Ret[2] = $sUser
+				$Ret[4] = ''
 			Else
 				ContinueCase
 			EndIf
 		Case Else
-			Return SetError(10, $aCall[0], 0)
+			Return SetError(10, $Ret[0], 0)
 	EndSwitch
 
-	Local $aRet[2]
-	$aRet[0] = $aCall[4]
-	$aRet[1] = $aCall[2]
-	Return $aRet
+	Local $Result[2]
+	$Result[0] = $Ret[4]
+	$Result[1] = $Ret[2]
+	Return $Result
 EndFunc   ;==>_WinAPI_ParseUserName
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: JPM
 ; ===============================================================================================================================
-Func _WinAPI_PathAddBackslash($sFilePath)
+Func _WinAPI_PathAddBackslash($sPath)
 	Local $tPath = DllStructCreate('wchar[260]') ; avoid buffer overflow
-	DllStructSetData($tPath, 1, $sFilePath)
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathAddBackslashW', 'struct*', $tPath)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathAddBackslashW', 'struct*', $tPath)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
 
 	Return DllStructGetData($tPath, 1)
 EndFunc   ;==>_WinAPI_PathAddBackslash
@@ -192,29 +191,33 @@ EndFunc   ;==>_WinAPI_PathAddBackslash
 ; Author.........: Yashied
 ; Modified.......: JPM
 ; ===============================================================================================================================
-Func _WinAPI_PathAddExtension($sFilePath, $sExt = '')
+Func _WinAPI_PathAddExtension($sPath, $sExt = '')
 	Local $tPath = DllStructCreate('wchar[260]') ; avoid buffer overflow
-	DllStructSetData($tPath, 1, $sFilePath)
+	DllStructSetData($tPath, 1, $sPath)
 
-	If Not StringStripWS($sExt, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sExt = Null
+	Local $TypeOfExt = 'wstr'
+	If Not StringStripWS($sExt, 3) Then
+		$TypeOfExt = 'ptr'
+		$sExt = 0
+	EndIf
 
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathAddExtensionW', 'struct*', $tPath, 'wstr', $sExt)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathAddExtensionW', 'struct*', $tPath, $TypeOfExt, $sExt)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return SetExtended($aCall[0], DllStructGetData($tPath, 1))
+	Return SetExtended($Ret[0], DllStructGetData($tPath, 1))
 EndFunc   ;==>_WinAPI_PathAddExtension
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: JPM
 ; ===============================================================================================================================
-Func _WinAPI_PathAppend($sFilePath, $sMore)
+Func _WinAPI_PathAppend($sPath, $sMore)
 	Local $tPath = DllStructCreate('wchar[260]') ; avoid buffer overflow
-	DllStructSetData($tPath, 1, $sFilePath)
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathAppendW', 'struct*', $tPath, 'wstr', $sMore)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathAppendW', 'struct*', $tPath, 'wstr', $sMore)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
 	Return DllStructGetData($tPath, 1)
 EndFunc   ;==>_WinAPI_PathAppend
@@ -224,23 +227,23 @@ EndFunc   ;==>_WinAPI_PathAppend
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathBuildRoot($iDrive)
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathBuildRootW', 'wstr', '', 'int', $iDrive)
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathBuildRootW', 'wstr', '', 'int', $iDrive)
 	If @error Then Return SetError(@error, @extended, '')
-	; If Not $aCall[1] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[1] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathBuildRoot
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathCanonicalize($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathCanonicalizeW', 'wstr', '', 'wstr', $sFilePath)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, $sFilePath)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+Func _WinAPI_PathCanonicalize($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathCanonicalizeW', 'wstr', '', 'wstr', $sPath)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, $sPath)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathCanonicalize
 
 ; #FUNCTION# ====================================================================================================================
@@ -248,53 +251,53 @@ EndFunc   ;==>_WinAPI_PathCanonicalize
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathCommonPrefix($sPath1, $sPath2)
-	Local $aCall = DllCall('shlwapi.dll', 'int', 'PathCommonPrefixW', 'wstr', $sPath1, 'wstr', $sPath2, 'wstr', '')
+	Local $Ret = DllCall('shlwapi.dll', 'int', 'PathCommonPrefixW', 'wstr', $sPath1, 'wstr', $sPath2, 'wstr', '')
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return SetExtended($aCall[0], $aCall[3])
+	Return SetExtended($Ret[0], $Ret[3])
 EndFunc   ;==>_WinAPI_PathCommonPrefix
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathCompactPath($hWnd, $sFilePath, $iWidth = 0)
+Func _WinAPI_PathCompactPath($hWnd, $sPath, $iWidth = 0)
 	If $iWidth < 1 Then
 		; $iWidth += _WinAPI_GetClientWidth($hWnd)
-		Local $tRECT = DllStructCreate($tagRECT)
-		DllCall("user32.dll", "bool", "GetClientRect", "hwnd", $hWnd, "struct*", $tRECT)
-		$iWidth += DllStructGetData($tRECT, "Right") - DllStructGetData($tRECT, "Left")
+		Local $tRect = DllStructCreate($tagRECT)
+		DllCall("user32.dll", "bool", "GetClientRect", "hwnd", $hWnd, "struct*", $tRect)
+		$iWidth += DllStructGetData($tRect, "Right") - DllStructGetData($tRect, "Left")
 	EndIf
-	Local $aCall = DllCall('user32.dll', 'handle', 'GetDC', 'hwnd', $hWnd)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, $sFilePath)
+	Local $Ret = DllCall('user32.dll', 'handle', 'GetDC', 'hwnd', $hWnd)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 20, @extended, $sPath)
 
-	Local $hDC = $aCall[0]
+	Local $hDC = $Ret[0]
 	Local Const $WM_GETFONT = 0x0031
-	$aCall = DllCall('user32.dll', 'ptr', 'SendMessage', 'hwnd', $hWnd, 'uint', $WM_GETFONT, 'wparam', 0, 'lparam', 0) ; $WM_GETFONT
+	$Ret = DllCall('user32.dll', 'ptr', 'SendMessage', 'hwnd', $hWnd, 'uint', $WM_GETFONT, 'wparam', 0, 'lparam', 0) ; $WM_GETFONT
 
-	; Local $hBack = _WinAPI_SelectObject($hDC, $aCall[0])
-	Local $hBack = DllCall("gdi32.dll", "handle", "SelectObject", "handle", $hDC, "handle", $aCall[0])
+	; Local $hBack = _WinAPI_SelectObject($hDC, $Ret[0])
+	Local $hBack = DllCall("gdi32.dll", "handle", "SelectObject", "handle", $hDC, "handle", $Ret[0])
 	Local $iError = 0
-	$aCall = DllCall('shlwapi.dll', 'bool', 'PathCompactPathW', 'handle', $hDC, 'wstr', $sFilePath, 'int', $iWidth)
-	If @error Or Not $aCall[0] Then $iError = @error + 10
+	$Ret = DllCall('shlwapi.dll', 'bool', 'PathCompactPathW', 'handle', $hDC, 'wstr', $sPath, 'int', $iWidth)
+	If @error Or Not $Ret[0] Then $iError = @error + 10
 	; _WinAPI_SelectObject($hDC, $hBack[0])
 	DllCall("gdi32.dll", "handle", "SelectObject", "handle", $hDC, "handle", $hBack[0])
 	; _WinAPI_ReleaseDC($hWnd, $hDC)
 	DllCall("user32.dll", "int", "ReleaseDC", "hwnd", $hWnd, "handle", $hDC)
-	If $iError Then Return SetError($iError, 0, $sFilePath)
+	If $iError Then Return SetError($iError, 0, $sPath)
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_PathCompactPath
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathCompactPathEx($sFilePath, $iMax)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathCompactPathExW', 'wstr', '', 'wstr', $sFilePath, 'uint', $iMax + 1, 'dword', 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, $sFilePath)
+Func _WinAPI_PathCompactPathEx($sPath, $iMax)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathCompactPathExW', 'wstr', '', 'wstr', $sPath, 'uint', $iMax + 1, 'dword', 0)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 10, @extended, $sPath)
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathCompactPathEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -302,99 +305,61 @@ EndFunc   ;==>_WinAPI_PathCompactPathEx
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathCreateFromUrl($sUrl)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'PathCreateFromUrlW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', 0)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'PathCreateFromUrlW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_PathCreateFromUrl
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathFindExtension($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'wstr', 'PathFindExtensionW', 'wstr', $sFilePath)
+Func _WinAPI_PathFindExtension($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'wstr', 'PathFindExtensionW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathFindExtension
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathFindFileName($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'wstr', 'PathFindFileNameW', 'wstr', $sFilePath)
-	If @error Then Return SetError(@error, @extended, $sFilePath)
+Func _WinAPI_PathFindFileName($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'wstr', 'PathFindFileNameW', 'wstr', $sPath)
+	If @error Then Return SetError(@error, @extended, $sPath)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathFindFileName
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathFindNextComponent($sFilePath)
-	Local $tPath = DllStructCreate('wchar[' & (StringLen($sFilePath) + 1) & ']')
-	DllStructSetData($tPath, 1, $sFilePath)
+Func _WinAPI_PathFindNextComponent($sPath)
+	Local $tPath = DllStructCreate('wchar[' & (StringLen($sPath) + 1) & ']')
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathFindNextComponentW', 'struct*', $tPath)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathFindNextComponentW', 'struct*', $tPath)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return _WinAPI_GetString($aCall[0])
+	Return _WinAPI_GetString($Ret[0])
 EndFunc   ;==>_WinAPI_PathFindNextComponent
-
-; #FUNCTION# ====================================================================================================================
-; Author ........: Daniel Miranda (danielkza)
-; Modified.......: JPM
-; ===============================================================================================================================
-Func _WinAPI_PathFindOnPath(Const $sFilePath, $aExtraPaths = "", Const $sPathDelimiter = @LF)
-	Local $iExtraCount = 0
-	If IsString($aExtraPaths) Then
-		If StringLen($aExtraPaths) Then
-			$aExtraPaths = StringSplit($aExtraPaths, $sPathDelimiter, $STR_ENTIRESPLIT + $STR_NOCOUNT)
-			$iExtraCount = UBound($aExtraPaths, $UBOUND_ROWS)
-		EndIf
-	ElseIf IsArray($aExtraPaths) Then
-		$iExtraCount = UBound($aExtraPaths)
-	EndIf
-
-	Local $tPaths, $tPathPtrs
-	If $iExtraCount Then
-		Local $tagStruct = ""
-		For $path In $aExtraPaths
-			$tagStruct &= "wchar[" & StringLen($path) + 1 & "];"
-		Next
-
-		$tPaths = DllStructCreate($tagStruct)
-		$tPathPtrs = DllStructCreate("ptr[" & $iExtraCount + 1 & "]")
-
-		For $i = 1 To $iExtraCount
-			DllStructSetData($tPaths, $i, $aExtraPaths[$i - 1])
-			DllStructSetData($tPathPtrs, 1, DllStructGetPtr($tPaths, $i), $i)
-		Next
-		DllStructSetData($tPathPtrs, 1, Ptr(0), $iExtraCount + 1)
-	EndIf
-
-	Local $aCall = DllCall("shlwapi.dll", "bool", "PathFindOnPathW", "wstr", $sFilePath, "struct*", $tPathPtrs)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, $sFilePath)
-
-	Return $aCall[1]
-EndFunc   ;==>_WinAPI_PathFindOnPath
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathGetArgs($sFilePath)
-	Local $tPath = DllStructCreate('wchar[' & (StringLen($sFilePath) + 1) & ']')
-	DllStructSetData($tPath, 1, $sFilePath)
+Func _WinAPI_PathGetArgs($sPath)
+	Local $tPath = DllStructCreate('wchar[' & (StringLen($sPath) + 1) & ']')
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathGetArgsW', 'struct*', $tPath)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathGetArgsW', 'struct*', $tPath)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
 
-	Return _WinAPI_GetString($aCall[0])
+	Return _WinAPI_GetString($Ret[0])
 EndFunc   ;==>_WinAPI_PathGetArgs
 
 ; #FUNCTION# ====================================================================================================================
@@ -402,88 +367,88 @@ EndFunc   ;==>_WinAPI_PathGetArgs
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathGetCharType($sChar)
-	Local $aCall = DllCall('shlwapi.dll', 'uint', 'PathGetCharTypeW', 'word', AscW($sChar))
+	Local $Ret = DllCall('shlwapi.dll', 'uint', 'PathGetCharTypeW', 'word', AscW($sChar))
 	If @error Then Return SetError(@error, @extended, -1)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathGetCharType
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathGetDriveNumber($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'int', 'PathGetDriveNumberW', 'wstr', $sFilePath)
-	If @error Or ($aCall[0] = -1) Then Return SetError(@error, @extended, '')
-	; If $aCall[0] = -1 Then Return SetError(1000, 0, '')
+Func _WinAPI_PathGetDriveNumber($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'int', 'PathGetDriveNumberW', 'wstr', $sPath)
+	If @error Or ($Ret[0] = -1) Then Return SetError(@error, @extended, '')
+	; If $Ret[0] = -1 Then Return SetError(1000, 0, '')
 
-	Return Chr($aCall[0] + 65) & ':'
+	Return Chr($Ret[0] + 65) & ':'
 EndFunc   ;==>_WinAPI_PathGetDriveNumber
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsContentType($sFilePath, $sType)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsContentTypeW', 'wstr', $sFilePath, 'wstr', $sType)
+Func _WinAPI_PathIsContentType($sPath, $sType)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsContentTypeW', 'wstr', $sPath, 'wstr', $sType)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsContentType
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsExe($sFilePath)
-	Local $aCall = DllCall('shell32.dll', 'bool', 'PathIsExe', 'wstr', $sFilePath)
+Func _WinAPI_PathIsExe($sPath)
+	Local $Ret = DllCall('shell32.dll', 'bool', 'PathIsExe', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsExe
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsFileSpec($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsFileSpecW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsFileSpec($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsFileSpecW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsFileSpec
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsLFNFileSpec($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsLFNFileSpecW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsLFNFileSpec($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsLFNFileSpecW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsLFNFileSpec
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsRelative($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsRelativeW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsRelative($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsRelativeW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsRelative
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsRoot($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsRootW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsRoot($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsRootW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsRoot
 
 ; #FUNCTION# ====================================================================================================================
@@ -491,168 +456,168 @@ EndFunc   ;==>_WinAPI_PathIsRoot
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_PathIsSameRoot($sPath1, $sPath2)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsSameRootW', 'wstr', $sPath1, 'wstr', $sPath2)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsSameRootW', 'wstr', $sPath1, 'wstr', $sPath2)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsSameRoot
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsSystemFolder($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsSystemFolderW', 'wstr', $sFilePath, 'dword', 0)
+Func _WinAPI_PathIsSystemFolder($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsSystemFolderW', 'wstr', $sPath, 'dword', 0)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsSystemFolder
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsUNC($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsUNCW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsUNC($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsUNCW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsUNC
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsUNCServer($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsUNCServerW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsUNCServer($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsUNCServerW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsUNCServer
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathIsUNCServerShare($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathIsUNCServerShareW', 'wstr', $sFilePath)
+Func _WinAPI_PathIsUNCServerShare($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathIsUNCServerShareW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathIsUNCServerShare
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathMakeSystemFolder($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathMakeSystemFolderW', 'wstr', $sFilePath)
+Func _WinAPI_PathMakeSystemFolder($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathMakeSystemFolderW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathMakeSystemFolder
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathMatchSpec($sFilePath, $sSpec)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathMatchSpecW', 'wstr', $sFilePath, 'wstr', $sSpec)
+Func _WinAPI_PathMatchSpec($sPath, $sSpec)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathMatchSpecW', 'wstr', $sPath, 'wstr', $sSpec)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathMatchSpec
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathParseIconLocation($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'int', 'PathParseIconLocationW', 'wstr', $sFilePath)
+Func _WinAPI_PathParseIconLocation($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'int', 'PathParseIconLocationW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Local $aRet[2]
-	$aRet[0] = $aCall[1]
-	$aRet[1] = $aCall[0]
-	Return $aRet
+	Local $Result[2]
+	$Result[0] = $Ret[1]
+	$Result[1] = $Ret[0]
+	Return $Result
 EndFunc   ;==>_WinAPI_PathParseIconLocation
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Mat
 ; Modified.......: Yashied, Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathRelativePathTo($sPathFrom, $bDirFrom, $sPathTo, $bDirTo)
-	If $bDirFrom Then
-		$bDirFrom = 0x10
+Func _WinAPI_PathRelativePathTo($sPathFrom, $fDirFrom, $sPathTo, $fDirTo)
+	If $fDirFrom Then
+		$fDirFrom = 0x10
 	EndIf
-	If $bDirTo Then
-		$bDirTo = 0x10
+	If $fDirTo Then
+		$fDirTo = 0x10
 	EndIf
 
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathRelativePathToW', 'wstr', '', 'wstr', $sPathFrom, 'dword', $bDirFrom, _
-			'wstr', $sPathTo, 'dword', $bDirTo)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, '')
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathRelativePathToW', 'wstr', '', 'wstr', $sPathFrom, 'dword', $fDirFrom, _
+			'wstr', $sPathTo, 'dword', $fDirTo)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathRelativePathTo
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathRemoveArgs($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'none', 'PathRemoveArgsW', 'wstr', $sFilePath)
+Func _WinAPI_PathRemoveArgs($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'none', 'PathRemoveArgsW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathRemoveArgs
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathRemoveBackslash($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathRemoveBackslashW', 'wstr', $sFilePath)
+Func _WinAPI_PathRemoveBackslash($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathRemoveBackslashW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathRemoveBackslash
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathRemoveExtension($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'none', 'PathRemoveExtensionW', 'wstr', $sFilePath)
+Func _WinAPI_PathRemoveExtension($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'none', 'PathRemoveExtensionW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathRemoveExtension
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathRemoveFileSpec($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathRemoveFileSpecW', 'wstr', $sFilePath)
+Func _WinAPI_PathRemoveFileSpec($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathRemoveFileSpecW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return SetExtended($aCall[0], $aCall[1])
+	Return SetExtended($Ret[0], $Ret[1])
 EndFunc   ;==>_WinAPI_PathRemoveFileSpec
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: JPM
 ; ===============================================================================================================================
-Func _WinAPI_PathRenameExtension($sFilePath, $sExt)
+Func _WinAPI_PathRenameExtension($sPath, $sExt)
 	Local $tPath = DllStructCreate('wchar[260]') ; as described in MSDN
-	DllStructSetData($tPath, 1, $sFilePath)
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathRenameExtensionW', 'struct*', $tPath, 'wstr', $sExt)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, '')
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathRenameExtensionW', 'struct*', $tPath, 'wstr', $sExt)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, '')
 
 	Return DllStructGetData($tPath, 1)
 EndFunc   ;==>_WinAPI_PathRenameExtension
@@ -661,117 +626,117 @@ EndFunc   ;==>_WinAPI_PathRenameExtension
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathSearchAndQualify($sFilePath, $bExists = False)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathSearchAndQualifyW', 'wstr', $sFilePath, 'wstr', '', 'int', 4096)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
-	If $bExists And Not FileExists($aCall[2]) Then Return SetError(20, 0, '')
+Func _WinAPI_PathSearchAndQualify($sPath, $fExists = 0)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathSearchAndQualifyW', 'wstr', $sPath, 'wstr', '', 'int', 4096)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 10, @extended, '')
+	If $fExists And Not FileExists($Ret[2]) Then Return SetError(20, 0, '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_PathSearchAndQualify
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathSkipRoot($sFilePath)
-	Local $tPath = DllStructCreate('wchar[' & (StringLen($sFilePath) + 1) & ']')
-	DllStructSetData($tPath, 1, $sFilePath)
+Func _WinAPI_PathSkipRoot($sPath)
+	Local $tPath = DllStructCreate('wchar[' & (StringLen($sPath) + 1) & ']')
+	DllStructSetData($tPath, 1, $sPath)
 
-	Local $aCall = DllCall('shlwapi.dll', 'ptr', 'PathSkipRootW', 'struct*', $tPath)
+	Local $Ret = DllCall('shlwapi.dll', 'ptr', 'PathSkipRootW', 'struct*', $tPath)
 	If @error Then Return SetError(@error, @extended, '')
-	If Not $aCall[0] Then Return $sFilePath
+	If Not $Ret[0] Then Return $sPath
 
-	Return _WinAPI_GetString($aCall[0])
+	Return _WinAPI_GetString($Ret[0])
 EndFunc   ;==>_WinAPI_PathSkipRoot
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathStripPath($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'none', 'PathStripPathW', 'wstr', $sFilePath)
+Func _WinAPI_PathStripPath($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'none', 'PathStripPathW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathStripPath
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathStripToRoot($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathStripToRootW', 'wstr', $sFilePath)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, '')
+Func _WinAPI_PathStripToRoot($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathStripToRootW', 'wstr', $sPath)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathStripToRoot
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathUndecorate($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'none', 'PathUndecorateW', 'wstr', $sFilePath)
+Func _WinAPI_PathUndecorate($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'none', 'PathUndecorateW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathUndecorate
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathUnExpandEnvStrings($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathUnExpandEnvStringsW', 'wstr', $sFilePath, 'wstr', '', 'uint', 4096)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, '')
+Func _WinAPI_PathUnExpandEnvStrings($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathUnExpandEnvStringsW', 'wstr', $sPath, 'wstr', '', 'uint', 4096)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_PathUnExpandEnvStrings
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathUnmakeSystemFolder($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'PathUnmakeSystemFolderW', 'wstr', $sFilePath)
+Func _WinAPI_PathUnmakeSystemFolder($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'PathUnmakeSystemFolderW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_PathUnmakeSystemFolder
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathUnquoteSpaces($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'none', 'PathUnquoteSpacesW', 'wstr', $sFilePath)
+Func _WinAPI_PathUnquoteSpaces($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'none', 'PathUnquoteSpacesW', 'wstr', $sPath)
 	If @error Then Return SetError(@error, @extended, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathUnquoteSpaces
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_PathYetAnotherMakeUniqueName($sFilePath)
-	Local $aCall = DllCall('shell32.dll', 'int', 'PathYetAnotherMakeUniqueName', 'wstr', '', 'wstr', $sFilePath, 'ptr', 0, 'ptr', 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, '')
+Func _WinAPI_PathYetAnotherMakeUniqueName($sPath)
+	Local $Ret = DllCall('shell32.dll', 'int', 'PathYetAnotherMakeUniqueName', 'wstr', '', 'wstr', $sPath, 'ptr', 0, 'ptr', 0)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, '')
 
-	Return $aCall[1]
+	Return $Ret[1]
 EndFunc   ;==>_WinAPI_PathYetAnotherMakeUniqueName
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_ShellGetImageList($bSmall = False)
+Func _WinAPI_ShellGetImageList($fSmall = 0)
 	Local $pLarge, $pSmall, $tPtr = DllStructCreate('ptr')
-	If $bSmall Then
+	If $fSmall Then
 		$pLarge = 0
 		$pSmall = DllStructGetPtr($tPtr)
 	Else
@@ -779,9 +744,9 @@ Func _WinAPI_ShellGetImageList($bSmall = False)
 		$pSmall = 0
 	EndIf
 
-	Local $aCall = DllCall('shell32.dll', 'int', 'Shell_GetImageLists', 'ptr', $pLarge, 'ptr', $pSmall)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	Local $Ret = DllCall('shell32.dll', 'int', 'Shell_GetImageLists', 'ptr', $pLarge, 'ptr', $pSmall)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
 	Return DllStructGetData($tPtr, 1)
 EndFunc   ;==>_WinAPI_ShellGetImageList
@@ -791,11 +756,11 @@ EndFunc   ;==>_WinAPI_ShellGetImageList
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlApplyScheme($sUrl, $iFlags = 1)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlApplySchemeW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iFlags)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlApplySchemeW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_UrlApplyScheme
 
 ; #FUNCTION# ====================================================================================================================
@@ -803,11 +768,11 @@ EndFunc   ;==>_WinAPI_UrlApplyScheme
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlCanonicalize($sUrl, $iFlags)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlCanonicalizeW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iFlags)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlCanonicalizeW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_UrlCanonicalize
 
 ; #FUNCTION# ====================================================================================================================
@@ -815,37 +780,37 @@ EndFunc   ;==>_WinAPI_UrlCanonicalize
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlCombine($sUrl, $sPart, $iFlags = 0)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlCombineW', 'wstr', $sUrl, 'wstr', $sPart, 'wstr', '', 'dword*', 4096, _
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlCombineW', 'wstr', $sUrl, 'wstr', $sPart, 'wstr', '', 'dword*', 4096, _
 			'dword', $iFlags)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_UrlCombine
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_UrlCompare($sUrl1, $sUrl2, $bIgnoreSlash = False)
-	Local $aCall = DllCall('shlwapi.dll', 'int', 'UrlCompareW', 'wstr', $sUrl1, 'wstr', $sUrl2, 'bool', $bIgnoreSlash)
+Func _WinAPI_UrlCompare($sUrl1, $sUrl2, $fIgnoreSlash = 0)
+	Local $Ret = DllCall('shlwapi.dll', 'int', 'UrlCompareW', 'wstr', $sUrl1, 'wstr', $sUrl2, 'bool', $fIgnoreSlash)
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_UrlCompare
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_UrlCreateFromPath($sFilePath)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlCreateFromPathW', 'wstr', $sFilePath, 'wstr', '', 'dword*', 4096, 'dword', 0)
+Func _WinAPI_UrlCreateFromPath($sPath)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlCreateFromPathW', 'wstr', $sPath, 'wstr', '', 'dword*', 4096, 'dword', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] < 0 Or $aCall[0] > 1 Then ; S_OK, S_FALSE
-		Return SetError(10, $aCall[0], '')
+	If $Ret[0] < 0 Or $Ret[0] > 1 Then ; S_OK, S_FALSE
+		Return SetError(10, $Ret[0], '')
 	EndIf
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_UrlCreateFromPath
 
 ; #FUNCTION# ====================================================================================================================
@@ -853,11 +818,11 @@ EndFunc   ;==>_WinAPI_UrlCreateFromPath
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlFixup($sUrl)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlFixupW', 'wstr', $sUrl, 'wstr', '', 'dword', 4096)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlFixupW', 'wstr', $sUrl, 'wstr', '', 'dword', 4096)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_UrlFixup
 
 ; #FUNCTION# ====================================================================================================================
@@ -865,12 +830,12 @@ EndFunc   ;==>_WinAPI_UrlFixup
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlGetPart($sUrl, $iPart)
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlGetPartW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iPart, _
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlGetPartW', 'wstr', $sUrl, 'wstr', '', 'dword*', 4096, 'dword', $iPart, _
 			'dword', 0)
 	If @error Then Return SetError(@error, @extended, '')
-	If $aCall[0] Then Return SetError(10, $aCall[0], '')
+	If $Ret[0] Then Return SetError(10, $Ret[0], '')
 
-	Return $aCall[2]
+	Return $Ret[2]
 EndFunc   ;==>_WinAPI_UrlGetPart
 
 ; #FUNCTION# ====================================================================================================================
@@ -882,9 +847,9 @@ Func _WinAPI_UrlHash($sUrl, $iLength = 32)
 
 	Local $tData = DllStructCreate('byte[' & $iLength & ']')
 
-	Local $aCall = DllCall('shlwapi.dll', 'long', 'UrlHashW', 'wstr', $sUrl, 'struct*', $tData, 'dword', $iLength)
+	Local $Ret = DllCall('shlwapi.dll', 'long', 'UrlHashW', 'wstr', $sUrl, 'struct*', $tData, 'dword', $iLength)
 	If @error Then Return SetError(@error + 10, @extended, 0)
-	If $aCall[0] Then Return SetError(10, $aCall[0], 0)
+	If $Ret[0] Then Return SetError(10, $Ret[0], 0)
 
 	Return DllStructGetData($tData, 1)
 EndFunc   ;==>_WinAPI_UrlHash
@@ -894,15 +859,15 @@ EndFunc   ;==>_WinAPI_UrlHash
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_UrlIs($sUrl, $iType = 0)
-	Local $aCall = DllCall('shlwapi.dll', 'bool', 'UrlIsW', 'wstr', $sUrl, 'uint', $iType)
+	Local $Ret = DllCall('shlwapi.dll', 'bool', 'UrlIsW', 'wstr', $sUrl, 'uint', $iType)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_UrlIs
 
-#EndRegion Public Functions
+#endregion Public Functions
 
-#Region Internal Functions
+#region Internal Functions
 
 Func __US($sString, $iLength = 0)
 	If $iLength Then
@@ -919,4 +884,4 @@ Func __US($sString, $iLength = 0)
 	Return $tUS
 EndFunc   ;==>__US
 
-#EndRegion Internal Functions
+#endregion Internal Functions

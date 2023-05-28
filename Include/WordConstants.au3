@@ -2,7 +2,6 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WordConstants
-; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: Constants to be included in an AutoIt script when using the Word UDF.
 ; Author(s) .....: water
@@ -58,7 +57,7 @@ Global Const $WdFindStop = 0 ; The find operation ends if the beginning or end o
 ; See: http://msdn.microsoft.com/en-us/library/bb237823%28v=office.12%29.aspx
 Global Const $WdNewBlankDocument = 0 ; Blank document
 Global Const $WdNewEmailMessage = 2 ; E-mail message
-Global Const $WdNewFrameset = 3 ; Frameset
+Global Const $WdNewFrameset = 3 ; Framese
 Global Const $WdNewWebPage = 1 ; Web page
 Global Const $WdNewXMLDocument = 4 ; XML document
 
@@ -141,7 +140,7 @@ Global Const $WdFormatUnicodeText = 7 ; Unicode text format
 Global Const $WdFormatWebArchive = 9 ; Web archive format
 Global Const $WdFormatXML = 11 ; Extensible Markup Language (XML) format
 Global Const $WdFormatDocument97 = 0 ; Microsoft Word 97 document format
-Global Const $WdFormatDocumentDefault = 16 ; Word default document file format. For Microsoft Office Word 2007, this is the DOCX format
+Global Const $WdFormatDocumentDefault = 16; Word default document file format. For Microsoft Office Word 2007, this is the DOCX format
 Global Const $WdFormatPDF = 17 ; PDF format
 Global Const $WdFormatTemplate97 = 1 ; Word 97 template format
 Global Const $WdFormatXMLDocument = 12 ; XML document format

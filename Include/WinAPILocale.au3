@@ -1,17 +1,18 @@
 #include-once
 
 #include "APILocaleConstants.au3"
-#include "StringConstants.au3"
 #include "WinAPIInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPI Extended UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.8.1++
 ; Description ...: Additional variables, constants and functions for the WinAPILocale.au3
 ; Author(s) .....: Yashied, jpm
+; Dll(s) ........: kernel32.dll
+; Requirements ..: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
-#Region Global Variables and Constants
+#region Global Variables and Constants
 
 ; #VARIABLES# ===================================================================================================================
 ; ===============================================================================================================================
@@ -19,9 +20,9 @@
 ; #CONSTANTS# ===================================================================================================================
 Global Const $tagNUMBERFMT = 'uint NumDigits;uint LeadingZero;uint Grouping;ptr DecimalSep;ptr ThousandSep;uint NegativeOrder' ; & ';wchar DecimalSepChars[n];wchar ThousandSepChars[n]'
 ; ===============================================================================================================================
-#EndRegion Global Variables and Constants
+#endregion Global Variables and Constants
 
-#Region Functions list
+#region Functions list
 
 ; #CURRENT# =====================================================================================================================
 ; _WinAPI_CompareString
@@ -50,21 +51,21 @@ Global Const $tagNUMBERFMT = 'uint NumDigits;uint LeadingZero;uint Grouping;ptr 
 ; _WinAPI_SetThreadUILanguage
 ; _WinAPI_SetUserGeoID
 ; ===============================================================================================================================
-#EndRegion Functions list
+#endregion Functions list
 
-#Region Public Functions
+#region Public Functions
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_CompareString($iLCID, $sString1, $sString2, $iFlags = 0)
-	Local $aCall = DllCall('kernel32.dll', 'int', 'CompareStringW', 'dword', $iLCID, 'dword', $iFlags, 'wstr', $sString1, _
+Func _WinAPI_CompareString($LCID, $sString1, $sString2, $iFlags = 0)
+	Local $Ret = DllCall('kernel32.dll', 'int', 'CompareStringW', 'dword', $LCID, 'dword', $iFlags, 'wstr', $sString1, _
 			'int', -1, 'wstr', $sString2, 'int', -1)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_CompareString
 
 ; #FUNCTION# ====================================================================================================================
@@ -93,16 +94,16 @@ EndFunc   ;==>_WinAPI_CreateNumberFormatInfo
 Func _WinAPI_EnumSystemGeoID()
 	Local $hEnumProc = DllCallbackRegister('__EnumGeoIDProc', 'bool', 'long')
 
-	Dim $__g_vEnum[101] = [0]
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumSystemGeoID', 'dword', 16, 'long', 0, 'ptr', DllCallbackGetPtr($hEnumProc))
-	If @error Or Not $aCall[0] Or Not $__g_vEnum[0] Then
-		$__g_vEnum = @error + 10
+	Dim $__Enum[101] = [0]
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'EnumSystemGeoID', 'dword', 16, 'long', 0, 'ptr', DllCallbackGetPtr($hEnumProc))
+	If @error Or Not $Ret[0] Or Not $__Enum[0] Then
+		$__Enum = @error + 10
 	EndIf
 	DllCallbackFree($hEnumProc)
-	If $__g_vEnum Then Return SetError($__g_vEnum, 0, 0)
+	If $__Enum Then Return SetError($__Enum, 0, 0)
 
-	__Inc($__g_vEnum, -1)
-	Return $__g_vEnum
+	__Inc($__Enum, -1)
+	Return $__Enum
 EndFunc   ;==>_WinAPI_EnumSystemGeoID
 
 ; #FUNCTION# ====================================================================================================================
@@ -112,16 +113,16 @@ EndFunc   ;==>_WinAPI_EnumSystemGeoID
 Func _WinAPI_EnumSystemLocales($iFlag)
 	Local $hEnumProc = DllCallbackRegister('__EnumLocalesProc', 'bool', 'ptr')
 
-	Dim $__g_vEnum[101] = [0]
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumSystemLocalesW', 'ptr', DllCallbackGetPtr($hEnumProc), 'dword', $iFlag)
-	If @error Or Not $aCall[0] Or Not $__g_vEnum[0] Then
-		$__g_vEnum = @error + 10
+	Dim $__Enum[101] = [0]
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'EnumSystemLocalesW', 'ptr', DllCallbackGetPtr($hEnumProc), 'dword', $iFlag)
+	If @error Or Not $Ret[0] Or Not $__Enum[0] Then
+		$__Enum = @error + 10
 	EndIf
 	DllCallbackFree($hEnumProc)
-	If $__g_vEnum Then Return SetError($__g_vEnum, 0, 0)
+	If $__Enum Then Return SetError($__Enum, 0, 0)
 
-	__Inc($__g_vEnum, -1)
-	Return $__g_vEnum
+	__Inc($__Enum, -1)
+	Return $__Enum
 EndFunc   ;==>_WinAPI_EnumSystemLocales
 
 ; #FUNCTION# ====================================================================================================================
@@ -130,107 +131,115 @@ EndFunc   ;==>_WinAPI_EnumSystemLocales
 ; ===============================================================================================================================
 Func _WinAPI_EnumUILanguages($iFlag = 0)
 	Local $hEnumProc = DllCallbackRegister('__EnumUILanguagesProc', 'bool', 'ptr;long_ptr')
-	Local $iID = 1
+	Local $ID = 1
 
-	If _WinAPI_GetVersion() >= 6.0 Then
+	If $__WINVER >= 0x0600 Then
 		If BitAND($iFlag, 0x0008) Then
-			$iID = 0
+			$ID = 0
 		EndIf
 	Else
 		$iFlag = 0
 	EndIf
-	Dim $__g_vEnum[101] = [0]
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'EnumUILanguagesW', 'ptr', DllCallbackGetPtr($hEnumProc), 'dword', $iFlag, _
-			'long_ptr', $iID)
-	If @error Or Not $aCall[0] Or Not $__g_vEnum[0] Then
-		$__g_vEnum = @error + 10
+	Dim $__Enum[101] = [0]
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'EnumUILanguagesW', 'ptr', DllCallbackGetPtr($hEnumProc), 'dword', $iFlag, _
+			'long_ptr', $ID)
+	If @error Or Not $Ret[0] Or Not $__Enum[0] Then
+		$__Enum = @error + 10
 	EndIf
 	DllCallbackFree($hEnumProc)
-	If $__g_vEnum Then Return SetError($__g_vEnum, 0, 0)
+	If $__Enum Then Return SetError($__Enum, 0, 0)
 
-	__Inc($__g_vEnum, -1)
-	Return $__g_vEnum
+	__Inc($__Enum, -1)
+	Return $__Enum
 EndFunc   ;==>_WinAPI_EnumUILanguages
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetDateFormat($iLCID = 0, $tSYSTEMTIME = 0, $iFlags = 0, $sFormat = '')
-	If Not $iLCID Then $iLCID = 0x0400
+Func _WinAPI_GetDateFormat($LCID = 0, $tSYSTEMTIME = 0, $iFlags = 0, $sFormat = '')
+	If Not $LCID Then $LCID = 0x0400
 
-	If Not StringStripWS($sFormat, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sFormat = Null
+	Local $TypeOfFormat = 'wstr'
+	If Not StringStripWS($sFormat, 3) Then
+		$TypeOfFormat = 'ptr'
+		$sFormat = 0
+	EndIf
 
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetDateFormatW', 'dword', $iLCID, 'dword', $iFlags, 'struct*', $tSYSTEMTIME, _
-			'wstr', $sFormat, 'wstr', '', 'int', 2048)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetDateFormatW', 'dword', $LCID, 'dword', $iFlags, 'struct*', $tSYSTEMTIME, _
+			$TypeOfFormat, $sFormat, 'wstr', '', 'int', 2048)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetDateFormat
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetDurationFormat($iLCID, $iDuration, $sFormat = '')
-	If Not $iLCID Then $iLCID = 0x0400
+Func _WinAPI_GetDurationFormat($LCID, $iDuration, $sFormat = '')
+	If Not $LCID Then $LCID = 0x0400
 
-	Local $pST, $iVal
+	Local $pST, $Val
 	If IsDllStruct($iDuration) Then
 		$pST = DllStructGetPtr($iDuration)
-		$iVal = 0
+		$Val = 0
 	Else
 		$pST = 0
-		$iVal = $iDuration
+		$Val = $iDuration
 	EndIf
-	If Not StringStripWS($sFormat, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sFormat = Null
+	Local $TypeOfFormat = 'wstr'
+	If Not StringStripWS($sFormat, 3) Then
+		$TypeOfFormat = 'ptr'
+		$sFormat = 0
+	EndIf
 
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetDurationFormat', 'dword', $iLCID, 'dword', 0, 'ptr', $pST, 'uint64', $iVal, _
-			'wstr', $sFormat, 'wstr', '', 'int', 2048)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetDurationFormat', 'dword', $LCID, 'dword', 0, 'ptr', $pST, 'uint64', $Val, _
+			$TypeOfFormat, $sFormat, 'wstr', '', 'int', 2048)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[6]
+	Return $Ret[6]
 EndFunc   ;==>_WinAPI_GetDurationFormat
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetGeoInfo($iGEOID, $iType, $iLanguage = 0)
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetGeoInfoW', 'long', $iGEOID, 'dword', $iType, 'wstr', '', 'int', 4096, _
+Func _WinAPI_GetGeoInfo($GEOID, $iType, $iLanguage = 0)
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetGeoInfoW', 'long', $GEOID, 'dword', $iType, 'wstr', '', 'int', 4096, _
 			'word', $iLanguage)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_GetGeoInfo
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: WideBoyDixon
 ; Modified.......: Yashied, Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetLocaleInfo($iLCID, $iType)
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetLocaleInfoW', 'dword', $iLCID, 'dword', $iType, 'wstr', '', 'int', 2048)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+Func _WinAPI_GetLocaleInfo($LCID, $iType)
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetLocaleInfoW', 'dword', $LCID, 'dword', $iType, 'wstr', '', 'int', 2048)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aCall[3]
+	Return $Ret[3]
 EndFunc   ;==>_WinAPI_GetLocaleInfo
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetNumberFormat($iLCID, $sNumber, $tNUMBERFMT = 0)
-	If Not $iLCID Then $iLCID = 0x0400 ; LOCALE_USER_DEFAULT
+Func _WinAPI_GetNumberFormat($LCID, $sNumber, $tNUMBERFMT = 0)
+	If Not $LCID Then $LCID = 0x0400 ; LOCALE_USER_DEFAULT
 
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetNumberFormatW', 'dword', $iLCID, 'dword', 0, 'wstr', $sNumber, _
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetNumberFormatW', 'dword', $LCID, 'dword', 0, 'wstr', $sNumber, _
 			'struct*', $tNUMBERFMT, 'wstr', '', 'int', 2048)
-	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, '')
-	; If Not $aCall[0] Then Return SetError(1000, 0,'')
+	If @error Or Not $Ret[0] Then Return SetError(@error, @extended, '')
+	; If Not $Ret[0] Then Return SetError(1000, 0,'')
 
-	Return $aCall[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetNumberFormat
 
 ; #FUNCTION# ====================================================================================================================
@@ -238,10 +247,10 @@ EndFunc   ;==>_WinAPI_GetNumberFormat
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetSystemDefaultLangID()
-	Local $aCall = DllCall('kernel32.dll', 'word', 'GetSystemDefaultLangID')
+	Local $Ret = DllCall('kernel32.dll', 'word', 'GetSystemDefaultLangID')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetSystemDefaultLangID
 
 ; #FUNCTION# ====================================================================================================================
@@ -249,10 +258,10 @@ EndFunc   ;==>_WinAPI_GetSystemDefaultLangID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetSystemDefaultLCID()
-	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetSystemDefaultLCID')
+	Local $Ret = DllCall('kernel32.dll', 'dword', 'GetSystemDefaultLCID')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetSystemDefaultLCID
 
 ; #FUNCTION# ====================================================================================================================
@@ -260,10 +269,10 @@ EndFunc   ;==>_WinAPI_GetSystemDefaultLCID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetSystemDefaultUILanguage()
-	Local $aCall = DllCall('kernel32.dll', 'word', 'GetSystemDefaultUILanguage')
+	Local $Ret = DllCall('kernel32.dll', 'word', 'GetSystemDefaultUILanguage')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetSystemDefaultUILanguage
 
 ; #FUNCTION# ====================================================================================================================
@@ -271,10 +280,10 @@ EndFunc   ;==>_WinAPI_GetSystemDefaultUILanguage
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetThreadLocale()
-	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetThreadLocale')
+	Local $Ret = DllCall('kernel32.dll', 'dword', 'GetThreadLocale')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThreadLocale
 
 ; #FUNCTION# ====================================================================================================================
@@ -282,26 +291,30 @@ EndFunc   ;==>_WinAPI_GetThreadLocale
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetThreadUILanguage()
-	Local $aCall = DllCall('kernel32.dll', 'word', 'GetThreadUILanguage')
+	Local $Ret = DllCall('kernel32.dll', 'word', 'GetThreadUILanguage')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetThreadUILanguage
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_GetTimeFormat($iLCID = 0, $tSYSTEMTIME = 0, $iFlags = 0, $sFormat = '')
-	If Not $iLCID Then $iLCID = 0x0400
+Func _WinAPI_GetTimeFormat($LCID = 0, $tSYSTEMTIME = 0, $iFlags = 0, $sFormat = '')
+	If Not $LCID Then $LCID = 0x0400
 
-	If Not StringStripWS($sFormat, $STR_STRIPLEADING + $STR_STRIPTRAILING) Then $sFormat = Null
+	Local $TypeOfFormat = 'wstr'
+	If Not StringStripWS($sFormat, 3) Then
+		$TypeOfFormat = 'ptr'
+		$sFormat = 0
+	EndIf
 
-	Local $aCall = DllCall('kernel32.dll', 'int', 'GetTimeFormatW', 'dword', $iLCID, 'dword', $iFlags, 'struct*', $tSYSTEMTIME, _
-			'wstr', $sFormat, 'wstr', '', 'int', 2048)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, '')
+	Local $Ret = DllCall('kernel32.dll', 'int', 'GetTimeFormatW', 'dword', $LCID, 'dword', $iFlags, 'struct*', $tSYSTEMTIME, _
+			$TypeOfFormat, $sFormat, 'wstr', '', 'int', 2048)
+	If @error Or Not $Ret[0] Then Return SetError(@error + 10, @extended, '')
 
-	Return $aCall[5]
+	Return $Ret[5]
 EndFunc   ;==>_WinAPI_GetTimeFormat
 
 ; #FUNCTION# ====================================================================================================================
@@ -309,10 +322,10 @@ EndFunc   ;==>_WinAPI_GetTimeFormat
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetUserDefaultLangID()
-	Local $aCall = DllCall('kernel32.dll', 'word', 'GetUserDefaultLangID')
+	Local $Ret = DllCall('kernel32.dll', 'word', 'GetUserDefaultLangID')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetUserDefaultLangID
 
 ; #FUNCTION# ====================================================================================================================
@@ -320,10 +333,10 @@ EndFunc   ;==>_WinAPI_GetUserDefaultLangID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetUserDefaultLCID()
-	Local $aCall = DllCall('kernel32.dll', 'dword', 'GetUserDefaultLCID')
+	Local $Ret = DllCall('kernel32.dll', 'dword', 'GetUserDefaultLCID')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetUserDefaultLCID
 
 ; #FUNCTION# ====================================================================================================================
@@ -331,10 +344,10 @@ EndFunc   ;==>_WinAPI_GetUserDefaultLCID
 ; Modified.......: jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetUserDefaultUILanguage()
-	Local $aCall = DllCall('kernel32.dll', 'word', 'GetUserDefaultUILanguage')
+	Local $Ret = DllCall('kernel32.dll', 'word', 'GetUserDefaultUILanguage')
 	If @error Then Return SetError(@error, @extended, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetUserDefaultUILanguage
 
 ; #FUNCTION# ====================================================================================================================
@@ -342,46 +355,46 @@ EndFunc   ;==>_WinAPI_GetUserDefaultUILanguage
 ; Modified.......: Jpm
 ; ===============================================================================================================================
 Func _WinAPI_GetUserGeoID()
-	Local $aCall = DllCall('kernel32.dll', 'long', 'GetUserGeoID', 'uint', 16)
+	Local $Ret = DllCall('kernel32.dll', 'long', 'GetUserGeoID', 'uint', 16)
 	If @error Then Return SetError(@error, @extended, -1)
-	; If $aCall[0] = -1 Then Return SetError(1000, 0, 0)
+	; If $Ret[0] = -1 Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_GetUserGeoID
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _WinAPI_IsValidLocale($iLCID, $iFlag = 0)
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'IsValidLocale', 'dword', $iLCID, 'dword', $iFlag)
+Func _WinAPI_IsValidLocale($LCID, $iFlag)
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'IsValidLocale', 'dword', $LCID, 'dword', $iFlag)
 	If @error Then Return SetError(@error, @extended, False)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_IsValidLocale
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_SetLocaleInfo($iLCID, $iType, $sData)
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetLocaleInfoW', 'dword', $iLCID, 'dword', $iType, 'wstr', $sData)
+Func _WinAPI_SetLocaleInfo($LCID, $iType, $sData)
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'SetLocaleInfoW', 'dword', $LCID, 'dword', $iType, 'wstr', $sData)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_SetLocaleInfo
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_SetThreadLocale($iLCID)
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetThreadLocale', 'dword', $iLCID)
+Func _WinAPI_SetThreadLocale($LCID)
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'SetThreadLocale', 'dword', $LCID)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_SetThreadLocale
 
 ; #FUNCTION# ====================================================================================================================
@@ -389,48 +402,48 @@ EndFunc   ;==>_WinAPI_SetThreadLocale
 ; Modified.......: JPM
 ; ===============================================================================================================================
 Func _WinAPI_SetThreadUILanguage($iLanguage)
-	Local $aCall = DllCall('kernel32.dll', 'word', 'SetThreadUILanguage', 'word', $iLanguage)
+	Local $Ret = DllCall('kernel32.dll', 'word', 'SetThreadUILanguage', 'word', $iLanguage)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return ($aCall[0] = $aCall[1])
+	Return ($Ret[0] = $Ret[1])
 EndFunc   ;==>_WinAPI_SetThreadUILanguage
 
 ; #FUNCTION# ====================================================================================================================
 ; Author.........: Yashied
 ; Modified.......: Jpm
 ; ===============================================================================================================================
-Func _WinAPI_SetUserGeoID($iGEOID)
-	Local $aCall = DllCall('kernel32.dll', 'bool', 'SetUserGeoID', 'long', $iGEOID)
+Func _WinAPI_SetUserGeoID($GEOID)
+	Local $Ret = DllCall('kernel32.dll', 'bool', 'SetUserGeoID', 'long', $GEOID)
 	If @error Then Return SetError(@error, @extended, False)
-	; If Not $aCall[0] Then Return SetError(1000, 0, 0)
+	; If Not $Ret[0] Then Return SetError(1000, 0, 0)
 
-	Return $aCall[0]
+	Return $Ret[0]
 EndFunc   ;==>_WinAPI_SetUserGeoID
 
-#EndRegion Public Functions
+#endregion Public Functions
 
-#Region Internal Functions
+#region Internal Functions
 
-Func __EnumGeoIDProc($iID)
-	__Inc($__g_vEnum)
-	$__g_vEnum[$__g_vEnum[0]] = $iID
+Func __EnumGeoIDProc($ID)
+	__Inc($__Enum)
+	$__Enum[$__Enum[0]] = $ID
 	Return 1
 EndFunc   ;==>__EnumGeoIDProc
 
 Func __EnumLocalesProc($pLocale)
-	__Inc($__g_vEnum)
-	$__g_vEnum[$__g_vEnum[0]] = Dec(DllStructGetData(DllStructCreate('wchar[' & (_WinAPI_StrLen($pLocale) + 1) & ']', $pLocale), 1))
+	__Inc($__Enum)
+	$__Enum[$__Enum[0]] = Dec(DllStructGetData(DllStructCreate('wchar[' & (_WinAPI_StrLen($pLocale) + 1) & ']', $pLocale), 1))
 	Return 1
 EndFunc   ;==>__EnumLocalesProc
 
-Func __EnumUILanguagesProc($pLanguage, $iID)
-	__Inc($__g_vEnum)
-	$__g_vEnum[$__g_vEnum[0]] = DllStructGetData(DllStructCreate('wchar[' & (_WinAPI_StrLen($pLanguage) + 1) & ']', $pLanguage), 1)
-	If $iID Then
-		$__g_vEnum[$__g_vEnum[0]] = Dec($__g_vEnum[$__g_vEnum[0]])
+Func __EnumUILanguagesProc($pLanguage, $ID)
+	__Inc($__Enum)
+	$__Enum[$__Enum[0]] = DllStructGetData(DllStructCreate('wchar[' & (_WinAPI_StrLen($pLanguage) + 1) & ']', $pLanguage), 1)
+	If $ID Then
+		$__Enum[$__Enum[0]] = Dec($__Enum[$__Enum[0]])
 	EndIf
 	Return 1
 EndFunc   ;==>__EnumUILanguagesProc
 
-#EndRegion Internal Functions
+#endregion Internal Functions

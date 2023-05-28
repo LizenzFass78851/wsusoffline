@@ -1,6 +1,5 @@
 @echo off
 rem *** Author: T. Wittrock, Kiel ***
-rem ***   - Community Edition -   ***
 
 verify other 2>nul
 setlocal enableextensions
@@ -15,28 +14,28 @@ goto InvalidParams
 call RemoveCustomLanguageSupport.cmd %1 /quiet
 
 rem *** Add support for %1 to .NET custom URL files ***
-if /i "%2" NEQ "/quiet" echo Adding support for %1 to .NET custom URL files...
-for /F %%i in (..\static\StaticDownloadLinks-dotnet-%1.txt) do (
-  echo %%i | %SystemRoot%\System32\find.exe /I "ndp462-kb3151800-">>..\static\custom\StaticDownloadLinks-dotnet.txt
-  echo %%i | %SystemRoot%\System32\find.exe /I "ndp48-x86-x64-allos-">>..\static\custom\StaticDownloadLinks-dotnet.txt
-  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x86">>..\static\custom\StaticDownloadLinks-dotnet.txt
-  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x64">>..\static\custom\StaticDownloadLinks-dotnet.txt
+echo Adding support for %1 to .NET custom URL files...
+for /F %%i in (..\static\StaticDownloadLinks-dotnet-x86-%1.txt) do (
+  echo %%i | %SystemRoot%\System32\find.exe /I "dotNetFx40LP_Full_">>..\static\custom\StaticDownloadLinks-dotnet.txt
+  echo %%i | %SystemRoot%\System32\find.exe /I "NDP46-KB3045557-">>..\static\custom\StaticDownloadLinks-dotnet.txt
+  echo %%i | %SystemRoot%\System32\find.exe /I "NDP462-KB3151800-">>..\static\custom\StaticDownloadLinks-dotnet.txt
+  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x86">>..\static\custom\StaticDownloadLinks-dotnet-x86-glb.txt
+)
+for /F %%i in (..\static\StaticDownloadLinks-dotnet-x64-%1.txt) do (
+  echo %%i | %SystemRoot%\System32\find.exe /I "dotnetfx35langpack_x64">>..\static\custom\StaticDownloadLinks-dotnet-x64-glb.txt
 )
 rem *** Add support for %1 to IEx custom URL files ***
-if /i "%2" NEQ "/quiet" echo Adding support for %1 to IEx custom URL files...
+echo Adding support for %1 to IEx custom URL files...
 for %%i in (x86 x64) do (
-  if exist ..\static\StaticDownloadLinks-ie9-w60-%%i-%1.txt (
-    type ..\static\StaticDownloadLinks-ie9-w60-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt
+  if exist ..\static\StaticDownloadLinks-ie8-w60-%%i-%1.txt (
+    type ..\static\StaticDownloadLinks-ie8-w60-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w60-%%i-glb.txt
   )
-  if exist ..\static\StaticDownloadLinks-ie11-w61-%%i-%1.txt (
-    type ..\static\StaticDownloadLinks-ie11-w61-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt
-  )
-  if exist ..\static\StaticDownloadLinks-ie11-w62-%%i-%1.txt (
-    type ..\static\StaticDownloadLinks-ie11-w62-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w62-%%i-glb.txt
+  if exist ..\static\StaticDownloadLinks-ie9-w61-%%i-%1.txt (
+    type ..\static\StaticDownloadLinks-ie9-w61-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-w61-%%i-glb.txt
   )
 )
 rem *** Add support for %1 to MSSE custom URL files ***
-if /i "%2" NEQ "/quiet" echo Adding support for %1 to MSSE custom URL files...
+echo Adding support for %1 to MSSE custom URL files...
 for %%i in (x86 x64) do (
   if exist ..\static\StaticDownloadLinks-msse-%%i-%1.txt (
     type ..\static\StaticDownloadLinks-msse-%%i-%1.txt >>..\static\custom\StaticDownloadLinks-msse-%%i-glb.txt

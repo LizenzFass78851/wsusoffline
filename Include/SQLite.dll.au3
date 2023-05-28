@@ -1,8 +1,8 @@
-; Inline sqlite3.dll, Creation Time: 2019/05/12 10:43:18
+; Inline ..\..\bin\SQLite\SQLite3.dll, Creation Time: 2013/12/07 20:47:12
 #include-once
 Func __SQLite_Inline_Modified()
-	Return "20190512104318" ; 2019/05/12 10:43:18
+	Return "20131207204712" ; 2013/12/07 20:47:12
 EndFunc   ;==>__SQLite_Inline_Modified
 Func __SQLite_Inline_Version()
-	Return "302800000" ; 3.28.0.0
+	Return "300800200" ; 3.8.2.0
 EndFunc   ;==>__SQLite_Inline_Version

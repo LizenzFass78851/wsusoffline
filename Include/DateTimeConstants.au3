@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: DateTime_Constants
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.1.1 (beta)
 ; Language ......: English
 ; Description ...: Constants for <a href="../appendix/GUIStyles.htm#Date">GUI control Date styles</a> and much more.
 ; Author(s) .....: Valik, Gary Frost
@@ -18,12 +18,6 @@ Global Const $DTS_TIMEFORMAT = 9
 Global Const $DTS_RIGHTALIGN = 32
 Global Const $DTS_SHORTDATECENTURYFORMAT = 0x0000000C ; The year is a four-digit field
 Global Const $DTS_APPCANPARSE = 0x00000010 ; Allows the owner to parse user input and take necessary action
-
-; _DateDayOfWeek
-Global Const $DMW_LONGNAME = 0
-Global Const $DMW_SHORTNAME = 1
-Global Const $DMW_LOCALE_LONGNAME = 2
-Global Const $DMW_LOCALE_SHORTNAME = 3
 
 ; Success/Failure
 Global Const $GDT_ERROR = -1

@@ -1,18 +1,15 @@
 #include-once
 
-#include "GuiCtrlInternals.au3"
 #include "HeaderConstants.au3"
 #include "Memory.au3"
-#include "SendMessage.au3"
+#include "WinAPI.au3"
 #include "StructureConstants.au3"
+#include "SendMessage.au3"
 #include "UDFGlobalID.au3"
-#include "WinAPIConv.au3"
-#include "WinAPIHObj.au3"
-#include "WinAPISysInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Header
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Description ...: Functions that assist with Header control management.
 ;                  A header control is a window that is usually positioned above columns of text or numbers.  It contains a title
 ;                  for each column, and it can be divided into parts.
@@ -20,9 +17,7 @@
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-
-; Optimization by pixelsearch DllStructCreate() once
-Global $__g_tHeaderBuffer, $__g_tHeaderBufferANSI ; = DllStructCreate()
+Global $_ghHDRLastWnd
 
 ; ===============================================================================================================================
 
@@ -41,7 +36,6 @@ Global Const $__HEADERCONSTANT_SWP_SHOWWINDOW = 0x0040
 ; _GUICtrlHeader_DeleteItem
 ; _GUICtrlHeader_Destroy
 ; _GUICtrlHeader_EditFilter
-; _GUICtrlHeader_GetFilterText
 ; _GUICtrlHeader_GetBitmapMargin
 ; _GUICtrlHeader_GetImageList
 ; _GUICtrlHeader_GetItem
@@ -125,8 +119,8 @@ Global Const $tagHDTEXTFILTER = "ptr Text;int TextMax"
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlHeader_AddItem($hWnd, $sText, $iWidth = 50, $iAlign = 0, $iImage = -1, $bOnRight = False)
-	Return _GUICtrlHeader_InsertItem($hWnd, _GUICtrlHeader_GetItemCount($hWnd), $sText, $iWidth, $iAlign, $iImage, $bOnRight)
+Func _GUICtrlHeader_AddItem($hWnd, $sText, $iWidth = 50, $iAlign = 0, $iImage = -1, $fOnRight = False)
+	Return _GUICtrlHeader_InsertItem($hWnd, _GUICtrlHeader_GetItemCount($hWnd), $sText, $iWidth, $iAlign, $iImage, $fOnRight)
 EndFunc   ;==>_GUICtrlHeader_AddItem
 
 ; #FUNCTION# ====================================================================================================================
@@ -156,14 +150,13 @@ Func _GUICtrlHeader_Create($hWnd, $iStyle = 0x00000046)
 	If @error Then Return SetError(@error, @extended, 0)
 
 	Local $hHeader = _WinAPI_CreateWindowEx(0, $__HEADERCONSTANT_ClassName, "", $iStyle, 0, 0, 0, 0, $hWnd, $nCtrlID)
-	Local $tRECT = _WinAPI_GetClientRect($hWnd)
-	Local $tWindowPos = _GUICtrlHeader_Layout($hHeader, $tRECT)
+	Local $tRect = _WinAPI_GetClientRect($hWnd)
+	Local $tWindowPos = _GUICtrlHeader_Layout($hHeader, $tRect)
 	Local $iFlags = BitOR(DllStructGetData($tWindowPos, "Flags"), $__HEADERCONSTANT_SWP_SHOWWINDOW)
 	_WinAPI_SetWindowPos($hHeader, DllStructGetData($tWindowPos, "InsertAfter"), _
 			DllStructGetData($tWindowPos, "X"), DllStructGetData($tWindowPos, "Y"), _
 			DllStructGetData($tWindowPos, "CX"), DllStructGetData($tWindowPos, "CY"), $iFlags)
 	_WinAPI_SetFont($hHeader, _WinAPI_GetStockObject($__HEADERCONSTANT_DEFAULT_GUI_FONT))
-
 	Return $hHeader
 EndFunc   ;==>_GUICtrlHeader_Create
 
@@ -190,12 +183,12 @@ EndFunc   ;==>_GUICtrlHeader_DeleteItem
 Func _GUICtrlHeader_Destroy(ByRef $hWnd)
 	If Not _WinAPI_IsClassName($hWnd, $__HEADERCONSTANT_ClassName) Then Return SetError(2, 2, False)
 
-	Local $iDestroyed = 0
+	Local $Destroyed = 0
 	If IsHWnd($hWnd) Then
-		If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
+		If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
 			Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 			Local $hParent = _WinAPI_GetParent($hWnd)
-			$iDestroyed = _WinAPI_DestroyWindow($hWnd)
+			$Destroyed = _WinAPI_DestroyWindow($hWnd)
 			Local $iRet = __UDF_FreeGlobalID($hParent, $nCtrlID)
 			If Not $iRet Then
 				; can check for errors here if needed, for debug
@@ -205,48 +198,19 @@ Func _GUICtrlHeader_Destroy(ByRef $hWnd)
 			Return SetError(1, 1, False)
 		EndIf
 	Else
-		$iDestroyed = GUICtrlDelete($hWnd)
+		$Destroyed = GUICtrlDelete($hWnd)
 	EndIf
-	If $iDestroyed Then $hWnd = 0
-
-	Return $iDestroyed <> 0
+	If $Destroyed Then $hWnd = 0
+	Return $Destroyed <> 0
 EndFunc   ;==>_GUICtrlHeader_Destroy
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlHeader_EditFilter($hWnd, $iIndex, $bDiscard = True)
-	Return _SendMessage($hWnd, $HDM_EDITFILTER, $iIndex, $bDiscard) <> 0
+Func _GUICtrlHeader_EditFilter($hWnd, $iIndex, $fDiscard = True)
+	Return _SendMessage($hWnd, $HDM_EDITFILTER, $iIndex, $fDiscard) <> 0
 EndFunc   ;==>_GUICtrlHeader_EditFilter
-
-; #FUNCTION# ====================================================================================================================
-; Author ........: Jpm
-; Modified.......:
-; ===============================================================================================================================
-Func _GUICtrlHeader_GetFilterText($hWnd, $iIndex)
-	Local $tBuffer, $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$tBuffer = DllStructCreate("wchar Text[64]")
-		$iMsg = $HDM_GETITEMW
-	Else
-		$tBuffer = DllStructCreate("char Text[64]")
-		$iMsg = $HDM_GETITEMA
-	EndIf
-
-	Local $tFilter = DllStructCreate($tagHDTEXTFILTER)
-	DllStructSetData($tFilter, "Text", DllStructGetPtr($tBuffer))
-	DllStructSetData($tFilter, "TextMax", DllStructGetSize($tBuffer))
-
-	Local $tItem = DllStructCreate($tagHDITEM)
-	DllStructSetData($tItem, "Mask", $HDI_FILTER)
-	DllStructSetData($tItem, "Type", 0)
-	DllStructSetData($tItem, "pFilter", DllStructGetPtr($tFilter))
-
-	__GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, -1, True)
-
-	Return DllStructGetData($tBuffer, "Text")
-EndFunc   ;==>_GUICtrlHeader_GetFilterText
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
@@ -266,17 +230,27 @@ EndFunc   ;==>_GUICtrlHeader_GetImageList
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_GetItem($hWnd, $iIndex, ByRef $tItem)
-	Local $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$iMsg = $HDM_GETITEMW
-	Else
-		$iMsg = $HDM_GETITEMA
-	EndIf
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, 0, True)
+	Local $fUnicode = _GUICtrlHeader_GetUnicodeFormat($hWnd)
 
+	Local $iRet
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		$iRet = _SendMessage($hWnd, $HDM_GETITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
+	Else
+		Local $iItem = DllStructGetSize($tItem)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iItem, $tMemMap)
+		_MemWrite($tMemMap, $tItem)
+		If $fUnicode Then
+			$iRet = _SendMessage($hWnd, $HDM_GETITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+		Else
+			$iRet = _SendMessage($hWnd, $HDM_GETITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+		EndIf
+		_MemRead($tMemMap, $pMemory, $tItem, $iItem)
+		_MemFree($tMemMap)
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlHeader_GetItem
 
@@ -305,7 +279,6 @@ Func _GUICtrlHeader_GetItemBitmap($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_BITMAP)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "hBmp")
 EndFunc   ;==>_GUICtrlHeader_GetItemBitmap
 
@@ -329,7 +302,6 @@ Func _GUICtrlHeader_GetItemDisplay($hWnd, $iIndex)
 	If BitAND($iFormat, $HDF_BITMAP_ON_RIGHT) <> 0 Then $iRet = BitOR($iRet, 2)
 	If BitAND($iFormat, $HDF_OWNERDRAW) <> 0 Then $iRet = BitOR($iRet, 4)
 	If BitAND($iFormat, $HDF_STRING) <> 0 Then $iRet = BitOR($iRet, 8)
-
 	Return $iRet
 EndFunc   ;==>_GUICtrlHeader_GetItemDisplay
 
@@ -345,7 +317,6 @@ Func _GUICtrlHeader_GetItemFlags($hWnd, $iIndex)
 	If BitAND($iFormat, $HDF_RTLREADING) <> 0 Then $iRet = BitOR($iRet, 2)
 	If BitAND($iFormat, $HDF_SORTDOWN) <> 0 Then $iRet = BitOR($iRet, 4)
 	If BitAND($iFormat, $HDF_SORTUP) <> 0 Then $iRet = BitOR($iRet, 8)
-
 	Return $iRet
 EndFunc   ;==>_GUICtrlHeader_GetItemFlags
 
@@ -357,7 +328,6 @@ Func _GUICtrlHeader_GetItemFormat($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_FORMAT)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "Fmt")
 EndFunc   ;==>_GUICtrlHeader_GetItemFormat
 
@@ -369,7 +339,6 @@ Func _GUICtrlHeader_GetItemImage($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_IMAGE)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "Image")
 EndFunc   ;==>_GUICtrlHeader_GetItemImage
 
@@ -381,7 +350,6 @@ Func _GUICtrlHeader_GetItemOrder($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_ORDER)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "Order")
 EndFunc   ;==>_GUICtrlHeader_GetItemOrder
 
@@ -393,7 +361,6 @@ Func _GUICtrlHeader_GetItemParam($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_PARAM)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "Param")
 EndFunc   ;==>_GUICtrlHeader_GetItemParam
 
@@ -404,44 +371,68 @@ EndFunc   ;==>_GUICtrlHeader_GetItemParam
 Func _GUICtrlHeader_GetItemRect($hWnd, $iIndex)
 	Local $aRect[4]
 
-	Local $tRECT = _GUICtrlHeader_GetItemRectEx($hWnd, $iIndex)
-	$aRect[0] = DllStructGetData($tRECT, "Left")
-	$aRect[1] = DllStructGetData($tRECT, "Top")
-	$aRect[2] = DllStructGetData($tRECT, "Right")
-	$aRect[3] = DllStructGetData($tRECT, "Bottom")
-
+	Local $tRect = _GUICtrlHeader_GetItemRectEx($hWnd, $iIndex)
+	$aRect[0] = DllStructGetData($tRect, "Left")
+	$aRect[1] = DllStructGetData($tRect, "Top")
+	$aRect[2] = DllStructGetData($tRect, "Right")
+	$aRect[3] = DllStructGetData($tRect, "Bottom")
 	Return $aRect
 EndFunc   ;==>_GUICtrlHeader_GetItemRect
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_GetItemRectEx($hWnd, $iIndex)
-	Local $tRECT = DllStructCreate($tagRECT)
-	__GUICtrl_SendMsg($hWnd, $HDM_GETITEMRECT, $iIndex, $tRECT, 0, True)
-
-	Return $tRECT
+	Local $tRect = DllStructCreate($tagRECT)
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		_SendMessage($hWnd, $HDM_GETITEMRECT, $iIndex, $tRect, 0, "wparam", "struct*")
+	Else
+		Local $iRect = DllStructGetSize($tRect)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iRect, $tMemMap)
+		_MemWrite($tMemMap, $tRect)
+		_SendMessage($hWnd, $HDM_GETITEMRECT, $iIndex, $pMemory, 0, "wparam", "ptr")
+		_MemRead($tMemMap, $pMemory, $tRect, $iRect)
+		_MemFree($tMemMap)
+	EndIf
+	Return $tRect
 EndFunc   ;==>_GUICtrlHeader_GetItemRectEx
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_GetItemText($hWnd, $iIndex)
-	Local $tBuffer, $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$tBuffer = $__g_tHeaderBuffer
-		$iMsg = $HDM_GETITEMW
+	Local $fUnicode = _GUICtrlHeader_GetUnicodeFormat($hWnd)
+
+	Local $tBuffer
+	If $fUnicode Then
+		$tBuffer = DllStructCreate("wchar Text[4096]")
 	Else
-		$tBuffer = $__g_tHeaderBufferANSI
-		$iMsg = $HDM_GETITEMA
+		$tBuffer = DllStructCreate("char Text[4096]")
 	EndIf
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_TEXT)
-	DllStructSetData($tItem, "TextMax", DllStructGetSize($tBuffer))
-	__GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, 3, True, 5)
-
+	DllStructSetData($tItem, "TextMax", 4096)
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		DllStructSetData($tItem, "Text", DllStructGetPtr($tBuffer))
+		_SendMessage($hWnd, $HDM_GETITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
+	Else
+		Local $iItem = DllStructGetSize($tItem)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iItem + DllStructGetSize($tBuffer), $tMemMap)
+		Local $pText = $pMemory + $iItem
+		DllStructSetData($tItem, "Text", $pText)
+		_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+		If $fUnicode Then
+			_SendMessage($hWnd, $HDM_GETITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+		Else
+			_SendMessage($hWnd, $HDM_GETITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+		EndIf
+		_MemRead($tMemMap, $pText, $tBuffer, DllStructGetSize($tBuffer))
+		_MemFree($tMemMap)
+	EndIf
 	Return DllStructGetData($tBuffer, "Text")
 EndFunc   ;==>_GUICtrlHeader_GetItemText
 
@@ -453,52 +444,63 @@ Func _GUICtrlHeader_GetItemWidth($hWnd, $iIndex)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_WIDTH)
 	_GUICtrlHeader_GetItem($hWnd, $iIndex, $tItem)
-
 	Return DllStructGetData($tItem, "XY")
 EndFunc   ;==>_GUICtrlHeader_GetItemWidth
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_GetOrderArray($hWnd)
 	Local $iItems = _GUICtrlHeader_GetItemCount($hWnd)
 	Local $tBuffer = DllStructCreate("int[" & $iItems & "]")
-	__GUICtrl_SendMsg($hWnd, $HDM_GETORDERARRAY, $iItems, $tBuffer, 0, True)
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		_SendMessage($hWnd, $HDM_GETORDERARRAY, $iItems, $tBuffer, 0, "wparam", "struct*")
+	Else
+		Local $iBuffer = DllStructGetSize($tBuffer)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+		_SendMessage($hWnd, $HDM_GETORDERARRAY, $iItems, $pMemory, 0, "wparam", "ptr")
+		_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+		_MemFree($tMemMap)
+	EndIf
 
 	Local $aBuffer[$iItems + 1]
 	$aBuffer[0] = $iItems
 	For $iI = 1 To $iItems
 		$aBuffer[$iI] = DllStructGetData($tBuffer, 1, $iI)
 	Next
-
 	Return $aBuffer
 EndFunc   ;==>_GUICtrlHeader_GetOrderArray
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_GetUnicodeFormat($hWnd)
-	If Not IsDllStruct($__g_tHeaderBuffer) Then
-		$__g_tHeaderBuffer = DllStructCreate("wchar Text[4096]")
-		$__g_tHeaderBufferANSI = DllStructCreate("char Text[4096]", DllStructGetPtr($__g_tHeaderBuffer))
-	EndIf
-
 	Return _SendMessage($hWnd, $HDM_GETUNICODEFORMAT) <> 0
 EndFunc   ;==>_GUICtrlHeader_GetUnicodeFormat
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_HitTest($hWnd, $iX, $iY)
 	Local $tTest = DllStructCreate($tagHDHITTESTINFO)
 	DllStructSetData($tTest, "X", $iX)
 	DllStructSetData($tTest, "Y", $iY)
 	Local $aTest[11]
-	$aTest[0] = __GUICtrl_SendMsg($hWnd, $HDM_HITTEST, 0, $tTest, 0, True)
-
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		$aTest[0] = _SendMessage($hWnd, $HDM_HITTEST, 0, $tTest, 0, "wparam", "struct*")
+	Else
+		Local $iTest = DllStructGetSize($tTest)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iTest, $tMemMap)
+		_MemWrite($tMemMap, $tTest)
+		$aTest[0] = _SendMessage($hWnd, $HDM_HITTEST, 0, $pMemory, 0, "wparam", "ptr")
+		_MemRead($tMemMap, $pMemory, $tTest, $iTest)
+		_MemFree($tMemMap)
+	EndIf
 	Local $iFlags = DllStructGetData($tTest, "Flags")
 	$aTest[1] = BitAND($iFlags, $HHT_NOWHERE) <> 0
 	$aTest[2] = BitAND($iFlags, $HHT_ONHEADER) <> 0
@@ -510,35 +512,34 @@ Func _GUICtrlHeader_HitTest($hWnd, $iX, $iY)
 	$aTest[8] = BitAND($iFlags, $HHT_BELOW) <> 0
 	$aTest[9] = BitAND($iFlags, $HHT_TORIGHT) <> 0
 	$aTest[10] = BitAND($iFlags, $HHT_TOLEFT) <> 0
-
 	Return $aTest
 EndFunc   ;==>_GUICtrlHeader_HitTest
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlHeader_InsertItem($hWnd, $iIndex, $sText, $iWidth = 50, $iAlign = 0, $iImage = -1, $bOnRight = False)
+Func _GUICtrlHeader_InsertItem($hWnd, $iIndex, $sText, $iWidth = 50, $iAlign = 0, $iImage = -1, $fOnRight = False)
 	Local $aAlign[3] = [$HDF_LEFT, $HDF_RIGHT, $HDF_CENTER]
+	Local $fUnicode = _GUICtrlHeader_GetUnicodeFormat($hWnd)
 
-	Local $tBuffer, $pBuffer, $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$iMsg = $HDM_INSERTITEMW
-		$tBuffer = $__g_tHeaderBuffer
-	Else
-		$tBuffer = $__g_tHeaderBufferANSI
-		$iMsg = $HDM_INSERTITEMA
-	EndIf
-	Local $iBuffer
+	Local $pBuffer, $iBuffer
 	If $sText <> -1 Then
 		$iBuffer = StringLen($sText) + 1
+		Local $tBuffer
+		If $fUnicode Then
+			$tBuffer = DllStructCreate("wchar Text[" & $iBuffer & "]")
+			$iBuffer *= 2
+		Else
+			$tBuffer = DllStructCreate("char Text[" & $iBuffer & "]")
+		EndIf
 		DllStructSetData($tBuffer, "Text", $sText)
 		$pBuffer = DllStructGetPtr($tBuffer)
 	Else
 		$iBuffer = 0
-		$tBuffer = 0
 		$pBuffer = -1 ; LPSTR_TEXTCALLBACK
 	EndIf
+	Local $tItem = DllStructCreate($tagHDITEM)
 	Local $iFmt = $aAlign[$iAlign]
 	Local $iMask = BitOR($HDI_WIDTH, $HDI_FORMAT)
 	If $sText <> "" Then
@@ -549,16 +550,34 @@ Func _GUICtrlHeader_InsertItem($hWnd, $iIndex, $sText, $iWidth = 50, $iAlign = 0
 		$iMask = BitOR($iMask, $HDI_IMAGE)
 		$iFmt = BitOR($iFmt, $HDF_IMAGE)
 	EndIf
-	If $bOnRight Then $iFmt = BitOR($iFmt, $HDF_BITMAP_ON_RIGHT)
-	Local $tItem = DllStructCreate($tagHDITEM)
+	If $fOnRight Then $iFmt = BitOR($iFmt, $HDF_BITMAP_ON_RIGHT)
 	DllStructSetData($tItem, "Mask", $iMask)
 	DllStructSetData($tItem, "XY", $iWidth)
 	DllStructSetData($tItem, "Fmt", $iFmt)
 	DllStructSetData($tItem, "Image", $iImage)
-	DllStructSetData($tItem, "Text", $pBuffer)
-	DllStructSetData($tItem, "TextMax", $iBuffer)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, -1)
-
+	Local $iRet
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		DllStructSetData($tItem, "Text", $pBuffer)
+		$iRet = _SendMessage($hWnd, $HDM_INSERTITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
+	Else
+		Local $iItem = DllStructGetSize($tItem)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iItem + $iBuffer, $tMemMap)
+		If $sText <> -1 Then
+			Local $pText = $pMemory + $iItem
+			DllStructSetData($tItem, "Text", $pText)
+			_MemWrite($tMemMap, $tBuffer, $pText, $iBuffer)
+		Else
+			DllStructSetData($tItem, "Text", -1) ; LPSTR_TEXTCALLBACK
+		EndIf
+		_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+		If $fUnicode Then
+			$iRet = _SendMessage($hWnd, $HDM_INSERTITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+		Else
+			$iRet = _SendMessage($hWnd, $HDM_INSERTITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+		EndIf
+		_MemFree($tMemMap)
+	EndIf
 	Return $iRet
 EndFunc   ;==>_GUICtrlHeader_InsertItem
 
@@ -566,30 +585,27 @@ EndFunc   ;==>_GUICtrlHeader_InsertItem
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlHeader_Layout($hWnd, ByRef $tRECT)
+Func _GUICtrlHeader_Layout($hWnd, ByRef $tRect)
 	Local $tLayout = DllStructCreate($tagHDLAYOUT)
 	Local $tWindowPos = DllStructCreate($tagWINDOWPOS)
-
-	; cannot be optimized with __GUICtrl_SendMsg() as $tLayout need to point to 2 areas $tRECT and $tWindowPos
-	If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
-		DllStructSetData($tLayout, "Rect", DllStructGetPtr($tRECT))
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		DllStructSetData($tLayout, "Rect", DllStructGetPtr($tRect))
 		DllStructSetData($tLayout, "WindowPos", DllStructGetPtr($tWindowPos))
 		_SendMessage($hWnd, $HDM_LAYOUT, 0, $tLayout, 0, "wparam", "struct*")
 	Else
 		Local $iLayout = DllStructGetSize($tLayout)
-		Local $iRect = DllStructGetSize($tRECT)
+		Local $iRect = DllStructGetSize($tRect)
 		Local $iWindowPos = DllStructGetSize($tWindowPos)
 		Local $tMemMap
 		Local $pMemory = _MemInit($hWnd, $iLayout + $iRect + $iWindowPos, $tMemMap)
 		DllStructSetData($tLayout, "Rect", $pMemory + $iLayout)
 		DllStructSetData($tLayout, "WindowPos", $pMemory + $iLayout + $iRect)
 		_MemWrite($tMemMap, $tLayout, $pMemory, $iLayout)
-		_MemWrite($tMemMap, $tRECT, $pMemory + $iLayout, $iRect)
+		_MemWrite($tMemMap, $tRect, $pMemory + $iLayout, $iRect)
 		_SendMessage($hWnd, $HDM_LAYOUT, 0, $pMemory, 0, "wparam", "ptr")
 		_MemRead($tMemMap, $pMemory + $iLayout + $iRect, $tWindowPos, $iWindowPos)
 		_MemFree($tMemMap)
 	EndIf
-
 	Return $tWindowPos
 EndFunc   ;==>_GUICtrlHeader_Layout
 
@@ -635,18 +651,26 @@ EndFunc   ;==>_GUICtrlHeader_SetImageList
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_SetItem($hWnd, $iIndex, ByRef $tItem)
-	Local $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$iMsg = $HDM_SETITEMW
+	Local $fUnicode = _GUICtrlHeader_GetUnicodeFormat($hWnd)
+
+	Local $iRet
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		$iRet = _SendMessage($hWnd, $HDM_SETITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
 	Else
-		$iMsg = $HDM_SETITEMA
+		Local $iItem = DllStructGetSize($tItem)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iItem, $tMemMap)
+		_MemWrite($tMemMap, $tItem)
+		If $fUnicode Then
+			$iRet = _SendMessage($hWnd, $HDM_SETITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+		Else
+			$iRet = _SendMessage($hWnd, $HDM_SETITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+		EndIf
+		_MemFree($tMemMap)
 	EndIf
-
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem)
-
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlHeader_SetItem
 
@@ -660,7 +684,6 @@ Func _GUICtrlHeader_SetItemAlign($hWnd, $iIndex, $iAlign)
 	Local $iFormat = _GUICtrlHeader_GetItemFormat($hWnd, $iIndex)
 	$iFormat = BitAND($iFormat, BitNOT($HDF_JUSTIFYMASK))
 	$iFormat = BitOR($iFormat, $aAlign[$iAlign])
-
 	Return _GUICtrlHeader_SetItemFormat($hWnd, $iIndex, $iFormat)
 EndFunc   ;==>_GUICtrlHeader_SetItemAlign
 
@@ -668,12 +691,11 @@ EndFunc   ;==>_GUICtrlHeader_SetItemAlign
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlHeader_SetItemBitmap($hWnd, $iIndex, $hBitmap)
+Func _GUICtrlHeader_SetItemBitmap($hWnd, $iIndex, $hBmp)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", BitOR($HDI_FORMAT, $HDI_BITMAP))
 	DllStructSetData($tItem, "Fmt", $HDF_BITMAP)
-	DllStructSetData($tItem, "hBMP", $hBitmap)
-
+	DllStructSetData($tItem, "hBMP", $hBmp)
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemBitmap
 
@@ -687,7 +709,6 @@ Func _GUICtrlHeader_SetItemDisplay($hWnd, $iIndex, $iDisplay)
 	If BitAND($iDisplay, 2) <> 0 Then $iFormat = BitOR($iFormat, $HDF_BITMAP_ON_RIGHT)
 	If BitAND($iDisplay, 4) <> 0 Then $iFormat = BitOR($iFormat, $HDF_OWNERDRAW)
 	If BitAND($iDisplay, 8) <> 0 Then $iFormat = BitOR($iFormat, $HDF_STRING)
-
 	Return _GUICtrlHeader_SetItemFormat($hWnd, $iIndex, $iFormat)
 EndFunc   ;==>_GUICtrlHeader_SetItemDisplay
 
@@ -702,7 +723,6 @@ Func _GUICtrlHeader_SetItemFlags($hWnd, $iIndex, $iFlags)
 	If BitAND($iFlags, 2) <> 0 Then $iFormat = BitOR($iFormat, $HDF_RTLREADING)
 	If BitAND($iFlags, 4) <> 0 Then $iFormat = BitOR($iFormat, $HDF_SORTDOWN)
 	If BitAND($iFlags, 8) <> 0 Then $iFormat = BitOR($iFormat, $HDF_SORTUP)
-
 	Return _GUICtrlHeader_SetItemFormat($hWnd, $iIndex, $iFormat)
 EndFunc   ;==>_GUICtrlHeader_SetItemFlags
 
@@ -714,7 +734,6 @@ Func _GUICtrlHeader_SetItemFormat($hWnd, $iIndex, $iFormat)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_FORMAT)
 	DllStructSetData($tItem, "Fmt", $iFormat)
-
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemFormat
 
@@ -726,7 +745,6 @@ Func _GUICtrlHeader_SetItemImage($hWnd, $iIndex, $iImage)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_IMAGE)
 	DllStructSetData($tItem, "Image", $iImage)
-
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemImage
 
@@ -738,7 +756,6 @@ Func _GUICtrlHeader_SetItemOrder($hWnd, $iIndex, $iOrder)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_ORDER)
 	DllStructSetData($tItem, "Order", $iOrder)
-
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemOrder
 
@@ -750,39 +767,58 @@ Func _GUICtrlHeader_SetItemParam($hWnd, $iIndex, $iParam)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_PARAM)
 	DllStructSetData($tItem, "Param", $iParam)
-
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemParam
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_SetItemText($hWnd, $iIndex, $sText)
-	Local $tBuffer, $iMsg
-	If _GUICtrlHeader_GetUnicodeFormat($hWnd) Then
-		$tBuffer = $__g_tHeaderBuffer
-		$iMsg = $HDM_SETITEMW
-	Else
-		$tBuffer = $__g_tHeaderBufferANSI
-		$iMsg = $HDM_SETITEMA
-	EndIf
+	Local $fUnicode = _GUICtrlHeader_GetUnicodeFormat($hWnd)
+
 	Local $iBuffer, $pBuffer
 	If $sText <> -1 Then
 		$iBuffer = StringLen($sText) + 1
+		Local $tBuffer
+		If $fUnicode Then
+			$tBuffer = DllStructCreate("wchar Text[" & $iBuffer & "]")
+			$iBuffer *= 2
+		Else
+			$tBuffer = DllStructCreate("char Text[" & $iBuffer & "]")
+		EndIf
 		DllStructSetData($tBuffer, "Text", $sText)
 		$pBuffer = DllStructGetPtr($tBuffer)
 	Else
 		$iBuffer = 0
-		$tBuffer = 0
 		$pBuffer = -1 ; LPSTR_TEXTCALLBACK
 	EndIf
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_TEXT)
-	DllStructSetData($tItem, "Text", $pBuffer)
 	DllStructSetData($tItem, "TextMax", $iBuffer)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $iMsg, $iIndex, $tItem, $tBuffer, False, -1)
-
+	Local $iRet
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		DllStructSetData($tItem, "Text", $pBuffer)
+		$iRet = _SendMessage($hWnd, $HDM_SETITEMW, $iIndex, $tItem, 0, "wparam", "struct*")
+	Else
+		Local $iItem = DllStructGetSize($tItem)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iItem + $iBuffer, $tMemMap)
+		If $sText <> -1 Then
+			Local $pText = $pMemory + $iItem
+			DllStructSetData($tItem, "Text", $pText)
+			_MemWrite($tMemMap, $tBuffer, $pText, $iBuffer)
+		Else
+			DllStructSetData($tItem, "Text", -1) ; LPSTR_TEXTCALLBACK
+		EndIf
+		_MemWrite($tMemMap, $tItem, $pMemory, $iItem)
+		If $fUnicode Then
+			$iRet = _SendMessage($hWnd, $HDM_SETITEMW, $iIndex, $pMemory, 0, "wparam", "ptr")
+		Else
+			$iRet = _SendMessage($hWnd, $HDM_SETITEMA, $iIndex, $pMemory, 0, "wparam", "ptr")
+		EndIf
+		_MemFree($tMemMap)
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlHeader_SetItemText
 
@@ -794,21 +830,29 @@ Func _GUICtrlHeader_SetItemWidth($hWnd, $iIndex, $iWidth)
 	Local $tItem = DllStructCreate($tagHDITEM)
 	DllStructSetData($tItem, "Mask", $HDI_WIDTH)
 	DllStructSetData($tItem, "XY", $iWidth)
-
 	Return _GUICtrlHeader_SetItem($hWnd, $iIndex, $tItem)
 EndFunc   ;==>_GUICtrlHeader_SetItemWidth
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlHeader_SetOrderArray($hWnd, ByRef $aOrder)
 	Local $tBuffer = DllStructCreate("int[" & $aOrder[0] & "]")
 	For $iI = 1 To $aOrder[0]
 		DllStructSetData($tBuffer, 1, $aOrder[$iI], $iI)
 	Next
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $HDM_SETORDERARRAY, $aOrder[0], $tBuffer)
-
+	Local $iRet
+	If _WinAPI_InProcess($hWnd, $_ghHDRLastWnd) Then
+		$iRet = _SendMessage($hWnd, $HDM_SETORDERARRAY, $aOrder[0], $tBuffer, 0, "wparam", "struct*")
+	Else
+		Local $iBuffer = DllStructGetSize($tBuffer)
+		Local $tMemMap
+		Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+		_MemWrite($tMemMap, $tBuffer)
+		$iRet = _SendMessage($hWnd, $HDM_SETORDERARRAY, $aOrder[0], $pMemory, 0, "wparam", "ptr")
+		_MemFree($tMemMap)
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlHeader_SetOrderArray
 
@@ -816,6 +860,6 @@ EndFunc   ;==>_GUICtrlHeader_SetOrderArray
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlHeader_SetUnicodeFormat($hWnd, $bUnicode)
-	Return _SendMessage($hWnd, $HDM_SETUNICODEFORMAT, $bUnicode)
+Func _GUICtrlHeader_SetUnicodeFormat($hWnd, $fUnicode)
+	Return _SendMessage($hWnd, $HDM_SETUNICODEFORMAT, $fUnicode)
 EndFunc   ;==>_GUICtrlHeader_SetUnicodeFormat

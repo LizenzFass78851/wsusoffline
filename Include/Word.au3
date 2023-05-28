@@ -1,15 +1,13 @@
 #include-once
 
-#include "AutoItConstants.au3"
-#include "StringConstants.au3"
-#include "WordConstants.au3"
+#include <WordConstants.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Microsoft Word Function Library (MS Word 2003 and later)
-; AutoIt Version : 3.3.16.1
 ; Language ......: English
 ; Description ...: A collection of functions for accessing and manipulating Microsoft Word documents
 ; Author(s) .....: Bob Anthony, rewritten by water
+; Dll(s) ........:
 ; Resources .....: Word 2003 Visual Basic Reference:	http://msdn.microsoft.com/en-us/library/aa272078(v=office.11).aspx
 ;                  Word 2007 Developer Reference:		http://msdn.microsoft.com/en-us/library/bb244391(v=office.12).aspx
 ;                  Word 2010 Developer Reference:		http://msdn.microsoft.com/en-us/library/ff841698.aspx
@@ -39,7 +37,6 @@
 
 ; #INTERNAL_USE_ONLY#============================================================================================================
 ; __Word_CloseOnQuit
-; __Word_COMErrFunc
 ; ===============================================================================================================================
 
 ; #FUNCTION# ====================================================================================================================
@@ -66,10 +63,6 @@ EndFunc   ;==>_Word_Create
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_Quit(ByRef $oAppl, $iSaveChanges = Default, $iOriginalFormat = Default, $bForceClose = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $iSaveChanges = Default Then $iSaveChanges = $WdDoNotSaveChanges
 	If $iOriginalFormat = Default Then $iOriginalFormat = $WdWordDocument
 	If $bForceClose = Default Then $bForceClose = False
@@ -88,15 +81,11 @@ EndFunc   ;==>_Word_Quit
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocAdd($oAppl, $iDocumentType = Default, $sDocumentTemplate = Default, $bNewTemplate = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $iDocumentType = Default Then $iDocumentType = $WdNewBlankDocument
 	If $sDocumentTemplate = Default Then $sDocumentTemplate = ""
 	If $bNewTemplate = Default Then $bNewTemplate = False
 	If Not IsObj($oAppl) Then Return SetError(1, 0, 0)
-	If StringStripWS($sDocumentTemplate, BitOR($STR_STRIPLEADING, $STR_STRIPTRAILING)) <> "" And FileExists($sDocumentTemplate) <> 1 Then Return SetError(2, 0, 0)
+	If StringStripWS($sDocumentTemplate, 3) <> "" And FileExists($sDocumentTemplate) <> 1 Then Return SetError(2, 0, 0)
 	Local $oDoc = $oAppl.Documents.Add($sDocumentTemplate, $bNewTemplate, $iDocumentType)
 	If @error Or Not IsObj($oDoc) Then Return SetError(3, @error, 0)
 	Return $oDoc
@@ -107,15 +96,11 @@ EndFunc   ;==>_Word_DocAdd
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocAttach($oAppl, $sString, $sMode = Default, $iCase = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	Local $bFound = False
 	If $sMode = Default Then $sMode = "FilePath"
 	If $iCase = Default Then $iCase = 0
 	If Not IsObj($oAppl) Then Return SetError(1, 0, 0)
-	If StringStripWS($sString, BitOR($STR_STRIPLEADING, $STR_STRIPTRAILING)) = "" Then Return SetError(2, 0, 0)
+	If StringStripWS($sString, 3) = "" Then Return SetError(2, 0, 0)
 	If $sMode <> "filepath" And $sMode <> "filename" And $sMode <> "text" Then Return SetError(3, 0, 0)
 	For $oDoc In $oAppl.Documents
 		Select
@@ -137,10 +122,6 @@ EndFunc   ;==>_Word_DocAttach
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocClose($oDoc, $iSaveChanges = Default, $iOriginalFormat = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $iSaveChanges = Default Then $iSaveChanges = $WdDoNotSaveChanges
 	If $iOriginalFormat = Default Then $iOriginalFormat = $WdOriginalDocumentFormat
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
@@ -153,24 +134,20 @@ EndFunc   ;==>_Word_DocClose
 ; Author ........: water
 ; Modified ......:
 ; ===============================================================================================================================
-Func _Word_DocExport($oDoc, $sFileName, $iFormat = Default, $iRange = Default, $iFrom = Default, $iTo = Default, $bOpenAfterExport = Default, $bIncludeProperties = Default, $iCreateBookmarks = Default, $bUseISO19005 = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
+Func _Word_DocExport($oDoc, $sFilename, $iFormat = Default, $iRange = Default, $iFrom = Default, $iTo = Default, $bOpenAfterExport = Default, $bIncludeProperties = Default, $iCreateBookmarks = Default, $bUseISO19005 = Default)
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
-	If $sFileName = "" Then Return SetError(2, 0, 0)
+	If $sFilename = "" Then Return SetError(2, 0, 0)
 	If $iFormat = Default Then $iFormat = $WdExportFormatPDF
 	If $iRange = Default Then $iRange = $WdExportAllDocument
 	If $bOpenAfterExport = Default Then $bOpenAfterExport = False
 	If $bIncludeProperties = Default Then $bIncludeProperties = True
 	If $bUseISO19005 = Default Then $bUseISO19005 = False
 	If $iRange = $WdExportFromTo Then
-		$oDoc.ExportAsFixedFormat($sFileName, $iFormat, $bOpenAfterExport, Default, Default, Default, $bIncludeProperties, Default, $iCreateBookmarks, Default, Default, $bUseISO19005) ; Export Range
+		$oDoc.ExportAsFixedFormat($sFilename, $iFormat, $bOpenAfterExport, Default, Default, Default, $bIncludeProperties, Default, $iCreateBookmarks, Default, Default, $bUseISO19005) ; Export Range
 	Else
-		$oDoc.ExportAsFixedFormat($sFileName, $iFormat, $bOpenAfterExport, Default, $iRange, $iFrom, $iTo, Default, $bIncludeProperties, Default, $iCreateBookmarks, Default, Default, $bUseISO19005) ; Export document
+		$oDoc.ExportAsFixedFormat($sFilename, $iFormat, $bOpenAfterExport, Default, $iRange, $iFrom, $iTo, Default, $bIncludeProperties, Default, $iCreateBookmarks, Default, Default, $bUseISO19005) ; Export document
 	EndIf
-	If @error Then Return SetError(3, @error, 0)
+	If @error <> 0 Then Return SetError(3, @error, 0)
 	Return 1
 EndFunc   ;==>_Word_DocExport
 
@@ -179,10 +156,6 @@ EndFunc   ;==>_Word_DocExport
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocFind($oDoc, $sFindText = Default, $vSearchRange = Default, $oFindRange = Default, $bForward = Default, $bMatchCase = Default, $bMatchWholeWord = Default, $bMatchWildcards = Default, $bMatchSoundsLike = Default, $bMatchAllWordForms = Default, $bFormat = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $sFindText = Default Then $sFindText = ""
 	If $vSearchRange = Default Then $vSearchRange = 0
 	If $bForward = Default Then $bForward = True
@@ -216,7 +189,7 @@ Func _Word_DocFind($oDoc, $sFindText = Default, $vSearchRange = Default, $oFindR
 	$oFindRange.Find.ClearFormatting()
 	$oFindRange.Find.Execute($sFindText, $bMatchCase, $bMatchWholeWord, $bMatchWildcards, $bMatchSoundsLike, _
 			$bMatchAllWordForms, $bForward, $WdFindStop, $bFormat)
-	If @error Or Not $oFindRange.Find.Found Then Return SetError(4, @error, 0)
+	If @error Or Not $oFindRange.Find.Found Then Return SetError(4, 0, 0)
 	Return $oFindRange
 EndFunc   ;==>_Word_DocFind
 
@@ -225,10 +198,6 @@ EndFunc   ;==>_Word_DocFind
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocFindReplace($oDoc, $sFindText = Default, $sReplaceWith = Default, $iReplace = Default, $vSearchRange = Default, $bMatchCase = Default, $bMatchWholeWord = Default, $bMatchWildcards = Default, $bMatchSoundsLike = Default, $bMatchAllWordForms = Default, $bForward = Default, $iWrap = Default, $bFormat = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $sFindText = Default Then $sFindText = ""
 	If $sReplaceWith = Default Then $sReplaceWith = ""
 	If $iReplace = Default Then $iReplace = $WdReplaceAll
@@ -255,7 +224,7 @@ Func _Word_DocFindReplace($oDoc, $sFindText = Default, $sReplaceWith = Default, 
 	$oFind.Replacement.ClearFormatting()
 	Local $bReturn = $oFind.Execute($sFindText, $bMatchCase, $bMatchWholeWord, $bMatchWildcards, $bMatchSoundsLike, _
 			$bMatchAllWordForms, $bForward, $iWrap, $bFormat, $sReplaceWith, $iReplace)
-	If @error Or Not $bReturn Then Return SetError(3, @error, 0)
+	If @error Or Not $bReturn Then Return SetError(3, 0, 0)
 	Return 1
 EndFunc   ;==>_Word_DocFindReplace
 
@@ -264,10 +233,6 @@ EndFunc   ;==>_Word_DocFindReplace
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocGet($oAppl, $vIndex = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If Not IsObj($oAppl) Then Return SetError(1, 0, 0)
 	If $vIndex = Default Then $vIndex = -1
 	Local $iCount = $oAppl.Documents.Count
@@ -301,10 +266,6 @@ EndFunc   ;==>_Word_DocGet
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocLinkAdd($oDoc, $oAnchor = Default, $sAddress = Default, $sSubAddress = Default, $sScreenTip = Default, $sTextToDisplay = Default, $sTarget = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
 	If $oAnchor = Default Then $oAnchor = $oDoc.Range()
 	If Not IsObj($oAnchor) Then Return SetError(3, 0, 0)
@@ -319,10 +280,6 @@ EndFunc   ;==>_Word_DocLinkAdd
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocLinkGet($oDoc, $iIndex = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
 	If $iIndex <> Default And (Not IsInt($iIndex)) Then Return SetError(2, 0, 0)
 	Local $iCount = $oDoc.Hyperlinks.Count
@@ -341,11 +298,7 @@ EndFunc   ;==>_Word_DocLinkGet
 ; Author ........: water (based on the Word UDF written by Bob Anthony)
 ; Modified ......:
 ; ===============================================================================================================================
-Func _Word_DocOpen($oAppl, $sFilePath, $bConfirmConversions = Default, $iFormat = Default, $bReadOnly = Default, $bRevert = Default, $bAddToRecentFiles = Default, $sOpenPassword = Default, $sWritePassword = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
+Func _Word_DocOpen($oAppl, $sFile, $bConfirmConversions = Default, $iFormat = Default, $bReadOnly = Default, $bRevert = Default, $bAddToRecentFiles = Default, $sOpenPassword = Default, $sWritePassword = Default)
 	If $bConfirmConversions = Default Then $bConfirmConversions = False
 	If $iFormat = Default Then $iFormat = $WdOpenFormatAuto
 	If $bReadOnly = Default Then $bReadOnly = False
@@ -354,13 +307,13 @@ Func _Word_DocOpen($oAppl, $sFilePath, $bConfirmConversions = Default, $iFormat 
 	If $sOpenPassword = Default Then $sOpenPassword = ""
 	If $sWritePassword = Default Then $sWritePassword = ""
 	If Not IsObj($oAppl) Then Return SetError(1, 0, 0)
-	If StringLeft($sFilePath, "HTTP") = 0 And Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
-	If StringInStr($sFilePath, "\") = 0 Then $sFilePath = @ScriptDir & "\" & $sFilePath
-	Local $oDoc = $oAppl.Documents.Open($sFilePath, $bConfirmConversions, $bReadOnly, $bAddToRecentFiles, _
+	If Not FileExists($sFile) Then Return SetError(2, 0, 0)
+	If StringInStr($sFile, "\") = 0 Then $sFile = @ScriptDir & "\" & $sFile
+	Local $oDoc = $oAppl.Documents.Open($sFile, $bConfirmConversions, $bReadOnly, $bAddToRecentFiles, _
 			$sOpenPassword, "", $bRevert, $sWritePassword, "", $iFormat)
 	If @error Or Not IsObj($oDoc) Then Return SetError(3, @error, 0)
 	; If a read-write document was opened read-only then return an error
-	If $bReadOnly = False And $oDoc.Readonly = True Then Return SetError(0, 1, $oDoc)
+	If $bReadOnly = False And $oDoc.Readonly = True Then Return SetError(4, 0, $oDoc)
 	Return $oDoc
 EndFunc   ;==>_Word_DocOpen
 
@@ -369,10 +322,6 @@ EndFunc   ;==>_Word_DocOpen
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocPictureAdd($oDoc, $sFilePath, $bLinkToFile = Default, $bSaveWithDocument = Default, $oRange = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $bLinkToFile = Default Then $bLinkToFile = False
 	; Word docu is wrong. False isn't accepted. But Default is handled like False
 	If $bSaveWithDocument = Default Then $bSaveWithDocument = Default
@@ -395,10 +344,6 @@ EndFunc   ;==>_Word_DocPictureAdd
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocPrint($oDoc, $bBackground = Default, $iCopies = Default, $iOrientation = Default, $bCollate = Default, $sPrinter = Default, $iRange = Default, $vFrom = Default, $vTo = Default, $sPages = Default, $iPageType = Default, $iItem = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $bBackground = Default Then $bBackground = False
 	If $iCopies = Default Then $iCopies = 1
 	If $iOrientation = Default Then $iOrientation = -1
@@ -417,7 +362,7 @@ Func _Word_DocPrint($oDoc, $bBackground = Default, $iCopies = Default, $iOrienta
 		$iDocOrientation = $oDoc.PageSetup.Orientation
 		If $iDocOrientation <> $iOrientation Then
 			$oDoc.PageSetup.Orientation = $iOrientation
-			If @error Then Return SetError(2, @error, 0)
+			If @error Then Return SetError(2, 0, 0)
 		EndIf
 	EndIf
 	; Set Printer
@@ -455,10 +400,6 @@ EndFunc   ;==>_Word_DocPrint
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocRangeSet($oDoc, $vRange, $iStartUnit = Default, $iStartCount = Default, $iEndUnit = Default, $iEndCount = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If $iStartUnit = Default Then $iStartUnit = $WdWord
 	If $iEndUnit = Default Then $iEndUnit = $WdWord
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
@@ -474,17 +415,17 @@ Func _Word_DocRangeSet($oDoc, $vRange, $iStartUnit = Default, $iStartCount = Def
 	EndIf
 	If $iStartUnit = -1 Then
 		$vRange.Collapse($WdCollapseStart)
-		If @error Then Return SetError(3, @error, 0)
+		If @error Then Return SetError(3, @extended, 0)
 	ElseIf $iStartCount <> Default Then
 		$vRange.MoveStart($iStartUnit, $iStartCount)
-		If @error Then Return SetError(3, @error, 0)
+		If @error Then Return SetError(3, @extended, 0)
 	EndIf
 	If $iEndUnit = -1 Then
 		$vRange.Collapse($WdCollapseEnd)
-		If @error Then Return SetError(4, @error, 0)
+		If @error Then Return SetError(4, @extended, 0)
 	ElseIf $iEndCount <> Default Then
 		$vRange.MoveEnd($iEndUnit, $iEndCount)
-		If @error Then Return SetError(4, @error, 0)
+		If @error Then Return SetError(4, @extended, 0)
 	EndIf
 	Return $vRange
 EndFunc   ;==>_Word_DocRangeSet
@@ -494,10 +435,6 @@ EndFunc   ;==>_Word_DocRangeSet
 ; Modified ......:
 ; ===============================================================================================================================
 Func _Word_DocSave($oDoc)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
 	If Not FileExists($oDoc.FullName) Then Return SetError(2, 0, 0)
 	$oDoc.Save()
@@ -509,20 +446,15 @@ EndFunc   ;==>_Word_DocSave
 ; Author ........: water (based on the Word UDF written by Bob Anthony)
 ; Modified ......:
 ; ===============================================================================================================================
-Func _Word_DocSaveAs($oDoc, $sFileName = Default, $iFileFormat = Default, $bReadOnlyRecommended = Default, $bAddToRecentFiles = Default, $sPassword = Default, $sWritePassword = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
-;	If $sFileName = Default Then $sFileName = "" ; Fixing Bug #3325
-;	If $iFileFormat = Default Then $iFileFormat = $WdFormatDocument ; Fixing Bug #3325
+Func _Word_DocSaveAs($oDoc, $sFilename = Default, $iFileFormat = Default, $bReadOnlyRecommended = Default, $bAddToRecentFiles = Default, $sPassword = Default, $sWritePassword = Default)
+	If $sFilename = Default Then $sFilename = ""
+	If $iFileFormat = Default Then $iFileFormat = $WdFormatDocument
 	If $bReadOnlyRecommended = Default Then $bReadOnlyRecommended = False
 	If $bAddToRecentFiles = Default Then $bAddToRecentFiles = 0
 	If $sPassword = Default Then $sPassword = ""
 	If $sWritePassword = Default Then $sWritePassword = ""
 	If Not IsObj($oDoc) Then Return SetError(1, 0, 0)
-	$oDoc.SaveAs2($sFileName, $iFileFormat, False, $sPassword, $bAddToRecentFiles, $sWritePassword, $bReadOnlyRecommended) ; Try to save for >= Word 2010
-	If @error = 0x80020006 Then $oDoc.SaveAs($sFileName, $iFileFormat, False, $sPassword, $bAddToRecentFiles, $sWritePassword, $bReadOnlyRecommended) ; COM error "Unknown Name" hence save for <= Word 2007
+	$oDoc.SaveAs($sFilename, $iFileFormat, False, $sPassword, $bAddToRecentFiles, $sWritePassword, $bReadOnlyRecommended)
 	If @error Then Return SetError(2, @error, 0)
 	Return 1
 EndFunc   ;==>_Word_DocSaveAs
@@ -531,36 +463,30 @@ EndFunc   ;==>_Word_DocSaveAs
 ; Author ........: water
 ; Modified ......:
 ; ===============================================================================================================================
-Func _Word_DocTableRead($oDoc, $vTable, $iIndexBase = Default, $sDelimiter = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
+Func _Word_DocTableRead($oDoc, $vTable, $iIndexBase = Default, $sSeparator = Default)
 	If $iIndexBase = Default Then $iIndexBase = 1
-	If $sDelimiter = Default Then $sDelimiter = @TAB
+	If $sSeparator = Default Then $sSeparator = @TAB
 	If Not IsObj($oDoc) Then Return SetError(1, 0, "")
 	If Not IsObj($vTable) Then
 		$vTable = $oDoc.Tables.Item($vTable)
-		If @error Then Return SetError(2, @error, "")
+		If @error Then Return SetError(2, @extended, "")
 	EndIf
 	; Temporarly replace tabs and paragraphs in the table
-	Local $asSeparators[2][2] = [[@TAB, "   "], [@CR, "|"]], $iTableRows, $iTableColumns, $iUndo = 1, $bFound = False
+	Local $asSeparators[2][2] = [[@TAB, "   "],[@CR, "|"]], $iTableRows, $iTableColumns
 	$vTable.Range.Find.ClearFormatting
-	If @error Then Return SetError(3, @error, "")
-	$bFound = $vTable.Range.Find.Execute($asSeparators[0][0], False, False, False, False, False, True, $WdFindStop, False, $asSeparators[0][1], $WdReplaceAll)
-	If $bFound Then $iUndo = $iUndo + 1
-	$bFound = $vTable.Range.Find.Execute($asSeparators[1][0], False, False, False, False, False, True, $WdFindStop, False, $asSeparators[1][1], $WdReplaceAll)
-	If $bFound Then $iUndo = $iUndo + 1
+	If @error Then Return SetError(3, @extended, "")
+	$vTable.Range.Find.Execute($asSeparators[0][0], False, False, False, False, False, True, $WdFindStop, False, $asSeparators[0][1], $WdReplaceAll)
+	$vTable.Range.Find.Execute($asSeparators[1][0], False, False, False, False, False, True, $WdFindStop, False, $asSeparators[1][1], $WdReplaceAll)
 	$iTableRows = $vTable.Rows.Count()
 	$iTableColumns = $vTable.Columns.Count()
 	Local $asResult[$iTableRows + $iIndexBase][$iTableColumns], $asLines, $asColumns
-	Local $oRange = $vTable.ConvertToText($sDelimiter, False)
-	If @error Then Return SetError(4, @error, "")
+	Local $oRange = $vTable.ConvertToText($sSeparator, False)
+	If @error Then Return SetError(4, @extended, "")
 	Local $sData = $oRange.Text
-	$oDoc.Undo($iUndo) ; Undo the Find and ConvertToText function so the table remains unchanged in the document
-	$asLines = StringSplit($sData, @CR, $STR_NOCOUNT)
+	$oDoc.Undo(1) ; Undo the ConvertToText function so the table remains unchanged in the document
+	$asLines = StringSplit($sData, @CR, 2)
 	For $iIndex1 = 0 To $iTableRows - 1
-		$asColumns = StringSplit($asLines[$iIndex1], $sDelimiter)
+		$asColumns = StringSplit($asLines[$iIndex1], $sSeparator)
 		For $iIndex2 = 1 To $asColumns[0]
 			$asColumns[$iIndex2] = StringReplace($asColumns[$iIndex2], $asSeparators[0][1], $asSeparators[0][0])
 			$asColumns[$iIndex2] = StringReplace($asColumns[$iIndex2], $asSeparators[1][1], $asSeparators[1][0])
@@ -568,8 +494,8 @@ Func _Word_DocTableRead($oDoc, $vTable, $iIndexBase = Default, $sDelimiter = Def
 		Next
 	Next
 	If $iIndexBase Then
-		$asResult[0][0] = UBound($asResult, $UBOUND_ROWS) - 1
-		If UBound($asResult, $UBOUND_COLUMNS) > 1 Then $asResult[0][1] = UBound($asResult, $UBOUND_COLUMNS)
+		$asResult[0][0] = UBound($asResult, 1) - 1
+		If UBound($asResult, 2) > 1 Then $asResult[0][1] = UBound($asResult, 2)
 	EndIf
 	Return $asResult
 EndFunc   ;==>_Word_DocTableRead
@@ -578,35 +504,31 @@ EndFunc   ;==>_Word_DocTableRead
 ; Author ........: water
 ; Modified ......:
 ; ===============================================================================================================================
-Func _Word_DocTableWrite($oRange, ByRef $aArray, $iIndexBase = Default, $sDelimiter = Default)
-	; Error handler, automatic cleanup at end of function
-	Local $oError = ObjEvent("AutoIt.Error", "__Word_COMErrFunc")
-	#forceref $oError
-
+Func _Word_DocTableWrite($oRange, ByRef $asArray, $iIndexBase = Default, $sSeparator = Default)
 	If $iIndexBase = Default Then $iIndexBase = 1
-	If $sDelimiter = Default Then $sDelimiter = @TAB
+	If $sSeparator = Default Then $sSeparator = @TAB
 	If Not IsObj($oRange) Then Return SetError(1, 0, 0)
-	If Not IsArray($aArray) Or UBound($aArray, $UBOUND_DIMENSIONS) > 2 Then Return SetError(2, 0, 0)
+	If Not IsArray($asArray) Or UBound($asArray, 0) > 2 Then Return SetError(2, 0, 0)
 	Local $sData, $iUBound1, $iUBound2, $oTable
-	$iUBound1 = UBound($aArray, $UBOUND_ROWS)
-	If UBound($aArray, $UBOUND_DIMENSIONS) = 1 Then
+	$iUBound1 = UBound($asArray, 1)
+	If UBound($asArray, 0) = 1 Then
 		For $iIndex1 = $iIndexBase To $iUBound1 - 1
-			$sData = $sData & $aArray[$iIndex1]
+			$sData = $sData & $asArray[$iIndex1]
 			If $iIndex1 <> $iUBound1 Then $sData = $sData & @CRLF
 		Next
 	Else
-		$iUBound2 = UBound($aArray, $UBOUND_COLUMNS)
+		$iUBound2 = UBound($asArray, 2)
 		For $iIndex1 = $iIndexBase To $iUBound1 - 1
 			For $iIndex2 = 0 To $iUBound2 - 1
-				$sData = $sData & $aArray[$iIndex1][$iIndex2]
-				If $iIndex2 <> $iUBound2 - 1 Then $sData = $sData & $sDelimiter
+				$sData = $sData & $asArray[$iIndex1][$iIndex2]
+				If $iIndex2 <> $iUBound2 - 1 Then $sData = $sData & $sSeparator
 			Next
 			If $iIndex1 <> $iUBound1 - 1 Then $sData = $sData & @CRLF
 		Next
 	EndIf
 	$oRange.Text = $sData
 	If @error Then Return SetError(3, @error, 0)
-	$oTable = $oRange.ConvertToTable($sDelimiter)
+	$oTable = $oRange.ConvertToTable($sSeparator)
 	If @error Then Return SetError(4, @error, 0)
 	Return $oTable
 EndFunc   ;==>_Word_DocTableWrite
@@ -630,21 +552,3 @@ Func __Word_CloseOnQuit($bNewState = Default)
 	If IsBool($bNewState) Then $bState = $bNewState
 	Return $bState
 EndFunc   ;==>__Word_CloseOnQuit
-
-; #INTERNAL_USE_ONLY#============================================================================================================
-; Name...........: __Word_COMErrFunc
-; Description ...: Dummy function for silently handling COM errors.
-; Syntax.........:
-; Parameters ....:
-; Return values .:
-;
-; Author ........:
-; Modified ......:
-; Remarks .......:
-; Related .......:
-; Link ..........:
-; Example .......:
-; ===============================================================================================================================
-Func __Word_COMErrFunc()
-	; Do nothing special, just check @error after suspect functions.
-EndFunc   ;==>__Word_COMErrFunc

@@ -4,13 +4,14 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Clipboard
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with Clipboard management.
 ;                  The clipboard is a set of functions and messages that enable applications to transfer data.
 ;                  Because  all applications have access to the clipboard, data can be easily transferred
 ;                  between applications  or  within  an application.
 ; Author(s) .....: Paul Campbell (PaulIA)
+; Dll(s) ........: user32.dll
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -79,9 +80,9 @@ EndFunc   ;==>_ClipBoard_ChangeChain
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_Close()
-	Local $aCall = DllCall("user32.dll", "bool", "CloseClipboard")
+	Local $aResult = DllCall("user32.dll", "bool", "CloseClipboard")
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_Close
 
 ; #FUNCTION# ====================================================================================================================
@@ -89,9 +90,9 @@ EndFunc   ;==>_ClipBoard_Close
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_CountFormats()
-	Local $aCall = DllCall("user32.dll", "int", "CountClipboardFormats")
+	Local $aResult = DllCall("user32.dll", "int", "CountClipboardFormats")
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_CountFormats
 
 ; #FUNCTION# ====================================================================================================================
@@ -99,9 +100,9 @@ EndFunc   ;==>_ClipBoard_CountFormats
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_Empty()
-	Local $aCall = DllCall("user32.dll", "bool", "EmptyClipboard")
+	Local $aResult = DllCall("user32.dll", "bool", "EmptyClipboard")
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_Empty
 
 ; #FUNCTION# ====================================================================================================================
@@ -109,9 +110,9 @@ EndFunc   ;==>_ClipBoard_Empty
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_EnumFormats($iFormat)
-	Local $aCall = DllCall("user32.dll", "uint", "EnumClipboardFormats", "uint", $iFormat)
+	Local $aResult = DllCall("user32.dll", "uint", "EnumClipboardFormats", "uint", $iFormat)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_EnumFormats
 
 ; #FUNCTION# ====================================================================================================================
@@ -200,9 +201,9 @@ EndFunc   ;==>_ClipBoard_GetData
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_GetDataEx($iFormat = 1)
-	Local $aCall = DllCall("user32.dll", "handle", "GetClipboardData", "uint", $iFormat)
+	Local $aResult = DllCall("user32.dll", "handle", "GetClipboardData", "uint", $iFormat)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetDataEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -210,9 +211,9 @@ EndFunc   ;==>_ClipBoard_GetDataEx
 ; Modified.......: Ascend4nt
 ; ===============================================================================================================================
 Func _ClipBoard_GetFormatName($iFormat)
-	Local $aCall = DllCall("user32.dll", "int", "GetClipboardFormatNameW", "uint", $iFormat, "wstr", "", "int", 4096)
+	Local $aResult = DllCall("user32.dll", "int", "GetClipboardFormatNameW", "uint", $iFormat, "wstr", "", "int", 4096)
 	If @error Then Return SetError(@error, @extended, "")
-	Return $aCall[2]
+	Return $aResult[2]
 EndFunc   ;==>_ClipBoard_GetFormatName
 
 ; #FUNCTION# ====================================================================================================================
@@ -220,9 +221,9 @@ EndFunc   ;==>_ClipBoard_GetFormatName
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_GetOpenWindow()
-	Local $aCall = DllCall("user32.dll", "hwnd", "GetOpenClipboardWindow")
+	Local $aResult = DllCall("user32.dll", "hwnd", "GetOpenClipboardWindow")
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetOpenWindow
 
 ; #FUNCTION# ====================================================================================================================
@@ -230,9 +231,9 @@ EndFunc   ;==>_ClipBoard_GetOpenWindow
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_GetOwner()
-	Local $aCall = DllCall("user32.dll", "hwnd", "GetClipboardOwner")
+	Local $aResult = DllCall("user32.dll", "hwnd", "GetClipboardOwner")
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetOwner
 
 ; #FUNCTION# ====================================================================================================================
@@ -248,9 +249,9 @@ Func _ClipBoard_GetPriorityFormat($aFormats)
 		DllStructSetData($tData, 1, $aFormats[$iI], $iI)
 	Next
 
-	Local $aCall = DllCall("user32.dll", "int", "GetPriorityClipboardFormat", "struct*", $tData, "int", $aFormats[0])
+	Local $aResult = DllCall("user32.dll", "int", "GetPriorityClipboardFormat", "struct*", $tData, "int", $aFormats[0])
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetPriorityFormat
 
 ; #FUNCTION# ====================================================================================================================
@@ -258,9 +259,9 @@ EndFunc   ;==>_ClipBoard_GetPriorityFormat
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_GetSequenceNumber()
-	Local $aCall = DllCall("user32.dll", "dword", "GetClipboardSequenceNumber")
+	Local $aResult = DllCall("user32.dll", "dword", "GetClipboardSequenceNumber")
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetSequenceNumber
 
 ; #FUNCTION# ====================================================================================================================
@@ -268,9 +269,9 @@ EndFunc   ;==>_ClipBoard_GetSequenceNumber
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_GetViewer()
-	Local $aCall = DllCall("user32.dll", "hwnd", "GetClipboardViewer")
+	Local $aResult = DllCall("user32.dll", "hwnd", "GetClipboardViewer")
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_GetViewer
 
 ; #FUNCTION# ====================================================================================================================
@@ -278,9 +279,9 @@ EndFunc   ;==>_ClipBoard_GetViewer
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_IsFormatAvailable($iFormat)
-	Local $aCall = DllCall("user32.dll", "bool", "IsClipboardFormatAvailable", "uint", $iFormat)
+	Local $aResult = DllCall("user32.dll", "bool", "IsClipboardFormatAvailable", "uint", $iFormat)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_IsFormatAvailable
 
 ; #FUNCTION# ====================================================================================================================
@@ -288,9 +289,9 @@ EndFunc   ;==>_ClipBoard_IsFormatAvailable
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_Open($hOwner)
-	Local $aCall = DllCall("user32.dll", "bool", "OpenClipboard", "hwnd", $hOwner)
+	Local $aResult = DllCall("user32.dll", "bool", "OpenClipboard", "hwnd", $hOwner)
 	If @error Then Return SetError(@error, @extended, False)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_Open
 
 ; #FUNCTION# ====================================================================================================================
@@ -298,9 +299,9 @@ EndFunc   ;==>_ClipBoard_Open
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_RegisterFormat($sFormat)
-	Local $aCall = DllCall("user32.dll", "uint", "RegisterClipboardFormatW", "wstr", $sFormat)
+	Local $aResult = DllCall("user32.dll", "uint", "RegisterClipboardFormatW", "wstr", $sFormat)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_RegisterFormat
 
 ; #FUNCTION# ====================================================================================================================
@@ -371,9 +372,9 @@ EndFunc   ;==>_ClipBoard_SetData
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_SetDataEx(ByRef $hMemory, $iFormat = 1)
-	Local $aCall = DllCall("user32.dll", "handle", "SetClipboardData", "uint", $iFormat, "handle", $hMemory)
+	Local $aResult = DllCall("user32.dll", "handle", "SetClipboardData", "uint", $iFormat, "handle", $hMemory)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_SetDataEx
 
 ; #FUNCTION# ====================================================================================================================
@@ -381,7 +382,7 @@ EndFunc   ;==>_ClipBoard_SetDataEx
 ; Modified.......:
 ; ===============================================================================================================================
 Func _ClipBoard_SetViewer($hViewer)
-	Local $aCall = DllCall("user32.dll", "hwnd", "SetClipboardViewer", "hwnd", $hViewer)
+	Local $aResult = DllCall("user32.dll", "hwnd", "SetClipboardViewer", "hwnd", $hViewer)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_ClipBoard_SetViewer

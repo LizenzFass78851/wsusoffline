@@ -1,18 +1,15 @@
 #include-once
 
 #include "DateTimeConstants.au3"
-#include "GUICtrlInternals.au3"
 #include "Memory.au3"
-#include "SendMessage.au3"
+#include "WinAPI.au3"
 #include "StructureConstants.au3"
+#include "SendMessage.au3"
 #include "UDFGlobalID.au3"
-#include "WinAPIConv.au3"
-;~ #include "WinAPIMisc.au3"
-#include "WinAPISysInternals.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: MonthCalendar
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with MonthCalendar control management.
 ;                  A month calendar control implements a calendar-like user  interface.  This  provides  the  user  with  a  very
@@ -22,13 +19,30 @@
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
+Global $_mc_ghMCLastWnd
 
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
 Global Const $__MONTHCALCONSTANT_ClassName = "SysMonthCal32"
 Global Const $__MONTHCALCONSTANT_SWP_NOZORDER = 0x0004
-; ===============================================================================================================================$aArray[$i]
+; ===============================================================================================================================
+
+; #OLD_FUNCTIONS#================================================================================================================
+; Old Function/Name                      ; --> New Function/Name/Replacement(s)
+;
+; deprecated functions functions will no longer work
+; _GUICtrlMonthCalGet1stDOW              ; --> _GUICtrlMonthCal_GetFirstDOWStr
+; _GUICtrlMonthCalGetColor               ; --> _GUICtrlMonthCal_GetColorArray
+; _GUICtrlMonthCalGetMaxSelCount         ; --> _GUICtrlMonthCal_GetMaxSelCount
+; _GUICtrlMonthCalGetMaxTodayWidth       ; --> _GUICtrlMonthCal_GetMaxTodayWidth
+; _GUICtrlMonthCalGetMinReqRECT          ; --> _GUICtrlMonthCal_GetMinReqRectArray
+; _GUICtrlMonthCalGetDelta               ; --> _GUICtrlMonthCal_GetMonthDelta
+; _GUICtrlMonthCalSetColor               ; --> _GUICtrlMonthCal_SetColor
+; _GUICtrlMonthCalSet1stDOW              ; --> _GUICtrlMonthCal_SetFirstDOW
+; _GUICtrlMonthCalSetMaxSelCount         ; --> _GUICtrlMonthCal_SetMaxSelCount
+; _GUICtrlMonthCalSetDelta               ; --> _GUICtrlMonthCal_SetMonthDelta
+; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
 ; _GUICtrlMonthCal_Create
@@ -117,12 +131,12 @@ EndFunc   ;==>_GUICtrlMonthCal_Create
 Func _GUICtrlMonthCal_Destroy(ByRef $hWnd)
 	If Not _WinAPI_IsClassName($hWnd, $__MONTHCALCONSTANT_ClassName) Then Return SetError(2, 2, False)
 
-	Local $iDestroyed = 0
+	Local $Destroyed = 0
 	If IsHWnd($hWnd) Then
-		If _WinAPI_InProcess($hWnd, $__g_hGUICtrl_LastWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
 			Local $nCtrlID = _WinAPI_GetDlgCtrlID($hWnd)
 			Local $hParent = _WinAPI_GetParent($hWnd)
-			$iDestroyed = _WinAPI_DestroyWindow($hWnd)
+			$Destroyed = _WinAPI_DestroyWindow($hWnd)
 			Local $iRet = __UDF_FreeGlobalID($hParent, $nCtrlID)
 			If Not $iRet Then
 				; can check for errors here if needed, for debug
@@ -132,10 +146,10 @@ Func _GUICtrlMonthCal_Destroy(ByRef $hWnd)
 			Return SetError(1, 1, False)
 		EndIf
 	Else
-		$iDestroyed = GUICtrlDelete($hWnd)
+		$Destroyed = GUICtrlDelete($hWnd)
 	EndIf
-	If $iDestroyed Then $hWnd = 0
-	Return $iDestroyed <> 0
+	If $Destroyed Then $hWnd = 0
+	Return $Destroyed <> 0
 EndFunc   ;==>_GUICtrlMonthCal_Destroy
 
 ; #FUNCTION# ====================================================================================================================
@@ -179,8 +193,8 @@ EndFunc   ;==>_GUICtrlMonthCal_GetColor
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetColorArray($hWnd, $iColor)
-	Local $iRet, $a_Result[4]
-	$a_Result[0] = 3
+	Local $iRet, $a_result[4]
+	$a_result[0] = 3
 	If IsHWnd($hWnd) Then
 		$iRet = _SendMessage($hWnd, $MCM_GETCOLOR, $iColor)
 	Else
@@ -188,20 +202,33 @@ Func _GUICtrlMonthCal_GetColorArray($hWnd, $iColor)
 	EndIf
 	If $iRet = -1 Then Return SetError(1, $iRet, 0)
 
-	$a_Result[1] = Int($iRet) ; COLORREF rgbcolor
-	$a_Result[2] = "0x" & Hex(String($iRet), 6) ; Hex BGR color
-	$a_Result[3] = Hex(String($iRet), 6)
-	$a_Result[3] = "0x" & StringMid($a_Result[3], 5, 2) & StringMid($a_Result[3], 3, 2) & StringMid($a_Result[3], 1, 2) ; Hex RGB Color
-	Return $a_Result
+	$a_result[1] = Int($iRet) ; COLORREF rgbcolor
+	$a_result[2] = "0x" & Hex(String($iRet), 6) ; Hex BGR color
+	$a_result[3] = Hex(String($iRet), 6)
+	$a_result[3] = "0x" & StringMid($a_result[3], 5, 2) & StringMid($a_result[3], 3, 2) & StringMid($a_result[3], 1, 2) ; Hex RGB Color
+	Return $a_result
 EndFunc   ;==>_GUICtrlMonthCal_GetColorArray
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetCurSel($hWnd)
 	Local $tBuffer = DllStructCreate($tagSYSTEMTIME)
-	__GUICtrl_SendMsg($hWnd, $MCM_GETCURSEL, 0, $tBuffer, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			_SendMessage($hWnd, $MCM_GETCURSEL, 0, $tBuffer, 0, "wparam", "struct*")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			_SendMessage($hWnd, $MCM_GETCURSEL, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		GUICtrlSendMsg($hWnd, $MCM_GETCURSEL, 0, DllStructGetPtr($tBuffer))
+	EndIf
 	Return $tBuffer
 EndFunc   ;==>_GUICtrlMonthCal_GetCurSel
 
@@ -265,18 +292,31 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMaxTodayWidth
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetMinReqHeight($hWnd)
-	Local $tRECT = _GUICtrlMonthCal_GetMinReqRect($hWnd)
-	Return DllStructGetData($tRECT, "Bottom")
+	Local $tRect = _GUICtrlMonthCal_GetMinReqRect($hWnd)
+	Return DllStructGetData($tRect, "Bottom")
 EndFunc   ;==>_GUICtrlMonthCal_GetMinReqHeight
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetMinReqRect($hWnd)
-	Local $tRECT = DllStructCreate($tagRECT)
-	__GUICtrl_SendMsg($hWnd, $MCM_GETMINREQRECT, 0, $tRECT, True)
-	Return $tRECT
+	Local $tRect = DllStructCreate($tagRECT)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			_SendMessage($hWnd, $MCM_GETMINREQRECT, 0, $tRect, 0, "wparam", "struct*")
+		Else
+			Local $iRect = DllStructGetSize($tRect)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iRect, $tMemMap)
+			_SendMessage($hWnd, $MCM_GETMINREQRECT, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tRect, $iRect)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		GUICtrlSendMsg($hWnd, $MCM_GETMINREQRECT, 0, DllStructGetPtr($tRect))
+	EndIf
+	Return $tRect
 EndFunc   ;==>_GUICtrlMonthCal_GetMinReqRect
 
 ; #FUNCTION# ====================================================================================================================
@@ -284,16 +324,16 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMinReqRect
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetMinReqRectArray($hWnd)
-	Local $i_Ret
-	Local $tRECT = DllStructCreate($tagRECT)
+	Local $v_ret
+	Local $struct_RECT = DllStructCreate($tagRECT)
 	If @error Then Return SetError(-1, -1, -1)
 	If IsHWnd($hWnd) Then
-		$i_Ret = _SendMessage($hWnd, $MCM_GETMINREQRECT, 0, $tRECT, 0, "wparam", "struct*")
+		$v_ret = _SendMessage($hWnd, $MCM_GETMINREQRECT, 0, $struct_RECT, 0, "wparam", "struct*")
 	Else
-		$i_Ret = GUICtrlSendMsg($hWnd, $MCM_GETMINREQRECT, 0, DllStructGetPtr($tRECT))
+		$v_ret = GUICtrlSendMsg($hWnd, $MCM_GETMINREQRECT, 0, DllStructGetPtr($struct_RECT))
 	EndIf
-	If (Not $i_Ret) Then Return SetError(-2, -1, -1)
-	Return StringSplit(DllStructGetData($tRECT, "Left") & "," & DllStructGetData($tRECT, "Top") & "," & DllStructGetData($tRECT, "Right") & "," & DllStructGetData($tRECT, "Bottom"), ",")
+	If (Not $v_ret) Then Return SetError(-2, -1, -1)
+	Return StringSplit(DllStructGetData($struct_RECT, "Left") & "," & DllStructGetData($struct_RECT, "Top") & "," & DllStructGetData($struct_RECT, "Right") & "," & DllStructGetData($struct_RECT, "Bottom"), ",")
 EndFunc   ;==>_GUICtrlMonthCal_GetMinReqRectArray
 
 ; #FUNCTION# ====================================================================================================================
@@ -301,8 +341,8 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMinReqRectArray
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetMinReqWidth($hWnd)
-	Local $tRECT = _GUICtrlMonthCal_GetMinReqRect($hWnd)
-	Return DllStructGetData($tRECT, "Right")
+	Local $tRect = _GUICtrlMonthCal_GetMinReqRect($hWnd)
+	Return DllStructGetData($tRect, "Right")
 EndFunc   ;==>_GUICtrlMonthCal_GetMinReqWidth
 
 ; #FUNCTION# ====================================================================================================================
@@ -319,12 +359,24 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMonthDelta
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_GetMonthRange($hWnd, $bPartial = False)
+Func _GUICtrlMonthCal_GetMonthRange($hWnd, $fPartial = False)
 	Local $tBuffer = DllStructCreate($tagMCMONTHRANGE)
-	Local $iRange = __GUICtrl_SendMsg($hWnd, $MCM_GETMONTHRANGE, $bPartial, $tBuffer, 0, True)
-	DllStructSetData($tBuffer, "Span", $iRange)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			DllStructSetData($tBuffer, "Span", _SendMessage($hWnd, $MCM_GETMONTHRANGE, $fPartial, $tBuffer, 0, "wparam", "struct*"))
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			DllStructSetData($tBuffer, "Span", _SendMessage($hWnd, $MCM_GETMONTHRANGE, $fPartial, $pMemory, 0, "wparam", "ptr"))
+			_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		DllStructSetData($tBuffer, "Span", GUICtrlSendMsg($hWnd, $MCM_GETMONTHRANGE, $fPartial, DllStructGetPtr($tBuffer)))
+	EndIf
 	Return $tBuffer
 EndFunc   ;==>_GUICtrlMonthCal_GetMonthRange
 
@@ -332,8 +384,8 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMonthRange
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_GetMonthRangeMax($hWnd, $bPartial = False)
-	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $bPartial)
+Func _GUICtrlMonthCal_GetMonthRangeMax($hWnd, $fPartial = False)
+	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $fPartial)
 	Local $tRange = DllStructCreate($tagSYSTEMTIME)
 	DllStructSetData($tRange, "Year", DllStructGetData($tBuffer, "MaxYear"))
 	DllStructSetData($tRange, "Month", DllStructGetData($tBuffer, "MaxMonth"))
@@ -355,8 +407,8 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMonthRangeMaxStr
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_GetMonthRangeMin($hWnd, $bPartial = False)
-	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $bPartial)
+Func _GUICtrlMonthCal_GetMonthRangeMin($hWnd, $fPartial = False)
+	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $fPartial)
 	Local $tRange = DllStructCreate($tagSYSTEMTIME)
 	DllStructSetData($tRange, "Year", DllStructGetData($tBuffer, "MinYear"))
 	DllStructSetData($tRange, "Month", DllStructGetData($tBuffer, "MinMonth"))
@@ -378,8 +430,8 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMonthRangeMinStr
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_GetMonthRangeSpan($hWnd, $bPartial = False)
-	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $bPartial)
+Func _GUICtrlMonthCal_GetMonthRangeSpan($hWnd, $fPartial = False)
+	Local $tBuffer = _GUICtrlMonthCal_GetMonthRange($hWnd, $fPartial)
 	Return DllStructGetData($tBuffer, "Span")
 EndFunc   ;==>_GUICtrlMonthCal_GetMonthRangeSpan
 
@@ -388,8 +440,23 @@ EndFunc   ;==>_GUICtrlMonthCal_GetMonthRangeSpan
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetRange($hWnd)
+	Local $iRet
+
 	Local $tBuffer = DllStructCreate($tagMCRANGE)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_GETRANGE, 0, $tBuffer, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_GETRANGE, 0, $tBuffer, 0, "wparam", "struct*")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			$iRet = _SendMessage($hWnd, $MCM_GETRANGE, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_GETRANGE, 0, DllStructGetPtr($tBuffer))
+	EndIf
 	DllStructSetData($tBuffer, "MinSet", BitAND($iRet, $GDTR_MIN) <> 0)
 	DllStructSetData($tBuffer, "MaxSet", BitAND($iRet, $GDTR_MAX) <> 0)
 	Return $tBuffer
@@ -443,11 +510,26 @@ EndFunc   ;==>_GUICtrlMonthCal_GetRangeMinStr
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetSelRange($hWnd)
+	Local $iRet
+
 	Local $tBuffer = DllStructCreate($tagMCSELRANGE)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_GETSELRANGE, 0, $tBuffer, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_GETSELRANGE, 0, $tBuffer, 0, "wparam", "ptr")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			$iRet = _SendMessage($hWnd, $MCM_GETSELRANGE, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_GETSELRANGE, 0, DllStructGetPtr($tBuffer))
+	EndIf
 	Return SetError($iRet = 0, 0, $tBuffer)
 EndFunc   ;==>_GUICtrlMonthCal_GetSelRange
 
@@ -499,11 +581,26 @@ EndFunc   ;==>_GUICtrlMonthCal_GetSelRangeMinStr
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_GetToday($hWnd)
+	Local $iRet
+
 	Local $tBuffer = DllStructCreate($tagSYSTEMTIME)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_GETTODAY, 0, $tBuffer, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_GETTODAY, 0, $tBuffer, 0, "wparam", "ptr") <> 0
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			$iRet = _SendMessage($hWnd, $MCM_GETTODAY, 0, $pMemory, 0, "wparam", "ptr") <> 0
+			_MemRead($tMemMap, $pMemory, $tBuffer, $iBuffer)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_GETTODAY, 0, DllStructGetPtr($tBuffer)) <> 0
+	EndIf
 	Return SetError($iRet = 0, 0, $tBuffer)
 EndFunc   ;==>_GUICtrlMonthCal_GetToday
 
@@ -530,7 +627,7 @@ EndFunc   ;==>_GUICtrlMonthCal_GetUnicodeFormat
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_HitTest($hWnd, $iX, $iY)
 	Local $tTest = DllStructCreate($tagMCHITTESTINFO)
@@ -538,7 +635,19 @@ Func _GUICtrlMonthCal_HitTest($hWnd, $iX, $iY)
 	DllStructSetData($tTest, "Size", $iTest)
 	DllStructSetData($tTest, "X", $iX)
 	DllStructSetData($tTest, "Y", $iY)
-	__GUICtrl_SendMsg($hWnd, $MCM_HITTEST, 0, $tTest, 0, True)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			_SendMessage($hWnd, $MCM_HITTEST, 0, $tTest, 0, "wparam", "struct*")
+		Else
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iTest, $tMemMap)
+			_SendMessage($hWnd, $MCM_HITTEST, 0, $pMemory, 0, "wparam", "ptr")
+			_MemRead($tMemMap, $pMemory, $tTest, $iTest)
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		GUICtrlSendMsg($hWnd, $MCM_HITTEST, 0, DllStructGetPtr($tTest))
+	EndIf
 	Return $tTest
 EndFunc   ;==>_GUICtrlMonthCal_HitTest
 
@@ -563,9 +672,9 @@ Func __GUICtrlMonthCal_Resize($hWnd, $iX = -1, $iY = -1)
 	Local $iW = _GUICtrlMonthCal_GetMinReqWidth($hWnd)
 	If $iN > $iW Then $iW = $iN
 	If ($iX = -1) Or ($iY = -1) Then
-		Local $tRECT = _WinAPI_GetWindowRect($hWnd)
-		If $iX = -1 Then $iX = DllStructGetData($tRECT, "Left")
-		If $iY = -1 Then $iY = DllStructGetData($tRECT, "Top")
+		Local $tRect = _WinAPI_GetWindowRect($hWnd)
+		If $iX = -1 Then $iX = DllStructGetData($tRect, "Left")
+		If $iY = -1 Then $iY = DllStructGetData($tRect, "Top")
 	EndIf
 	;_WinAPI_SetWindowPos($hWnd, 0, $iX, $iY, $iX + $iW, $iY + $iH, $__MONTHCALCONSTANT_SWP_NOZORDER)
 	_WinAPI_SetWindowPos($hWnd, 0, $iX, $iY, $iW, $iH, $__MONTHCALCONSTANT_SWP_NOZORDER)
@@ -575,11 +684,11 @@ EndFunc   ;==>__GUICtrlMonthCal_Resize
 ; Author ........: Gary Frost
 ; Modified.......:
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_SetCalendarBorder($hWnd, $iBorderSize = 4, $bSetBorder = True)
+Func _GUICtrlMonthCal_SetCalendarBorder($hWnd, $iBorderSize = 4, $fSetBorder = True)
 	If IsHWnd($hWnd) Then
-		_SendMessage($hWnd, $MCM_SETCALENDARBORDER, $bSetBorder, $iBorderSize)
+		_SendMessage($hWnd, $MCM_SETCALENDARBORDER, $fSetBorder, $iBorderSize)
 	Else
-		GUICtrlSendMsg($hWnd, $MCM_SETCALENDARBORDER, $bSetBorder, $iBorderSize)
+		GUICtrlSendMsg($hWnd, $MCM_SETCALENDARBORDER, $fSetBorder, $iBorderSize)
 	EndIf
 EndFunc   ;==>_GUICtrlMonthCal_SetCalendarBorder
 
@@ -597,28 +706,58 @@ EndFunc   ;==>_GUICtrlMonthCal_SetColor
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetCurSel($hWnd, $iYear, $iMonth, $iDay)
+	Local $iRet
+
 	Local $tBuffer = DllStructCreate($tagSYSTEMTIME)
 	DllStructSetData($tBuffer, "Month", $iMonth)
 	DllStructSetData($tBuffer, "Day", $iDay)
 	DllStructSetData($tBuffer, "Year", $iYear)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_SETCURSEL, 0, $tBuffer)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_SETCURSEL, 0, $tBuffer, 0, "wparam", "ptr")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			_MemWrite($tMemMap, $tBuffer)
+			$iRet = _SendMessage($hWnd, $MCM_SETCURSEL, 0, $pMemory, 0, "wparam", "ptr")
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_SETCURSEL, 0, DllStructGetPtr($tBuffer))
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlMonthCal_SetCurSel
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetDayState($hWnd, $aMasks)
+	Local $iRet
+
 	Local $iMasks = _GUICtrlMonthCal_GetMonthRangeSpan($hWnd, True)
 	Local $tBuffer = DllStructCreate("int;int;int")
 	For $iI = 0 To $iMasks - 1
 		DllStructSetData($tBuffer, $iI + 1, $aMasks[$iI])
 	Next
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_SETDAYSTATE, $iMasks, $tBuffer)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_SETDAYSTATE, $iMasks, $tBuffer, 0, "wparam", "struct*")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			_MemWrite($tMemMap, $tBuffer)
+			$iRet = _SendMessage($hWnd, $MCM_SETDAYSTATE, $iMasks, $pMemory, 0, "wparam", "ptr")
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_SETDAYSTATE, $iMasks, DllStructGetPtr($tBuffer))
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlMonthCal_SetDayState
 
@@ -627,33 +766,33 @@ EndFunc   ;==>_GUICtrlMonthCal_SetDayState
 ; Modified.......:
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetFirstDOW($hWnd, $sDay)
-	Local $i_Day
+	Local $i_day
 	If $sDay >= 0 Or $sDay <= 6 Then
-		$i_Day = $sDay
+		$i_day = $sDay
 	ElseIf StringInStr("MONDAY TUESDAY WEDNESDAY THURSDAY FRIDAY SATURDAY SUNDAY", $sDay) Then
 		Switch StringUpper($sDay)
 			Case "MONDAY"
-				$i_Day = 0
+				$i_day = 0
 			Case "TUESDAY"
-				$i_Day = 1
+				$i_day = 1
 			Case "WEDNESDAY"
-				$i_Day = 2
+				$i_day = 2
 			Case "THURSDAY"
-				$i_Day = 3
+				$i_day = 3
 			Case "FRIDAY"
-				$i_Day = 4
+				$i_day = 4
 			Case "SATURDAY"
-				$i_Day = 5
+				$i_day = 5
 			Case "SUNDAY"
-				$i_Day = 6
+				$i_day = 6
 		EndSwitch
 	Else
 		Return SetError(-1, -1, -1)
 	EndIf
 	If IsHWnd($hWnd) Then
-		Return _SendMessage($hWnd, $MCM_SETFIRSTDAYOFWEEK, 0, $i_Day)
+		Return _SendMessage($hWnd, $MCM_SETFIRSTDAYOFWEEK, 0, $i_day)
 	Else
-		Return GUICtrlSendMsg($hWnd, $MCM_SETFIRSTDAYOFWEEK, 0, $i_Day)
+		Return GUICtrlSendMsg($hWnd, $MCM_SETFIRSTDAYOFWEEK, 0, $i_day)
 	EndIf
 EndFunc   ;==>_GUICtrlMonthCal_SetFirstDOW
 
@@ -683,9 +822,11 @@ EndFunc   ;==>_GUICtrlMonthCal_SetMonthDelta
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetRange($hWnd, $iMinYear, $iMinMonth, $iMinDay, $iMaxYear, $iMaxMonth, $iMaxDay)
+	Local $iRet
+
 	Local $tRange = DllStructCreate($tagMCRANGE)
 	Local $iFlags = BitOR($GDTR_MIN, $GDTR_MAX)
 	DllStructSetData($tRange, "MinYear", $iMinYear)
@@ -694,13 +835,26 @@ Func _GUICtrlMonthCal_SetRange($hWnd, $iMinYear, $iMinMonth, $iMinDay, $iMaxYear
 	DllStructSetData($tRange, "MaxYear", $iMaxYear)
 	DllStructSetData($tRange, "MaxMonth", $iMaxMonth)
 	DllStructSetData($tRange, "MaxDay", $iMaxDay)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_SETRANGE, $iFlags, $tRange)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_SETRANGE, $iFlags, $tRange, 0, "wparam", "ptr")
+		Else
+			Local $iRange = DllStructGetSize($tRange)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iRange, $tMemMap)
+			_MemWrite($tMemMap, $tRange)
+			$iRet = _SendMessage($hWnd, $MCM_SETRANGE, $iFlags, $pMemory, 0, "wparam", "ptr")
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_SETRANGE, $iFlags, DllStructGetPtr($tRange))
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlMonthCal_SetRange
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetSelRange($hWnd, $iMinYear, $iMinMonth, $iMinDay, $iMaxYear, $iMaxMonth, $iMaxDay)
 	Local $tBuffer = DllStructCreate($tagMCRANGE)
@@ -710,30 +864,57 @@ Func _GUICtrlMonthCal_SetSelRange($hWnd, $iMinYear, $iMinMonth, $iMinDay, $iMaxY
 	DllStructSetData($tBuffer, "MaxYear", $iMaxYear)
 	DllStructSetData($tBuffer, "MaxMonth", $iMaxMonth)
 	DllStructSetData($tBuffer, "MaxDay", $iMaxDay)
-	Local $iRet = __GUICtrl_SendMsg($hWnd, $MCM_SETSELRANGE, 0, $tBuffer)
+	Local $iRet
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			$iRet = _SendMessage($hWnd, $MCM_SETSELRANGE, 0, $tBuffer, 0, "wparam", "struct*")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			_MemWrite($tMemMap, $tBuffer)
+			$iRet = _SendMessage($hWnd, $MCM_SETSELRANGE, 0, $pMemory, 0, "wparam", "ptr")
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		$iRet = GUICtrlSendMsg($hWnd, $MCM_SETSELRANGE, 0, DllStructGetPtr($tBuffer))
+	EndIf
 	Return $iRet <> 0
 EndFunc   ;==>_GUICtrlMonthCal_SetSelRange
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
-; Modified.......: Gary Frost (gafrost), Jpm
+; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
 Func _GUICtrlMonthCal_SetToday($hWnd, $iYear, $iMonth, $iDay)
 	Local $tBuffer = DllStructCreate($tagSYSTEMTIME)
 	DllStructSetData($tBuffer, "Month", $iMonth)
 	DllStructSetData($tBuffer, "Day", $iDay)
 	DllStructSetData($tBuffer, "Year", $iYear)
-	__GUICtrl_SendMsg($hWnd, $MCM_SETTODAY, 0, $tBuffer)
+	If IsHWnd($hWnd) Then
+		If _WinAPI_InProcess($hWnd, $_mc_ghMCLastWnd) Then
+			_SendMessage($hWnd, $MCM_SETTODAY, 0, $tBuffer, 0, "wparam", "struct*")
+		Else
+			Local $iBuffer = DllStructGetSize($tBuffer)
+			Local $tMemMap
+			Local $pMemory = _MemInit($hWnd, $iBuffer, $tMemMap)
+			_MemWrite($tMemMap, $tBuffer)
+			_SendMessage($hWnd, $MCM_SETTODAY, 0, $pMemory, 0, "wparam", "ptr")
+			_MemFree($tMemMap)
+		EndIf
+	Else
+		GUICtrlSendMsg($hWnd, $MCM_SETTODAY, 0, DllStructGetPtr($tBuffer))
+	EndIf
 EndFunc   ;==>_GUICtrlMonthCal_SetToday
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: Gary Frost (gafrost)
 ; ===============================================================================================================================
-Func _GUICtrlMonthCal_SetUnicodeFormat($hWnd, $bUnicode = False)
+Func _GUICtrlMonthCal_SetUnicodeFormat($hWnd, $fUnicode = False)
 	If IsHWnd($hWnd) Then
-		Return _SendMessage($hWnd, $MCM_SETUNICODEFORMAT, $bUnicode) <> 0
+		Return _SendMessage($hWnd, $MCM_SETUNICODEFORMAT, $fUnicode) <> 0
 	Else
-		Return GUICtrlSendMsg($hWnd, $MCM_SETUNICODEFORMAT, $bUnicode, 0) <> 0
+		Return GUICtrlSendMsg($hWnd, $MCM_SETUNICODEFORMAT, $fUnicode, 0) <> 0
 	EndIf
 EndFunc   ;==>_GUICtrlMonthCal_SetUnicodeFormat

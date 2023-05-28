@@ -2,10 +2,11 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPIGdi Constants UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.8 / 3.3.8.0
 ; Language ......: English
 ; Description ...: Constants that can be used with UDF library
 ; Author(s) .....: Yashied, Jpm
+; Requirements...: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -19,7 +20,7 @@ Global Const $COMPRESSION_BITMAP_PNG = 0
 Global Const $COMPRESSION_BITMAP_JPEG = 1
 
 ; _WinAPI_CopyImage()
-;   in WinAPIConstants.au3
+;   in WinAPI.au3
 
 ; _WinAPI_CreateBrushIndirect()
 Global Const $BS_DIBPATTERN = 5
@@ -358,6 +359,22 @@ Global Const $DCB_DISABLE = 0x08
 Global Const $DCB_ENABLE = 0x04
 Global Const $DCB_RESET = 0x01
 Global Const $DCB_SET = BitOR($DCB_RESET, $DCB_ACCUMULATE)
+
+; _WinAPI_GetCurrentObject(), _WinAPI_GetObjectType()
+Global Const $OBJ_BITMAP = 7
+Global Const $OBJ_BRUSH = 2
+Global Const $OBJ_COLORSPACE = 14
+Global Const $OBJ_DC = 3
+Global Const $OBJ_ENHMETADC = 12
+Global Const $OBJ_ENHMETAFILE = 13
+Global Const $OBJ_EXTPEN = 11
+Global Const $OBJ_FONT = 6
+Global Const $OBJ_MEMDC = 10
+Global Const $OBJ_METADC = 4
+Global Const $OBJ_METAFILE = 9
+Global Const $OBJ_PAL = 5
+Global Const $OBJ_PEN = 1
+Global Const $OBJ_REGION = 8
 
 ; _WinAPI_GetDCEx()
 Global Const $DCX_WINDOW = 0x00000001

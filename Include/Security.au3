@@ -5,12 +5,11 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Security
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Description ...: Functions that assist with Security management.
 ; Author(s) .....: Paul Campbell (PaulIA), trancexx
+; Dll(s) ........: advapi32.dll
 ; ===============================================================================================================================
-
-#Region Functions list
 
 ; #CURRENT# =====================================================================================================================
 ; _Security__AdjustTokenPrivileges
@@ -33,16 +32,13 @@
 ; _Security__SidTypeStr
 ; _Security__StringSidToSid
 ; ===============================================================================================================================
-#EndRegion Functions list
-
-#Region Public Functions
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: trancexx
 ; ===============================================================================================================================
-Func _Security__AdjustTokenPrivileges($hToken, $bDisableAll, $tNewState, $iBufferLen, $tPrevState = 0, $pRequired = 0)
-	Local $aCall = DllCall("advapi32.dll", "bool", "AdjustTokenPrivileges", "handle", $hToken, "bool", $bDisableAll, "struct*", $tNewState, "dword", $iBufferLen, "struct*", $tPrevState, "struct*", $pRequired)
+Func _Security__AdjustTokenPrivileges($hToken, $fDisableAll, $pNewState, $iBufferLen, $pPrevState = 0, $pRequired = 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "AdjustTokenPrivileges", "handle", $hToken, "bool", $fDisableAll, "struct*", $pNewState, "dword", $iBufferLen, "struct*", $pPrevState, "struct*", $pRequired)
 	If @error Then Return SetError(@error, @extended, False)
 
 	Return Not ($aCall[0] = 0)
@@ -54,7 +50,7 @@ EndFunc   ;==>_Security__AdjustTokenPrivileges
 ; ===============================================================================================================================
 Func _Security__CreateProcessWithToken($hToken, $iLogonFlags, $sCommandLine, $iCreationFlags, $sCurDir, $tSTARTUPINFO, $tPROCESS_INFORMATION)
 	Local $aCall = DllCall("advapi32.dll", "bool", "CreateProcessWithTokenW", "handle", $hToken, "dword", $iLogonFlags, "ptr", 0, "wstr", $sCommandLine, "dword", $iCreationFlags, "struct*", 0, "wstr", $sCurDir, "struct*", $tSTARTUPINFO, "struct*", $tPROCESS_INFORMATION)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, False)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
 
 	Return True
 EndFunc   ;==>_Security__CreateProcessWithToken
@@ -65,7 +61,7 @@ EndFunc   ;==>_Security__CreateProcessWithToken
 ; ===============================================================================================================================
 Func _Security__DuplicateTokenEx($hExistingToken, $iDesiredAccess, $iImpersonationLevel, $iTokenType)
 	Local $aCall = DllCall("advapi32.dll", "bool", "DuplicateTokenEx", "handle", $hExistingToken, "dword", $iDesiredAccess, "struct*", 0, "int", $iImpersonationLevel, "int", $iTokenType, "handle*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Return $aCall[6]
 EndFunc   ;==>_Security__DuplicateTokenEx
@@ -101,12 +97,12 @@ EndFunc   ;==>_Security__GetLengthSid
 ; ===============================================================================================================================
 Func _Security__GetTokenInformation($hToken, $iClass)
 	Local $aCall = DllCall("advapi32.dll", "bool", "GetTokenInformation", "handle", $hToken, "int", $iClass, "struct*", 0, "dword", 0, "dword*", 0)
-	If @error Or Not $aCall[5] Then Return SetError(@error + 20, @extended, 0)
+	If @error Or Not $aCall[5] Then Return SetError(@error + 10, @extended, 0)
 	Local $iLen = $aCall[5]
 
 	Local $tBuffer = DllStructCreate("byte[" & $iLen & "]")
 	$aCall = DllCall("advapi32.dll", "bool", "GetTokenInformation", "handle", $hToken, "int", $iClass, "struct*", $tBuffer, "dword", DllStructGetSize($tBuffer), "dword*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Return $tBuffer
 EndFunc   ;==>_Security__GetTokenInformation
@@ -140,7 +136,7 @@ EndFunc   ;==>_Security__IsValidSid
 Func _Security__LookupAccountName($sAccount, $sSystem = "")
 	Local $tData = DllStructCreate("byte SID[256]")
 	Local $aCall = DllCall("advapi32.dll", "bool", "LookupAccountNameW", "wstr", $sSystem, "wstr", $sAccount, "struct*", $tData, "dword*", DllStructGetSize($tData), "wstr", "", "dword*", DllStructGetSize($tData), "int*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Local $aAcct[3]
 	$aAcct[0] = _Security__SidToStringSid(DllStructGetPtr($tData, "SID"))
@@ -162,12 +158,13 @@ Func _Security__LookupAccountSid($vSID, $sSystem = "")
 	Else
 		$pSID = $vSID
 	EndIf
-	If Not _Security__IsValidSid($pSID) Then Return SetError(@error + 20, @extended, 0)
+	If Not _Security__IsValidSid($pSID) Then Return SetError(@error + 10, @extended, 0)
 
-	If $sSystem = "" Then $sSystem = Null
+	Local $typeSystem = "ptr"
+	If $sSystem Then $typeSystem = "wstr" ; remote system is requested
 
-	Local $aCall = DllCall("advapi32.dll", "bool", "LookupAccountSidW", "wstr", $sSystem, "struct*", $pSID, "wstr", "", "dword*", 65536, "wstr", "", "dword*", 65536, "int*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "LookupAccountSidW", $typeSystem, $sSystem, "struct*", $pSID, "wstr", "", "dword*", 65536, "wstr", "", "dword*", 65536, "int*", 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Local $aAcct[3]
 	$aAcct[0] = $aCall[3] ; Name
@@ -183,7 +180,7 @@ EndFunc   ;==>_Security__LookupAccountSid
 ; ===============================================================================================================================
 Func _Security__LookupPrivilegeValue($sSystem, $sName)
 	Local $aCall = DllCall("advapi32.dll", "bool", "LookupPrivilegeValueW", "wstr", $sSystem, "wstr", $sName, "int64*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Return $aCall[3] ; LUID
 EndFunc   ;==>_Security__LookupPrivilegeValue
@@ -194,7 +191,7 @@ EndFunc   ;==>_Security__LookupPrivilegeValue
 ; ===============================================================================================================================
 Func _Security__OpenProcessToken($hProcess, $iAccess)
 	Local $aCall = DllCall("advapi32.dll", "bool", "OpenProcessToken", "handle", $hProcess, "dword", $iAccess, "handle*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Return $aCall[3]
 EndFunc   ;==>_Security__OpenProcessToken
@@ -203,16 +200,15 @@ EndFunc   ;==>_Security__OpenProcessToken
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: trancexx
 ; ===============================================================================================================================
-Func _Security__OpenThreadToken($iAccess, $hThread = 0, $bOpenAsSelf = False)
-	Local $aCall
+Func _Security__OpenThreadToken($iAccess, $hThread = 0, $fOpenAsSelf = False)
 	If $hThread = 0 Then
-		$aCall = DllCall("kernel32.dll", "handle", "GetCurrentThread")
-		If @error Then Return SetError(@error + 20, @extended, 0)
-		$hThread = $aCall[0]
+		Local $aResult = DllCall("kernel32.dll", "handle", "GetCurrentThread")
+		If @error Then Return SetError(@error + 10, @extended, 0)
+		$hThread = $aResult[0]
 	EndIf
 
-	$aCall = DllCall("advapi32.dll", "bool", "OpenThreadToken", "handle", $hThread, "dword", $iAccess, "bool", $bOpenAsSelf, "handle*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $aCall = DllCall("advapi32.dll", "bool", "OpenThreadToken", "handle", $hThread, "dword", $iAccess, "bool", $fOpenAsSelf, "handle*", 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 
 	Return $aCall[4] ; Token
 EndFunc   ;==>_Security__OpenThreadToken
@@ -221,13 +217,13 @@ EndFunc   ;==>_Security__OpenThreadToken
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: trancexx
 ; ===============================================================================================================================
-Func _Security__OpenThreadTokenEx($iAccess, $hThread = 0, $bOpenAsSelf = False)
-	Local $hToken = _Security__OpenThreadToken($iAccess, $hThread, $bOpenAsSelf)
+Func _Security__OpenThreadTokenEx($iAccess, $hThread = 0, $fOpenAsSelf = False)
+	Local $hToken = _Security__OpenThreadToken($iAccess, $hThread, $fOpenAsSelf)
 	If $hToken = 0 Then
 		Local Const $ERROR_NO_TOKEN = 1008
 		If _WinAPI_GetLastError() <> $ERROR_NO_TOKEN Then Return SetError(20, _WinAPI_GetLastError(), 0)
 		If Not _Security__ImpersonateSelf() Then Return SetError(@error + 10, _WinAPI_GetLastError(), 0)
-		$hToken = _Security__OpenThreadToken($iAccess, $hThread, $bOpenAsSelf)
+		$hToken = _Security__OpenThreadToken($iAccess, $hThread, $fOpenAsSelf)
 		If $hToken = 0 Then Return SetError(@error, _WinAPI_GetLastError(), 0)
 	EndIf
 
@@ -238,7 +234,7 @@ EndFunc   ;==>_Security__OpenThreadTokenEx
 ; Author ........: Paul Campbell (PaulIA)
 ; Modified.......: trancexx
 ; ===============================================================================================================================
-Func _Security__SetPrivilege($hToken, $sPrivilege, $bEnable)
+Func _Security__SetPrivilege($hToken, $sPrivilege, $fEnable)
 	Local $iLUID = _Security__LookupPrivilegeValue("", $sPrivilege)
 	If $iLUID = 0 Then Return SetError(@error + 10, @extended, False)
 
@@ -257,7 +253,7 @@ Func _Security__SetPrivilege($hToken, $sPrivilege, $bEnable)
 	DllStructSetData($tPrevState, "Count", 1)
 	DllStructSetData($tPrevState, "LUID", $iLUID)
 	Local $iAttributes = DllStructGetData($tPrevState, "Attributes")
-	If $bEnable Then
+	If $fEnable Then
 		$iAttributes = BitOR($iAttributes, $SE_PRIVILEGE_ENABLED)
 	Else
 		$iAttributes = BitAND($iAttributes, BitNOT($SE_PRIVILEGE_ENABLED))
@@ -276,7 +272,7 @@ EndFunc   ;==>_Security__SetPrivilege
 ; ===============================================================================================================================
 Func _Security__SetTokenInformation($hToken, $iTokenInformation, $vTokenInformation, $iTokenInformationLength)
 	Local $aCall = DllCall("advapi32.dll", "bool", "SetTokenInformation", "handle", $hToken, "int", $iTokenInformation, "struct*", $vTokenInformation, "dword", $iTokenInformationLength)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, False)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, False)
 
 	Return True
 EndFunc   ;==>_Security__SetTokenInformation
@@ -289,12 +285,11 @@ Func _Security__SidToStringSid($pSID)
 	If Not _Security__IsValidSid($pSID) Then Return SetError(@error + 10, 0, "")
 
 	Local $aCall = DllCall("advapi32.dll", "bool", "ConvertSidToStringSidW", "struct*", $pSID, "ptr*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, "")
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, "")
 	Local $pStringSid = $aCall[2]
 
 	Local $aLen = DllCall("kernel32.dll", "int", "lstrlenW", "struct*", $pStringSid)
 	Local $sSID = DllStructGetData(DllStructCreate("wchar Text[" & $aLen[0] + 1 & "]", $pStringSid), "Text")
-	; _WinAPI_LocalFree($pStringSid)
 	DllCall("kernel32.dll", "handle", "LocalFree", "handle", $pStringSid)
 
 	Return $sSID
@@ -337,16 +332,13 @@ EndFunc   ;==>_Security__SidTypeStr
 ; ===============================================================================================================================
 Func _Security__StringSidToSid($sSID)
 	Local $aCall = DllCall("advapi32.dll", "bool", "ConvertStringSidToSidW", "wstr", $sSID, "ptr*", 0)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	If @error Or Not $aCall[0] Then Return SetError(@error, @extended, 0)
 	Local $pSID = $aCall[2]
 
 	Local $tBuffer = DllStructCreate("byte Data[" & _Security__GetLengthSid($pSID) & "]", $pSID)
 	Local $tSID = DllStructCreate("byte Data[" & DllStructGetSize($tBuffer) & "]")
 	DllStructSetData($tSID, "Data", DllStructGetData($tBuffer, "Data"))
-	; _WinAPI_LocalFree($pSID)
 	DllCall("kernel32.dll", "handle", "LocalFree", "handle", $pSID)
 
 	Return $tSID
 EndFunc   ;==>_Security__StringSidToSid
-
-#EndRegion Public Functions

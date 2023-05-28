@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Windows_Constants
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.2
 ; Language ......: English
 ; Description ...: <a href="../appendix/GUIStyles.htm">GUI control Windows styles</a> and much more constants.
 ; Author(s) .....: Valik, Gary Frost, ...
@@ -93,7 +93,7 @@ Global Const $WS_EX_CLIENTEDGE = 0x00000200
 Global Const $WS_EX_CONTEXTHELP = 0x00000400
 Global Const $WS_EX_DLGMODALFRAME = 0x00000001
 Global Const $WS_EX_LAYERED = 0x00080000
-Global Const $WS_EX_LAYOUTRTL = 0x00400000
+Global Const $WS_EX_LAYOUTRTL = 0x400000
 Global Const $WS_EX_LEFT = 0x00000000
 Global Const $WS_EX_LEFTSCROLLBAR = 0x00004000
 Global Const $WS_EX_LTRREADING = 0x00000000
@@ -101,7 +101,6 @@ Global Const $WS_EX_MDICHILD = 0x00000040
 Global Const $WS_EX_NOACTIVATE = 0x08000000
 Global Const $WS_EX_NOINHERITLAYOUT = 0x00100000
 Global Const $WS_EX_NOPARENTNOTIFY = 0x00000004
-Global Const $WS_EX_NOREDIRECTIONBITMAP = 0x00200000
 Global Const $WS_EX_RIGHT = 0x00001000
 Global Const $WS_EX_RIGHTSCROLLBAR = 0x00000000
 Global Const $WS_EX_RTLREADING = 0x2000
@@ -523,10 +522,8 @@ Global Const $SM_CYHSCROLL = 3
 Global Const $SM_CYCAPTION = 4
 Global Const $SM_CXBORDER = 5
 Global Const $SM_CYBORDER = 6
-Global Const $SM_CXFIXEDFRAME = 7
-Global Const $SM_CXDLGFRAME = $SM_CXFIXEDFRAME
-Global Const $SM_CYFIXEDFRAME = 8
-Global Const $SM_CYDLGFRAME = $SM_CYFIXEDFRAME
+Global Const $SM_CXDLGFRAME = 7
+Global Const $SM_CYDLGFRAME = 8
 Global Const $SM_CYVTHUMB = 9
 Global Const $SM_CXHTHUMB = 10
 Global Const $SM_CXICON = 11
@@ -550,10 +547,8 @@ Global Const $SM_CXMIN = 28
 Global Const $SM_CYMIN = 29
 Global Const $SM_CXSIZE = 30
 Global Const $SM_CYSIZE = 31
-Global Const $SM_CXSIZEFRAME = 32
-Global Const $SM_CXFRAME = $SM_CXSIZEFRAME
-Global Const $SM_CYSIZEFRAME = 33
-Global Const $SM_CYFRAME = $SM_CYSIZEFRAME
+Global Const $SM_CXFRAME = 32
+Global Const $SM_CYFRAME = 33
 Global Const $SM_CXMINTRACK = 34
 Global Const $SM_CYMINTRACK = 35
 Global Const $SM_CXDOUBLECLK = 36
@@ -662,7 +657,7 @@ Global Const $DT_WORD_ELLIPSIS = 0x40000
 Global Const $RDW_ERASE = 0x0004 ; Causes the window to receive a WM_ERASEBKGND message when the window is repainted
 Global Const $RDW_FRAME = 0x0400 ; Causes any part of the nonclient area of the window that intersects the update region to receive a WM_NCPAINT message
 Global Const $RDW_INTERNALPAINT = 0x0002 ; Causes a WM_PAINT message to be posted to the window regardless of whether any portion of the window is invalid
-Global Const $RDW_INVALIDATE = 0x0001 ; Invalidates DllStructGetData($tRECT or $hRegion, "") If both are 0, the entire window is invalidated
+Global Const $RDW_INVALIDATE = 0x0001 ; Invalidates DllStructGetData($tRect or $hRegion, "") If both are 0, the entire window is invalidated
 Global Const $RDW_NOERASE = 0x0020 ; Suppresses any pending WM_ERASEBKGND messages
 Global Const $RDW_NOFRAME = 0x0800 ; Suppresses any pending WM_NCPAINT messages
 Global Const $RDW_NOINTERNALPAINT = 0x0010 ; Suppresses any pending internal WM_PAINT messages

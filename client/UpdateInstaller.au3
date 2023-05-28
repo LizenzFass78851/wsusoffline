@@ -1,67 +1,66 @@
-; ***  WSUS Offline Update 11.9.12 - Installer ***
-; ***          - Community Edition -           ***
-; ***        Author: T. Wittrock, Kiel         ***
-; ***    Dialog scaling added by Th. Baisch    ***
+; ***  WSUS Offline Update 9.2.6 - Installer  ***
+; ***       Author: T. Wittrock, Kiel         ***
+; ***   Dialog scaling added by Th. Baisch    ***
 
 #include <GUIConstants.au3>
-#include <MsgBoxConstants.au3>
-#include <WinAPIError.au3>
-
 #RequireAdmin
-#pragma compile(CompanyName, "T. Wittrock - Community Edition")
-#pragma compile(FileDescription, "WSUS Offline Update Installer")
-#pragma compile(FileVersion, 11.9.12)
-#pragma compile(InternalName, "Installer")
-#pragma compile(LegalCopyright, "GNU GPLv3")
-#pragma compile(OriginalFilename, UpdateInstaller.exe)
-#pragma compile(ProductName, "WSUS Offline Update - Community Edition")
-#pragma compile(ProductVersion, 11.9.12)
 
-Dim Const $caption                    = "WSUS Offline Update - Community Edition - 11.9.12 (b80) - Installer"
+Dim Const $caption                    = "WSUS Offline Update 9.2.6 - Installer"
+Dim Const $wou_hostname               = "www.wsusoffline.net"
+Dim Const $donationURL                = "http://www.wsusoffline.net/donate.html"
 
 ; Registry constants
-Dim Const $reg_key_wsh_hklm64         = "HKLM64\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_wsh_hklm           = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_wsh_hkcu           = "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings"
 Dim Const $reg_key_ie                 = "HKEY_LOCAL_MACHINE\Software\Microsoft\Internet Explorer"
+Dim Const $reg_key_mssl               = "HKEY_LOCAL_MACHINE\Software\Microsoft\Silverlight"
 Dim Const $reg_key_dotnet35           = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v3.5"
 Dim Const $reg_key_dotnet4            = "HKEY_LOCAL_MACHINE\Software\Microsoft\NET Framework Setup\NDP\v4\Full"
+Dim Const $reg_key_psh                = "HKEY_LOCAL_MACHINE\Software\Microsoft\PowerShell\1\PowerShellEngine"
 Dim Const $reg_key_wmf                = "HKEY_LOCAL_MACHINE\Software\Microsoft\PowerShell\3\PowerShellEngine"
 Dim Const $reg_key_msse               = "HKEY_LOCAL_MACHINE\Software\Microsoft\Microsoft Security Client"
-Dim Const $reg_key_hkcu_desktop       = "HKEY_CURRENT_USER\Control Panel\Desktop"
-Dim Const $reg_key_hkcu_winmetrics    = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
+Dim Const $reg_key_fontdpi            = "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows NT\CurrentVersion\FontDPI"
+Dim Const $reg_key_windowmetrics      = "HKEY_CURRENT_USER\Control Panel\Desktop\WindowMetrics"
 Dim Const $reg_key_windowsupdate      = "HKEY_LOCAL_MACHINE\Software\Policies\Microsoft\Windows\WindowsUpdate"
 
 Dim Const $reg_val_default            = ""
 Dim Const $reg_val_enabled            = "Enabled"
 Dim Const $reg_val_version            = "Version"
-Dim Const $reg_val_release            = "Release"
 Dim Const $reg_val_pshversion         = "PowerShellVersion"
 Dim Const $reg_val_logpixels          = "LogPixels"
 Dim Const $reg_val_applieddpi         = "AppliedDPI"
 Dim Const $reg_val_wustatusserver     = "WUStatusServer"
 
 ; Defaults
-Dim Const $msimax                     = 12
+Dim Const $msimax                     = 22
 Dim Const $default_logpixels          = 96
 Dim Const $target_version_dotnet35    = "3.5.30729"
+Dim Const $target_version_psh         = "2.0"
 
 ; INI file constants
 Dim Const $ini_section_installation   = "Installation"
+Dim Const $ini_value_backup           = "backup"
 Dim Const $ini_value_rcerts           = "updatercerts"
+Dim Const $ini_value_ie7              = "instie7"
+Dim Const $ini_value_ie8              = "instie8"
+Dim Const $ini_value_ie9              = "instie9"
+Dim Const $ini_value_ie10             = "instie10"
+Dim Const $ini_value_ie11             = "instie11"
+Dim Const $ini_value_cpp              = "updatecpp"
+Dim Const $ini_value_dx               = "updatedx"
+Dim Const $ini_value_mssl             = "instmssl"
+Dim Const $ini_value_wmp              = "updatewmp"
 Dim Const $ini_value_dotnet35         = "instdotnet35"
 Dim Const $ini_value_dotnet4          = "instdotnet4"
+Dim Const $ini_value_psh              = "instpsh"
 Dim Const $ini_value_wmf              = "instwmf"
-Dim Const $ini_value_cpp              = "updatecpp"
 Dim Const $ini_value_msse             = "instmsse"
 Dim Const $ini_value_tsc              = "updatetsc"
-; Hidden installation constants
-Dim Const $ini_value_skipieinst       = "skipieinst"
-Dim Const $ini_value_skipdefs         = "skipdefs"
-Dim Const $ini_value_skipdynamic      = "skipdynamic"
+Dim Const $ini_value_ofc              = "instofc"
+Dim Const $ini_value_ofv              = "instofv"
 Dim Const $ini_value_all              = "all"
 Dim Const $ini_value_excludestatics   = "excludestatics"
-Dim Const $ini_value_seconly          = "seconly"
+Dim Const $ini_value_skipdynamic      = "skipdynamic"
 
 Dim Const $ini_section_control        = "Control"
 Dim Const $ini_value_verify           = "verify"
@@ -70,16 +69,12 @@ Dim Const $ini_value_shutdown         = "shutdown"
 
 Dim Const $ini_section_messaging      = "Messaging"
 Dim Const $ini_value_showlog          = "showlog"
-; Hidden messaging constants
-Dim Const $ini_value_showieinfo       = "showieinfo"
-Dim Const $ini_value_showdotnet4info  = "showdotnet4info"
-Dim Const $ini_value_showdismprogress = "showdismprogress"
-
-Dim Const $ini_section_misc           = "Miscellaneous"
-Dim Const $ini_value_monitoron        = "monitoron"
-Dim Const $ini_value_wustatusserver   = "WUStatusServer"
 
 Dim Const $ini_section_msi            = "MSI"
+
+Dim Const $ini_section_misc           = "Miscellaneous"
+Dim Const $ini_value_showdonate       = "showdonate"
+Dim Const $ini_value_wustatusserver   = "WUStatusServer"
 
 Dim Const $enabled                    = "Enabled"
 Dim Const $disabled                   = "Disabled"
@@ -90,18 +85,19 @@ Dim Const $path_invalid_chars         = "!%&()^+,;="
 Dim Const $path_rel_builddate         = "\builddate.txt"
 Dim Const $path_rel_hashes            = "\md\"
 Dim Const $path_rel_autologon         = "\bin\Autologon.exe"
-Dim Const $path_rel_rcerts            = "\win\glb\*.crt"
+Dim Const $path_rel_win_glb           = "\win\glb\"
 Dim Const $path_rel_cpp               = "\cpp\vcredist*.exe"
 Dim Const $path_rel_instdotnet35      = "\dotnet\dotnetfx35.exe"
-Dim Const $path_rel_instdotnet46      = "\dotnet\ndp462-kb3151800-x86-x64-allos-*.exe"
-Dim Const $path_rel_instdotnet48      = "\dotnet\ndp48-x86-x64-allos-*.exe"
+Dim Const $path_rel_instdotnet40      = "\dotnet\dotNetFx40*.exe"
+Dim Const $path_rel_instdotnet46      = "\dotnet\NDP46*.exe"
+Dim Const $path_rel_ofc_glb           = "\ofc\glb\"
 Dim Const $path_rel_msse_x86          = "\msse\x86-glb\MSEInstall-x86-*.exe"
 Dim Const $path_rel_msse_x64          = "\msse\x64-glb\MSEInstall-x64-*.exe"
 Dim Const $path_rel_msi_all           = "\wouallmsi.txt"
 Dim Const $path_rel_msi_selected      = "\Temp\wouselmsi.txt"
 
-Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $rcerts, $dotnet35, $dotnet4, $wmf, $cpp, $msse, $tsc, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_exit, $options, $builddate
-Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $msilistfile, $line, $gergui, $pRedirect, $dllCallResult, $i
+Dim $maindlg, $scriptdir, $mapped, $tabitemfocused, $backup, $rcerts, $ie7, $ie8, $ie9, $ie10, $ie11, $cpp, $dx, $mssl, $wmp, $dotnet35, $dotnet4, $psh, $wmf, $msse, $tsc, $ofc, $ofv, $verify, $autoreboot, $shutdown, $showlog, $btn_start, $btn_donate, $btn_exit, $options, $builddate
+Dim $dlgheight, $groupwidth, $txtwidth, $txtheight, $btnwidth, $btnheight, $txtxoffset, $txtyoffset, $txtxpos, $txtypos, $msiall, $msipacks[$msimax], $msicount, $line, $i, $msilistfile
 
 Func ShowGUIInGerman()
   If $CmdLine[0] > 0 Then
@@ -162,19 +158,14 @@ Func CheckBoxStateToString($chkbox)
   EndIf
 EndFunc
 
-Func DefaultIniRead($section, $key, $default)
-  Return IniRead($scriptdir & "\" & StringLeft(@ScriptName, StringInStr(@ScriptName, ".", 0, -1)) & "ini", $section, $key, $default)
-EndFunc
-
 Func MyIniRead($section, $key, $default)
-Dim $inifilepath, $result
+Dim $inifilepath
 
-  $result = DefaultIniRead($section, $key, $default)
   $inifilepath = @TempDir & "\" & StringLeft(@ScriptName, StringInStr(@ScriptName, ".", 0, -1)) & "ini"
-  If FileExists($inifilepath) Then
-    $result = IniRead($inifilepath, $section, $key, $result)
+  If NOT FileExists($inifilepath) Then
+    $inifilepath = $scriptdir & "\" & StringLeft(@ScriptName, StringInStr(@ScriptName, ".", 0, -1)) & "ini"
   EndIf
-  Return $result
+  Return IniRead($inifilepath, $section, $key, $default)
 EndFunc
 
 Func IniCopy()
@@ -185,13 +176,25 @@ Dim $ini_src, $ini_dest, $i
   FileCopy($ini_src, $ini_dest, 1)
   FileSetAttrib($ini_dest, "-R")
 
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_backup, CheckBoxStateToString($backup))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_rcerts, CheckBoxStateToString($rcerts))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ie7, CheckBoxStateToString($ie7))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ie8, CheckBoxStateToString($ie8))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ie9, CheckBoxStateToString($ie9))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ie10, CheckBoxStateToString($ie10))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ie11, CheckBoxStateToString($ie11))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_cpp, CheckBoxStateToString($cpp))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_dx, CheckBoxStateToString($dx))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_mssl, CheckBoxStateToString($mssl))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_wmp, CheckBoxStateToString($wmp))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet35, CheckBoxStateToString($dotnet35))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_psh, CheckBoxStateToString($psh))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_dotnet4, CheckBoxStateToString($dotnet4))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_wmf, CheckBoxStateToString($wmf))
-  IniWrite($ini_dest, $ini_section_installation, $ini_value_cpp, CheckBoxStateToString($cpp))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_msse, CheckBoxStateToString($msse))
   IniWrite($ini_dest, $ini_section_installation, $ini_value_tsc, CheckBoxStateToString($tsc))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ofc, CheckBoxStateToString($ofc))
+  IniWrite($ini_dest, $ini_section_installation, $ini_value_ofv, CheckBoxStateToString($ofv))
 
   IniWrite($ini_dest, $ini_section_control, $ini_value_verify, CheckBoxStateToString($verify))
   IniWrite($ini_dest, $ini_section_control, $ini_value_autoreboot, CheckBoxStateToString($autoreboot))
@@ -236,11 +239,7 @@ EndFunc
 Func WSHAvailable()
 Dim $reg_val
 
-  If (@OSArch <> "X86") Then
-    $reg_val = RegRead($reg_key_wsh_hklm64, $reg_val_enabled)
-  Else
-    $reg_val = RegRead($reg_key_wsh_hklm, $reg_val_enabled)
-  EndIf
+  $reg_val = RegRead($reg_key_wsh_hklm, $reg_val_enabled)
   If ($reg_val = "0") Then
     Return 0
   EndIf
@@ -275,130 +274,43 @@ Func DotNet4Version()
   Return RegRead($reg_key_dotnet4, $reg_val_version)
 EndFunc
 
-Func DotNet4Release()
-  Return RegRead($reg_key_dotnet4, $reg_val_release)
-EndFunc
-
-Func DotNet4DisplayVersion()
-  Return DotNet4ReleaseToDisplayVersion(DotNet4Release())
-EndFunc
-
-Func DotNet4ReleaseToDisplayVersion($strDotNet4Release)
-  Switch $strDotNet4Release
-    Case "378389"
-      Return "4.5"
-	  
-    Case "378675" ; Windows 8.1 / Windows Server 2012 R2
-      Return "4.5.1"
-    Case "378758"
-      Return "4.5.1"
-	  
-    Case "379893"
-      Return "4.5.2"
-	  
-    Case "393295" ; Windows 10 1507 (10240)
-      Return "4.6"
-    Case "393297"
-      Return "4.6"
-	  
-    Case "394254" ; Windows 10 1511 (10586)
-      Return "4.6.1"
-    Case "394271"
-      Return "4.6.1"
-	  
-    Case "394802" ; Windows 10 1607 / Windows Server 2016 (14393)
-      Return "4.6.2"
-    Case "394806"
-      Return "4.6.2"
-	  
-    Case "460798" ; Windows 10 1703 (15063)
-      Return "4.7"
-    Case "460805"
-      Return "4.7"
-	  
-    Case "461308" ;  Windows 10 1709 (16299)
-      Return "4.7.1"
-    Case "461310"
-      Return "4.7.1"
-	  
-    Case "461808" ; Windows 10 1803 (17134)
-      Return "4.7.2"
-    Case "461814"
-      Return "4.7.2"
-	  
-    Case "528040" ; Windows 10 1903/1909 (18362)
-      Return "4.8"
-    Case "528049"
-      Return "4.8"
-    Case "528372" ; Windows 10 2004/20H2/21H1/21H2 (19041)
-      Return "4.8"
-    Case "528449" ; Windows Server 2022 (20348) / Windows 11 (22000)
-      Return "4.8"
-
-    Case "533320" ; Windows 11 (22621)
-      Return "4.8.1"
-    Case "533325"
-      Return "4.8.1"
-	Case Else
-      Return ""
-  EndSwitch
-EndFunc
-
 Func DotNet4MainVersion()
   Return StringLeft(DotNet4Version(), 3)
 EndFunc
 
-Func DotNet4TargetRelease()
-  Switch @OSVersion
-    Case "WIN_VISTA"
-      Return "394806"
-    Case "WIN_2008"
-      Return "394806"
-    Case "WIN_7"
-      Return "528049"
-    Case "WIN_2008R2"
-      Return "528049"
-    Case "WIN_2012"
-      Return "528049"
-    Case "WIN_81"
-      Return "528049"
-    Case "WIN_2012R2"
-      Return "528049"
-    Case "WIN_10"
-      Switch @OSBuild
-	    Case "10240"
-	      Return "394806"
-	    Case "14393"
-	      Return "528049"
-	    Case "17763"
-	      Return "528049"
-	    Case Else
-	      Return "0"
-      EndSwitch
-    Case "WIN_2016"
-      Return "528049"
-    Case "WIN_2019"
-      Return "528049"
-	Case Else
-      Return "0"
-  EndSwitch
+Func DotNet4TargetVersion()
+  If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") ) Then
+    Return "4.0.303"
+  Else
+    If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
+      Return "4.6.000"
+    Else
+      Return "4.6.015"
+    EndIf
+  EndIf
 EndFunc
 
-Func DotNet4TargetVersionDisplay()
-  Return DotNet4ReleaseToDisplayVersion(DotNet4TargetRelease())
+Func PowerShellVersion()
+  Return RegRead($reg_key_psh, $reg_val_pshversion)
 EndFunc
 
-Func WMFMainVersion()
-  Return StringLeft(RegRead($reg_key_wmf, $reg_val_pshversion), 3)
+Func ManagementFrameworkVersion()
+  Return RegRead($reg_key_wmf, $reg_val_pshversion)
 EndFunc
 
 Func WMFTargetVersion()
-  If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_2012") _
-    OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
-    Return "5.1"
+  If (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_2012") Then
+    Return "4.0"
   Else
     Return "3.0"
   EndIf
+EndFunc
+
+Func MSSLInstalled()
+Dim $dummy
+
+  $dummy = RegRead($reg_key_mssl, $reg_val_default)
+  Return (@error <= 0)
 EndFunc
 
 Func MSSEInstalled()
@@ -416,8 +328,8 @@ Func AutologonPresent($basepath)
   Return FileExists($basepath & $path_rel_autologon)
 EndFunc
 
-Func RootCertificatesPresent($basepath)
-  Return FileExists($basepath & $path_rel_rcerts)
+Func WinGlbPresent($basepath)
+  Return FileExists($basepath & $path_rel_win_glb)
 EndFunc
 
 Func CPPPresent($basepath)
@@ -429,18 +341,11 @@ Func DotNet35InstPresent($basepath)
 EndFunc
 
 Func DotNet4InstPresent($basepath)
-  Switch DotNet4TargetVersionDisplay()
-    Case "4.6.2"
-	  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) Then
-	    Return FileExists($basepath & $path_rel_instdotnet46)
-	  Else
-	    Return FileExists($basepath & $path_rel_instdotnet46) ; not optimal, but working
-	  EndIf
-    Case "4.8"
-      Return FileExists($basepath & $path_rel_instdotnet48)
-    Case Else
-      Return FileExists($basepath & $path_rel_instdotnet46) ; not optimal, but working
-  EndSwitch
+  Return (FileExists($basepath & $path_rel_instdotnet40) OR FileExists($basepath & $path_rel_instdotnet46))
+EndFunc
+
+Func OfcGlbPresent($basepath)
+  Return FileExists($basepath & $path_rel_ofc_glb)
 EndFunc
 
 Func MSSEPresent($basepath)
@@ -460,20 +365,15 @@ EndFunc
 Func CalcGUISize()
   Dim $reg_val
 
-  If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
-    OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-    OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
-    DllCall("user32.dll", "int", "SetProcessDPIAware")
-  EndIf
-  $reg_val = RegRead($reg_key_hkcu_winmetrics, $reg_val_applieddpi)
+  $reg_val = RegRead($reg_key_windowmetrics, $reg_val_applieddpi)
   If ($reg_val = "") Then
-    $reg_val = RegRead($reg_key_hkcu_desktop, $reg_val_logpixels)
+    $reg_val = RegRead($reg_key_fontdpi, $reg_val_logpixels)
   EndIf
   If ($reg_val = "") Then
     $reg_val = $default_logpixels
   EndIf
-  $dlgheight = 300 * $reg_val / $default_logpixels
-  If $gergui Then
+  $dlgheight = 400 * $reg_val / $default_logpixels
+  If ShowGUIInGerman() Then
     $txtwidth = 240 * $reg_val / $default_logpixels
   Else
     $txtwidth = 220 * $reg_val / $default_logpixels
@@ -490,7 +390,6 @@ EndFunc
 AutoItSetOption("GUICloseOnESC", 0)
 AutoItSetOption("TrayAutoPause", 0)
 AutoItSetOption("TrayIconHide", 1)
-$gergui = ShowGUIInGerman()
 CalcGUISize()
 $groupwidth = 2 * $txtwidth + 2 * $txtxoffset
 $maindlg = GUICreate($caption, $groupwidth + 4 * $txtxoffset, $dlgheight)
@@ -501,7 +400,7 @@ $scriptdir = AssignScriptDirectory()
 ;  Label
 $txtxpos = $txtxoffset
 $txtypos = $txtyoffset
-If $gergui Then
+If ShowGUIInGerman() Then
   GUICtrlCreateLabel("Wählen Sie die gewünschten Optionen und klicken Sie auf 'Start'," & @LF & "um die fehlenden Microsoft-Updates auf Ihrem System zu installieren.", $txtxpos, $txtypos, 3 * $groupwidth / 4, 1.5 * $txtheight)
 Else
   GUICtrlCreateLabel("Select desired options and click 'Start'" & @LF & "to install missing Microsoft updates on your computer.", $txtxpos, $txtypos, 3 * $groupwidth / 4, 1.5 * $txtheight)
@@ -512,7 +411,7 @@ $builddate = MediumBuildDate($scriptdir)
 If ($builddate <> "") Then
   $txtxpos = 3 * $txtxoffset + 3 * $groupwidth / 4
   $txtypos = 0
-  If $gergui Then
+  If ShowGUIInGerman() Then
     GUICtrlCreateGroup("Medium-Info", $txtxpos, $txtypos, $groupwidth / 4, 2 * $txtheight)
   Else
     GUICtrlCreateGroup("Medium info", $txtxpos, $txtypos, $groupwidth / 4, 2 * $txtheight)
@@ -528,7 +427,7 @@ $txtypos = $txtyoffset + 1.5 * $txtheight
 GuiCtrlCreateTab($txtxpos, $txtypos, $groupwidth + 2 * $txtxoffset, $dlgheight - $btnheight - 1.5 * $txtheight - 3 * $txtyoffset)
 
 ;  Updating Tab
-If $gergui Then
+If ShowGUIInGerman() Then
   $tabitemfocused = GuiCtrlCreateTabItem("Aktualisierung")
 Else
   $tabitemfocused = GuiCtrlCreateTabItem("Updating")
@@ -537,17 +436,35 @@ EndIf
 ;  Installation group
 $txtxpos = 2 * $txtxoffset
 $txtypos = 3.5 * $txtyoffset + 1.5 * $txtheight
-GUICtrlCreateGroup("Installation", $txtxpos, $txtypos, $groupwidth, 6 * $txtheight)
+GUICtrlCreateGroup("Installation", $txtxpos, $txtypos, $groupwidth, 11 * $txtheight)
 
-; Update Root Certificates
+; Backup
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + 1.5 * $txtyoffset
-If $gergui Then
+If ShowGUIInGerman() Then
+  $backup = GUICtrlCreateCheckbox("Existierende Systemdateien sichern", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $backup = GUICtrlCreateCheckbox("Back up existing system files", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") ) Then
+  GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_backup, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Update Root Certificates
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
   $rcerts = GUICtrlCreateCheckbox("Stammzertifikate aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $rcerts = GUICtrlCreateCheckbox("Update Root Certificates", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If RootCertificatesPresent($scriptdir) Then
+If WinGlbPresent($scriptdir) Then
   If MyIniRead($ini_section_installation, $ini_value_rcerts, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
@@ -557,72 +474,128 @@ Else
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
-; Install .NET Framework 3.5
+; Install IE7
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
-If $gergui Then
-  $dotnet35 = GUICtrlCreateCheckbox(".NET Framework 3.5 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+If ShowGUIInGerman() Then
+  $ie7 = GUICtrlCreateCheckbox("Internet Explorer 7 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $dotnet35 = GUICtrlCreateCheckbox("Install .NET Framework 3.5", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $ie7 = GUICtrlCreateCheckbox("Install Internet Explorer 7", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
-  OR (DotNet35Version() = $target_version_dotnet35) _
-  OR (((@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008")) AND (NOT DotNet35InstPresent($scriptdir))) ) Then
+If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (IEVersion() = "7") OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") OR (NOT WinGlbPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
-  If MyIniRead($ini_section_installation, $ini_value_dotnet35, $disabled) = $enabled Then
+  If MyIniRead($ini_section_installation, $ini_value_ie7, $disabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
 EndIf
 
-; Install .NET Framework 4
-$txtxpos = 3 * $txtxoffset
-$txtypos = $txtypos + $txtheight
-If $gergui Then
-  $dotnet4 = GUICtrlCreateCheckbox(".NET Framework " & DotNet4TargetVersionDisplay() & " installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+; Install IE8
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $ie8 = GUICtrlCreateCheckbox("Internet Explorer 8 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework " & DotNet4TargetVersionDisplay(), $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $ie8 = GUICtrlCreateCheckbox("Install Internet Explorer 8", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (Number(DotNet4Release()) >= Number(DotNet4TargetRelease())) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
+If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") OR (NOT WinGlbPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
-  If ( (DotNet4MainVersion() = "4.0") OR (DotNet4MainVersion() = "4.5") OR (DotNet4DisplayVersion() = "4.6") OR (DotNet4DisplayVersion() = "4.6.1")) Then
-    GUICtrlSetState(-1, $GUI_CHECKED + $GUI_DISABLE)
+  If MyIniRead($ini_section_installation, $ini_value_ie8, $enabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+    GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
   Else
-    If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then
-      GUICtrlSetState(-1, $GUI_CHECKED)
-    Else
-      GUICtrlSetState(-1, $GUI_UNCHECKED)
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If IsCheckBoxChecked($ie7) Then
+      GUICtrlSetState(-1, $GUI_DISABLE)
     EndIf
   EndIf
 EndIf
 
-; Install Windows Management Framework
-$txtxpos = $txtxpos + $txtwidth
-If $gergui Then
-  $wmf = GUICtrlCreateCheckbox("Management Framework " & WMFTargetVersion() & " installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+; Install IE9
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  $ie9 = GUICtrlCreateCheckbox("Internet Explorer 9 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
-  $wmf = GUICtrlCreateCheckbox("Install Management Framework " & WMFTargetVersion(), $txtxpos, $txtypos, $txtwidth, $txtheight)
+  $ie9 = GUICtrlCreateCheckbox("Install Internet Explorer 9", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") _
-  OR ( ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") ) AND (WMFMainVersion() = "3.0") ) _
-  OR ( (DotNet4MainVersion() <> "4.5") AND (DotNet4MainVersion() <> "4.6") AND (DotNet4MainVersion() <> "4.7") AND (DotNet4MainVersion() <> "4.8") AND (NOT IsCheckBoxChecked($dotnet4)) ) _
-  OR (WMFMainVersion() = WMFTargetVersion()) ) Then
+If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") OR (NOT WinGlbPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
-  If MyIniRead($ini_section_installation, $ini_value_wmf, $disabled) = $enabled Then
+  If MyIniRead($ini_section_installation, $ini_value_ie9, $disabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
+    GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If (IsCheckBoxChecked($ie7) OR IsCheckBoxChecked($ie8)) Then
+      GUICtrlSetState(-1, $GUI_DISABLE)
+    EndIf
+  EndIf
+EndIf
+
+; Install IE10
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $ie10 = GUICtrlCreateCheckbox("Internet Explorer 10 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $ie10 = GUICtrlCreateCheckbox("Install Internet Explorer 10", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (IEVersion() = "10") OR (IEVersion() = "11") OR (NOT WinGlbPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_ie10, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+    GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If (IsCheckBoxChecked($ie7) OR IsCheckBoxChecked($ie8) OR IsCheckBoxChecked($ie9)) Then
+      GUICtrlSetState(-1, $GUI_DISABLE)
+    EndIf
+  EndIf
+EndIf
+
+; Install IE11
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  $ie11 = GUICtrlCreateCheckbox("Internet Explorer 11 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $ie11 = GUICtrlCreateCheckbox("Install Internet Explorer 11", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (IEVersion() = "11") OR (NOT WinGlbPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_ie11, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+    GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+    GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+    If (IsCheckBoxChecked($ie7) OR IsCheckBoxChecked($ie8) OR IsCheckBoxChecked($ie9) OR IsCheckBoxChecked($ie10)) Then
+      GUICtrlSetState(-1, $GUI_DISABLE)
+    EndIf
   EndIf
 EndIf
 
 ; Update C++ Runtime Libraries
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
-If $gergui Then
+If ShowGUIInGerman() Then
   $cpp = GUICtrlCreateCheckbox("C++-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $cpp = GUICtrlCreateCheckbox("Update C++ Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
@@ -637,10 +610,149 @@ Else
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
+; Update DirectX Runtime Libraries
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $dx = GUICtrlCreateCheckbox("DirectX-Laufzeitbibliotheken aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $dx = GUICtrlCreateCheckbox("Update DirectX Runtime Libraries", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (NOT WinGlbPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_dx, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Install Microsoft Silverlight
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  If MSSLInstalled() Then
+    $mssl = GUICtrlCreateCheckbox("Microsoft Silverlight aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  Else
+    $mssl = GUICtrlCreateCheckbox("Microsoft Silverlight installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  EndIf
+Else
+  If MSSLInstalled() Then
+    $mssl = GUICtrlCreateCheckbox("Update Microsoft Silverlight", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  Else
+    $mssl = GUICtrlCreateCheckbox("Install Microsoft Silverlight", $txtxpos, $txtypos, $txtwidth, $txtheight)
+  EndIf
+EndIf
+If ( (NOT WinGlbPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_mssl, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Update Windows Media Player
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $wmp = GUICtrlCreateCheckbox("Windows Media Player aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $wmp = GUICtrlCreateCheckbox("Update Windows Media Player", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (NOT WinGlbPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_wmp, $enabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Install .NET Framework 3.5 SP1
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  $dotnet35 = GUICtrlCreateCheckbox(".NET Framework 3.5 SP1 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $dotnet35 = GUICtrlCreateCheckbox("Install .NET Framework 3.5 SP1", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (DotNet35Version() = $target_version_dotnet35) OR (NOT DotNet35InstPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_dotnet35, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Install Windows PowerShell 2.0
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $psh = GUICtrlCreateCheckbox("PowerShell 2.0 installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $psh = GUICtrlCreateCheckbox("Install PowerShell 2.0", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR ( (DotNet35Version() <> $target_version_dotnet35) AND (NOT IsCheckBoxChecked($dotnet35)) ) _
+  OR (PowerShellVersion() = $target_version_psh) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_psh, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Install .NET Framework 4
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  $dotnet4 = GUICtrlCreateCheckbox(".NET Framework 4.x installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $dotnet4 = GUICtrlCreateCheckbox("Install .NET Framework 4.x", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (StringLeft(DotNet4Version(), 7) = DotNet4TargetVersion()) OR (NOT DotNet4InstPresent($scriptdir)) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_dotnet4, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
+; Install Windows Management Framework
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $wmf = GUICtrlCreateCheckbox("Management Framework " & WMFTargetVersion() & " installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $wmf = GUICtrlCreateCheckbox("Install Management Framework " & WMFTargetVersion(), $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR ( (DotNet4MainVersion() <> "4.5") AND (DotNet4MainVersion() <> "4.6") AND (NOT IsCheckBoxChecked($dotnet4)) ) _
+  OR (ManagementFrameworkVersion() = WMFTargetVersion()) ) Then
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+Else
+  If MyIniRead($ini_section_installation, $ini_value_wmf, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+EndIf
+
 ; Install Microsoft Security Essentials
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
-If $gergui Then
+If ShowGUIInGerman() Then
   If MSSEInstalled() Then
     $msse = GUICtrlCreateCheckbox("Microsoft Security Essentials aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
   Else
@@ -653,8 +765,9 @@ Else
     $msse = GUICtrlCreateCheckbox("Install Microsoft Security Essentials", $txtxpos, $txtypos, $txtwidth, $txtheight)
   EndIf
 EndIf
-If ( (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") _
-  OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") OR (NOT MSSEPresent($scriptdir)) ) Then
+If ( (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_2008R2") _
+  OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (NOT MSSEPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
   If MyIniRead($ini_section_installation, $ini_value_msse, $disabled) = $enabled Then
@@ -666,26 +779,61 @@ EndIf
 
 ; Update Windows Remote Desktop Client
 $txtxpos = $txtxpos + $txtwidth
-If $gergui Then
+If ShowGUIInGerman() Then
   $tsc = GUICtrlCreateCheckbox("Remote Desktop Client aktualisieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $tsc = GUICtrlCreateCheckbox("Update Remote Desktop Client", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") _
-  OR (@OSVersion = "WIN_81")  OR (@OSVersion = "WIN_2012R2") OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
+If ( (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+  OR (NOT WinGlbPresent($scriptdir)) ) Then
   GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 Else
-  If MyIniRead($ini_section_installation, $ini_value_tsc, $disabled) = $enabled Then
+  If MyIniRead($ini_section_installation, $ini_value_tsc, $enabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
 EndIf
 
+; Install file format converters for Office
+$txtxpos = 3 * $txtxoffset
+$txtypos = $txtypos + $txtheight
+If ShowGUIInGerman() Then
+  $ofc = GUICtrlCreateCheckbox("Office-Dateikonverter installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $ofc = GUICtrlCreateCheckbox("Install Office File Converters", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If OfcGlbPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_ofc, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+EndIf
+
+; Install Office File Validation
+$txtxpos = $txtxpos + $txtwidth
+If ShowGUIInGerman() Then
+  $ofv = GUICtrlCreateCheckbox("Office-Dateiüberprüfung installieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
+Else
+  $ofv = GUICtrlCreateCheckbox("Install Office File Validation", $txtxpos, $txtypos, $txtwidth, $txtheight)
+EndIf
+If OfcGlbPresent($scriptdir) Then
+  If MyIniRead($ini_section_installation, $ini_value_ofv, $disabled) = $enabled Then
+    GUICtrlSetState(-1, $GUI_CHECKED)
+  Else
+    GUICtrlSetState(-1, $GUI_UNCHECKED)
+  EndIf
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
+EndIf
+
 ;  Control group
 $txtxpos = 2 * $txtxoffset
 $txtypos = $txtypos + 2.5 * $txtyoffset
-If $gergui Then
+If ShowGUIInGerman() Then
   GUICtrlCreateGroup("Steuerung", $txtxpos, $txtypos, $groupwidth, 3 * $txtheight)
 Else
   GUICtrlCreateGroup("Control", $txtxpos, $txtypos, $groupwidth, 3 * $txtheight)
@@ -694,7 +842,7 @@ EndIf
 ; Verify
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + 1.5 * $txtyoffset
-If $gergui Then
+If ShowGUIInGerman() Then
   $verify = GUICtrlCreateCheckbox("Installationspakete verifizieren", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $verify = GUICtrlCreateCheckbox("Verify installation packages", $txtxpos, $txtypos, $txtwidth, $txtheight)
@@ -711,25 +859,25 @@ EndIf
 
 ;  Automatic reboot and recall
 $txtxpos = $txtxpos + $txtwidth
-If $gergui Then
+If ShowGUIInGerman() Then
   $autoreboot = GUICtrlCreateCheckbox("Automatisch neu starten und fortsetzen", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $autoreboot = GUICtrlCreateCheckbox("Automatic reboot and recall", $txtxpos, $txtypos, $txtwidth, $txtheight)
 EndIf
-If ( (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") OR (NOT AutologonPresent($scriptdir)) ) Then
-  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
-Else
+If AutologonPresent($scriptdir) Then
   If MyIniRead($ini_section_control, $ini_value_autoreboot, $disabled) = $enabled Then
     GUICtrlSetState(-1, $GUI_CHECKED)
   Else
     GUICtrlSetState(-1, $GUI_UNCHECKED)
   EndIf
+Else
+  GUICtrlSetState(-1, $GUI_UNCHECKED + $GUI_DISABLE)
 EndIf
 
 ;  Automatic shutdown
 $txtxpos = 3 * $txtxoffset
 $txtypos = $txtypos + $txtheight
-If $gergui Then
+If ShowGUIInGerman() Then
   $shutdown = GUICtrlCreateCheckbox("Herunterfahren nach Abschluss", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $shutdown = GUICtrlCreateCheckbox("Shut down on completion", $txtxpos, $txtypos, $txtwidth, $txtheight)
@@ -742,7 +890,7 @@ EndIf
 
 ; Show log file
 $txtxpos = $txtxpos + $txtwidth
-If $gergui Then
+If ShowGUIInGerman() Then
   $showlog = GUICtrlCreateCheckbox("Protokolldatei anzeigen", $txtxpos, $txtypos, $txtwidth, $txtheight)
 Else
   $showlog = GUICtrlCreateCheckbox("Show log file", $txtxpos, $txtypos, $txtwidth, $txtheight)
@@ -758,22 +906,22 @@ Else
 EndIf
 
 ;  Software Tab
+GuiCtrlCreateTabItem("Software")
+
 $msicount = 1
 ListMSIPackages()
 If FileExists(@TempDir & $path_rel_msi_all) Then
-  GuiCtrlCreateTabItem("Software")
-
   ; Select all
   $txtxpos = 2 * $txtxoffset
   $txtypos = 3.5 * $txtyoffset + 1.5 * $txtheight
-  If $gergui Then
+  If ShowGUIInGerman() Then
     $msiall = GUICtrlCreateCheckbox("Alle auswählen", $txtxpos, $txtypos, $txtwidth, $txtheight)
   Else
     $msiall = GUICtrlCreateCheckbox("Select all", $txtxpos, $txtypos, $txtwidth, $txtheight)
   EndIf
   ;  MSI packages' group
   $txtypos = $txtypos + $txtheight
-  If $gergui Then
+  If ShowGUIInGerman() Then
     GUICtrlCreateGroup("MSI-Pakete", $txtxpos, $txtypos, $groupwidth, ($msimax / 2 + 1) * $txtheight)
   Else
     GUICtrlCreateGroup("MSI packages", $txtxpos, $txtypos, $groupwidth, ($msimax / 2 + 1) * $txtheight)
@@ -783,7 +931,7 @@ If FileExists(@TempDir & $path_rel_msi_all) Then
   For $msicount = 0 To $msimax - 1
     $line = FileReadLine(@TempDir & $path_rel_msi_all, $msicount + 1)
     If @error <> 0 Then ExitLoop
-    $msipacks[$msicount] = GUICtrlCreateCheckbox($line, $txtxpos + Mod($msicount, 2) * $txtwidth, $txtypos + BitShift($msicount, 1) * $txtheight, $txtwidth, $txtheight)
+    $msipacks[$msicount] = GUICtrlCreateCheckbox(StringMid($line, StringInStr($line, "\", 2, -1) + 1, StringInStr($line, ".", 2, -1) - StringInStr($line, "\", 2, -1) - 1), $txtxpos + Mod($msicount, 2) * $txtwidth, $txtypos + BitShift($msicount, 1) * $txtheight, $txtwidth, $txtheight)
     If MyIniRead($ini_section_msi, GUICtrlRead(-1, 1), $disabled) = $enabled Then
       GUICtrlSetState(-1, $GUI_CHECKED)
     EndIf
@@ -801,8 +949,19 @@ $txtypos = $dlgheight - $btnheight - $txtyoffset
 $btn_start = GUICtrlCreateButton("Start", $txtxoffset, $txtypos, $btnwidth, $btnheight)
 GUICtrlSetResizing (-1, $GUI_DOCKLEFT + $GUI_DOCKBOTTOM)
 
+;  Donate button
+If ShowGUIInGerman() Then
+  $btn_donate = GUICtrlCreateButton("Spenden...", ($groupwidth - $btnwidth) / 2 + 2 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
+Else
+  $btn_donate = GUICtrlCreateButton("Donate...", ($groupwidth - $btnwidth) / 2 + 2 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
+EndIf
+GUICtrlSetResizing(-1, $GUI_DOCKBOTTOM)
+If (MyIniRead($ini_section_misc, $ini_value_showdonate, $enabled) = $disabled) OR (Ping($wou_hostname) = 0) Then
+  GUICtrlSetState(-1, $GUI_HIDE)
+EndIf
+
 ;  Exit button
-If $gergui Then
+If ShowGUIInGerman() Then
   $btn_exit = GUICtrlCreateButton("Ende", $groupwidth - $btnwidth + 3 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
 Else
   $btn_exit = GUICtrlCreateButton("Exit", $groupwidth - $btnwidth + 3 * $txtxoffset, $txtypos, $btnwidth, $btnheight)
@@ -811,105 +970,58 @@ GUICtrlSetResizing (-1, $GUI_DOCKRIGHT + $GUI_DOCKBOTTOM)
 
 ; GUI message loop
 GUISetState()
-If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Nicht unterstütztes Betriebssystem: " & @OSVersion)
-  Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Unsupported Operating System: " & @OSVersion)
-  EndIf
-  Exit(1)
-EndIf
 If NOT WSHAvailable() Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der Windows Script Host ist deaktiviert. Bitte prüfen Sie die Registrierungswerte" _
+  If ShowGUIInGerman() Then
+    MsgBox(0x2010, "Fehler", "Der Windows Script Host ist deaktiviert. Bitte prüfen Sie die Registrierungswerte" _
                      & @LF & "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings\Enabled und" _
                      & @LF & "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings\Enabled")
   Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Windows Script Host is disabled on this machine. Please check registry values" _
+    MsgBox(0x2010, "Error", "Windows Script Host is disabled on this machine. Please check registry values" _
                     & @LF & "HKEY_LOCAL_MACHINE\Software\Microsoft\Windows Script Host\Settings\Enabled and" _
                     & @LF & "HKEY_CURRENT_USER\Software\Microsoft\Windows Script Host\Settings\Enabled")
   EndIf
   Exit(1)
 EndIf
 If $scriptdir = "" Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Dem Skript-Pfad " & @ScriptDir _
+  If ShowGUIInGerman() Then
+    MsgBox(0x2010, "Fehler", "Dem Skript-Pfad " & @ScriptDir _
                      & @LF & "konnte kein Laufwerksbuchstabe zugewiesen werden.")
   Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Unable to assign a drive letter" _
+    MsgBox(0x2010, "Error", "Unable to assign a drive letter" _
                     & @LF & "to the script path " & @ScriptDir)
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid($scriptdir) Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+  If ShowGUIInGerman() Then
+    MsgBox(0x2010, "Fehler", "Der Skript-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(0x2010, "Error", "The script path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If NOT PathValid(@TempDir) Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
+  If ShowGUIInGerman() Then
+    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad darf nicht mehr als " & $path_max_length & " Zeichen lang sein und" _
                      & @LF & "darf keines der folgenden Zeichen enthalten: " & $path_invalid_chars)
   Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
+    MsgBox(0x2010, "Error", "The %TEMP% path must not be more than " & $path_max_length & " characters long and" _
                     & @LF & "must not contain any of the following characters: " & $path_invalid_chars)
   EndIf
   Exit(1)
 EndIf
 If (StringRight(EnvGet("TEMP"), 1) = "\") OR (StringRight(EnvGet("TEMP"), 1) = ":") Then
-  If $gergui Then
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\')" _
+  If ShowGUIInGerman() Then
+    MsgBox(0x2010, "Fehler", "Der %TEMP%-Pfad enthält einen abschließenden Backslash ('\')" _
                      & @LF & "oder einen abschließenden Doppelpunkt (':').")
   Else
-    MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "The %TEMP% path contains a trailing backslash ('\')" _
+    MsgBox(0x2010, "Error", "The %TEMP% path contains a trailing backslash ('\')" _
                     & @LF & "or a trailing colon (':').")
   EndIf
   Exit(1)
 EndIf
-If ( ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") ) _
- AND FileExists(@ProgramFilesDir & "\Internet Explorer\iexplore.exe") _
- AND ( (IEVersion() = "7") OR (IEVersion() = "8") ) _
- AND (DefaultIniRead($ini_section_installation, $ini_value_skipieinst, $disabled) = $disabled) _
- AND (DefaultIniRead($ini_section_messaging, $ini_value_showieinfo, $enabled) = $enabled) ) Then
-  If $gergui Then
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird die neueste Version des Internet Explorers (IE9)" _
-                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
-  Else
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, the most recent version of Internet Explorer (IE9)" _
-                           & @LF & "will be automatically installed, when you start the updating process.")
-  EndIf
-EndIf
-If ( ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_2012") ) _
- AND FileExists(@ProgramFilesDir & "\Internet Explorer\iexplore.exe") _
- AND ( (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") ) _
- AND (DefaultIniRead($ini_section_installation, $ini_value_skipieinst, $disabled) = $disabled) _
- AND (DefaultIniRead($ini_section_messaging, $ini_value_showieinfo, $enabled) = $enabled) ) Then
-  If $gergui Then
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird die neueste Version des Internet Explorers (IE11)" _
-                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
-  Else
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, the most recent version of Internet Explorer (IE11)" _
-                           & @LF & "will be automatically installed, when you start the updating process.")
-  EndIf
-EndIf
-;MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "DEBUG", "DotNet4MainVersion()=" & DotNet4MainVersion() & @LF & "DotNet4DisplayVersion()=" & DotNet4DisplayVersion() & @LF & "DotNet4Release()=" & DotNet4Release())
-If ( ( (DotNet4MainVersion() <> "") AND ((DotNet4MainVersion() = "4.5") OR ((DotNet4MainVersion() = "4.6") AND (DotNet4DisplayVersion() <> "4.6.2")))) _
- AND (DefaultIniRead($ini_section_messaging, $ini_value_showdotnet4info, $enabled) = $enabled) ) Then
-  If $gergui Then
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "Auf diesem System wird Version 4.6.2 des .NET Framework" _
-                           & @LF & "automatisch installiert, wenn Sie die Aktualisierung starten.")
-  Else
-     MsgBox(BitOr($MB_TASKMODAL, $MB_ICONINFORMATION, $MB_OK), "Information", "On this system, version 4.6.2 of .NET Framework" _
-                           & @LF & "will be automatically installed, when you start the updating process.")
-  EndIf
-EndIf
-Local $accelKeys[2][2] = [["{enter}", $btn_start], ["{escape}", $btn_exit]]
-GUISetAccelerators($accelKeys)
 While 1
   Switch GUIGetMsg()
     Case $GUI_EVENT_CLOSE    ; Window closed
@@ -924,11 +1036,198 @@ While 1
       EndIf
       ExitLoop
 
+    Case $btn_donate         ; Donate button pressed
+      Run(@ComSpec & " /D /C start " & $donationURL)
+
+    Case $ie7                ; IE7 check box toggled
+      If IsCheckBoxChecked($ie7) Then
+        GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+      Else
+        If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie8, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie9, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie10, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie11, $GUI_ENABLE)
+        EndIf
+      EndIf
+
+    Case $ie8                ; IE8 check box toggled
+      If IsCheckBoxChecked($ie8) Then
+        GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+      Else
+        If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "7") OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie7, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie9, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie10, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie11, $GUI_ENABLE)
+        EndIf
+      EndIf
+
+    Case $ie9                ; IE9 check box toggled
+      If IsCheckBoxChecked($ie9) Then
+        GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+      Else
+        If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "7") OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie7, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie8, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie10, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie11, $GUI_ENABLE)
+        EndIf
+      EndIf
+
+    Case $ie10               ; IE10 check box toggled
+      If IsCheckBoxChecked($ie10) Then
+        GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+      Else
+        If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "7") OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie7, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie8, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie9, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie11, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie11, $GUI_ENABLE)
+        EndIf
+      EndIf
+
+    Case $ie11               ; IE11 check box toggled
+      If IsCheckBoxChecked($ie11) Then
+        GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+      Else
+        If ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "7") OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie7, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie7, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "8") OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie8, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie8, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
+          OR (IEVersion() = "9") OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie9, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie9, $GUI_ENABLE)
+        EndIf
+        If ( (@OSVersion = "WIN_XP") OR (@OSVersion = "WIN_2003") OR (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") _
+          OR (IEVersion() = "10") OR (IEVersion() = "11") ) Then
+          GUICtrlSetState($ie10, $GUI_UNCHECKED + $GUI_DISABLE)
+        Else
+          GUICtrlSetState($ie10, $GUI_ENABLE)
+        EndIf
+      EndIf
+
+    Case $dotnet35             ; .NET 3.5 check box toggled
+      If ( (IsCheckBoxChecked($dotnet35)) _
+       AND (@OSVersion <> "WIN_7") AND (@OSVersion <> "WIN_2008R2") _
+       AND (@OSVersion <> "WIN_8") AND (@OSVersion <> "WIN_2012") _
+       AND (@OSVersion <> "WIN_81") AND (@OSVersion <> "WIN_2012R2") _
+       AND (PowerShellVersion() <> $target_version_psh) ) Then
+        GUICtrlSetState($psh, $GUI_ENABLE)
+      Else
+        GUICtrlSetState($psh, $GUI_UNCHECKED + $GUI_DISABLE)
+      EndIf
+
     Case $dotnet4              ; .NET 4 check box toggled
-      If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") OR (DotNet4MainVersion() = "4.7") OR (DotNet4MainVersion() = "4.8") ) _
-       AND (@OSVersion <> "WIN_VISTA") AND (@OSVersion <> "WIN_10") AND (@OSVersion <> "WIN_2016") AND (@OSVersion <> "WIN_2019") AND (@OSVersion <> "WIN_2022") AND (@OSVersion <> "WIN_11") _
-       AND ( ( (@OSVersion <> "WIN_7") AND (@OSVersion <> "WIN_2008R2") ) OR (WMFMainVersion() <> "3.0") ) _
-       AND (WMFMainVersion() <> WMFTargetVersion()) ) Then
+      If ( ( (IsCheckBoxChecked($dotnet4)) OR (DotNet4MainVersion() = "4.5") OR (DotNet4MainVersion() = "4.6") ) _
+       AND (@OSVersion <> "WIN_XP") AND (@OSVersion <> "WIN_2003") AND (@OSVersion <> "WIN_VISTA") _
+       AND (@OSVersion <> "WIN_8") OR (@OSVersion <> "WIN_81") OR (@OSVersion <> "WIN_2012R2") _
+       AND (ManagementFrameworkVersion() <> WMFTargetVersion()) ) Then
         GUICtrlSetState($wmf, $GUI_ENABLE)
       Else
         GUICtrlSetState($wmf, $GUI_UNCHECKED + $GUI_DISABLE)
@@ -936,14 +1235,14 @@ While 1
 
     Case $msse                 ; Microsoft Security Essentials check box toggled
       If IsCheckBoxChecked($msse) Then
-        If $gergui Then
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Bei der Installation der Microsoft Security Essentials wird eine" _
+        If ShowGUIInGerman() Then
+          If MsgBox(0x2134, "Warnung", "Bei der Installation der Microsoft Security Essentials wird eine" _
                                & @LF & "obligate 'Windows Genuine Advantage' (WGA)-Prüfung durchgeführt." _
                                & @LF & "Möchten Sie fortsetzen?") = 7 Then
             GUICtrlSetState($msse, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The installation of Microsoft Security Essentials performs" _
+          If MsgBox(0x2134, "Warning", "The installation of Microsoft Security Essentials performs" _
                                & @LF & "a mandatory 'Windows Genuine Advantage' (WGA) check." _
                                & @LF & "Do you wish to proceed?") = 7 Then
             GUICtrlSetState($msse, $GUI_UNCHECKED)
@@ -954,16 +1253,15 @@ While 1
     Case $autoreboot         ; Automatic reboot check box toggled
       If ( (IsCheckBoxChecked($autoreboot)) _
        AND ( (@OSVersion = "WIN_VISTA") OR (@OSVersion = "WIN_2008") OR (@OSVersion = "WIN_7") OR (@OSVersion = "WIN_2008R2") _
-          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") _
-          OR (@OSVersion = "WIN_10") OR (@OSVersion = "WIN_2016") OR (@OSVersion = "WIN_2019") OR (@OSVersion = "WIN_2022") OR (@OSVersion = "WIN_11") ) ) Then
-        If $gergui Then
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
+          OR (@OSVersion = "WIN_8") OR (@OSVersion = "WIN_2012") OR (@OSVersion = "WIN_81") OR (@OSVersion = "WIN_2012R2") ) ) Then
+        If ShowGUIInGerman() Then
+          If MsgBox(0x2134, "Warnung", "Die Option 'Automatisch neu starten und fortsetzen' deaktiviert" _
                                & @LF & "temporär die Benutzerkontensteuerung (UAC), falls erforderlich." _
                                & @LF & "Möchten Sie fortsetzen?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", "The option 'Automatic reboot and recall' temporarily" _
+          If MsgBox(0x2134, "Warning", "The option 'Automatic reboot and recall' temporarily" _
                                & @LF & "disables the User Account Control (UAC), if required." _
                                & @LF & "Do you wish to proceed?") = 7 Then
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
@@ -971,8 +1269,8 @@ While 1
         EndIf
       EndIf
       If ( (IsCheckBoxChecked($autoreboot)) AND (DriveGetType($scriptdir) = "Network") ) Then
-        If $gergui Then
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
+        If ShowGUIInGerman() Then
+          If MsgBox(0x2134, "Warnung", @ScriptName & " wurde von einer Netzwerkfreigabe gestartet." _
                                & @LF & "Die Option 'Automatisch neu starten und fortsetzen'" _
                                & @LF & "funktioniert nur dann ohne Benutzereingriff," _
                                & @LF & "wenn diese Freigabe anonymen Zugriff erlaubt." _
@@ -980,7 +1278,7 @@ While 1
             GUICtrlSetState($autoreboot, $GUI_UNCHECKED)
           EndIf
         Else
-          If MsgBox(BitOr($MB_TASKMODAL, $MB_DEFBUTTON2, $MB_ICONEXCLAMATION, $MB_YESNO), "Warning", @ScriptName & " was started from a network share." _
+          If MsgBox(0x2134, "Warning", @ScriptName & " was started from a network share." _
                                & @LF & "The option 'Automatic reboot and recall'" _
                                & @LF & "does only work without user interaction," _
                                & @LF & "if this share permits anonymous access." _
@@ -1022,11 +1320,44 @@ While 1
         RegWrite($reg_key_windowsupdate, $reg_val_wustatusserver, "REG_SZ", $options)
       EndIf
       $options = ""
+      If NOT IsCheckBoxChecked($backup) Then
+        $options = $options & " /nobackup"
+      EndIf
       If IsCheckBoxChecked($rcerts) Then
         $options = $options & " /updatercerts"
       EndIf
+      If IsCheckBoxChecked($ie7) Then
+        $options = $options & " /instie7"
+      EndIf
+      If IsCheckBoxChecked($ie8) Then
+        $options = $options & " /instie8"
+      EndIf
+      If IsCheckBoxChecked($ie9) Then
+        $options = $options & " /instie9"
+      EndIf
+      If IsCheckBoxChecked($ie10) Then
+        $options = $options & " /instie10"
+      EndIf
+      If IsCheckBoxChecked($ie11) Then
+        $options = $options & " /instie11"
+      EndIf
+      If IsCheckBoxChecked($cpp) Then
+        $options = $options & " /updatecpp"
+      EndIf
+      If IsCheckBoxChecked($dx) Then
+        $options = $options & " /updatedx"
+      EndIf
+      If IsCheckBoxChecked($mssl) Then
+        $options = $options & " /instmssl"
+      EndIf
+      If IsCheckBoxChecked($wmp) Then
+        $options = $options & " /updatewmp"
+      EndIf
       If IsCheckBoxChecked($dotnet35) Then
         $options = $options & " /instdotnet35"
+      EndIf
+      If IsCheckBoxChecked($psh) Then
+        $options = $options & " /instpsh"
       EndIf
       If IsCheckBoxChecked($dotnet4) Then
         $options = $options & " /instdotnet4"
@@ -1034,32 +1365,17 @@ While 1
       If IsCheckBoxChecked($wmf) Then
         $options = $options & " /instwmf"
       EndIf
-      If IsCheckBoxChecked($cpp) Then
-        $options = $options & " /updatecpp"
-      EndIf
       If IsCheckBoxChecked($msse) Then
         $options = $options & " /instmsse"
       EndIf
       If IsCheckBoxChecked($tsc) Then
         $options = $options & " /updatetsc"
       EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_skipieinst, $disabled) = $enabled Then
-        $options = $options & " /skipieinst"
+      If IsCheckBoxChecked($ofc) Then
+        $options = $options & " /instofc"
       EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_skipdefs, $disabled) = $enabled Then
-        $options = $options & " /skipdefs"
-      EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_skipdynamic, $disabled) = $enabled Then
-        $options = $options & " /skipdynamic"
-      EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_all, $disabled) = $enabled Then
-        $options = $options & " /all"
-      EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_excludestatics, $disabled) = $enabled Then
-        $options = $options & " /excludestatics"
-      EndIf
-      If DefaultIniRead($ini_section_installation, $ini_value_seconly, $disabled) = $enabled Then
-        $options = $options & " /seconly"
+      If IsCheckBoxChecked($ofv) Then
+        $options = $options & " /instofv"
       EndIf
       If IsCheckBoxChecked($verify) Then
         $options = $options & " /verify"
@@ -1076,11 +1392,14 @@ While 1
       If IsCheckBoxChecked($showlog) Then
         $options = $options & " /showlog"
       EndIf
-      If DefaultIniRead($ini_section_messaging, $ini_value_showdismprogress, $disabled) = $enabled Then
-        $options = $options & " /showdismprogress"
+      If MyIniRead($ini_section_installation, $ini_value_all, $disabled) = $enabled Then
+        $options = $options & " /all"
       EndIf
-      If DefaultIniRead($ini_section_misc, $ini_value_monitoron, $disabled) = $enabled Then
-        $options = $options & " /monitoron"
+      If MyIniRead($ini_section_installation, $ini_value_excludestatics, $disabled) = $enabled Then
+        $options = $options & " /excludestatics"
+      EndIf
+      If MyIniRead($ini_section_installation, $ini_value_skipdynamic, $disabled) = $enabled Then
+        $options = $options & " /skipdynamic"
       EndIf
       $msilistfile = FileOpen(@WindowsDir & $path_rel_msi_selected, 10)
       If $msilistfile <> -1 Then
@@ -1095,48 +1414,21 @@ While 1
         FileDelete(@WindowsDir & $path_rel_msi_selected)
       EndIf
       If (@OSArch <> "X86") Then
-        $pRedirect = DllStructCreate("ptr")
-        _WinAPI_SetLastError(0)
-        $dllCallResult = DllCall("kernel32.dll", "bool", "Wow64DisableWow64FsRedirection", "ptr*", DllStructGetPtr($pRedirect))
-        If (@error <> 0) OR (NOT $dllCallResult[0]) Then
-          If $gergui Then
-            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " (Rückgabewert: " & $dllCallResult[0] _
-                                   & ", API-Fehlercode: " & _WinAPI_GetLastError() & ")" _
-                                   & " beim Aufruf von Wow64DisableWow64FsRedirection.")
-          Else
-            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " (Return value: " & $dllCallResult[0] _
-                                  & ", API error code: " & _WinAPI_GetLastError() & ")" _
-                                  & " when calling Wow64DisableWow64FsRedirection.")
-          EndIf
-          ExitLoop
-        EndIf
+        DllCall("kernel32.dll", "int", "Wow64DisableWow64FsRedirection", "int", 1)
       EndIf
       If Run(@ComSpec & " /D /C Update.cmd" & $options, $scriptdir, @SW_HIDE) = 0 Then
-        If $gergui Then
-          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " beim Aufruf von" _
+        If ShowGUIInGerman() Then
+          MsgBox(0x2010, "Fehler", "Fehler #" & @error & " beim Aufruf von" _
                            & @LF & @ComSpec & " /D /C Update.cmd" & $options & " in" _
                            & @LF & $scriptdir & ".")
         Else
-          MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " when calling" _
+          MsgBox(0x2010, "Error", "Error #" & @error & " when calling" _
                           & @LF & @ComSpec & " /D /C Update.cmd" & $options & " in" _
                           & @LF & $scriptdir & ".")
         EndIf
+      Else
+        ExitLoop
       EndIf
-      If (@OSArch <> "X86") Then
-        _WinAPI_SetLastError(0)
-        DllCall("kernel32.dll", "bool", "Wow64RevertWow64FsRedirection", "ptr", $pRedirect)
-        If (@error <> 0) OR (_WinAPI_GetLastError() <> 0) Then
-          If $gergui Then
-            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Fehler", "Fehler #" & @error & " (API-Fehlercode: " & _WinAPI_GetLastError() & ")" _
-                                   & " beim Aufruf von Wow64RevertWow64FsRedirection.")
-          Else
-            MsgBox(BitOr($MB_TASKMODAL, $MB_ICONERROR, $MB_OK), "Error", "Error #" & @error & " (API error code: " & _WinAPI_GetLastError() & ")" _
-                                  & " when calling Wow64RevertWow64FsRedirection.")
-          EndIf
-        EndIf
-        $pRedirect = 0
-      EndIf
-      ExitLoop
   EndSwitch
 WEnd
 Exit

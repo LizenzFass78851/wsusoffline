@@ -7,9 +7,8 @@
 *w61*
 *w62*
 *w63*
-*w100*
 */*/x86-glb/*
-*NDP48-*
-*ndp48-*
+*dotNetFx40*
+*NDP462-*
+*Silverlight_x64*
 *.au3
-*.cpp

@@ -1,12 +1,11 @@
 #include-once
 
 #include "FileConstants.au3"
-#include "File.au3" ; Using : _PathSplit
-#include "StringConstants.au3"
+#include "File.au3"		; Using: _PathSplit
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Sound
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.2 ++
 ; Language ......: English
 ; Description ...: Functions that assist with Sound management.
 ; Author(s) .....: RazerM, Melba23, Simucal, PsaltyDS
@@ -43,33 +42,33 @@ Global Const $__SOUNDCONSTANT_SNDID_MARKER = 0x49442d2d
 ; Author ........: RazerM, Melba23, some code by Simucal, PsaltyDS
 ; Modified.......:
 ; ===============================================================================================================================
-Func _SoundOpen($sFilePath)
+Func _SoundOpen($sFile)
 	;check for file
-	If Not FileExists($sFilePath) Then Return SetError(2, 0, 0)
+	If Not FileExists($sFile) Then Return SetError(2, 0, 0)
 	;create random string for file ID
 	Local $aSndID[4]
 	For $i = 1 To 10
 		$aSndID[0] &= Chr(Random(97, 122, 1))
 	Next
 
-	Local $sDrive, $sDir, $sFName, $sExt
-	_PathSplit($sFilePath, $sDrive, $sDir, $sFName, $sExt)
+	Local $szDrive, $szDir, $szFName, $szExt
+	_PathSplit($sFile, $szDrive, $szDir, $szFName, $szExt)
 
 	Local $sSndDirName
-	If $sDrive = "" Then
+	If $szDrive = "" Then
 		$sSndDirName = @WorkingDir & "\"
 	Else
-		$sSndDirName = $sDrive & $sDir
+		$sSndDirName = $szDrive & $szDir
 	EndIf
-	Local $sSndFileName = $sFName & $sExt
+	Local $sSndFileName = $szFName & $szExt
 
 	Local $sSndDirShortName = FileGetShortName($sSndDirName, 1)
 
 	;open file
-	__SoundMciSendString("open """ & $sFilePath & """ alias " & $aSndID[0])
+	__SoundMciSendString("open """ & $sFile & """ alias " & $aSndID[0])
 	If @error Then Return SetError(1, @error, 0) ; open failed
 
-	Local $sTrackLength, $bTryNextMethod = False
+	Local $sTrackLength, $fTryNextMethod = False
 	Local $oShell = ObjCreate("shell.application")
 	If IsObj($oShell) Then
 		Local $oShellDir = $oShell.NameSpace($sSndDirShortName)
@@ -77,50 +76,50 @@ Func _SoundOpen($sFilePath)
 			Local $oShellDirFile = $oShellDir.Parsename($sSndFileName)
 			If IsObj($oShellDirFile) Then
 				Local $sRaw = $oShellDir.GetDetailsOf($oShellDirFile, -1)
-				Local $aInfo = StringRegExp($sRaw, ": ([0-9]{2}:[0-9]{2}:[0-9]{2})", $STR_REGEXPARRAYGLOBALMATCH)
+				Local $aInfo = StringRegExp($sRaw, ": ([0-9]{2}:[0-9]{2}:[0-9]{2})", 3)
 				If Not IsArray($aInfo) Then
-					$bTryNextMethod = True
+					$fTryNextMethod = True
 				Else
 					$sTrackLength = $aInfo[0]
 				EndIf
 			Else
-				$bTryNextMethod = True
+				$fTryNextMethod = True
 			EndIf
 		Else
-			$bTryNextMethod = True
+			$fTryNextMethod = True
 		EndIf
 	Else
-		$bTryNextMethod = True
+		$fTryNextMethod = True
 	EndIf
 
 	Local $sTag
-	If $bTryNextMethod Then
-		$bTryNextMethod = False
-		If $sExt = ".mp3" Then
+	If $fTryNextMethod Then
+		$fTryNextMethod = False
+		If $szExt = ".mp3" Then
 			Local $hFile = FileOpen(FileGetShortName($sSndDirName & $sSndFileName), $FO_READ)
 			$sTag = FileRead($hFile, 5156)
 			FileClose($hFile)
 			$sTrackLength = __SoundReadXingFromMP3($sTag)
-			If @error Then $bTryNextMethod = True
+			If @error Then $fTryNextMethod = True
 		Else
-			$bTryNextMethod = True
+			$fTryNextMethod = True
 		EndIf
 	EndIf
 
-	If $bTryNextMethod Then
-		$bTryNextMethod = False
-		If $sExt = ".mp3" Then
+	If $fTryNextMethod Then
+		$fTryNextMethod = False
+		If $szExt = ".mp3" Then
 			$sTrackLength = __SoundReadTLENFromMP3($sTag)
-			If @error Then $bTryNextMethod = True
+			If @error Then $fTryNextMethod = True
 		Else
-			$bTryNextMethod = True
+			$fTryNextMethod = True
 		EndIf
 	EndIf
 
-	If $bTryNextMethod Then
-		$bTryNextMethod = False
+	If $fTryNextMethod Then
+		$fTryNextMethod = False
 		;tell mci to use time in milliseconds
-		__SoundMciSendString("set " & $aSndID[0] & " time format milliseconds")
+		__SoundMciSendString("set " & $aSndID[0] & " time format miliseconds")
 		;receive length of sound
 		Local $iSndLenMs = __SoundMciSendString("status " & $aSndID[0] & " length", 255)
 
@@ -137,7 +136,7 @@ Func _SoundOpen($sFilePath)
 	Local $iActualTicks = __SoundTimeToTicks($aiTime[1], $aiTime[2], $aiTime[3])
 
 	;tell mci to use time in milliseconds
-	__SoundMciSendString("set " & $aSndID[0] & " time format milliseconds")
+	__SoundMciSendString("set " & $aSndID[0] & " time format miliseconds")
 
 	;;Get estimated length
 	Local $iSoundTicks = __SoundMciSendString("status " & $aSndID[0] & " length", 255)
@@ -258,7 +257,7 @@ Func _SoundLength($aSndID, $iMode = 1)
 	EndIf
 
 	;tell mci to use time in milliseconds
-	__SoundMciSendString("set " & $aSndID[0] & " time format milliseconds")
+	__SoundMciSendString("set " & $aSndID[0] & " time format miliseconds")
 	;receive length of sound
 	Local $iSndLenMs = Number(__SoundMciSendString("status " & $aSndID[0] & " length", 255))
 	If $aSndID[1] <> 0 Then $iSndLenMs = Round($iSndLenMs / $aSndID[1])
@@ -288,7 +287,7 @@ Func _SoundSeek(ByRef $aSndID, $iHour, $iMin, $iSec)
 	If Not IsArray($aSndID) Or Not __SoundChkSndID($aSndID) Then Return SetError(3, 0, 0) ; invalid Sound ID
 
 	;prepare mci to receive time in milliseconds
-	__SoundMciSendString("set " & $aSndID[0] & " time format milliseconds")
+	__SoundMciSendString("set " & $aSndID[0] & " time format miliseconds")
 	;modify the $iHour, $iMin and $iSec parameters to be in milliseconds
 	;and add to $iMs
 	Local $iMs = $iSec * 1000
@@ -328,7 +327,7 @@ Func _SoundPos($aSndID, $iMode = 1)
 	If Not __SoundChkSndID($aSndID) Then Return SetError(3, 0, 0) ; invalid Sound ID or file name
 
 	;tell mci to use time in milliseconds
-	__SoundMciSendString("set " & $aSndID[0] & " time format milliseconds")
+	__SoundMciSendString("set " & $aSndID[0] & " time format miliseconds")
 	;receive position of sound
 	Local $iSndPosMs = Number(__SoundMciSendString("status " & $aSndID[0] & " position", 255))
 	If $aSndID[1] <> 0 Then
@@ -376,18 +375,18 @@ EndFunc   ;==>__SoundChkSndID
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: __SoundMciSendString
 ; Description ...: Used internally within this file, not for general use
-; Syntax.........: __SoundMciSendString ( $sString [, $iLen = 0] )
+; Syntax.........: __SoundMciSendString ( $string [, $iLen = 0] )
 ; Author ........: RazerM, Melba23
 ; Modified.......:
 ; Related .......:
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func __SoundMciSendString($sString, $iLen = 0)
-	Local $aCall = DllCall("winmm.dll", "dword", "mciSendStringW", "wstr", $sString, "wstr", "", "uint", $iLen, "ptr", 0)
+Func __SoundMciSendString($string, $iLen = 0)
+	Local $iRet = DllCall("winmm.dll", "dword", "mciSendStringW", "wstr", $string, "wstr", "", "uint", $iLen, "ptr", 0)
 	If @error Then Return SetError(@error, @extended, "")
-	If $aCall[0] Then Return SetError(10, $aCall[0], $aCall[2])
-	Return $aCall[2]
+	If $iRet[0] Then Return SetError(10, $iRet[0], $iRet[2])
+	Return $iRet[2]
 EndFunc   ;==>__SoundMciSendString
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -452,7 +451,7 @@ Func __SoundReadXingFromMP3($sTag)
 	If BitAND($iFlags, 1) = 1 Then
 		$iFrames = Number("0x" & StringMid($sTag, $iXingPos + 16, 8))
 	Else
-		Return SetError(1, 0, 0) ; No frames field
+		Return SetError(1, 0, 0); No frames field
 	EndIf
 
 	; Now to find Samples per frame & Sampling rate

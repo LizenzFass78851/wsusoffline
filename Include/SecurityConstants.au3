@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Security_Constants
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.2
 ; Language ......: English
 ; Description ...: Constants for Security functions.
 ; Author(s) .....: Paul Campbell (PaulIA), trancexx
@@ -88,17 +88,17 @@ Global Const $TOKEN_SESSION_NOT_REFERENCED = 0x00000020
 Global Const $TOKEN_SANDBOX_INERT = 0x00000040
 Global Const $TOKEN_HAS_IMPERSONATE_PRIVILEGE = 0x00000080
 
-Global Const $STANDARD_RIGHTS_DELETE = 0x00010000
+Global Const $RIGHTS_DELETE = 0x00010000
 Global Const $READ_CONTROL = 0x00020000
 Global Const $WRITE_DAC = 0x00040000
 Global Const $WRITE_OWNER = 0x00080000
-Global Const $STANDARD_RIGHTS_SYNCHRONIZE = 0x00100000
+Global Const $SYNCHRONIZE = 0x00100000
 Global Const $ACCESS_SYSTEM_SECURITY = 0x01000000
-Global Const $STANDARD_RIGHTS_REQUIRED = 0x000f0000 ; $STANDARD_RIGHTS_DELETE, $READ_CONTROL, $WRITE_DAC, $WRITE_OWNER
+Global Const $STANDARD_RIGHTS_REQUIRED = 0x000f0000
 Global Const $STANDARD_RIGHTS_READ = $READ_CONTROL
 Global Const $STANDARD_RIGHTS_WRITE = $READ_CONTROL
 Global Const $STANDARD_RIGHTS_EXECUTE = $READ_CONTROL
-Global Const $STANDARD_RIGHTS_ALL = 0x001F0000 ; $STANDARD_RIGHTS_SYNCHRONIZE, $STANDARD_RIGHTS_DELETE, $READ_CONTROL, $WRITE_DAC, $WRITE_OWNER
+Global Const $STANDARD_RIGHTS_ALL = 0x001F0000
 Global Const $SPECIFIC_RIGHTS_ALL = 0x0000FFFF
 
 Global Enum $NOT_USED_ACCESS = 0, $GRANT_ACCESS, $SET_ACCESS, $DENY_ACCESS, $REVOKE_ACCESS, $SET_AUDIT_SUCCESS, $SET_AUDIT_FAILURE

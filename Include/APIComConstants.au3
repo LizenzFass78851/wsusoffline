@@ -2,10 +2,11 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPICom Constants UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.8 / 3.3.8.0
 ; Language ......: English
 ; Description ...: Constants that can be used with UDF library
 ; Author(s) .....: Yashied, Jpm
+; Requirements...: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================

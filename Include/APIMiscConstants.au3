@@ -2,10 +2,11 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: WinAPIMisc Constants UDF Library for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.8 / 3.3.8.0
 ; Language ......: English
 ; Description ...: Constants that can be used with UDF library
 ; Author(s) .....: Yashied, Jpm
+; Requirements...: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -26,7 +27,6 @@ Global Const $SND_RESOURCE = 0x00040004
 Global Const $SND_SENTRY = 0x00080000
 Global Const $SND_SYNC = 0x00000000
 Global Const $SND_SYSTEM = 0x00200000
-Global Const $SND_SYSTEM_NOSTOP = 0x00200010
 
 Global Const $SND_ALIAS_SYSTEMASTERISK = 'SystemAsterisk'
 Global Const $SND_ALIAS_SYSTEMDEFAULT = 'SystemDefault'

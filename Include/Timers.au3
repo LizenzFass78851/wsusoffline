@@ -2,7 +2,7 @@
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Timers
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.3.7.20++
 ; Language ......: English
 ; Description ...: Functions that assist with Timers management.
 ;                  An application uses a timer to schedule an event for a window after a specified time has elapsed.
@@ -10,10 +10,11 @@
 ;                  associated with the timer. Because a timer's accuracy depends on the system clock rate and how often the
 ;                  application retrieves messages from the message queue, the time-out value is only approximate.
 ; Author(s) .....: Gary Frost
+; Dll(s) ........: user32.dll, kernel32.dll
 ; ===============================================================================================================================
 
 ; #VARIABLES# ===================================================================================================================
-Global $__g_aTimers_aTimerIDs[1][3]
+Global $_Timers_aTimerIDs[1][3]
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -45,14 +46,14 @@ EndFunc   ;==>_Timer_Diff
 ; ===============================================================================================================================
 Func _Timer_GetIdleTime()
 	; Get ticks at last activity
-	Local $tStruct = DllStructCreate("uint;dword") ;
-	DllStructSetData($tStruct, 1, DllStructGetSize($tStruct)) ;
-	Local $aCall = DllCall("user32.dll", "bool", "GetLastInputInfo", "struct*", $tStruct)
-	If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
+	Local $tStruct = DllStructCreate("uint;dword");
+	DllStructSetData($tStruct, 1, DllStructGetSize($tStruct));
+	Local $aResult = DllCall("user32.dll", "bool", "GetLastInputInfo", "struct*", $tStruct)
+	If @error Or $aResult[0] = 0 Then Return SetError(@error, @extended, 0)
 
 	; Get current ticks since last restart
-	Local $avTicks = DllCall("kernel32.dll", "dword", "GetTickCount")
-	If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, 0)
+	Local $avTicks = DllCall("Kernel32.dll", "dword", "GetTickCount")
+	If @error Or Not $aResult[0] Then Return SetError(@error, @extended, 0)
 
 	; Return time since last activity, in ticks (approx milliseconds)
 	Local $iDiff = $avTicks[0] - DllStructGetData($tStruct, 2)
@@ -65,10 +66,10 @@ EndFunc   ;==>_Timer_GetIdleTime
 ; Author ........: Gary Frost
 ; Modified.......:
 ; ===============================================================================================================================
-Func _Timer_GetTimerID($wParam)
-	Local $_iTimerID = Dec(Hex($wParam, 8)), $iMax = UBound($__g_aTimers_aTimerIDs) - 1
+Func _Timer_GetTimerID($iwParam)
+	Local $_iTimerID = Dec(Hex($iwParam, 8)), $iMax = UBound($_Timers_aTimerIDs) - 1
 	For $x = 1 To $iMax
-		If $_iTimerID = $__g_aTimers_aTimerIDs[$x][1] Then Return $__g_aTimers_aTimerIDs[$x][0]
+		If $_iTimerID = $_Timers_aTimerIDs[$x][1] Then Return $_Timers_aTimerIDs[$x][0]
 	Next
 	Return 0
 EndFunc   ;==>_Timer_GetTimerID
@@ -86,21 +87,21 @@ EndFunc   ;==>_Timer_Init
 ; Modified.......: Squirrely1
 ; ===============================================================================================================================
 Func _Timer_KillAllTimers($hWnd)
-	Local $iNumTimers = $__g_aTimers_aTimerIDs[0][0]
+	Local $iNumTimers = $_Timers_aTimerIDs[0][0]
 	If $iNumTimers = 0 Then Return False
-	Local $aCall, $hCallBack = 0
+	Local $aResult, $hCallBack = 0
 	For $x = $iNumTimers To 1 Step -1
 		If IsHWnd($hWnd) Then
-			$aCall = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $__g_aTimers_aTimerIDs[$x][1])
+			$aResult = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $_Timers_aTimerIDs[$x][1])
 		Else
-			$aCall = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $__g_aTimers_aTimerIDs[$x][0])
+			$aResult = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $_Timers_aTimerIDs[$x][0])
 		EndIf
-		If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, False)
-		$hCallBack = $__g_aTimers_aTimerIDs[$x][2]
+		If @error Or $aResult[0] = 0 Then Return SetError(@error, @extended, False)
+		$hCallBack = $_Timers_aTimerIDs[$x][2]
 		If $hCallBack <> 0 Then DllCallbackFree($hCallBack)
-		$__g_aTimers_aTimerIDs[0][0] -= 1
+		$_Timers_aTimerIDs[0][0] -= 1
 	Next
-	ReDim $__g_aTimers_aTimerIDs[1][3]
+	ReDim $_Timers_aTimerIDs[1][3]
 	Return True
 EndFunc   ;==>_Timer_KillAllTimers
 
@@ -109,28 +110,28 @@ EndFunc   ;==>_Timer_KillAllTimers
 ; Modified.......: Squirrely1
 ; ===============================================================================================================================
 Func _Timer_KillTimer($hWnd, $iTimerID)
-	Local $aCall[1] = [0], $hCallBack = 0, $iUBound = UBound($__g_aTimers_aTimerIDs) - 1
+	Local $aResult[1] = [0], $hCallBack = 0, $iUBound = UBound($_Timers_aTimerIDs) - 1
 	For $x = 1 To $iUBound
-		If $__g_aTimers_aTimerIDs[$x][0] = $iTimerID Then
+		If $_Timers_aTimerIDs[$x][0] = $iTimerID Then
 			If IsHWnd($hWnd) Then
-				$aCall = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $__g_aTimers_aTimerIDs[$x][1])
+				$aResult = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $_Timers_aTimerIDs[$x][1])
 			Else
-				$aCall = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $__g_aTimers_aTimerIDs[$x][0])
+				$aResult = DllCall("user32.dll", "bool", "KillTimer", "hwnd", $hWnd, "uint_ptr", $_Timers_aTimerIDs[$x][0])
 			EndIf
-			If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, False)
-			$hCallBack = $__g_aTimers_aTimerIDs[$x][2]
+			If @error Or $aResult[0] = 0 Then Return SetError(@error, @extended, False)
+			$hCallBack = $_Timers_aTimerIDs[$x][2]
 			If $hCallBack <> 0 Then DllCallbackFree($hCallBack)
 			For $i = $x To $iUBound - 1
-				$__g_aTimers_aTimerIDs[$i][0] = $__g_aTimers_aTimerIDs[$i + 1][0]
-				$__g_aTimers_aTimerIDs[$i][1] = $__g_aTimers_aTimerIDs[$i + 1][1]
-				$__g_aTimers_aTimerIDs[$i][2] = $__g_aTimers_aTimerIDs[$i + 1][2]
+				$_Timers_aTimerIDs[$i][0] = $_Timers_aTimerIDs[$i + 1][0]
+				$_Timers_aTimerIDs[$i][1] = $_Timers_aTimerIDs[$i + 1][1]
+				$_Timers_aTimerIDs[$i][2] = $_Timers_aTimerIDs[$i + 1][2]
 			Next
-			ReDim $__g_aTimers_aTimerIDs[UBound($__g_aTimers_aTimerIDs - 1)][3]
-			$__g_aTimers_aTimerIDs[0][0] -= 1
+			ReDim $_Timers_aTimerIDs[UBound($_Timers_aTimerIDs - 1)][3]
+			$_Timers_aTimerIDs[0][0] -= 1
 			ExitLoop
 		EndIf
 	Next
-	Return $aCall[0] <> 0
+	Return $aResult[0] <> 0
 EndFunc   ;==>_Timer_KillTimer
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -148,9 +149,9 @@ EndFunc   ;==>_Timer_KillTimer
 ; Example .......:
 ; ===============================================================================================================================
 Func __Timer_QueryPerformanceCounter()
-	Local $aCall = DllCall("kernel32.dll", "bool", "QueryPerformanceCounter", "int64*", 0)
+	Local $aResult = DllCall("kernel32.dll", "bool", "QueryPerformanceCounter", "int64*", 0)
 	If @error Then Return SetError(@error, @extended, -1)
-	Return SetExtended($aCall[0], $aCall[1])
+	Return SetExtended($aResult[0], $aResult[1])
 EndFunc   ;==>__Timer_QueryPerformanceCounter
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -168,9 +169,9 @@ EndFunc   ;==>__Timer_QueryPerformanceCounter
 ; Example .......:
 ; ===============================================================================================================================
 Func __Timer_QueryPerformanceFrequency()
-	Local $aCall = DllCall("kernel32.dll", "bool", "QueryPerformanceFrequency", "int64*", 0)
+	Local $aResult = DllCall("kernel32.dll", "bool", "QueryPerformanceFrequency", "int64*", 0)
 	If @error Then Return SetError(@error, @extended, 0)
-	Return SetExtended($aCall[0], $aCall[1])
+	Return SetExtended($aResult[0], $aResult[1])
 EndFunc   ;==>__Timer_QueryPerformanceFrequency
 
 ; #FUNCTION# ====================================================================================================================
@@ -178,43 +179,42 @@ EndFunc   ;==>__Timer_QueryPerformanceFrequency
 ; Modified.......: Squirrely1
 ; ===============================================================================================================================
 Func _Timer_SetTimer($hWnd, $iElapse = 250, $sTimerFunc = "", $iTimerID = -1)
-	#Au3Stripper_Ignore_Funcs=$sTimerFunc
-	Local $aCall[1] = [0], $pTimerFunc = 0, $hCallBack = 0, $iIndex = $__g_aTimers_aTimerIDs[0][0] + 1
+	Local $aResult[1] = [0], $pTimerFunc = 0, $hCallBack = 0, $iIndex = $_Timers_aTimerIDs[0][0] + 1
 	If $iTimerID = -1 Then ; create a new timer
-		ReDim $__g_aTimers_aTimerIDs[$iIndex + 1][3]
-		$__g_aTimers_aTimerIDs[0][0] = $iIndex
+		ReDim $_Timers_aTimerIDs[$iIndex + 1][3]
+		$_Timers_aTimerIDs[0][0] = $iIndex
 		$iTimerID = $iIndex + 1000
 		For $x = 1 To $iIndex
-			If $__g_aTimers_aTimerIDs[$x][0] = $iTimerID Then
+			If $_Timers_aTimerIDs[$x][0] = $iTimerID Then
 				$iTimerID = $iTimerID + 1
 				$x = 0
 			EndIf
 		Next
 		If $sTimerFunc <> "" Then ; using callbacks, if $sTimerFunc = "" then using WM_TIMER events
-			$hCallBack = DllCallbackRegister($sTimerFunc, "none", "hwnd;uint;uint_ptr;dword")
+			$hCallBack = DllCallbackRegister($sTimerFunc, "none", "hwnd;int;uint_ptr;dword")
 			If $hCallBack = 0 Then Return SetError(-1, -1, 0)
 			$pTimerFunc = DllCallbackGetPtr($hCallBack)
-			If $pTimerFunc = 0 Then Return SetError(-1, -2, 0)
+			If $pTimerFunc = 0 Then Return SetError(-1, -1, 0)
 		EndIf
-		$aCall = DllCall("user32.dll", "uint_ptr", "SetTimer", "hwnd", $hWnd, "uint_ptr", $iTimerID, "uint", $iElapse, "ptr", $pTimerFunc)
-		If @error Or Not $aCall[0] Then Return SetError(@error + 10, @extended, 0)
-		$__g_aTimers_aTimerIDs[$iIndex][0] = $aCall[0] ; integer identifier
-		$__g_aTimers_aTimerIDs[$iIndex][1] = $iTimerID ; timer id
-		$__g_aTimers_aTimerIDs[$iIndex][2] = $hCallBack ; callback identifier, need this for the Kill Timer
+		$aResult = DllCall("user32.dll", "uint_ptr", "SetTimer", "hwnd", $hWnd, "uint_ptr", $iTimerID, "uint", $iElapse, "ptr", $pTimerFunc)
+		If @error Or $aResult[0] = 0 Then Return SetError(@error, @extended, 0)
+		$_Timers_aTimerIDs[$iIndex][0] = $aResult[0] ; integer identifier
+		$_Timers_aTimerIDs[$iIndex][1] = $iTimerID ; timer id
+		$_Timers_aTimerIDs[$iIndex][2] = $hCallBack ; callback identifier, need this for the Kill Timer
 	Else ; reuse timer
 		For $x = 1 To $iIndex - 1
-			If $__g_aTimers_aTimerIDs[$x][0] = $iTimerID Then
-				If IsHWnd($hWnd) Then $iTimerID = $__g_aTimers_aTimerIDs[$x][1]
-				$hCallBack = $__g_aTimers_aTimerIDs[$x][2]
+			If $_Timers_aTimerIDs[$x][0] = $iTimerID Then
+				If IsHWnd($hWnd) Then $iTimerID = $_Timers_aTimerIDs[$x][1]
+				$hCallBack = $_Timers_aTimerIDs[$x][2]
 				If $hCallBack <> 0 Then ; call back was used to create the timer
 					$pTimerFunc = DllCallbackGetPtr($hCallBack)
-					If $pTimerFunc = 0 Then Return SetError(-1, -12, 0)
+					If $pTimerFunc = 0 Then Return SetError(-1, -1, 0)
 				EndIf
-				$aCall = DllCall("user32.dll", "uint_ptr", "SetTimer", "hwnd", $hWnd, "uint_ptr", $iTimerID, "uint", $iElapse, "ptr", $pTimerFunc)
-				If @error Or Not $aCall[0] Then Return SetError(@error + 20, @extended, 0)
+				$aResult = DllCall("user32.dll", "uint_ptr", "SetTimer", "hwnd", $hWnd, "uint_ptr", $iTimerID, "int", $iElapse, "ptr", $pTimerFunc)
+				If @error Or $aResult[0] = 0 Then Return SetError(@error, @extended, 0)
 				ExitLoop
 			EndIf
 		Next
 	EndIf
-	Return $aCall[0]
+	Return $aResult[0]
 EndFunc   ;==>_Timer_SetTimer

@@ -2,17 +2,29 @@
 
 Option Explicit
 
-Dim objWMIService, objQueryItem
+Dim wshShell, objFileSystem, objCmdFile, objWMIService, objQueryItem 
+Dim strServiceName, strPrefix, strTempFolder, strCmdFileName
 
-If WScript.Arguments.Count < 1 Then
+If WScript.Arguments.Count < 2 Then
   WScript.Echo("ERROR: Missing argument.")
-  WScript.Echo("Usage: " & WScript.ScriptName & " <service name>")
+  WScript.Echo("Usage: " & WScript.ScriptName & " <service name> <variable prefix>")
   WScript.Quit(1)
 End If
 
+Set wshShell = WScript.CreateObject("WScript.Shell")
+strTempFolder = wshShell.ExpandEnvironmentStrings("%TEMP%")
+strCmdFileName = strTempFolder & "\SetServiceState.cmd"
+strServiceName = WScript.Arguments(0)
+strPrefix = WScript.Arguments(1)
+
+Set objFileSystem = CreateObject("Scripting.FileSystemObject")
+Set objCmdFile = objFileSystem.CreateTextFile(strCmdFileName, True)
+
 Set objWMIService = GetObject("winmgmts:" & "{impersonationLevel=impersonate}!\\.\root\cimv2")
-' Documentation: https://msdn.microsoft.com/en-us/library/aa394418(v=vs.85).aspx
-For Each objQueryItem in objWMIService.ExecQuery("Select State from Win32_Service Where Name = '" & WScript.Arguments(0) & "'")
-  WScript.Echo objQueryItem.State
+For Each objQueryItem in objWMIService.ExecQuery("Select * from Win32_Service Where Name = '" & strServiceName & "'")
+  objCmdFile.WriteLine("set " & strPrefix & "_STATE=" & objQueryItem.State)
+  objCmdFile.WriteLine("set " & strPrefix & "_SMODE=" & objQueryItem.StartMode)
 Next
+
+objCmdFile.Close
 WScript.Quit(0)

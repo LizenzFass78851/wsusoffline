@@ -1,39 +1,33 @@
 #include-once
 
-#include "ArrayDisplayInternals.au3"
-#include "AutoItConstants.au3"
-#include "MsgBoxConstants.au3"
 #include "SendMessage.au3"
-#include "StringConstants.au3"
 #include "WinAPIError.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: Debug
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.2.3++
 ; Language ......: English
 ; Description ...: Functions to help script debugging.
 ; Author(s) .....: Nutster, Jpm, Valik, guinness, water
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
-Global Const $__g_sReportWindowText_Debug = "Debug Window hidden text"
-Global Const $__g_sReportCallBack_DebugReport_Debug = _DebugReport
+Global Const $__gsReportWindowText_Debug = "Debug Window hidden text"
 ; ===============================================================================================================================
 
 ; #VARIABLE# ====================================================================================================================
-Global $__g_sReportTitle_Debug = "AutoIt Debug Report"
-Global $__g_iReportType_Debug = 0
-Global $__g_bReportWindowWaitClose_Debug = True, $__g_bReportWindowClosed_Debug = True
-Global $__g_hReportEdit_Debug = 0
-Global $__g_hReportNotepadEdit_Debug = 0
-Global $__g_sReportCallBack_Debug
-Global $__g_bReportTimeStamp_Debug = False
-Global $__g_bComErrorExit_Debug = False, $__g_oComError_Debug = Null
+Global $__gsReportTitle_Debug = "AutoIt Debug Report"
+Global $__giReportType_Debug = 0
+Global $__gbReportWindowWaitClose_Debug = True, $__gbReportWindowClosed_Debug = True
+Global $__ghReportEdit_Debug = 0
+Global $__ghReportNotepadEdit_Debug = 0
+Global $__gsReportCallBack_Debug
+Global $__gbReportTimeStamp_Debug = False
+Global $__gbComErrorExit_Debug = False, $__gsComError_Debug = ""
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
 ; _Assert
-; _DebugArrayDisplay
 ; _DebugBugReportEnv
 ; _DebugCOMError
 ; _DebugOut
@@ -58,49 +52,32 @@ Global $__g_bComErrorExit_Debug = False, $__g_oComError_Debug = Null
 ; Author ........: Valik
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _Assert($sCondition, $bExit = True, $iCode = 0x7FFFFFFF, $sLine = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
+Func _Assert($sCondition, $bExit = True, $nCode = 0x7FFFFFFF, $sLine = @ScriptLineNumber, Const $curerr = @error, Const $curext = @extended)
 	Local $bCondition = Execute($sCondition)
 	If Not $bCondition Then
-		Local $sOutput = "Assertion Failed (Line " & $sLine & "): " & @CRLF & @CRLF & $sCondition
-		If _DebugOut(StringReplace($sOutput, @CRLF, "")) = 0 Then ; _DebugSetup() as not been called.
-			MsgBox($MB_SYSTEMMODAL, "AutoIt Assert", $sOutput)
-		Else
-			$bExit = False
-		EndIf
-		If $bExit Then Exit $iCode
+		MsgBox(16 + 262144, "AutoIt Assert", "Assertion Failed (Line " & $sLine & "): " & @CRLF & @CRLF & $sCondition)
+		If $bExit Then Exit $nCode
 	EndIf
-	Return SetError($_iCallerError, $_iCallerExtended, $bCondition)
+	Return SetError($curerr, $curext, $bCondition)
 EndFunc   ;==>_Assert
-
-; #FUNCTION# ====================================================================================================================
-; Author ........: Melba23
-; Modified.......: jpm
-; ===============================================================================================================================
-Func _DebugArrayDisplay(Const ByRef $aArray, $sTitle = Default, $sArrayRange = Default, $iFlags = Default, $vUser_Separator = Default, $sHeader = Default, $iDesired_Colwidth = Default, $hUser_Function = Default, Const $_iCallerScriptLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
-	Local $iRet = -1
-	While $iRet = -1 ; to retry in case UserFunction was used
-		$iRet = __ArrayDisplay_Share($aArray, $sTitle, $sArrayRange, $iFlags, $vUser_Separator, $sHeader, $iDesired_Colwidth, $hUser_Function, True, $_iCallerScriptLineNumber, $_iCallerError, $_iCallerExtended)
-	WEnd
-	Return SetError(@error, @extended, $iRet)
-EndFunc   ;==>_DebugArrayDisplay
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: jpm
 ; Modified.......:
 ; ===============================================================================================================================
-Func _DebugBugReportEnv(Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
-	Local $sAutoItX64, $sAdminMode, $sCompiled, $sOsServicePack, $sMUIlang, $sKBLayout, $sCPUArch
-	If @AutoItX64 Then $sAutoItX64 = "/X64"
-	If IsAdmin() Then $sAdminMode = ", AdminMode"
-	If @Compiled Then $sCompiled = ", Compiled"
-	If @OSServicePack Then $sOsServicePack = "/" & StringReplace(@OSServicePack, "Service Pack ", "SP")
-	If @OSLang <> @MUILang Then $sMUIlang = ", MUILang: " & @MUILang
-	If @OSLang <> StringRight(@KBLayout, 4) Then $sKBLayout = ", Keyboard: " & @KBLayout
-	If @OSArch <> @CPUArch Then $sCPUArch = ", CPUArch: " & @CPUArch
-	Return SetError($_iCallerError, $_iCallerExtended, "AutoIt: " & @AutoItVersion & $sAutoItX64 & $sAdminMode & $sCompiled & _
-			", OS: " & @OSVersion & $sOsServicePack & "/" & @OSArch & _
-			", OSLang: " & @OSLang & $sMUIlang & $sKBLayout & $sCPUArch & @CRLF & _
-			"  Script: " & @ScriptFullPath)
+Func _DebugBugReportEnv(Const $curerr = @error, Const $curext = @extended)
+	Local $AutoItX64, $AdminMode, $Compiled, $OsServicePack, $MUIlang, $KBLayout, $CPUArch
+	If @AutoItX64 Then $AutoItX64 = "/X64"
+	If IsAdmin() Then $AdminMode = ", AdminMode"
+	If @Compiled Then $Compiled = ", Compiled"
+	If @OSServicePack Then $OsServicePack = "/" & StringReplace(@OSServicePack, "Service Pack ", "SP")
+	If @OSLang <> @MUILang Then $MUIlang = ", MUILang: " & @MUILang
+	If @OSLang <> StringRight(@KBLayout, 4) Then $KBLayout = ", Keyboard: " & @KBLayout
+	If @OSArch <> @CPUArch Then $CPUArch = ", CPUArch: " & @CPUArch
+	Return SetError($curerr, $curext, "AutoIt: " & @AutoItVersion & $AutoItX64 & $AdminMode & $Compiled & _
+			", OS: " & @OSVersion & $OsServicePack & "/" & @OSArch & _
+			", OSLang: " & @OSLang & $MUIlang & $KBLayout & $CPUArch & _
+			", Script: " & @ScriptFullPath)
 EndFunc   ;==>_DebugBugReportEnv
 
 ; #FUNCTION# ====================================================================================================================
@@ -108,29 +85,28 @@ EndFunc   ;==>_DebugBugReportEnv
 ; Modified ......: jpm
 ; ===============================================================================================================================
 Func _DebugCOMError($iComDebug = Default, $bExit = False)
-	If $__g_iReportType_Debug <= 0 Or $__g_iReportType_Debug > 6 Then Return SetError(3, 0, 0)
+	If $__giReportType_Debug <= 0 Or $__giReportType_Debug > 6 Then Return SetError(3, 0, 0)
 	If $iComDebug = Default Then $iComDebug = 1
 	If Not IsInt($iComDebug) Or $iComDebug < -1 Or $iComDebug > 1 Then Return SetError(1, 0, 0)
 	Switch $iComDebug
 		Case -1
-			Return SetError(IsObj($__g_oComError_Debug), $__g_bComErrorExit_Debug, 1)
+			Return SetError(IsObj($__gsComError_Debug), $__gbComErrorExit_Debug, 1)
 		Case 0
-			If $__g_oComError_Debug = Null Then SetError(0, 3, 1) ; COM error handler already disabled
-			$__g_oComError_Debug = Null
-			$__g_bComErrorExit_Debug = False
+			If $__gsComError_Debug = "" Then SetError(0, 3, 1) ; COM error handler already disabled
+			$__gsComError_Debug = ""
+			$__gbComErrorExit_Debug = False
 			Return 1
 		Case Else
 			; A COM error handler will be initialized only if one does not exist
-			$__g_bComErrorExit_Debug = $bExit
-			Local $vComErrorChecking = ObjEvent("AutoIt.Error")
-			If $vComErrorChecking = "" Then
-				$__g_oComError_Debug = ObjEvent("AutoIt.Error", __Debug_COMErrorHandler) ; Creates a custom error handler
-				If @error Then Return SetError(4, @error, 0)
+			$__gbComErrorExit_Debug = $bExit
+			If ObjEvent("AutoIt.Error") = "" Then
+				$__gsComError_Debug = ObjEvent("AutoIt.Error", "__Debug_COMErrorHandler") ; Creates a custom error handler
+				If @error <> 0 Then Return SetError(4, @error, 0)
 				Return SetError(0, 1, 1)
-			ElseIf FuncName($vComErrorChecking) = FuncName(__Debug_COMErrorHandler) Then
+			ElseIf ObjEvent("AutoIt.Error") = "__Debug_COMErrorHandler" Then
 				Return SetError(0, 2, 1) ; COM error handler already set by a previous call to this function
 			Else
-				Return SetError(2, 0, 0) ; COM error handler already set to another function - not by this UDF
+				Return SetError(2, 0, 0) ; COM error handler already set to another function
 			EndIf
 	EndSwitch
 EndFunc   ;==>_DebugCOMError
@@ -139,89 +115,82 @@ EndFunc   ;==>_DebugCOMError
 ; Author ........: Nutster
 ; Modified.......: jpm
 ; ===============================================================================================================================
-Func _DebugOut(Const $sOutput, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
-	If $__g_iReportType_Debug <= 0 Or $__g_iReportType_Debug > 6 Then Return SetError(3, 0, 0) ; _DebugSetup() as not been called.
+Func _DebugOut(Const $sOutput, Const $bActivate = False, Const $curerr = @error, Const $curext = @extended)
+	#forceref $bActivate
 	If IsNumber($sOutput) = 0 And IsString($sOutput) = 0 And IsBool($sOutput) = 0 Then Return SetError(1, 0, 0) ; $sOutput can not be printed
 
-	__Debug_ReportWrite($sOutput & @CRLF)
+	If _DebugReport($sOutput) = 0 Then Return SetError(3, 0, 0) ; _DebugSetup() as not been called.
 
-	Return SetError($_iCallerError, $_iCallerExtended, 1) ; Return @error and @extended as before calling _DebugOut()
+	Return SetError($curerr, $curext, 1) ; Return @error and @extended as before calling _DebugOut()
 EndFunc   ;==>_DebugOut
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: jpm
 ; Modified.......: guinness
 ; ===============================================================================================================================
-Func _DebugSetup(Const $sTitle = Default, $bBugReportInfos = Default, $vReportType = Default, $sLogFile = Default, $bTimeStamp = False, Const $_iCallerError = @error, $_iCallerExtended = @extended)
-	If $__g_iReportType_Debug Then Return SetError($_iCallerError + 1000, $_iCallerExtended, $__g_iReportType_Debug) ; already registered
+Func _DebugSetup(Const $sTitle = Default, $bBugReportInfos = Default, $vReportType = Default, $sLogFile = Default, $bTimeStamp = False)
+	If $__giReportType_Debug Then Return SetError(1, 0, $__giReportType_Debug) ; already registered
 	If $bBugReportInfos = Default Then $bBugReportInfos = False
 	If $vReportType = Default Then $vReportType = 1
 	If $sLogFile = Default Then $sLogFile = ""
 	Switch $vReportType
 		Case 1
 			; Report Log window
-			#forceref __Debug_ReportWindowWrite
-			$__g_sReportCallBack_Debug = "__Debug_ReportWindowWrite("
+			$__gsReportCallBack_Debug = "__Debug_ReportWindowWrite("
 		Case 2
 			; ConsoleWrite
-			$__g_sReportCallBack_Debug = "ConsoleWrite("
+			$__gsReportCallBack_Debug = "ConsoleWrite("
 		Case 3
 			; Message box
-			$__g_sReportCallBack_Debug = "MsgBox(4096, '" & $__g_sReportTitle_Debug & "',"
+			$__gsReportCallBack_Debug = "MsgBox(266256, '" & $__gsReportTitle_Debug & "',"
 		Case 4
 			; Log file
-			$__g_sReportCallBack_Debug = "FileWrite('" & $sLogFile & "',"
+			$__gsReportCallBack_Debug = "FileWrite('" & $sLogFile & "',"
 		Case 5
 			; Report notepad window
-			#forceref __Debug_ReportNotepadWrite
-			$__g_sReportCallBack_Debug = "__Debug_ReportNotepadWrite("
+			$__gsReportCallBack_Debug = "__Debug_ReportNotepadWrite("
 		Case Else
 			If Not IsString($vReportType) Then Return SetError(2, 0, 0) ; invalid Report type
 			; private callback
 			If $vReportType = "" Then Return SetError(3, 0, 0) ; invalid callback function
-			$__g_sReportCallBack_Debug = $vReportType & "("
+			$__gsReportCallBack_Debug = $vReportType & "("
 			$vReportType = 6
 	EndSwitch
 
-	If Not ($sTitle = Default) Then $__g_sReportTitle_Debug = $sTitle
-	$__g_iReportType_Debug = $vReportType
-	$__g_bReportTimeStamp_Debug = $bTimeStamp
+	If Not ($sTitle = Default) Then $__gsReportTitle_Debug = $sTitle
+	$__giReportType_Debug = $vReportType
+	$__gbReportTimeStamp_Debug = $bTimeStamp
 
 	OnAutoItExitRegister("__Debug_ReportClose")
 
-	If $bBugReportInfos Then _DebugReport(_DebugBugReportEnv() & @CRLF & @CRLF)
+	If $bBugReportInfos Then _DebugReport(_DebugBugReportEnv() & @CRLF)
 
-	Return SetError($_iCallerError, $_iCallerExtended, $__g_iReportType_Debug)
+	Return $__giReportType_Debug
 EndFunc   ;==>_DebugSetup
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: jpm
 ; Modified.......:
 ; ===============================================================================================================================
-Func _DebugReport($sData, $bLastError = False, $bExit = False, Const $_iCallerError = @error, $_iCallerExtended = @extended)
-	If $__g_iReportType_Debug <= 0 Or $__g_iReportType_Debug > 6 Then Return SetError($_iCallerError, $_iCallerExtended, 0)
+Func _DebugReport($sData, $bLastError = False, $bExit = False, $curerr = @error, $curext = @extended)
+	If $__giReportType_Debug <= 0 Or $__giReportType_Debug > 6 Then Return SetError($curerr, $curext, 0)
 
-	Local $iLastError = _WinAPI_GetLastError()
-	__Debug_ReportWrite($sData, $bLastError, $iLastError)
+	$curext = __Debug_ReportWrite($sData, $bLastError)
 
 	If $bExit Then Exit
 
-	_WinAPI_SetLastError($iLastError)
-	If $bLastError Then $_iCallerExtended = $iLastError
-
-	Return SetError($_iCallerError, $_iCallerExtended, 1)
+	Return SetError($curerr, $curext, 1)
 EndFunc   ;==>_DebugReport
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: jpm
 ; Modified.......:
 ; ===============================================================================================================================
-Func _DebugReportEx($sData, $bLastError = False, $bExit = False, Const $_iCallerError = @error, $_iCallerExtended = @extended)
-	If $__g_iReportType_Debug <= 0 Or $__g_iReportType_Debug > 6 Then Return SetError($_iCallerError, $_iCallerExtended, 0)
+Func _DebugReportEx($sData, $bLastError = False, $bExit = False, $curerr = @error, $curext = @extended)
+	If $__giReportType_Debug <= 0 Or $__giReportType_Debug > 6 Then Return SetError($curerr, $curext, 0)
 
-	Local $iLastError = _WinAPI_GetLastError()
-	If IsInt($_iCallerError) Then
-		Local $sTemp = StringSplit($sData, "|", $STR_ENTIRESPLIT + $STR_NOCOUNT)
+	If IsInt($curerr) Then
+		Local $sTemp = StringSplit($sData, "|", 2)
 		If UBound($sTemp) > 1 Then
 			If $bExit Then
 				$sData = "<<< "
@@ -229,7 +198,7 @@ Func _DebugReportEx($sData, $bLastError = False, $bExit = False, Const $_iCaller
 				$sData = ">>> "
 			EndIf
 
-			Switch $_iCallerError
+			Switch $curerr
 				Case 0
 					$sData &= "Bad return from " & $sTemp[1] & " in " & $sTemp[0] & ".dll"
 				Case 1
@@ -237,92 +206,62 @@ Func _DebugReportEx($sData, $bLastError = False, $bExit = False, Const $_iCaller
 				Case 3
 					$sData &= "Unable to find " & $sTemp[1] & " in " & $sTemp[0] & ".dll"
 			EndSwitch
-			If Not $bLastError Then $sData &= @CRLF
 		EndIf
 	EndIf
 
-	__Debug_ReportWrite($sData, $bLastError, $iLastError)
+	$curext = __Debug_ReportWrite($sData, $bLastError)
 
 	If $bExit Then Exit
 
-	_WinAPI_SetLastError($iLastError)
-	If $bLastError Then $_iCallerExtended = $iLastError
-
-	Return SetError($_iCallerError, $_iCallerExtended, 1)
+	Return SetError($curerr, $curext, 1)
 EndFunc   ;==>_DebugReportEx
 
 ; #FUNCTION# ====================================================================================================================
 ; Author ........: jpm
 ; Modified.......:
 ; ===============================================================================================================================
-Func _DebugReportVar($sVarName, $vVar, $bErrExt = False, Const $iDebugLineNumber = @ScriptLineNumber, Const $_iCallerError = @error, Const $_iCallerExtended = @extended)
-	If $__g_iReportType_Debug <= 0 Or $__g_iReportType_Debug > 6 Then Return SetError($_iCallerError, $_iCallerExtended, 0)
+Func _DebugReportVar($varName, $vVar, $bErrExt = False, $ScriptLineNumber = @ScriptLineNumber, $curerr = @error, $curext = @extended)
+	If $__giReportType_Debug <= 0 Or $__giReportType_Debug > 6 Then Return SetError($curerr, $curext, 0)
 
-	Local $iLastError = _WinAPI_GetLastError()
 	If IsBool($vVar) And IsInt($bErrExt) Then
 		; to kept some compatibility with 3.3.1.3 if really needed for non breaking
-		If StringLeft($sVarName, 1) = "$" Then $sVarName = StringTrimLeft($sVarName, 1)
-		$vVar = Eval($sVarName)
-		$sVarName = "???"
+		If StringLeft($varName, 1) = "$" Then $varName = StringTrimLeft($varName, 1)
+		$vVar = Eval($varName)
+		$varName = "???"
 	EndIf
 
-	Local $sData = "@@ Debug(" & $iDebugLineNumber & ") : " & __Debug_DataType($vVar) & " -> " & $sVarName
+	Local $sData = "@@ Debug(" & $ScriptLineNumber & ") : " & __Debug_DataType($vVar) & " -> " & $varName
 
 	If IsArray($vVar) Then
-		Local $nDims = UBound($vVar, $UBOUND_DIMENSIONS)
-		Local $nRows = UBound($vVar, $UBOUND_ROWS)
-		Local $nCols = UBound($vVar, $UBOUND_COLUMNS)
+		Local $nDims = UBound($vVar, 0)
+		Local $nRows = UBound($vVar, 1)
+		Local $nCols = UBound($vVar, 2)
 		For $d = 1 To $nDims
 			$sData &= "[" & UBound($vVar, $d) & "]"
 		Next
 
-		If $nDims <= 3 Then
+		If $nDims <= 2 Then
 			For $r = 0 To $nRows - 1
-				$sData &= @CRLF & @TAB & "[" & $r & "] "
+				$sData &= @CRLF & "[" & $r & "] "
 				If $nDims = 1 Then
 					$sData &= __Debug_DataFormat($vVar[$r]) & @TAB
-				ElseIf $nDims = 2 Then
-					For $c = 0 To $nCols - 1
-						$sData &= __Debug_DataFormat($vVar[$r][$c]) & @TAB
-					Next
 				Else
 					For $c = 0 To $nCols - 1
-;~ 						$sData &= @CRLF & @TAB & "[" & $r & "] " & "[" & $c & "] "
-						$sData &= @CRLF & @TAB & "    " & "[" & $c & "] "
-						For $k = 0 To UBound($vVar, 3) - 1
-							$sData &= __Debug_DataFormat($vVar[$r][$c][$k]) & @TAB
-						Next
+						$sData &= __Debug_DataFormat($vVar[$r][$c]) & @TAB
 					Next
 				EndIf
 			Next
 		EndIf
-	ElseIf IsDllStruct($vVar) Then
-		Local $aArray[2], $sStruct = ""
-		Local $i = -1
-		While 1
-			$i += 1
-			If $i = UBound($aArray) Then ReDim $aArray[$i + UBound($aArray)]
-			$aArray[$i] = DllStructGetData($vVar, $i + 1)
-			If @error Then ExitLoop
-			$sStruct &= VarGetType($aArray[$i]) & "; "
-		WEnd
-		ReDim $aArray[$i]
-		$sData &= ' ("' & StringTrimRight($sStruct, 2) & '")'
-		For $r = 0 To UBound($aArray) - 1
-			$sData &= @CRLF & @TAB & "#" & $r + 1 & " "
-			$sData &= __Debug_DataFormat($aArray[$r])
-		Next
-	ElseIf IsObj($vVar) Then
+	ElseIf IsDllStruct($vVar) Or IsObj($vVar) Then
 	Else
 		$sData &= ' = ' & __Debug_DataFormat($vVar)
 	EndIf
 
-	If $bErrExt Then $sData &= @CRLF & @TAB & "@error=" & $_iCallerError & " @extended=0x" & Hex($_iCallerExtended)
+	If $bErrExt Then $sData &= @CRLF & @TAB & "@error=" & $curerr & " @extended=0x" & Hex($curext)
 
-	__Debug_ReportWrite($sData & @CRLF)
+	__Debug_ReportWrite($sData)
 
-	_WinAPI_SetLastError($iLastError)
-	Return SetError($_iCallerError, $_iCallerExtended)
+	Return SetError($curerr, $curext)
 EndFunc   ;==>_DebugReportVar
 
 ; #INTERNAL_USE_ONLY#============================================================================================================
@@ -339,7 +278,17 @@ EndFunc   ;==>_DebugReportVar
 ; Example .......:
 ; ===============================================================================================================================
 Func __Debug_COMErrorHandler($oCOMError)
-	_DebugReport(__COMErrorFormating($oCOMError), False, $__g_bComErrorExit_Debug)
+	Local $sError = "@@ DEBUG COM Error encountered in " & @ScriptName & " (" & $oCOMError.Scriptline & ") :" & @CRLF & _
+			@TAB & "Number        " & @TAB & "= 0x" & Hex($oCOMError.Number, 8) & " (" & $oCOMError.Number & ")" & @CRLF & _
+			@TAB & "WinDescription" & @TAB & "= " & StringStripWS($oCOMError.WinDescription, 2) & @CRLF & _
+			@TAB & "Description   " & @TAB & "= " & StringStripWS($oCOMError.Description, 2) & @CRLF & _
+			@TAB & "Source        " & @TAB & "= " & $oCOMError.Source & @CRLF & _
+			@TAB & "HelpFile      " & @TAB & "= " & $oCOMError.HelpFile & @CRLF & _
+			@TAB & "HelpContext   " & @TAB & "= " & $oCOMError.HelpContext & @CRLF & _
+			@TAB & "LastDllError  " & @TAB & "= " & $oCOMError.LastDllError & @CRLF & _
+			@TAB & "Retcode       " & @TAB & "= 0x" & Hex($oCOMError.retcode)
+
+	_DebugReport($sError, False, $__gbComErrorExit_Debug)
 EndFunc   ;==>__Debug_COMErrorHandler
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -370,7 +319,7 @@ Func __Debug_DataFormat($vData)
 			$sTruncated = " ..."
 		EndIf
 		Return $vData & $sTruncated
-	ElseIf IsDllStruct($vData) Or IsArray($vData) Or IsMap($vData) Or IsObj($vData) Then
+	ElseIf IsDllStruct($vData) Or IsArray($vData) Or IsObj($vData) Then
 		Return __Debug_DataType($vData)
 	Else
 		Return $vData
@@ -396,10 +345,7 @@ Func __Debug_DataType($vData)
 		Case "DllStruct"
 			$sType &= ":" & DllStructGetSize($vData)
 		Case "Array"
-			$sType &= " " & UBound($vData, $UBOUND_DIMENSIONS) & "D"
-		Case "Map"
-			Local $aMapKeys = MapKeys($vData)
-			$sType &= ":" & UBound($aMapKeys)
+			$sType &= " " & UBound($vData, 0) & "D"
 		Case "String"
 			$sType &= ":" & StringLen($vData)
 		Case "Binary"
@@ -424,17 +370,15 @@ EndFunc   ;==>__Debug_DataType
 ; Example .......:
 ; ===============================================================================================================================
 Func __Debug_ReportClose()
-	If $__g_iReportType_Debug = 1 Then
-		If Not $__g_bReportWindowClosed_Debug Then
-			WinSetOnTop($__g_sReportTitle_Debug, "", 1)
-			_DebugReport(@CRLF & '>>>>>> Please close the "Report Log Window" to exit <<<<<<<' & @CRLF)
-			__Debug_ReportWindowWaitClose()
-		EndIf
-	ElseIf $__g_iReportType_Debug = 6 Then
-		Execute($__g_sReportCallBack_Debug & ")")
+	If $__giReportType_Debug = 1 Then
+		WinSetOnTop($__gsReportTitle_Debug, "", 1)
+		_DebugReport('>>>>>> Please close the "Report Log Window" to exit <<<<<<<' & @CRLF)
+		__Debug_ReportWindowWaitClose()
+	ElseIf $__giReportType_Debug = 6 Then
+		Execute($__gsReportCallBack_Debug & ")")
 	EndIf
 
-	$__g_iReportType_Debug = 0
+	$__giReportType_Debug = 0
 EndFunc   ;==>__Debug_ReportClose
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -451,24 +395,24 @@ EndFunc   ;==>__Debug_ReportClose
 ; Example .......:
 ; ===============================================================================================================================
 Func __Debug_ReportWindowCreate()
-	Local $nOld = Opt("WinDetectHiddenText", $OPT_MATCHSTART)
-	Local $bExists = WinExists($__g_sReportTitle_Debug, $__g_sReportWindowText_Debug)
+	Local $nOld = Opt("WinDetectHiddenText", True)
+	Local $bExists = WinExists($__gsReportTitle_Debug, $__gsReportWindowText_Debug)
 
 	If $bExists Then
-		If $__g_hReportEdit_Debug = 0 Then
+		If $__ghReportEdit_Debug = 0 Then
 			; first time we try to access an open window in the running script,
 			; get the control handle needed for writing in
-			$__g_hReportEdit_Debug = ControlGetHandle($__g_sReportTitle_Debug, $__g_sReportWindowText_Debug, "Edit1")
+			$__ghReportEdit_Debug = ControlGetHandle($__gsReportTitle_Debug, $__gsReportWindowText_Debug, "Edit1")
 			; force no closing no waiting on report closing
-			$__g_bReportWindowWaitClose_Debug = False
+			$__gbReportWindowWaitClose_Debug = False
 		EndIf
 	EndIf
 
 	Opt("WinDetectHiddenText", $nOld)
 
 	; change the state of the report Window as it is already opened or will be
-	$__g_bReportWindowClosed_Debug = False
-	If Not $__g_bReportWindowWaitClose_Debug Then Return 0 ; use of the already opened window
+	$__gbReportWindowClosed_Debug = False
+	If Not $__gbReportWindowWaitClose_Debug Then Return 0 ; use of the already opened window
 
 	Local Const $WS_OVERLAPPEDWINDOW = 0x00CF0000
 	Local Const $WS_HSCROLL = 0x00100000
@@ -478,21 +422,21 @@ Func __Debug_ReportWindowCreate()
 	Local Const $GUI_HIDE = 32
 
 	; Variables used to control different aspects of the GUI.
-	Local $w = 580, $h = 380
+	Local $w = 580, $h = 280
 
-	GUICreate($__g_sReportTitle_Debug, $w, $h, -1, -1, $WS_OVERLAPPEDWINDOW)
+	GUICreate($__gsReportTitle_Debug, $w, $h, -1, -1, $WS_OVERLAPPEDWINDOW)
 	; We use a hidden label with unique test so we can reliably identify the window.
-	Local $idLabelHidden = GUICtrlCreateLabel($__g_sReportWindowText_Debug, 0, 0, 1, 1)
+	Local $idLabelHidden = GUICtrlCreateLabel($__gsReportWindowText_Debug, 0, 0, 1, 1)
 	GUICtrlSetState($idLabelHidden, $GUI_HIDE)
 	Local $idEdit = GUICtrlCreateEdit("", 4, 4, $w - 8, $h - 8, BitOR($WS_HSCROLL, $WS_VSCROLL, $ES_READONLY))
-	$__g_hReportEdit_Debug = GUICtrlGetHandle($idEdit)
+	$__ghReportEdit_Debug = GUICtrlGetHandle($idEdit)
 	GUICtrlSetBkColor($idEdit, 0xFFFFFF)
 	GUICtrlSendMsg($idEdit, $EM_LIMITTEXT, 0, 0) ; Max the size of the edit control.
 
 	GUISetState()
 
 	; by default report closing will wait closing by user
-	$__g_bReportWindowWaitClose_Debug = True
+	$__gbReportWindowWaitClose_Debug = True
 	Return 1
 EndFunc   ;==>__Debug_ReportWindowCreate
 
@@ -509,17 +453,18 @@ EndFunc   ;==>__Debug_ReportWindowCreate
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#Au3Stripper_Ignore_Funcs=__Debug_ReportWindowWrite
+#obfuscator_off
 Func __Debug_ReportWindowWrite($sData)
-	If $__g_bReportWindowClosed_Debug Then __Debug_ReportWindowCreate()
+	#obfuscator_on
+	If $__gbReportWindowClosed_Debug Then __Debug_ReportWindowCreate()
 
 	Local Const $WM_GETTEXTLENGTH = 0x000E
 	Local Const $EM_SETSEL = 0xB1
 	Local Const $EM_REPLACESEL = 0xC2
 
-	Local $nLen = _SendMessage($__g_hReportEdit_Debug, $WM_GETTEXTLENGTH, 0, 0, 0, "int", "int")
-	_SendMessage($__g_hReportEdit_Debug, $EM_SETSEL, $nLen, $nLen, 0, "int", "int")
-	_SendMessage($__g_hReportEdit_Debug, $EM_REPLACESEL, True, $sData, 0, "int", "wstr")
+	Local $nLen = _SendMessage($__ghReportEdit_Debug, $WM_GETTEXTLENGTH, 0, 0, 0, "int", "int")
+	_SendMessage($__ghReportEdit_Debug, $EM_SETSEL, $nLen, $nLen, 0, "int", "int")
+	_SendMessage($__ghReportEdit_Debug, $EM_REPLACESEL, True, $sData, 0, "int", "wstr")
 EndFunc   ;==>__Debug_ReportWindowWrite
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -536,9 +481,9 @@ EndFunc   ;==>__Debug_ReportWindowWrite
 ; Example .......:
 ; ===============================================================================================================================
 Func __Debug_ReportWindowWaitClose()
-	If Not $__g_bReportWindowWaitClose_Debug Then Return 0 ; use of the already opened window so no need to wait
-	Local $nOld = Opt("WinDetectHiddenText", $OPT_MATCHSTART)
-	Local $hWndReportWindow = WinGetHandle($__g_sReportTitle_Debug, $__g_sReportWindowText_Debug)
+	If Not $__gbReportWindowWaitClose_Debug Then Return 0 ; use of the already opened window so no need to wait
+	Local $nOld = Opt("WinDetectHiddenText", True)
+	Local $hWndReportWindow = WinGetHandle($__gsReportTitle_Debug, $__gsReportWindowText_Debug)
 	Opt("WinDetectHiddenText", $nOld)
 
 	$nOld = Opt('GUIOnEventMode', 0) ; save event mode in case user script was using event mode
@@ -550,9 +495,9 @@ Func __Debug_ReportWindowWaitClose()
 	WEnd
 	Opt('GUIOnEventMode', $nOld) ; restore event mode
 
-	$__g_hReportEdit_Debug = 0
-	$__g_bReportWindowWaitClose_Debug = True
-	$__g_bReportWindowClosed_Debug = True
+	$__ghReportEdit_Debug = 0
+	$__gbReportWindowWaitClose_Debug = True
+	$__gbReportWindowClosed_Debug = True
 EndFunc   ;==>__Debug_ReportWindowWaitClose
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -569,25 +514,25 @@ EndFunc   ;==>__Debug_ReportWindowWaitClose
 ; Example .......:
 ; ===============================================================================================================================
 Func __Debug_ReportNotepadCreate()
-	Local $bExists = WinExists($__g_sReportTitle_Debug)
+	Local $bExists = WinExists($__gsReportTitle_Debug)
 
 	If $bExists Then
-		If $__g_hReportEdit_Debug = 0 Then
+		If $__ghReportEdit_Debug = 0 Then
 			; first time we try to access an open window in the running script,
 			; get the control handle needed for writing in
-			$__g_hReportEdit_Debug = WinGetHandle($__g_sReportTitle_Debug)
+			$__ghReportEdit_Debug = WinGetHandle($__gsReportTitle_Debug)
 			Return 0 ; use of the already opened window
 		EndIf
 	EndIf
 
 	Local $pNotepad = Run("Notepad.exe") ; process ID of the Notepad started by this function
-	$__g_hReportEdit_Debug = WinWait("[CLASS:Notepad]")
-	If $pNotepad <> WinGetProcess($__g_hReportEdit_Debug) Then
+	$__ghReportEdit_Debug = WinWait("[CLASS:Notepad]")
+	If $pNotepad <> WinGetProcess($__ghReportEdit_Debug) Then
 		Return SetError(3, 0, 0)
 	EndIf
 
-	WinActivate($__g_hReportEdit_Debug)
-	WinSetTitle($__g_hReportEdit_Debug, "", String($__g_sReportTitle_Debug))
+	WinActivate($__ghReportEdit_Debug)
+	WinSetTitle($__ghReportEdit_Debug, "", String($__gsReportTitle_Debug))
 
 	Return 1
 EndFunc   ;==>__Debug_ReportNotepadCreate
@@ -605,17 +550,18 @@ EndFunc   ;==>__Debug_ReportNotepadCreate
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-#Au3Stripper_Ignore_Funcs=__Debug_ReportNotepadWrite
+#obfuscator_off
 Func __Debug_ReportNotepadWrite($sData)
-	If $__g_hReportEdit_Debug = 0 Then __Debug_ReportNotepadCreate()
+	#obfuscator_on
+	If $__ghReportEdit_Debug = 0 Then __Debug_ReportNotepadCreate()
 
-	ControlCommand($__g_hReportEdit_Debug, "", "Edit1", "EditPaste", String($sData))
+	ControlCommand($__ghReportEdit_Debug, "", "Edit1", "EditPaste", String($sData))
 EndFunc   ;==>__Debug_ReportNotepadWrite
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; Name...........: __Debug_ReportWrite
 ; Description ...: Write on Report
-; Syntax.........: __Debug_ReportWrite ( $sData [, $bLastError = False [, $iLastError = 0]] )
+; Syntax.........: __Debug_ReportWrite ( $sData [, $bLastError [, $curext = @extended]} )
 ; Parameters ....:
 ; Return values .:
 ; Author ........: jpm
@@ -625,33 +571,28 @@ EndFunc   ;==>__Debug_ReportNotepadWrite
 ; Link ..........:
 ; Example .......:
 ; ===============================================================================================================================
-Func __Debug_ReportWrite($sData, $bLastError = False, $iLastError = 0)
-	Local $sError = ""
-	If $__g_bReportTimeStamp_Debug And ($sData <> "") Then $sData = @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & " " & $sData
+Func __Debug_ReportWrite($sData, $bLastError = False, $curext = @extended)
+	Local $sError = @CRLF
+	If $__gbReportTimeStamp_Debug And ($sData <> "") Then $sData = @YEAR & "/" & @MON & "/" & @MDAY & " " & @HOUR & ":" & @MIN & ":" & @SEC & " " & $sData
 	If $bLastError Then
-		$sError = " LastError = " & $iLastError & " : (" & _WinAPI_GetLastErrorMessage() & ")" & @CRLF
+		$curext = _WinAPI_GetLastError()
+
+		Local Const $FORMAT_MESSAGE_FROM_SYSTEM = 0x1000
+		Local $aResult = DllCall("kernel32.dll", "dword", "FormatMessageW", "dword", $FORMAT_MESSAGE_FROM_SYSTEM, "ptr", 0, _
+				"dword", $curext, "dword", 0, "wstr", "", "dword", 4096, "ptr", 0)
+		; Don't test @error since this is a debugging function.
+		$sError = " : " & $aResult[5]
 	EndIf
 
 	$sData &= $sError
 
-;~ 	Local $bBlock = BlockInput(1)
-;~ 	BlockInput(0) ; force enable state so user can move mouse if needed
+	Local $bBlock = BlockInput(1)
+	BlockInput(0) ; force enable state so user can move mouse if needed
 
 	$sData = StringReplace($sData, "'", "''") ; in case the data contains '
+	Execute($__gsReportCallBack_Debug & "'" & $sData & "')")
 
-	; Make "Error code:" more visible
-	Local Static $sERROR_CODE = ">Error code:"
-	If StringInStr($sData, $sERROR_CODE) Then
-		$sData = StringReplace($sData, $sERROR_CODE, @TAB & $sERROR_CODE)
-		If (StringInStr($sData, $sERROR_CODE & " 0") = 0) Then
-			; Make "Error code:" different from 0 even more visible
-			$sData = StringReplace($sData, $sERROR_CODE, $sERROR_CODE & @TAB & @TAB & @TAB & @TAB)
-		EndIf
-	EndIf
+	If Not $bBlock Then BlockInput(1) ; restore disable state
 
-	Execute($__g_sReportCallBack_Debug & "'" & $sData & "')")
-
-;~ 	If Not $bBlock Then BlockInput(1) ; restore disable state
-
-	Return
+	Return $curext
 EndFunc   ;==>__Debug_ReportWrite

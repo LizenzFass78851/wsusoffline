@@ -1,5 +1,22 @@
 #include-once
 
+#include "BorderConstants.au3"
+#include "ColorConstants.au3"
+#include "Constants.au3"
+#include "DirConstants.au3"
+#include "FileConstants.au3"
+#include "FontConstants.au3"
+#include "FrameConstants.au3"
+#include "GUIConstants.au3"
+#include "MemoryConstants.au3"
+#include "MenuConstants.au3"
+#include "ProcessConstants.au3"
+#include "SecurityConstants.au3"
+#include "WindowsConstants.au3"
+
+#include "WinAPIConstants.au3"
+#include "WinAPIsysinfoConstants.au3"
+#include "WinAPIvkeysConstants.au3"
 #include "APIComConstants.au3"
 #include "APIDiagConstants.au3"
 #include "APIDlgConstants.au3"
@@ -14,29 +31,15 @@
 #include "APIShPathConstants.au3"
 #include "APISysConstants.au3"
 #include "APIThemeConstants.au3"
-#include "BorderConstants.au3"
-#include "ColorConstants.au3"
-#include "Constants.au3"
-#include "DirConstants.au3"
-#include "FileConstants.au3"
-#include "FontConstants.au3"
-#include "FrameConstants.au3"
-#include "GUIConstants.au3"
-#include "MemoryConstants.au3"
-#include "MenuConstants.au3"
-#include "ProcessConstants.au3"
-#include "SecurityConstants.au3"
-#include "WinAPIConstants.au3"
-#include "WinAPIsysinfoConstants.au3"
-#include "WinAPIvkeysConstants.au3"
-#include "WindowsConstants.au3"
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: API Constants UDF WinAPI Libraries for AutoIt3
-; AutoIt Version : 3.3.16.1
+; AutoIt Version : 3.8 / 3.3.8.0
 ; Language ......: English
 ; Description ...: Constants that can be used with UDF WinAPI libraries
 ; Author(s) .....: Yashied, jpm
+; Dll(s) ........:
+; Requirements...: AutoIt v3.3 +, Developed/Tested on Windows XP Pro Service Pack 2 and Windows Vista/7
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================

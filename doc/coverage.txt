@@ -1,5 +1,3 @@
-Vorab: WSUS Offline Update führt keine Windows-10-"Funktionsupdates" durch, wie von v. 1803 zu 1809 zu 1903.
-
 WSUS Offline Update verwendet beidseitig, d.h. sowohl für den Download- als auch den Installationsteil, Microsoft's Update-Katalogdatei wsusscn2.cab, um die erforderlichen Patches zu ermitteln. Diese Katalogdatei enthält mindestens alle als "kritisch" und "sicherheitsrelevant" eingestuften Updates, aber nicht notwendigerweise alle "wichtigen" und "optionalen".
 
 Der große Vorteil im Vergleich zu anderen Wettbewerbern liegt bei dieser Lösung darin, dass niemand statische Listen für Download oder Installation pflegen muss, so dass Sie Ihre Update-Sammlung direkt nach einem Microsoft-"Patchday" aktualisieren können, ohne auf ein neues Release vom WSUS Offline Update warten zu müssen.
@@ -12,8 +10,6 @@ Zusammenfassend ist festzustellen, dass das WSUS Offline Update keinen vollständ
 Das Hauptziel von WSUS Offline Update liegt darin, frisch installierte Windows-Computer auf schnelle und sichere Weise auf einen Patch-Stand zu bringen, der die sichere Verbindung mit dem Internet erlaubt. Von diesem Standpunkt aus ist sogar der Office-Teil des WSUS Offline Update ein "Schmankerl".
 
 --------------------------------------------------------------------------------
-
-In advance: WSUS Offline Update does not perform Windows 10 "feature updates", such as from v. 1803 to 1809 to 1903.
 
 On both sides, i.e. for download and installation parts, WSUS Offline Update uses Microsoft's update catalog file wsusscn2.cab to dynamically determine the required patches. This catalog file contains at least all the updates classified as "critical" and "security relevant", but it does not necessarily contain all "important" and "optional" ones.
 
